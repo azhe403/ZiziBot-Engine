@@ -4,7 +4,15 @@ namespace ZiziBot.Infrastructure;
 
 public static class ServiceRegistrar
 {
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public static IServiceCollection ConfigureServices(this IServiceCollection services)
+    {
+        services.AddCacheTower();
+        services.AddServices();
+
+        return services;
+    }
+
+    private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<FirebaseService>();
         services.AddScoped<CacheService>();

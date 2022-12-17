@@ -13,8 +13,7 @@ public class Startup : IStartup
 
 	public void ConfigureServices(IServiceCollection services)
 	{
-		services.AddCacheTower();
-		services.AddServices();
+		services.ConfigureServices();
 	}
 
 	public void Configure(IServiceProvider provider, ITestOutputHelperAccessor accessor)

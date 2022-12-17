@@ -19,7 +19,7 @@ builder.Services.AddMediatR(typeof(PingRequestHandler).GetTypeInfo().Assembly);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddServices();
+builder.Services.ConfigureServices();
 
 builder.Services.ConfigureHangfire();
 builder.Services.ConfigureTelegramBot();
