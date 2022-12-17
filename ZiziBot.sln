@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Engine", "src\ZiziBot.Engine\ZiziBot.Engine.csproj", "{9454DA98-FEC7-4650-97F8-28E06AC0E161}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Application", "src\ZiziBot.Application\ZiziBot.Application.csproj", "{963EB345-2B65-4EAB-9B67-4C448AB0EA67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Tests", "src\ZiziBot.Tests\ZiziBot.Tests.csproj", "{E0F0B405-D9BE-4AF5-B35F-A2E9CFC6212D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Interfaces", "src\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj", "{C499A87C-80D1-4ADA-9902-AB028989B819}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Infrastructure", "src\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj", "{599E5C4A-1553-4168-9630-731898923F55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Hangfire", "src\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj", "{E6B44B13-69D0-4F9F-B920-AC4E1302C77D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Utils", "src\ZiziBot.Utils\ZiziBot.Utils.csproj", "{89E46060-20FC-44F2-BB93-FE52F20BCCC7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9454DA98-FEC7-4650-97F8-28E06AC0E161}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9454DA98-FEC7-4650-97F8-28E06AC0E161}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9454DA98-FEC7-4650-97F8-28E06AC0E161}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9454DA98-FEC7-4650-97F8-28E06AC0E161}.Release|Any CPU.Build.0 = Release|Any CPU
+		{963EB345-2B65-4EAB-9B67-4C448AB0EA67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{963EB345-2B65-4EAB-9B67-4C448AB0EA67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{963EB345-2B65-4EAB-9B67-4C448AB0EA67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{963EB345-2B65-4EAB-9B67-4C448AB0EA67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0F0B405-D9BE-4AF5-B35F-A2E9CFC6212D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0F0B405-D9BE-4AF5-B35F-A2E9CFC6212D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0F0B405-D9BE-4AF5-B35F-A2E9CFC6212D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0F0B405-D9BE-4AF5-B35F-A2E9CFC6212D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C499A87C-80D1-4ADA-9902-AB028989B819}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C499A87C-80D1-4ADA-9902-AB028989B819}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C499A87C-80D1-4ADA-9902-AB028989B819}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C499A87C-80D1-4ADA-9902-AB028989B819}.Release|Any CPU.Build.0 = Release|Any CPU
+		{599E5C4A-1553-4168-9630-731898923F55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{599E5C4A-1553-4168-9630-731898923F55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{599E5C4A-1553-4168-9630-731898923F55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{599E5C4A-1553-4168-9630-731898923F55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6B44B13-69D0-4F9F-B920-AC4E1302C77D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6B44B13-69D0-4F9F-B920-AC4E1302C77D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6B44B13-69D0-4F9F-B920-AC4E1302C77D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6B44B13-69D0-4F9F-B920-AC4E1302C77D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89E46060-20FC-44F2-BB93-FE52F20BCCC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89E46060-20FC-44F2-BB93-FE52F20BCCC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89E46060-20FC-44F2-BB93-FE52F20BCCC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89E46060-20FC-44F2-BB93-FE52F20BCCC7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
