@@ -6,7 +6,7 @@ public static class SettingsLoader
 {
     public static IConfigurationBuilder LoadSettings(this IConfigurationBuilder builder)
     {
-        var settingsPath = Path.Combine(Environment.CurrentDirectory, @"Storage\AppSettings\Current");
+        var settingsPath = Path.Combine(Environment.CurrentDirectory, "Storage", "AppSettings", "Current");
         var settingFiles = Directory.GetFiles(settingsPath)
             .Where(file => !file.EndsWith("x.json")) // End with x.json to ignore
             .ToList();
