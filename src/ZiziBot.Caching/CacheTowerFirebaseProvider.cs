@@ -1,0 +1,103 @@
+﻿using CacheTower;
+using Firebase.Database;
+using Firebase.Database.Query;
+using Google.Apis.Auth.OAuth2;
+
+namespace ZiziBot.Caching;
+
+public class CacheTowerFirebaseProvider : ICacheLayer
+{
+    private readonly FirebaseCacheOptions _cacheOptions;
+
+    public CacheTowerFirebaseProvider(FirebaseCacheOptions cacheOptions)
+    {
+        _cacheOptions = cacheOptions;
+    }
+
+    public ValueTask FlushAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask CleanupAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async ValueTask EvictAsync(string cacheKey)
+    {
+        await GetClient()
+            .Child(cacheKey)
+            .DeleteAsync();
+    }
+
+    public async ValueTask<CacheEntry<T>?> GetAsync<T>(string cacheKey)
+    {
+        var cacheEntry = default(CacheEntry<T>);
+
+        var data = await GetClient()
+            .Child(cacheKey)
+            .OnceAsync<FirebaseCacheEntry>();
+
+        var obj = data.FirstOrDefault(o => o.Object.CacheKey == cacheKey);
+
+        if (obj?.Object != null)
+            return new CacheEntry<T>((T)obj.Object.Value, obj.Object.Expiry);
+
+        return cacheEntry;
+    }
+
+    public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
+    {
+        await GetClient()
+            .Child(cacheKey)
+            .PostAsync(new FirebaseCacheEntry()
+            {
+                CacheKey = cacheKey,
+                Value = cacheEntry.Value!,
+                Expiry = cacheEntry.Expiry
+            });
+    }
+
+    public async ValueTask<bool> IsAvailableAsync(string cacheKey)
+    {
+        return await Task.FromResult(true);
+    }
+
+    private FirebaseClient GetClient()
+    {
+        using var client = new FirebaseClient(
+            baseUrl: _cacheOptions.ProjectUrl,
+            options: new FirebaseOptions
+            {
+                AuthTokenAsyncFactory = GetAccessToken,
+                AsAccessToken = true
+            }
+        );
+
+
+        return client;
+    }
+
+    private async Task<string> GetAccessToken()
+    {
+        var credential = GoogleCredential.FromFile(_cacheOptions.ServiceAccountJson)
+            .CreateScoped(
+                new[]
+                {
+                    "https://www.googleapis.com/auth/firebase.database",
+                    "https://www.googleapis.com/auth/userinfo.email"
+                }
+            );
+
+        var accessToken = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+
+        return accessToken;
+    }
+}
+
+public class FirebaseCacheOptions
+{
+    public string ProjectUrl { get; set; }
+    public string ServiceAccountJson { get; set; }
+}
