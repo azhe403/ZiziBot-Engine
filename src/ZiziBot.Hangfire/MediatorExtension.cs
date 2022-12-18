@@ -1,5 +1,3 @@
-using MediatR;
-
 namespace ZiziBot.Hangfire;
 
 public static class MediatorExtension

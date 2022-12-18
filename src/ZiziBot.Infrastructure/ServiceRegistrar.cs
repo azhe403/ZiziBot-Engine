@@ -6,6 +6,8 @@ public static class ServiceRegistrar
 {
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
+        services.ConfigureSettings();
+
         services.AddCacheTower();
         services.AddServices();
 

@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using MediatR;
 
 namespace ZiziBot.Hangfire;
 

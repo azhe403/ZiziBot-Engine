@@ -1,5 +1,4 @@
 using System.Reflection;
-using Hangfire;
 using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,12 +7,13 @@ builder.Configuration.LoadSettings();
 
 builder.Services.AddScoped<ActionFilter>();
 builder.Services.AddControllers(
-		options => {
-			options.Filters.AddService<ActionFilter>();
-			options.Filters.AddService<AccessFilter>();
-		}
-	)
-	.AddNewtonsoftJson();
+        options =>
+        {
+            options.Filters.AddService<ActionFilter>();
+            options.Filters.AddService<AccessFilter>();
+        }
+    )
+    .AddNewtonsoftJson();
 
 builder.Services.AddMediatR(typeof(PingRequestHandler).GetTypeInfo().Assembly);
 builder.Services.AddEndpointsApiExplorer();
@@ -30,8 +30,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -39,10 +39,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/", () => "Hello World!");
 
-app.UseHangfireDashboard(options:new DashboardOptions()
-{
-	DashboardTitle = "Zizi Dev - Hangfire Dashboard"
-});
+app.UseAzureAppConfiguration();
+app.UseHangfire();
 
 await app.RunAsync();
