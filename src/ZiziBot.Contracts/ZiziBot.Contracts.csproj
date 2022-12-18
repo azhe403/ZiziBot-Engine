@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Allowed.Telegram.Bot" Version="3.3.0" />
+      <PackageReference Include="MediatR.Contracts" Version="1.0.1" />
+    </ItemGroup>
+
 </Project>

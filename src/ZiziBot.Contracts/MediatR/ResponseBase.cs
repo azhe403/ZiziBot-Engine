@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Telegram.Bot;
 
-namespace ZiziBot.Application.Base;
+namespace ZiziBot.Contracts.MediatR;
 
 public class ResponseBase
 {

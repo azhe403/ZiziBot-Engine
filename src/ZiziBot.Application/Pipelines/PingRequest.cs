@@ -1,6 +1,4 @@
-using Allowed.Telegram.Bot.Models;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace ZiziBot.Application.Pipelines;
 
@@ -12,7 +10,7 @@ public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase
 {
     private readonly IMediator _mediator;
 
-    public PingRequestHandler(IOptions<BotData[]> option, IMediator mediator)
+    public PingRequestHandler(IMediator mediator)
     {
         _mediator = mediator;
     }
