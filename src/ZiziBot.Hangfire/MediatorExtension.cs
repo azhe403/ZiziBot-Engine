@@ -2,7 +2,7 @@ namespace ZiziBot.Hangfire;
 
 public static class MediatorExtension
 {
-    public static void Recurring(this IMediator mediator, string jobName, IRequest<string> request, string cron)
+    public static void Recurring<T>(this IMediator mediator, string jobName, IRequest<T> request, string cron)
     {
         RecurringJob.AddOrUpdate<MediatorBridge>(jobName, x => x.Send(request), cron);
     }

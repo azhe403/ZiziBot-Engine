@@ -11,6 +11,7 @@ public class MediatorBridge
         _mediator = mediator;
     }
 
+    [DisplayName("{0}")]
     public async Task<object?> Send(IBaseRequest command)
     {
         return await _mediator.Send(command);
