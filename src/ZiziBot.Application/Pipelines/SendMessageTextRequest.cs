@@ -36,12 +36,13 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
             return response.Complete();
 
         _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
-        _mediator.Schedule(
+        await _mediator.ScheduleAsync(
             new DeleteMessageRequestModel()
             {
                 BotData = request.BotData,
                 Message = request.Message,
-                MessageId = sentMessage.MessageId
+                MessageId = sentMessage.MessageId,
+                DirectAction = request.DirectAction
             }, request.DeleteAfter);
 
         _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);

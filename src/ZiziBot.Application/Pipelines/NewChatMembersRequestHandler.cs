@@ -29,12 +29,12 @@ internal class NewChatMembersRequestHandler : IRequestHandler<NewChatMembersRequ
 
         responseBase.Complete();
 
-        _mediator.Enqueue(new SendMessageTextRequestModel()
+        await _mediator.EnqueueAsync(new SendMessageTextRequestModel()
         {
             Message = request.Message,
             BotData = request.BotData,
             ReplyToMessageId = request.Message.MessageId,
-            DeleteAfter = TimeSpan.FromMinutes(1),
+            DirectAction = request.DirectAction,
             Text = message
         });
 
