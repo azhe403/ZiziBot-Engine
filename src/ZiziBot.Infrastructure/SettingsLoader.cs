@@ -1,3 +1,4 @@
+using Allowed.Telegram.Bot.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,7 @@ public static class SettingsLoader
     {
         var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
+        services.Configure<List<BotData>>(config.GetSection("Telegram:Bots"));
 
         services.AddAzureAppConfiguration();
 
@@ -25,6 +27,12 @@ public static class SettingsLoader
     private static IConfigurationBuilder LoadLocalSettings(this IConfigurationBuilder builder)
     {
         var settingsPath = Path.Combine(Environment.CurrentDirectory, "Storage", "AppSettings", "Current");
+
+        if (!Directory.Exists(settingsPath))
+        {
+            return builder;
+        }
+
         var settingFiles = Directory.GetFiles(settingsPath)
             .Where(file => !file.EndsWith("x.json")) // End with x.json to ignore
             .ToList();
