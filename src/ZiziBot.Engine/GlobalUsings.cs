@@ -1,5 +1,6 @@
 // Global using directives
 
+global using ZiziBot.Application;
 global using ZiziBot.Application.Pipelines;
 global using ZiziBot.Application.RBAC;
 global using ZiziBot.Engine.Extensions;

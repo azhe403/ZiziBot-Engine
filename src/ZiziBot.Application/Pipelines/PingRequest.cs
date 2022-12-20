@@ -17,19 +17,10 @@ public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase
 
     public async Task<ResponseBase> Handle(PingRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new();
+        ResponseBase responseBase = new(request);
 
-        responseBase.Complete();
+        await responseBase.SendMessageText("Pong!");
 
-        _mediator.Enqueue(new SendMessageTextRequestModel()
-        {
-            Message = request.Message,
-            BotData = request.BotData,
-            ReplyToMessageId = request.Message.MessageId,
-            DeleteAfter = TimeSpan.FromMinutes(1),
-            Text = "Pong!"
-        });
-
-        return responseBase;
+        return responseBase.Complete();
     }
 }

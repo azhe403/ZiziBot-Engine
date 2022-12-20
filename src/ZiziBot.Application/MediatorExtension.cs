@@ -1,4 +1,7 @@
-namespace ZiziBot.Hangfire;
+using Hangfire;
+using MediatR;
+
+namespace ZiziBot.Application;
 
 public static class MediatorExtension
 {
@@ -32,12 +35,13 @@ public static class MediatorExtension
         return response.Complete();
     }
 
-    public static async Task<ResponseBase> ScheduleAsync(this IMediator mediator, RequestBase request, TimeSpan delay)
+    public static ResponseBase Schedule(this IMediator mediator, RequestBase request, TimeSpan delay)
     {
-        if (request.DirectAction)
-        {
-            return await mediator.Send(request);
-        }
+        // if (request.DirectAction)
+        // {
+        //     // return await mediator.Send(request);
+        //     return await Task.FromResult(new ResponseBase());
+        // }
 
         ResponseBase response = new();
         BackgroundJob.Schedule<MediatorBridge>(x => x.Send(request), delay);

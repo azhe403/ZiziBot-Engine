@@ -18,12 +18,16 @@ public class PingController : CommandController
 
     [Command("ping")]
     [AccessLevel(AccessLevel.User)]
-    public void Ping(MessageData data)
+    public async Task Ping(MessageData data)
     {
-        _mediator.Enqueue(new PingRequestModel()
+        await _mediator.EnqueueAsync(new PingRequestModel()
             {
                 BotData = data.BotData,
-                Message = data.Message
+                Message = data.Message,
+                Mediator = _mediator,
+                DeleteAfter = TimeSpan.FromMinutes(1),
+                ReplyToMessageId = data.Message.MessageId,
+                DirectAction = true
             }
         );
     }

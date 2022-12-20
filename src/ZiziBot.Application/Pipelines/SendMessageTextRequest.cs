@@ -10,6 +10,7 @@ public class SendMessageTextRequestModel : RequestBase
 }
 
 [UsedImplicitly]
+[Obsolete("Send Message via ResponseBase")]
 public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequestModel, ResponseBase>
 {
     private readonly ILogger<SendMessageTextRequestHandler> _logger;
@@ -36,14 +37,13 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
             return response.Complete();
 
         _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
-        await _mediator.ScheduleAsync(
-            new DeleteMessageRequestModel()
-            {
-                BotData = request.BotData,
-                Message = request.Message,
-                MessageId = sentMessage.MessageId,
-                DirectAction = request.DirectAction
-            }, request.DeleteAfter);
+        _mediator.Schedule(new DeleteMessageRequestModel()
+        {
+            BotData = request.BotData,
+            Message = request.Message,
+            MessageId = sentMessage.MessageId,
+            DirectAction = request.DirectAction
+        }, request.DeleteAfter);
 
         _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
 
