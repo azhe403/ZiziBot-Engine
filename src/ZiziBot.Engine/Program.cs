@@ -7,14 +7,7 @@ builder.WebHost.ConfigureCustomListenPort();
 
 builder.Configuration.LoadSettings();
 
-builder.Services.AddScoped<ActionFilter>();
-builder.Services.AddControllers(
-        options =>
-        {
-            options.Filters.AddService<ActionFilter>();
-            options.Filters.AddService<AccessFilter>();
-        }
-    )
+builder.Services.AddControllers()
     .AddNewtonsoftJson();
 
 builder.Services.AddMediatR(typeof(PingRequestHandler).GetTypeInfo().Assembly);
