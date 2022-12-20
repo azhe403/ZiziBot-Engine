@@ -28,6 +28,7 @@ builder.Services.ConfigureTelegramBot();
 
 var app = builder.Build();
 
+app.PrintAbout();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
