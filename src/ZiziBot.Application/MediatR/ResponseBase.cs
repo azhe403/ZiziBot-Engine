@@ -53,8 +53,7 @@ public class ResponseBase
         {
             BotData = _request.BotData,
             Message = _request.Message,
-            MessageId = sentMessage.MessageId,
-            DirectAction = _request.DirectAction
+            MessageId = sentMessage.MessageId
         }, DeleteAfter);
 
         // _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);

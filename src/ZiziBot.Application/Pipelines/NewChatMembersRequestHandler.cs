@@ -22,22 +22,17 @@ internal class NewChatMembersRequestHandler : IRequestHandler<NewChatMembersRequ
 
     public async Task<ResponseBase> Handle(NewChatMembersRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new();
+        ResponseBase responseBase = new(request);
         _logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.Message.Chat.Id);
 
-        var message = "Hai " + request.Message.From.FirstName + " " + request.Message.From.LastName + " selamat datang di grup ";
+        var users = request.Message.NewChatMembers?
+            .Select(user => (user.FirstName + " " + user.LastName).Trim())
+            .Aggregate((s, next) => s + ", " + next);
 
-        responseBase.Complete();
+        var message = "Hai " + users + "" +
+                      "\nSelamat datang di Kontrakan " + request.ChatTTitle;
 
-        await _mediator.EnqueueAsync(new SendMessageTextRequestModel()
-        {
-            Message = request.Message,
-            BotData = request.BotData,
-            ReplyToMessageId = request.Message.MessageId,
-            DirectAction = request.DirectAction,
-            Text = message
-        });
-
-        return responseBase;
+        await responseBase.SendMessageText(message);
+        return responseBase.Complete();
     }
 }

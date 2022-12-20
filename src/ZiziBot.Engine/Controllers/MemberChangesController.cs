@@ -6,6 +6,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Engine.Controllers;
 
+[BotName("Main")]
 public class MemberChangesController : CommandController
 {
     private readonly IMediator _mediator;
@@ -16,12 +17,13 @@ public class MemberChangesController : CommandController
     }
 
     [TypedCommand(MessageType.ChatMembersAdded)]
-    public void NewChatMembers(MessageData data)
+    public async Task NewChatMembers(MessageData data)
     {
-        _mediator.Enqueue(new NewChatMembersRequestModel()
+        await _mediator.EnqueueAsync(new NewChatMembersRequestModel()
         {
             BotData = data.BotData,
-            Message = data.Message
+            Message = data.Message,
+            DeleteAfter = TimeSpan.FromMinutes(1)
         });
     }
 }
