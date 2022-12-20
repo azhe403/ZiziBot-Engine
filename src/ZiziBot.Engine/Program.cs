@@ -3,6 +3,8 @@ using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureCustomListenPort();
+
 builder.Configuration.LoadSettings();
 
 builder.Services.AddScoped<ActionFilter>();
