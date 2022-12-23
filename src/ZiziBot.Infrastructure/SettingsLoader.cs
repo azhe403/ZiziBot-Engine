@@ -27,9 +27,10 @@ public static class SettingsLoader
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
         services.Configure<List<SimpleTelegramBotClientOptions>>(list =>
         {
+            var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
             var listBotData = appSettingDbContext.BotSettings
                 .AsEnumerable()
-                .Select(settings => new SimpleTelegramBotClientOptions(settings.Name, settings.Token, null, null, false))
+                .Select(settings => new SimpleTelegramBotClientOptions(settings.Name, settings.Token, host, null, false))
                 .ToList();
 
             list.AddRange(listBotData);
