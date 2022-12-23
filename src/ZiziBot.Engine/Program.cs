@@ -1,6 +1,3 @@
-using System.Reflection;
-using MediatR;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureCustomListenPort();
@@ -10,7 +7,6 @@ builder.Configuration.LoadSettings();
 builder.Services.AddControllers()
     .AddNewtonsoftJson();
 
-builder.Services.AddMediatR(typeof(PingRequestHandler).GetTypeInfo().Assembly);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

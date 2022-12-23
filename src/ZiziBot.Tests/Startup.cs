@@ -15,8 +15,6 @@ public class Startup : IStartup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddMediatR(typeof(PingRequestHandler).GetTypeInfo().Assembly);
-
         services.ConfigureServices();
     }
 

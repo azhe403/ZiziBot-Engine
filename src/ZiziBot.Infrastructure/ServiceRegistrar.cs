@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ZiziBot.Infrastructure;
 
@@ -7,6 +9,8 @@ public static class ServiceRegistrar
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         services.ConfigureSettings();
+
+        services.AddMediatR(typeof(PingRequestHandler).GetTypeInfo().Assembly);
 
         services.AddCacheTower();
         services.AddServices();
