@@ -35,7 +35,9 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/", () => "Hello World!");
 
-app.UseAzureAppConfiguration();
+if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
+    app.UseAzureAppConfiguration();
+
 app.UseHangfire();
 
 await app.RunAsync();

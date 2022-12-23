@@ -8,6 +8,8 @@ public static class SettingsLoader
 {
     public static IConfigurationBuilder LoadSettings(this IConfigurationBuilder builder)
     {
+        builder.AddMongoConfigurationSource();
+
         return builder
             .LoadLocalSettings()
             .LoadAzureAppConfiguration();
@@ -15,11 +17,26 @@ public static class SettingsLoader
 
     public static IServiceCollection ConfigureSettings(this IServiceCollection services)
     {
-        var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-        services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
-        services.Configure<List<BotData>>(config.GetSection("Telegram:Bots"));
+        services.AddDataSource();
 
-        services.AddAzureAppConfiguration();
+        var provider = services.BuildServiceProvider();
+
+        var config = provider.GetRequiredService<IConfiguration>();
+        var appSettingDbContext = provider.GetRequiredService<AppSettingsDbContext>();
+
+        services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
+        services.Configure<List<SimpleTelegramBotClientOptions>>(list =>
+        {
+            var listBotData = appSettingDbContext.BotSettings
+                .AsEnumerable()
+                .Select(settings => new SimpleTelegramBotClientOptions(settings.Name, settings.Token, null, null, false))
+                .ToList();
+
+            list.AddRange(listBotData);
+        });
+
+        if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
+            services.AddAzureAppConfiguration();
 
         return services;
     }
@@ -44,14 +61,20 @@ public static class SettingsLoader
 
     private static IConfigurationBuilder LoadAzureAppConfiguration(this IConfigurationBuilder builder)
     {
-        var connectionString = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG_CONNECTION_STRING");
+        var connectionString = EnvUtil.GetEnv(Env.AZURE_APP_CONFIG_CONNECTION_STRING);
 
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            throw new ApplicationException("AZURE_APP_CONFIG_CONNECTION_STRING is not set");
-        }
+        if (string.IsNullOrEmpty(connectionString)) return builder;
 
         builder.AddAzureAppConfiguration(options => { options.Connect(connectionString); });
+
+        return builder;
+    }
+
+    private static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
+    {
+        var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING);
+
+        builder.Add(new MongoConfigSource(mongodbConnectionString));
 
         return builder;
     }
