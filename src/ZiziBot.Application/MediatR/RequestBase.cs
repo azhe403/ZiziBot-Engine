@@ -7,7 +7,7 @@ namespace ZiziBot.Application.MediatR;
 public class RequestBase : IRequest<ResponseBase>
 {
     public IMediator Mediator { get; set; }
-    public BotData BotData { get; set; }
+    public SimpleTelegramBotClientOptions Options { get; set; }
     public Message Message { get; set; }
 
     public ChatId ChatId => Message.Chat.Id;
@@ -19,7 +19,7 @@ public class RequestBase : IRequest<ResponseBase>
 
     public string Text { get; set; }
 
-    public DateTime RequestTime = DateTime.UtcNow;
+    public DateTime RequestTime => DateTime.UtcNow;
     public int ReplyToMessageId { get; set; }
 
     /// <summary>

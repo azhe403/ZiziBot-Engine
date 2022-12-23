@@ -10,9 +10,15 @@ public static class Telegram
     {
         var provider = services.BuildServiceProvider();
         var env = provider.GetRequiredService<IWebHostEnvironment>();
-        var listBotData = provider.GetRequiredService<IOptions<List<BotData>>>().Value;
 
-        services.AddTelegramClients(listBotData);
+        var listBotOptions = provider.GetRequiredService<IOptions<List<SimpleTelegramBotClientOptions>>>().Value;
+
+        if (!listBotOptions.Any())
+        {
+            throw new ApplicationException("No bot data found. Please ensure config for 'BotSettings'");
+        }
+
+        services.AddTelegramClients(listBotOptions);
 
         if (env.IsDevelopment())
             services.AddTelegramManager();

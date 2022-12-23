@@ -21,7 +21,7 @@ public class PingController : CommandController
     {
         await _mediator.EnqueueAsync(new PingRequestModel()
             {
-                BotData = data.BotData,
+                Options = data.Options,
                 Message = data.Message,
                 Mediator = _mediator,
                 DeleteAfter = TimeSpan.FromMinutes(1),

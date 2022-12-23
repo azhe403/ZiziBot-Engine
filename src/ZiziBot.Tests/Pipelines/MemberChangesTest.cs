@@ -11,11 +11,11 @@ public class MemberChangesTest
 {
     private readonly IMediator _mediator;
     private readonly IConfiguration _configuration;
-    private readonly IOptionsSnapshot<List<BotData>> _botOptions;
+    private readonly IOptionsSnapshot<List<SimpleTelegramBotClientOptions>> _botOptions;
 
-    private List<BotData> ListBotData => _botOptions.Value;
+    private List<SimpleTelegramBotClientOptions> ListBotData => _botOptions.Value;
 
-    public MemberChangesTest(IMediator mediator, IOptionsSnapshot<List<BotData>> botOptions, IConfiguration configuration)
+    public MemberChangesTest(IMediator mediator, IOptionsSnapshot<List<SimpleTelegramBotClientOptions>> botOptions, IConfiguration configuration)
     {
         _mediator = mediator;
         _botOptions = botOptions;
@@ -65,10 +65,12 @@ public class MemberChangesTest
         {
             await _mediator.EnqueueAsync(new NewChatMembersRequestModel()
             {
-                BotData = botData,
+                Options = botData,
                 Message = message,
                 DirectAction = true
             });
         }
+
+        Assert.True(true);
     }
 }

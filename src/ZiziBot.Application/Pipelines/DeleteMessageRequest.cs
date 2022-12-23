@@ -24,7 +24,7 @@ public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestM
     public async Task<ResponseBase> Handle(DeleteMessageRequestModel request, CancellationToken cancellationToken)
     {
         var chatId = request.Message.Chat.Id;
-        var botToken = request.BotData.Token;
+        var botToken = request.Options.Token;
 
         ResponseBase responseBase = new(botToken);
 

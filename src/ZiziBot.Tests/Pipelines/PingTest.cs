@@ -9,11 +9,11 @@ namespace ZiziBot.Tests.Pipelines;
 public class PingTest
 {
     private readonly IMediator _mediator;
-    private readonly IOptionsSnapshot<List<BotData>> _botOptions;
+    private readonly IOptionsSnapshot<List<SimpleTelegramBotClientOptions>> _botOptions;
 
-    private List<BotData> ListBotData => _botOptions.Value;
+    private List<SimpleTelegramBotClientOptions> ListBotData => _botOptions.Value;
 
-    public PingTest(IMediator mediator, IOptionsSnapshot<List<BotData>> botOptions)
+    public PingTest(IMediator mediator, IOptionsSnapshot<List<SimpleTelegramBotClientOptions>> botOptions)
     {
         _mediator = mediator;
         _botOptions = botOptions;
@@ -41,10 +41,12 @@ public class PingTest
         {
             await _mediator.EnqueueAsync(new PingRequestModel
             {
-                BotData = botData,
+                Options = botData,
                 Message = message,
                 DirectAction = true
             });
         }
+
+        Assert.True(true);
     }
 }

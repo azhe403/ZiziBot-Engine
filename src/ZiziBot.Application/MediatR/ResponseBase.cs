@@ -34,7 +34,7 @@ public class ResponseBase
     public ResponseBase(RequestBase request)
     {
         _request = request;
-        Bot = new TelegramBotClient(request.BotData.Token);
+        Bot = new TelegramBotClient(request.Options.Token);
         _stopwatch.Start();
     }
 
@@ -51,7 +51,7 @@ public class ResponseBase
         // _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
         XMediator.Schedule(new DeleteMessageRequestModel()
         {
-            BotData = _request.BotData,
+            Options = _request.Options,
             Message = _request.Message,
             MessageId = sentMessage.MessageId
         }, DeleteAfter);
