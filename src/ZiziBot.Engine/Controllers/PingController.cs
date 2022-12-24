@@ -17,6 +17,7 @@ public class PingController : CommandController
     }
 
     [Command("ping")]
+    [TextCommand("ping")]
     public async Task Ping(MessageData data)
     {
         await _mediator.EnqueueAsync(new PingRequestModel()
