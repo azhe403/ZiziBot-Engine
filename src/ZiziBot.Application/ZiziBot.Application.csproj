@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
       <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj" />
       <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj" />
     </ItemGroup>

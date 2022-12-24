@@ -14,9 +14,7 @@ public static class DataSourceExtension
             throw new ApplicationException($"{Env.MONGODB_CONNECTION_STRING} environment variable is not set.");
         }
 
-        var connection = MongoDbConnection.FromConnectionString(mongodbConnectionString);
-
-        services.AddScoped<AppSettingsDbContext>(provider => new AppSettingsDbContext(connection));
+        services.AddScoped<AppSettingsDbContext>(provider => new AppSettingsDbContext(mongodbConnectionString));
 
         return services;
     }

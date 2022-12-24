@@ -19,7 +19,7 @@ public class MongoConfigSource : IConfigurationSource
 
     public Dictionary<string, string?> GetAppSettings()
     {
-        var dbContext = new AppSettingsDbContext(MongoDbConnection.FromConnectionString(_connectionString));
+        var dbContext = new AppSettingsDbContext(_connectionString);
         var appSettingsList = dbContext.AppSettings.ToList();
 
         return appSettingsList
