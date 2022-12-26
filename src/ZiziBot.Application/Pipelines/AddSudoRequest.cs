@@ -10,11 +10,11 @@ public class AddSudoRequestModel : RequestBase
 [UsedImplicitly]
 public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, ResponseBase>
 {
-    private readonly AppSettingsDbContext _appSettingsDbContext;
+    private readonly SudoService _sudoService;
 
-    public AddSudoRequestHandler(AppSettingsDbContext appSettingsDbContext)
+    public AddSudoRequestHandler(AppSettingsDbContext appSettingsDbContext, SudoService sudoService)
     {
-        _appSettingsDbContext = appSettingsDbContext;
+        _sudoService = sudoService;
     }
 
     public async Task<ResponseBase> Handle(AddSudoRequestModel request, CancellationToken cancellationToken)
@@ -23,15 +23,7 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, Respon
 
         await responseBase.SendMessageText("Adding sudo user...");
 
-        var sudo = _appSettingsDbContext.Sudoers.FirstOrDefault(sudoer => sudoer.UserId == request.UserId);
-
-        if (sudo!= null)
-        {
-            await responseBase.EditMessageText("User is already a sudoer.");
-            return responseBase;
-        }
-
-        _appSettingsDbContext.Sudoers.Add(new Sudoer()
+        var serviceResult = await _sudoService.SaveSudo(new Sudoer()
         {
             UserId = request.UserId,
             PromotedBy = request.UserId,
@@ -39,9 +31,7 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, Respon
             Status = (int)EventStatus.Complete
         });
 
-        await _appSettingsDbContext.SaveChangesAsync(cancellationToken);
-
-        await responseBase.EditMessageText("Sudoer added successfully");
+        await responseBase.EditMessageText(serviceResult.Message);
 
         return responseBase.Complete();
     }

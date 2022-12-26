@@ -2,7 +2,6 @@ using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ZiziBot.Contracts.Configs;
 
 namespace ZiziBot.Application.Pipelines;
 

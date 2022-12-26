@@ -1,4 +1,4 @@
-namespace ZiziBot.Contracts;
+namespace ZiziBot.Contracts.Enums;
 
 public enum EventStatus
 {
