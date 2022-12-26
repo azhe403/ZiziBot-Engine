@@ -1,0 +1,8 @@
+<Project>
+
+    <Target Name="PostClean" AfterTargets="Clean">
+        <RemoveDir Directories="$(BaseOutputPath)"/> <!-- bin -->
+        <RemoveDir Directories="$(BaseIntermediateOutputPath)"/> <!-- obj -->
+    </Target>
+
+</Project>
