@@ -24,6 +24,7 @@ public static class SettingsLoader
         var config = provider.GetRequiredService<IConfiguration>();
         var appSettingDbContext = provider.GetRequiredService<AppSettingsDbContext>();
 
+        services.Configure<EventLogConfig>(config.GetSection("EventLog"));
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
         services.Configure<List<SimpleTelegramBotClientOptions>>(list =>
         {

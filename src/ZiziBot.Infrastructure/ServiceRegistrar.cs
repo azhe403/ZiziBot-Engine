@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using MediatR;
+using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ZiziBot.Infrastructure;
@@ -11,6 +12,7 @@ public static class ServiceRegistrar
         services.ConfigureSettings();
 
         services.AddMediatR(typeof(PingRequestHandler).GetTypeInfo().Assembly);
+        services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(ExceptionHandler<,,>));
 
         services.AddCacheTower();
         services.AddServices();
@@ -20,8 +22,14 @@ public static class ServiceRegistrar
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddScoped<FirebaseService>();
-        services.AddScoped<CacheService>();
+        // services.AddScoped<FirebaseService>();
+        // services.AddScoped<CacheService>();
+
+        services.Scan(scan => scan
+            .FromAssembliesOf(typeof(PingRequestHandler))
+            .AddClasses(filter => filter.InNamespaceOf<CacheService>())
+            .AsSelf()
+            .WithScopedLifetime());
 
         return services;
     }

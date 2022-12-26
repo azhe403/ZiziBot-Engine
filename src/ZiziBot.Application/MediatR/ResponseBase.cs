@@ -2,6 +2,7 @@ using System.Diagnostics;
 using MediatR;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Application.MediatR;
 
@@ -15,7 +16,8 @@ public class ResponseBase
 
     public IMediator XMediator => _request.Mediator;
 
-    public ChatId ChatId => _request.ChatId;
+    public ChatId ChatId { get; set; }
+
     public TimeSpan DeleteAfter => _request.DeleteAfter;
 
     public bool DirectAction { get; set; }
@@ -36,6 +38,7 @@ public class ResponseBase
     public ResponseBase(RequestBase request)
     {
         _request = request;
+        ChatId = _request.ChatId;
         Bot = new TelegramBotClient(request.Options.Token);
         _stopwatch.Start();
     }
@@ -43,7 +46,13 @@ public class ResponseBase
     public async Task<ResponseBase> SendMessageText(string text)
     {
         // _logger.LogDebug("Sending message to chat {ChatId}", ChatId);
-        SentMessage = await Bot.SendTextMessageAsync(chatId: ChatId, text: text, replyToMessageId: _request.ReplyToMessageId, allowSendingWithoutReply: true);
+        SentMessage = await Bot.SendTextMessageAsync(
+            chatId: ChatId,
+            text: text,
+            replyToMessageId: _request.ReplyToMessageId,
+            parseMode: ParseMode.Html,
+            allowSendingWithoutReply: true
+        );
 
         // _logger.LogInformation("Message sent to chat {ChatId}", chatId);
 
