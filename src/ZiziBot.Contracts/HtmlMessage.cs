@@ -13,24 +13,19 @@ public class HtmlMessage
     public static HtmlMessage Empty => new();
 
     public HtmlMessage Bold(string text) => TagBuilder("b", text);
+    public HtmlMessage Bold(HtmlMessage inner) => TagBuilder("b", inner);
     public HtmlMessage BoldBr(string text) => TagBuilder("b", text).Br();
 
-    public HtmlMessage Bold(HtmlMessage inner) => TagBuilder("b", inner);
-
     public HtmlMessage Italic(string text) => TagBuilder("i", text);
-
     public HtmlMessage Italic(HtmlMessage inner) => TagBuilder("i", inner);
 
     public HtmlMessage Underline(string text) => TagBuilder("u", text);
-
     public HtmlMessage Underline(HtmlMessage inner) => TagBuilder("u", inner);
 
     public HtmlMessage Strike(string text) => TagBuilder("s", text);
-
     public HtmlMessage Strike(HtmlMessage inner) => TagBuilder("s", inner);
 
     public HtmlMessage Url(string url, string text) => UrlTagBuilder("a", $"href=\"{url}\"", text);
-
     public HtmlMessage User(long id, string text) => Url($"tg://user?id={id}", text);
 
     public HtmlMessage Text(string text, bool encoded = false)
@@ -76,8 +71,8 @@ public class HtmlMessage
         // }
 
         var fullName = (user.FirstName + " " + user.LanguageCode).Trim();
-        var name= fullName.Length > 0 ? fullName : user.Username;
-        return User(user.Id, fullName);
+        var name = fullName.Length > 0 ? fullName : user.Username;
+        return User(user.Id, name ?? string.Empty);
     }
 
     public HtmlMessage Code(string text) => TagBuilder("code", text);
@@ -103,19 +98,19 @@ public class HtmlMessage
         return this;
     }
 
+    private HtmlMessage TagBuilder(string tag, HtmlMessage innerSting)
+    {
+        _stringBuilder.Append($"<{tag}>");
+        _stringBuilder.Append(innerSting);
+        _stringBuilder.Append($"</{tag}>");
+        return this;
+    }
+
     private HtmlMessage UrlTagBuilder(string tag, string tagParams, string text)
     {
         var str = WebUtility.HtmlEncode(text);
         _stringBuilder.Append($"<{tag} {tagParams}>");
         _stringBuilder.Append(str);
-        _stringBuilder.Append($"</{tag}>");
-        return this;
-    }
-
-    private HtmlMessage TagBuilder(string tag, HtmlMessage innerSting)
-    {
-        _stringBuilder.Append($"<{tag}>");
-        _stringBuilder.Append(innerSting);
         _stringBuilder.Append($"</{tag}>");
         return this;
     }
