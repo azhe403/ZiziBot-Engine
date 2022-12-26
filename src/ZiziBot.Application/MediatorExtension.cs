@@ -35,16 +35,10 @@ public static class MediatorExtension
         return response.Complete();
     }
 
-    public static ResponseBase Schedule(this IMediator mediator, RequestBase request, TimeSpan delay)
+    public static ResponseBase Schedule(this IMediator mediator, RequestBase request)
     {
-        // if (request.DirectAction)
-        // {
-        //     // return await mediator.Send(request);
-        //     return await Task.FromResult(new ResponseBase());
-        // }
-
         ResponseBase response = new();
-        BackgroundJob.Schedule<MediatorBridge>(x => x.Send(request), delay);
+        BackgroundJob.Schedule<MediatorBridge>(x => x.Send(request), request.DeleteAfter);
         return response.Complete();
     }
 }

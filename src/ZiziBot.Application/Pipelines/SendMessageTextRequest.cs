@@ -42,8 +42,9 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
             Options = request.Options,
             Message = request.Message,
             MessageId = sentMessage.MessageId,
-            DirectAction = request.DirectAction
-        }, request.DeleteAfter);
+            DirectAction = request.DirectAction,
+            DeleteAfter = request.DeleteAfter
+        });
 
         _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
 

@@ -55,8 +55,9 @@ public class ResponseBase
         {
             Options = _request.Options,
             Message = _request.Message,
-            MessageId = SentMessage.MessageId
-        }, DeleteAfter);
+            MessageId = SentMessage.MessageId,
+            DeleteAfter = _request.DeleteAfter
+        });
 
         // _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
 
