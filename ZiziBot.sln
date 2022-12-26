@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Caching", "src\Zizi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Contracts", "src\ZiziBot.Contracts\ZiziBot.Contracts.csproj", "{16767C44-0615-4E11-A8BE-FC37B2BAAAA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.NgDashboard", "src\ZiziBot.NgDashboard\ZiziBot.NgDashboard.csproj", "{5440409B-E379-4512-8BC6-0ECC9B439429}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{16767C44-0615-4E11-A8BE-FC37B2BAAAA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16767C44-0615-4E11-A8BE-FC37B2BAAAA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16767C44-0615-4E11-A8BE-FC37B2BAAAA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5440409B-E379-4512-8BC6-0ECC9B439429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5440409B-E379-4512-8BC6-0ECC9B439429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5440409B-E379-4512-8BC6-0ECC9B439429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5440409B-E379-4512-8BC6-0ECC9B439429}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -15,6 +15,8 @@ builder.Services.ConfigureServices();
 builder.Services.ConfigureHangfire();
 builder.Services.ConfigureTelegramBot();
 
+builder.Services.AddNgDashboard();
+
 var app = builder.Build();
 
 app.PrintAbout();
@@ -30,6 +32,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapGet("/", () => "Hello World!");
+
+app.UseNgDashboard();
 
 if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
     app.UseAzureAppConfiguration();

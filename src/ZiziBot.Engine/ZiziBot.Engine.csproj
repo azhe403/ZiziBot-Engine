@@ -19,6 +19,7 @@
       <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
       <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj" />
       <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj" />
+      <ProjectReference Include="..\ZiziBot.NgDashboard\ZiziBot.NgDashboard.csproj"/>
     </ItemGroup>
 
 </Project>
