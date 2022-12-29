@@ -1,9 +1,12 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+﻿FROM node:latest as node_base
+
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+COPY --from=node_base /usr/local/bin/node /usr/local/bin/node
 WORKDIR /src
 
 COPY ["src/ZiziBot.Engine/ZiziBot.Engine.csproj", "src/ZiziBot.Engine/"]
