@@ -1,13 +1,18 @@
-﻿FROM node:latest as node_base
-
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-COPY --from=node_base /usr/local/bin/node /usr/local/bin/node
 WORKDIR /src
+
+# Install NodeJs
+RUN apt-get update && \
+apt-get install -y wget && \
+apt-get install -y gnupg2 && \
+wget -qO- https://deb.nodesource.com/setup_18.x | bash - && \
+apt-get install -y build-essential nodejs
+# End Install
 
 COPY ["src/ZiziBot.Engine/ZiziBot.Engine.csproj", "src/ZiziBot.Engine/"]
 COPY ["src/ZiziBot.Application/ZiziBot.Application.csproj", "src/ZiziBot.Application/"]
