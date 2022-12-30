@@ -9,7 +9,7 @@ public static class DashboardLoaderExtension
 {
     public static IServiceCollection AddNgDashboard(this IServiceCollection services)
     {
-        services.AddSpaStaticFiles(configuration => { configuration.RootPath = Env.DASHBOARD_DIST_PATH; });
+        services.AddSpaStaticFiles(configuration => { configuration.RootPath = "./wwwroot"; });
 
         return services;
     }
