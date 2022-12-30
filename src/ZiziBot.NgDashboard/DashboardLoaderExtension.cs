@@ -9,7 +9,19 @@ public static class DashboardLoaderExtension
 {
     public static IServiceCollection AddNgDashboard(this IServiceCollection services)
     {
-        services.AddSpaStaticFiles(configuration => { configuration.RootPath = "./wwwroot"; });
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAny", builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+            );
+        });
+
+        services.AddSpaStaticFiles(configuration =>
+        {
+            configuration.RootPath = "./wwwroot";
+        });
 
         return services;
     }
@@ -32,6 +44,7 @@ public static class DashboardLoaderExtension
             }
         });
 
+        app.UseCors();
 
         return app;
     }
