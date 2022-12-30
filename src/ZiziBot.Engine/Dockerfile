@@ -21,7 +21,7 @@ COPY ["src/ZiziBot.Contracts/ZiziBot.Contracts.csproj", "src/ZiziBot.Contracts/"
 COPY ["src/ZiziBot.Utils/ZiziBot.Utils.csproj", "src/ZiziBot.Utils/"]
 COPY ["src/ZiziBot.Infrastructure/ZiziBot.Infrastructure.csproj", "src/ZiziBot.Infrastructure/"]
 COPY ["src/ZiziBot.Caching/ZiziBot.Caching.csproj", "src/ZiziBot.Caching/"]
-COPY ["src/ng-dashboard","src/ng-dashboard"]
+COPY ["src/ng-dashboard","src/ng-dashboard/"]
 
 RUN dotnet restore "src/ZiziBot.Engine/ZiziBot.Engine.csproj"
 COPY . .
@@ -34,9 +34,9 @@ RUN dotnet publish "ZiziBot.Engine.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 
-RUN mkdir webroot
+RUN mkdir -p /app/wwwroot
 
-COPY --from=publish /app/ng-dashboard/dist/dashboard ./webroot
+COPY --from=publish /app/ng-dashboard/dist/ng-dashboard /app/wwwroot
 COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "ZiziBot.Engine.dll"]
