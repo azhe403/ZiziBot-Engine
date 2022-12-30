@@ -1,13 +1,16 @@
 using Allowed.Telegram.Bot.Models;
+using dotenv.net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ZiziBot.Infrastructure;
 
-public static class SettingsLoader
+public static class ConfigurationExtension
 {
     public static IConfigurationBuilder LoadSettings(this IConfigurationBuilder builder)
     {
+        DotEnv.Load();
+
         builder.AddMongoConfigurationSource();
 
         return builder
@@ -26,16 +29,18 @@ public static class SettingsLoader
 
         services.Configure<EventLogConfig>(config.GetSection("EventLog"));
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
-        services.Configure<List<SimpleTelegramBotClientOptions>>(list =>
-        {
-            var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
-            var listBotData = appSettingDbContext.BotSettings
-                .AsEnumerable()
-                .Select(settings => new SimpleTelegramBotClientOptions(settings.Name, settings.Token, host, null, false))
-                .ToList();
+        services.Configure<List<SimpleTelegramBotClientOptions>>(
+            list =>
+            {
+                var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
+                var listBotData = appSettingDbContext.BotSettings
+                    .AsEnumerable()
+                    .Select(settings => new SimpleTelegramBotClientOptions(settings.Name, settings.Token, host, null, false))
+                    .ToList();
 
-            list.AddRange(listBotData);
-        });
+                list.AddRange(listBotData);
+            }
+        );
 
         if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
             services.AddAzureAppConfiguration();
