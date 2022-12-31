@@ -34,6 +34,8 @@ app.MapControllers();
 
 app.UseNgDashboard();
 
+app.UseRouting();
+
 if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
     app.UseAzureAppConfiguration();
 
