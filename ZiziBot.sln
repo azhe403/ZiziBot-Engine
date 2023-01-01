@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.Contracts", "src\Zi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.NgDashboard", "src\ZiziBot.NgDashboard\ZiziBot.NgDashboard.csproj", "{5440409B-E379-4512-8BC6-0ECC9B439429}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.WebApi", "src\ZiziBot.WebApi\ZiziBot.WebApi.csproj", "{40D04ABC-79D3-46C9-B633-E072FC95CC6B}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Allowed.TelegramBot", "src\ZiziBot.Allowed.TelegramBot\ZiziBot.Allowed.TelegramBot.csproj", "{0077AEC5-176A-479E-BFF8-DEDED8AED8ED}"
 EndProject
 Global
