@@ -34,9 +34,9 @@ RUN dotnet publish "ZiziBot.Engine.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 
-RUN mkdir -p /app/wwwroot
+RUN #mkdir -p /app/wwwroot
 
-COPY --from=publish /app/ng-dashboard/dist/ng-dashboard /app/wwwroot
+#COPY --from=publish /app/ng-dashboard/dist/ng-dashboard /app/wwwroot
 COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "ZiziBot.Engine.dll"]
