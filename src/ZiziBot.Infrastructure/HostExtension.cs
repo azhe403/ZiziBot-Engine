@@ -1,6 +1,8 @@
-namespace ZiziBot.Engine.Extensions;
+using Microsoft.AspNetCore.Hosting;
 
-public static class Infrastructure
+namespace ZiziBot.Infrastructure;
+
+public static class HostExtension
 {
     public static IWebHostBuilder ConfigureCustomListenPort(this IWebHostBuilder webHostBuilder)
     {
