@@ -70,7 +70,8 @@
               "browserTarget": "ng-dashboard:build:production"
             },
             "development": {
-              "browserTarget": "ng-dashboard:build:development"
+              "browserTarget": "ng-dashboard:build:development",
+              "proxyConfig": "src/proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"

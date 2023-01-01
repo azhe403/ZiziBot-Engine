@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace ZiziBot.NgDashboard;
 
@@ -18,10 +16,10 @@ public static class DashboardLoaderExtension
             );
         });
 
-        services.AddSpaStaticFiles(configuration =>
-        {
-            configuration.RootPath = "./wwwroot";
-        });
+        // services.AddSpaStaticFiles(configuration =>
+        // {
+        //     configuration.RootPath = "./wwwroot";
+        // });
 
         return services;
     }
@@ -30,19 +28,19 @@ public static class DashboardLoaderExtension
     {
         app.UseStaticFiles();
 
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseSpaStaticFiles();
-        }
-
-        app.UseSpa(spa =>
-        {
-            spa.Options.SourcePath = Env.DASHBOARD_PROJECT_PATH;
-            if (app.Environment.IsDevelopment())
-            {
-                spa.UseAngularCliServer(npmScript: "start");
-            }
-        });
+        // if (!app.Environment.IsDevelopment())
+        // {
+        //     app.UseSpaStaticFiles();
+        // }
+        //
+        // app.UseSpa(spa =>
+        // {
+        //     spa.Options.SourcePath = Env.DASHBOARD_PROJECT_PATH;
+        //     if (app.Environment.IsDevelopment())
+        //     {
+        //         spa.UseAngularCliServer(npmScript: "start");
+        //     }
+        // });
 
         app.UseCors();
 
