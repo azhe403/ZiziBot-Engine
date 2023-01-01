@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\ZiziBot.Allowed.TelegramBot\ZiziBot.Allowed.TelegramBot.csproj" />
       <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
       <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
       <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj" />

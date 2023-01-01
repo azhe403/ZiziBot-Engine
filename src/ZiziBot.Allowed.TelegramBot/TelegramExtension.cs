@@ -1,10 +1,12 @@
 using Allowed.Telegram.Bot.Extensions;
 using Allowed.Telegram.Bot.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace ZiziBot.Engine.Extensions;
+namespace ZiziBot.Allowed.TelegramBot;
 
-public static class Telegram
+public static class TelegramExtension
 {
     public static IServiceCollection ConfigureTelegramBot(this IServiceCollection services)
     {
@@ -20,10 +22,10 @@ public static class Telegram
 
         services.AddTelegramClients(listBotOptions);
 
-        if (env.IsDevelopment())
+        // if (env.IsDevelopment())
             services.AddTelegramManager();
-        else
-            services.AddTelegramWebHookManager();
+        // else
+            // services.AddTelegramWebHookManager();
 
         return services;
     }

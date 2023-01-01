@@ -1,12 +1,12 @@
 ﻿using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
 using Allowed.Telegram.Bot.Models;
-using MediatR;
 using Telegram.Bot.Types.Enums;
 
-namespace ZiziBot.Engine.Controllers;
+namespace ZiziBot.Allowed.TelegramBot.Controllers;
 
 [BotName("Main")]
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class MemberChangesController : CommandController
 {
     private readonly IMediator _mediator;

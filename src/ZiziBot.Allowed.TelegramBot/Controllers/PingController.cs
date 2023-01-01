@@ -1,12 +1,10 @@
 using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
 using Allowed.Telegram.Bot.Models;
-using JetBrains.Annotations;
-using MediatR;
 
-namespace ZiziBot.Engine.Controllers;
+namespace ZiziBot.Allowed.TelegramBot.Controllers;
 
-[UsedImplicitly]
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class PingController : CommandController
 {
     private readonly IMediator _mediator;
@@ -24,7 +22,6 @@ public class PingController : CommandController
             {
                 Options = data.Options,
                 Message = data.Message,
-                Mediator = _mediator,
                 DeleteAfter = TimeSpan.FromMinutes(1),
                 ReplyToMessageId = data.Message.MessageId,
                 DirectAction = true

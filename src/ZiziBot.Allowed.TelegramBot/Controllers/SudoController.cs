@@ -1,10 +1,8 @@
 using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
 using Allowed.Telegram.Bot.Models;
-using JetBrains.Annotations;
-using MediatR;
 
-namespace ZiziBot.Engine.Controllers;
+namespace ZiziBot.Allowed.TelegramBot.Controllers;
 
 [BotName("Main")]
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
