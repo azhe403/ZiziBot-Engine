@@ -7,4 +7,7 @@ import {Component} from '@angular/core';
 })
 export class RootComponent {
 
+  onLogout() {
+    alert('logout success!');
+  }
 }

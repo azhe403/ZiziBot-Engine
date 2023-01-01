@@ -12,4 +12,34 @@
   align-items: center;
   color: white;
   font-weight: 600;
+  z-index: 2;
+}
+
+mat-drawer-container {
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+mat-drawer-content {
+  display: flex;
+}
+
+mat-drawer {
+  width: 200px;
+}
+
+.drawer-container {
+  margin-left: 10px;
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.user-icon {
+  width: unset;
 }

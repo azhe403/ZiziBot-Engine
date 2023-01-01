@@ -1,14 +1,37 @@
 <mat-toolbar color="primary" class="toolbar">
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+  <button mat-icon-button (click)="drawer.toggle()" class="example-icon" aria-label="Example icon-button with menu icon">
     <mat-icon>menu</mat-icon>
   </button>
-  <button mat-button routerLink="/">Home</button>
+  <button mat-button routerLink="/">Dashboard</button>
   <span class="example-spacer"></span>
-  <button mat-button routerLink="/angular">Angular</button>
-  <a mat-button href="/hangfire">Hangfire</a>
-  <a mat-icon-button class="example-icon" href="https://github.com/WinTenDev/ZiziBot-Engine" target="_blank" aria-label="ZiziBot-Engine source code">
-    <mat-icon>code</mat-icon>
-  </a>
+  <button mat-button [matMenuTriggerFor]="menu" class="user-icon" aria-label="Example icon-button with menu icon">
+    <mat-icon>account_circle</mat-icon>
+    <span>Fulan</span>
+  </button>
 </mat-toolbar>
 
-<router-outlet></router-outlet>
+<mat-menu #menu="matMenu">
+  <a mat-menu-item routerLink="/angular">Angular</a>
+  <a mat-menu-item href="/hangfire">Hangfire</a>
+  <a mat-menu-item href="https://github.com/WinTenDev/ZiziBot-Engine" target="_blank" aria-label="ZiziBot-Engine source code">Source code</a>
+  <mat-divider></mat-divider>
+  <button mat-menu-item  (click)="onLogout()">Logout</button>
+</mat-menu>
+
+<mat-drawer-container>
+  <mat-drawer #drawer mode="side" opened>
+    <mat-list>
+      <mat-list-item>Pepper</mat-list-item>
+      <mat-list-item>Salt</mat-list-item>
+      <mat-list-item></mat-list-item>
+    </mat-list>
+  </mat-drawer>
+
+  <mat-drawer-content>
+    <div class="drawer-container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-drawer-content>
+
+</mat-drawer-container>
+
