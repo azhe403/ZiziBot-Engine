@@ -12,13 +12,17 @@ import {RootComponent} from './root/root.component';
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import {MatListModule} from "@angular/material/list";
+import {TelegramLoginWidgetComponent} from './components/telegram-login-widget/telegram-login-widget.component';
+import {dynamicScriptDirective} from "./directives/dynamic-script/dynamic-script.directive";
 
 @NgModule({
-  declarations: [
-    WelcomeComponent,
-    HomeComponent,
-    RootComponent
-  ],
+    declarations: [
+        WelcomeComponent,
+        HomeComponent,
+        RootComponent,
+        TelegramLoginWidgetComponent,
+        dynamicScriptDirective
+    ],
     imports: [
         BrowserModule,
         AppRoutingModule,
