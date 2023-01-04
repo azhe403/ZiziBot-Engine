@@ -24,4 +24,8 @@
       <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj" />
     </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\ng-dashboard\**" Link="ClientApp\%(RecursiveDir)%(Filename)%(Extension)"/>
+  </ItemGroup>
+
 </Project>

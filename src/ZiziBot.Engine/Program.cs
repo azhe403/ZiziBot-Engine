@@ -15,8 +15,6 @@ builder.Services.ConfigureServices();
 builder.Services.ConfigureHangfire();
 builder.Services.ConfigureTelegramBot();
 
-builder.Services.AddNgDashboard();
-
 var app = builder.Build();
 
 app.PrintAbout();
@@ -32,13 +30,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseNgDashboard();
-
 app.UseRouting();
 
 if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
     app.UseAzureAppConfiguration();
 
 app.UseHangfire();
+
+app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

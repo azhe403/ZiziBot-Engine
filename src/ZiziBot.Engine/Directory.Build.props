@@ -1,7 +1,9 @@
 <Project>
 
     <PropertyGroup>
-        <FrontEndRoot>..\ng-dashboard</FrontEndRoot>
+        <SpaRoot>..\ng-dashboard</SpaRoot>
+        <SpaProxyServerUrl>https://localhost:17210</SpaProxyServerUrl>
+        <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     </PropertyGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(FrontEndRoot)\node_modules') ">
@@ -12,15 +14,15 @@
         <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project.
          To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE."/>
         <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..."/>
-        <Exec WorkingDirectory="$(FrontEndRoot)" Command="npm install"/>
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install"/>
     </Target>
 
     <Target Name="PublishAngular" AfterTargets="ComputeFilesToPublish">
         <Message Importance="high" Text="Building SPA files..."/>
-        <Exec Command="npm install" WorkingDirectory="$(FrontEndRoot)"/>
-        <Exec Command="npm run build-prod" WorkingDirectory="$(FrontEndRoot)"/>
+        <Exec Command="npm install" WorkingDirectory="$(SpaRoot)"/>
+        <Exec Command="npm run build-prod" WorkingDirectory="$(SpaRoot)"/>
         <ItemGroup>
-            <DistFiles Include="$(FrontEndRoot)\dist\ng-dashboard\**"/>
+            <DistFiles Include="$(SpaRoot)\dist\ng-dashboard\**"/>
             <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
                 <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
