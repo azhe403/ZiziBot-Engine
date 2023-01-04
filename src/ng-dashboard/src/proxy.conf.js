@@ -10,7 +10,8 @@ const PROXY_CONFIG = [
     context: [
       "/api",
       "/hangfire",
-      "/telegram"
+      "/telegram",
+      "/swagger"
     ],
     target: target,
     secure: false,
