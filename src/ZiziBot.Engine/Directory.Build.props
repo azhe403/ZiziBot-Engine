@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <SpaRoot>..\ng-dashboard</SpaRoot>
-        <SpaProxyServerUrl>https://localhost:17210</SpaProxyServerUrl>
+        <SpaProxyServerUrl>http://localhost:17210</SpaProxyServerUrl>
         <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     </PropertyGroup>
 
