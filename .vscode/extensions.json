@@ -1,6 +1,8 @@
 {
     "recommendations": [
         "ms-dotnettools.csharp",
-        "fernandoescolar.vscode-solution-explorer"
+        "fernandoescolar.vscode-solution-explorer",
+        "angular.ng-template",
+        "muhammad-sammy.csharp"
     ]
 }
