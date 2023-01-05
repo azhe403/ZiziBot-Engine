@@ -1,4 +1,12 @@
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.WebHost.ConfigureCustomListenPort();
 
@@ -16,6 +24,8 @@ builder.Services.ConfigureHangfire();
 builder.Services.ConfigureTelegramBot();
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 app.PrintAbout();
 
