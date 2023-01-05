@@ -8,10 +8,10 @@ console.log('proxy target: ', target);
 const PROXY_CONFIG = [
   {
     context: [
-      "/api",
-      "/hangfire",
-      "/telegram",
-      "/swagger"
+      "/api/**",
+      "/hangfire/**",
+      "/telegram/**",
+      "/swagger/**"
     ],
     target: target,
     secure: false,
