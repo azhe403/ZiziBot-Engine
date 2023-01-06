@@ -12,7 +12,10 @@ builder.WebHost.ConfigureCustomListenPort();
 
 builder.Configuration.LoadSettings();
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Conventions.Add(new ControllerHidingConvention());
+    })
     .AddNewtonsoftJson();
 
 builder.Services.AddEndpointsApiExplorer();
