@@ -14,27 +14,34 @@ import {MatSidenavModule} from "@angular/material/sidenav";
 import {MatListModule} from "@angular/material/list";
 import {TelegramLoginWidgetComponent} from './components/telegram-login-widget/telegram-login-widget.component';
 import {dynamicScriptDirective} from "./directives/dynamic-script/dynamic-script.directive";
+import {AfterTelegramLoginComponent} from './after-telegram-login/after-telegram-login.component';
+import {CookieService} from "ngx-cookie-service";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
-    declarations: [
-        WelcomeComponent,
-        HomeComponent,
-        RootComponent,
-        TelegramLoginWidgetComponent,
-        dynamicScriptDirective
-    ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        MatButtonModule,
-        MatToolbarModule,
-        MatIconModule,
-        MatMenuModule,
-        MatSidenavModule,
-        MatListModule
-    ],
-  providers: [],
+  declarations: [
+    WelcomeComponent,
+    HomeComponent,
+    RootComponent,
+    TelegramLoginWidgetComponent,
+    dynamicScriptDirective,
+    AfterTelegramLoginComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    HttpClientModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatMenuModule,
+    MatSidenavModule,
+    MatListModule
+  ],
+  providers: [
+    CookieService
+  ],
   bootstrap: [RootComponent]
 })
 export class AppModule {

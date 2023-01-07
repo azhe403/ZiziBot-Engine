@@ -8,4 +8,5 @@ public class DashboardSession : EntityBase
     public string PhotoUrl { get; set; }
     public long AuthDate { get; set; }
     public string Hash { get; set; }
+    public string SessionId { get; set; }
 }

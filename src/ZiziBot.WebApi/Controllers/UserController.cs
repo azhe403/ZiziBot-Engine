@@ -9,23 +9,17 @@ namespace ZiziBot.WebApi.Controllers;
 public class UserController : ControllerBase
 {
     protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();
-    
+
     [HttpGet]
     public IActionResult Index()
     {
         return Ok(true);
     }
 
-    [HttpGet("session/telegram")]
-    public async Task<IActionResult> GetTelegramSession([FromQuery] SaveTelegramSessionRequestModel requestModel)
+    [HttpPost("session/telegram")]
+    public async Task<IActionResult> PostTelegramSession([FromBody] SaveTelegramSessionRequestModel requestModel)
     {
         var result = await Mediator.Send(requestModel);
         return Ok(result);
-    }
-
-    [HttpPost("session/telegram")]
-    public IActionResult PostTelegramSession()
-    {
-        return Ok(true);
     }
 }

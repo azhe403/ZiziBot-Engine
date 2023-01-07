@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -7,21 +6,26 @@ namespace ZiziBot.Application.Pipelines;
 
 public class SaveTelegramSessionRequestModel : IRequest<bool>
 {
-    public long Id { get; set; }
+    [JsonProperty("id")]
+    public long TelegramUserId { get; set; }
 
-    [FromQuery(Name = "first_name")]
+    [JsonProperty("first_name")]
     public string FirstName { get; set; }
 
+    [JsonProperty("username")]
     public string Username { get; set; }
 
-    [FromQuery(Name = "photo_url")]
+    [JsonProperty("photo_url")]
     public string PhotoUrl { get; set; }
 
-    [FromQuery(Name = "auth_date")]
     [JsonConverter(typeof(UnixDateTimeConverter))]
     public long AuthDate { get; set; }
 
+    [JsonProperty("hash")]
     public string Hash { get; set; }
+
+    [JsonProperty("session_id")]
+    public string SessionId { get; set; }
 }
 
 public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequestModel, bool>
@@ -35,19 +39,20 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
 
     public async Task<bool> Handle(SaveTelegramSessionRequestModel request, CancellationToken cancellationToken)
     {
-         _userDbContext.DashboardSessions.Add(new DashboardSession()
+        _userDbContext.DashboardSessions.Add(new DashboardSession()
         {
-            TelegramUserId = request.Id,
+            TelegramUserId = request.TelegramUserId,
             FirstName = request.FirstName,
             PhotoUrl = request.PhotoUrl,
             Username = request.Username,
             AuthDate = request.AuthDate,
             Hash = request.Hash,
+            SessionId = request.SessionId,
             Status = (int)EventStatus.Complete
         });
 
-         await _userDbContext.SaveChangesAsync(cancellationToken);
+        await _userDbContext.SaveChangesAsync(cancellationToken);
 
-         return true;
+        return true;
     }
 }
