@@ -8,5 +8,5 @@ public class EntityBase
 
     public int Status { get; set; }
     public DateTime CreatedDate { get; set; }
-    public DateTime UpdateTime { get; set; }
+    public DateTime UpdatedDate { get; set; }
 }
