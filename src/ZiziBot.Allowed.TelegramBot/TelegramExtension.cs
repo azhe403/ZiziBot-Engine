@@ -12,18 +12,36 @@ public static class TelegramExtension
     public static IServiceCollection ConfigureTelegramBot(this IServiceCollection services)
     {
         var provider = services.BuildServiceProvider();
-        var env = provider.GetRequiredService<IWebHostEnvironment>();
+        var appSettingsDbContext = provider.GetRequiredService<AppSettingsDbContext>();
+        var environment = provider.GetRequiredService<IWebHostEnvironment>();
 
         var listBotOptions = provider.GetRequiredService<IOptions<List<SimpleTelegramBotClientOptions>>>().Value;
 
         if (!listBotOptions.Any())
         {
+            appSettingsDbContext.BotSettings.Add(new BotSettings()
+            {
+                Name = "BOT_NAME",
+                Token = "BOT_TOKEN"
+            });
+
+            appSettingsDbContext.SaveChanges();
+
             throw new ApplicationException("No bot data found. Please ensure config for 'BotSettings'");
         }
 
-        services.AddTelegramClients(listBotOptions);
+        var validBot = listBotOptions
+            .Where(x => x.Name != "BOT_NAME")
+            .ToList();
 
-        if (env.IsDevelopment())
+        if (!validBot.Any())
+        {
+            throw new ApplicationException("Please add your Bot to 'BotSettings'");
+        }
+
+        services.AddTelegramClients(validBot);
+
+        if (environment.IsDevelopment())
             services.AddTelegramManager();
         else
             services.AddTelegramWebHookManager();
