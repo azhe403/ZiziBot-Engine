@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using MongoFramework;
 
 namespace ZiziBot.Infrastructure;
 

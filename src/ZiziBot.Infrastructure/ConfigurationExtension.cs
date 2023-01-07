@@ -2,6 +2,7 @@ using Allowed.Telegram.Bot.Models;
 using dotenv.net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoFramework;
 
 namespace ZiziBot.Infrastructure;
 
@@ -80,6 +81,12 @@ public static class ConfigurationExtension
     private static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
     {
         var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING);
+
+        var mongoDbConnection = MongoDbConnection.FromConnectionString(mongodbConnectionString);
+        if (string.IsNullOrEmpty(mongoDbConnection.Url.DatabaseName))
+        {
+            throw new Exception("Database name is not specified in connection string. Example: mongodb://localhost:27017/DatabaseName");
+        }
 
         builder.Add(new MongoConfigSource(mongodbConnectionString));
 
