@@ -14,6 +14,7 @@ public static class DataSourceExtension
         }
 
         services.AddScoped<AppSettingsDbContext>(provider => new AppSettingsDbContext(mongodbConnectionString));
+        services.AddScoped<MirrorDbContext>(provider => new MirrorDbContext(mongodbConnectionString));
         services.AddScoped<UserDbContext>(provider => new UserDbContext(mongodbConnectionString));
 
         return services;
