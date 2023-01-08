@@ -5,4 +5,3 @@ global using ZiziBot.Application.Pipelines;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Hangfire;
 global using ZiziBot.Infrastructure;
-global using ZiziBot.Interfaces;
