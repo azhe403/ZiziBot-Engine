@@ -7,7 +7,11 @@ import {AfterTelegramLoginComponent} from "./after-telegram-login/after-telegram
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'angular', component: WelcomeComponent},
-  {path: 'after-telegram-login', component: AfterTelegramLoginComponent}
+  {path: 'after-telegram-login', component: AfterTelegramLoginComponent},
+  {
+    path: 'mirror-user',
+    loadChildren: () => import('./mirror-user/mirror-user.module').then(m => m.MirrorUserModule)
+  }
 ];
 
 @NgModule({

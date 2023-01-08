@@ -1,0 +1,21 @@
+<h1>Mirror User</h1>
+
+<div *ngIf="mirrorUser.length==0; else userDisplay">
+  <p>Loading users...</p>
+</div>
+
+<ng-template #userDisplay>
+  <mat-toolbar>
+    <mat-toolbar-row>
+      <button mat-raised-button (click)="loadUsers()">
+        <mat-icon>refresh</mat-icon>
+        <span>Refresh</span>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div>
+    <div *ngFor="let user of mirrorUser">
+      {{user.userId}} - {{user.expireAt}}
+    </div>
+  </div>
+</ng-template>
