@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ZiziBot.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class UserController : ControllerBase
 {
     protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();

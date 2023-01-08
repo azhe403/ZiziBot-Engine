@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ZiziBot.WebApi.Controllers;
 
 [ApiController]
-[Route("api")]
+[Route("")]
 public class HomeController : ControllerBase
 {
     [HttpGet]

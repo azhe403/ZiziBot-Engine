@@ -19,7 +19,10 @@ builder.Services.AddControllers(options =>
     .AddNewtonsoftJson();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(
+    options => {
+        options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
+    });
 
 builder.Services.ConfigureServices();
 
@@ -39,6 +42,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.UseStaticFiles();
+
+app.UsePathBase(new PathString("/api"));
 app.UseRouting();
 
 app.MapControllerRoute(

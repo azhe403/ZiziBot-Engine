@@ -4,7 +4,7 @@ using MongoFramework.Linq;
 namespace ZiziBot.WebApi.Controllers
 {
     [ApiController]
-    [Route("api/mirror-user")]
+	[Route("mirror-user")]
     public class MirrorUserController : ApiControllerBase
     {
         private readonly MirrorDbContext _mirrorDbContext;
