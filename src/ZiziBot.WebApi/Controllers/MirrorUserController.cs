@@ -1,42 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
-using MongoFramework.Linq;
 
-namespace ZiziBot.WebApi.Controllers
+namespace ZiziBot.WebApi.Controllers;
+
+[ApiController]
+[Route("mirror-user")]
+public class MirrorUserController : ApiControllerBase
 {
-	[ApiController]
-	[Route("mirror-user")]
-	public class MirrorUserController : ApiControllerBase
+	[HttpGet()]
+	public async Task<IActionResult> GetUsersAll()
 	{
-		private readonly MirrorDbContext _mirrorDbContext;
+		var mirrorUsers = await Mediator.Send(new GetMirrorUsersRequestDto());
+		return Ok(mirrorUsers);
+	}
 
-		public MirrorUserController(MirrorDbContext mirrorDbContext)
-		{
-			_mirrorDbContext = mirrorDbContext;
-		}
+	[HttpGet("find")]
+	public async Task<IActionResult> GetUsers([FromQuery] GetMirrorUserByUserIdRequestDto requestDto)
+	{
+		var mirrorUser = await Mediator.Send(requestDto);
+		return Ok(mirrorUser);
+	}
 
-		[HttpGet()]
-		public async Task<IActionResult> GetUsersAll()
-		{
-			var mirrorUsers = await Mediator.Send(new GetMirrorUsersRequestDto());
-			return Ok(mirrorUsers);
-		}
+	[HttpPost()]
+	public async Task<bool> PostUserMirror([FromBody] PostMirrorUserRequestDto requestDto)
+	{
+		var result = await Mediator.Send(requestDto);
 
-		[HttpGet("{userId}")]
-		public async Task<List<MirrorUser>> GetUsers([FromRoute] long userId)
-		{
-			var user = await _mirrorDbContext.MirrorUsers
-				.Where(user => user.UserId == userId)
-				.ToListAsync();
-
-			return user;
-		}
-
-		[HttpPost()]
-		public async Task<bool> PostUserMirror([FromBody] PostMirrorUserRequestDto requestDto)
-		{
-			var result = await Mediator.Send(requestDto);
-
-			return result;
-		}
+		return result;
 	}
 }

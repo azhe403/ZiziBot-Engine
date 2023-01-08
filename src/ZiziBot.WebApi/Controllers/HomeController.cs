@@ -4,7 +4,7 @@ namespace ZiziBot.WebApi.Controllers;
 
 [ApiController]
 [Route("")]
-public class HomeController : ControllerBase
+public class HomeController : ApiControllerBase
 {
     [HttpGet]
     public IActionResult Get()
