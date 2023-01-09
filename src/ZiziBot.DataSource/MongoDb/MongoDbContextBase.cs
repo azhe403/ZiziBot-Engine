@@ -5,30 +5,40 @@ namespace ZiziBot.DataSource.MongoDb;
 
 public class MongoDbContextBase : MongoDbContext
 {
-    public MongoDbContextBase(string connectionStr) : base(MongoDbConnection.FromConnectionString(connectionStr))
-    {
-    }
+	public MongoDbContextBase(string connectionStr) : base(MongoDbConnection.FromConnectionString(connectionStr))
+	{
+	}
 
-    public override Task SaveChangesAsync(CancellationToken cancellationToken = new())
-    {
-        var entries = ChangeTracker
-            .Entries()
-            .Where(
-                e =>
-                    e.Entity is EntityBase &&
-                    e.State is EntityEntryState.Added or EntityEntryState.Updated
-            );
+	public override void SaveChanges()
+	{
+		EnsureTimestamp();
+		base.SaveChanges();
+	}
 
-        foreach (var entityEntry in entries)
-        {
-            ((EntityBase)entityEntry.Entity).UpdatedDate = DateTime.Now;
+	public override Task SaveChangesAsync(CancellationToken cancellationToken = new())
+	{
+		EnsureTimestamp();
+		return base.SaveChangesAsync(cancellationToken);
+	}
 
-            if (entityEntry.State == EntityEntryState.Added)
-            {
-                ((EntityBase)entityEntry.Entity).CreatedDate = DateTime.Now;
-            }
-        }
+	private void EnsureTimestamp()
+	{
+		var entries = ChangeTracker
+			.Entries()
+			.Where(
+				e =>
+					e.Entity is EntityBase &&
+					e.State is EntityEntryState.Added or EntityEntryState.Updated
+			);
 
-        return base.SaveChangesAsync(cancellationToken);
-    }
+		foreach (var entityEntry in entries)
+		{
+			((EntityBase) entityEntry.Entity).UpdatedDate = DateTime.Now;
+
+			if (entityEntry.State == EntityEntryState.Added)
+			{
+				((EntityBase) entityEntry.Entity).CreatedDate = DateTime.Now;
+			}
+		}
+	}
 }
