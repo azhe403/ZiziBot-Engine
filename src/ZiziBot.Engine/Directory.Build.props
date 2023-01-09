@@ -20,7 +20,7 @@
     <Target Name="PublishAngular" AfterTargets="ComputeFilesToPublish">
         <Message Importance="high" Text="Building SPA files..."/>
         <Exec Command="npm install" WorkingDirectory="$(SpaRoot)"/>
-        <Exec Command="npm run build-prod" WorkingDirectory="$(SpaRoot)"/>
+        <Exec Command="npm run build-staging" WorkingDirectory="$(SpaRoot)"/>
         <ItemGroup>
             <DistFiles Include="$(SpaRoot)\dist\ng-dashboard\**"/>
             <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
