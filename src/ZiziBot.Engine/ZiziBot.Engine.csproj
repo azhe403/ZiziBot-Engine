@@ -25,10 +25,10 @@
       <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj" />
     </ItemGroup>
 
-  <ItemGroup>
+    <ItemGroup>
       <None Update=".env">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-  </ItemGroup>
+    </ItemGroup>
 
 </Project>

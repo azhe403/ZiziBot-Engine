@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ZiziBot.WebApi.Controllers;
 
 [ApiController]
-[Route("mirror-user")]
+[Route("api/mirror-user")]
 public class MirrorUserController : ApiControllerBase
 {
 	[HttpGet()]
@@ -14,7 +14,7 @@ public class MirrorUserController : ApiControllerBase
 	}
 
 	[HttpGet("find")]
-	public async Task<IActionResult> GetUsers([FromQuery] GetMirrorUserByUserIdRequestDto requestDto)
+	public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto requestDto)
 	{
 		var mirrorUser = await Mediator.Send(requestDto);
 		return Ok(mirrorUser);

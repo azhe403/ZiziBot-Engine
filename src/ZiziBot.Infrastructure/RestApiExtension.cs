@@ -7,7 +7,13 @@ public static class RestApiExtension
 {
 	public static IApplicationBuilder ConfigureAutoWrapper(this IApplicationBuilder app)
 	{
-		app.UseAutoWrapper();
+		app.UseAutoWrapper(
+			new AutoWrapperOptions()
+			{
+				WrapWhenApiPathStartsWith = "/api",
+				IsApiOnly = false
+			}
+		);
 		return app;
 	}
 }

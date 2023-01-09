@@ -6,5 +6,6 @@ namespace ZiziBot.WebApi.Controllers;
 
 public class ApiControllerBase : ControllerBase
 {
-    protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();
+	protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();
+
 }

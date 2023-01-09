@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using MongoFramework;
 
 namespace ZiziBot.Infrastructure.MongoConfig;
 

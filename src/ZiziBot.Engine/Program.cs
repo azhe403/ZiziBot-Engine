@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,16 +13,19 @@ builder.WebHost.ConfigureCustomListenPort();
 
 builder.Configuration.LoadSettings();
 
-builder.Services.AddControllers(options =>
-    {
-	    options.Conventions.Add(new ControllerHidingConvention());
-    })
+builder.Services.AddControllers(
+		options => {
+			options.Conventions.Add(new ControllerHidingConvention());
+			options.Conventions.Add(new ActionHidingConvention());
+			options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+		}
+	)
 	.AddNewtonsoftJson();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
 	options => {
-		options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
+		// options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
     });
 
 builder.Services.ConfigureServices();
@@ -40,12 +44,10 @@ app.UseSwaggerUI();
 
 app.UseAuthorization();
 
-app.MapControllers();
 app.UseStaticFiles();
-
-app.UsePathBase(new PathString("/api"));
 app.UseRouting();
 
+app.MapControllers();
 app.MapControllerRoute(
 	name: "default",
 	pattern: "{controller}/{action=Index}/{id?}"
