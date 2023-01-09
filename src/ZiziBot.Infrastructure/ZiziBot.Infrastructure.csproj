@@ -15,6 +15,7 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="MongoFramework" Version="0.27.0" />
       <PackageReference Include="Scrutor.AspNetCore" Version="3.3.0" />
+      <PackageReference Include="TIPC.Web.AutoWrapper" Version="6.0.4" />
     </ItemGroup>
 
     <ItemGroup>

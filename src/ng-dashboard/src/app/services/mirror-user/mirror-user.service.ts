@@ -3,6 +3,7 @@ import {CookieService} from "ngx-cookie-service";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {AddMirrorUserDto, MirrorUser} from "../../types/mirror-user";
+import {ApiResponse} from "../../types/api-response";
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +16,8 @@ export class MirrorUserService {
   ) {
   }
 
-  public getUsers(): Observable<MirrorUser[]> {
-    return this.httpClient.get<MirrorUser[]>('/api/mirror-user');
+  public getUsers(): Observable<ApiResponse<MirrorUser[]>> {
+    return this.httpClient.get<ApiResponse<MirrorUser[]>>('/api/mirror-user');
   }
 
   public saveUser(userDto: AddMirrorUserDto): Observable<any> {

@@ -3,8 +3,8 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
+	.WriteTo.Console()
+	.CreateLogger();
 
 builder.Host.UseSerilog();
 
@@ -14,14 +14,14 @@ builder.Configuration.LoadSettings();
 
 builder.Services.AddControllers(options =>
     {
-        options.Conventions.Add(new ControllerHidingConvention());
+	    options.Conventions.Add(new ControllerHidingConvention());
     })
-    .AddNewtonsoftJson();
+	.AddNewtonsoftJson();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
-    options => {
-        options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
+	options => {
+		options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
     });
 
 builder.Services.ConfigureServices();
@@ -47,12 +47,14 @@ app.UsePathBase(new PathString("/api"));
 app.UseRouting();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}"
+	name: "default",
+	pattern: "{controller}/{action=Index}/{id?}"
 );
 
+app.ConfigureAutoWrapper();
+
 if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
-    app.UseAzureAppConfiguration();
+	app.UseAzureAppConfiguration();
 
 app.UseHangfire();
 

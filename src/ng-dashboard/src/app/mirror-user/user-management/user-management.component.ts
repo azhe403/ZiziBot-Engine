@@ -4,6 +4,7 @@ import {MirrorUser} from "../../types/mirror-user";
 import {Subscription} from "rxjs";
 import {MatDialog} from "@angular/material/dialog";
 import {AddMirrorUserComponent} from "../add-mirror-user/add-mirror-user.component";
+import {ApiResponse} from "../../types/api-response";
 
 @Component({
   selector: 'app-user-management',
@@ -12,7 +13,7 @@ import {AddMirrorUserComponent} from "../add-mirror-user/add-mirror-user.compone
 })
 export class UserManagementComponent implements AfterViewInit, OnDestroy {
 
-  mirrorUser: MirrorUser[] = [];
+  mirrorUser: ApiResponse<MirrorUser[]> | undefined;
   mirrorSubscription: Subscription = new Subscription;
   desired_columns: number = 3;
 
