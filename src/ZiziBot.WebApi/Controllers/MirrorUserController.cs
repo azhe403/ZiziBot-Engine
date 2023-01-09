@@ -24,7 +24,13 @@ public class MirrorUserController : ApiControllerBase
 	public async Task<bool> PostUserMirror([FromBody] PostMirrorUserRequestDto requestDto)
 	{
 		var result = await Mediator.Send(requestDto);
-
 		return result;
+	}
+
+	[HttpDelete]
+	public async Task<IActionResult> DeleteMirrorUser([FromQuery] DeleteMirrorUserRequestDto requestDto)
+	{
+		var result = await Mediator.Send(requestDto);
+		return Ok(result);
 	}
 }

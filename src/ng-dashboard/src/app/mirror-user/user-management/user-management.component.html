@@ -11,11 +11,26 @@
         <mat-icon>refresh</mat-icon>
         <span>Refresh</span>
       </button>
+      <span class="example-spacer"></span>
+      <button mat-raised-button (click)="showAddUserDialog()">
+        <mat-icon>add</mat-icon>
+        <span>Add User</span>
+      </button>
     </mat-toolbar-row>
   </mat-toolbar>
-  <div>
-    <div *ngFor="let user of mirrorUser">
-      {{user.userId}} - {{user.expireAt}}
-    </div>
-  </div>
+  <mat-grid-list cols="{{desired_columns}}" rowHeight="70px">
+    <mat-grid-tile *ngFor="let user of mirrorUser">
+      <div>
+        <div>
+          <mat-icon class="delete-icon" (click)="deleteUser(user.userId)">close</mat-icon>
+        </div>
+        <div>
+          {{user.userId}}
+        </div>
+        <div>
+          {{user.expireAt}}
+        </div>
+      </div>
+    </mat-grid-tile>
+  </mat-grid-list>
 </ng-template>

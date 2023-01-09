@@ -19,6 +19,7 @@ public class GetMirrorUsersRequestHandler : IRequestHandler<GetMirrorUsersReques
 	public async Task<List<MirrorUser>> Handle(GetMirrorUsersRequestDto request, CancellationToken cancellationToken)
 	{
 		var user = await _mirrorDbContext.MirrorUsers
+			.Where(mirrorUser => mirrorUser.Status == (int) EventStatus.Complete)
 			.ToListAsync(cancellationToken: cancellationToken);
 
 		return user;

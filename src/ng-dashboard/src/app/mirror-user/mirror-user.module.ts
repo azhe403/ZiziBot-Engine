@@ -6,18 +6,30 @@ import {UserManagementComponent} from './user-management/user-management.compone
 import {MatButtonModule} from "@angular/material/button";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatIconModule} from "@angular/material/icon";
+import {MatGridListModule} from "@angular/material/grid-list";
+import {AddMirrorUserComponent} from './add-mirror-user/add-mirror-user.component';
+import {MatDialogModule} from "@angular/material/dialog";
+import {MatInputModule} from "@angular/material/input";
+import {MatSelectModule} from "@angular/material/select";
+import {ReactiveFormsModule} from "@angular/forms";
 
 
 @NgModule({
   declarations: [
-    UserManagementComponent
+    UserManagementComponent,
+    AddMirrorUserComponent
   ],
   imports: [
     CommonModule,
     MirrorUserRoutingModule,
     MatButtonModule,
     MatToolbarModule,
-    MatIconModule
+    MatIconModule,
+    MatGridListModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule,
+    ReactiveFormsModule
   ]
 })
 export class MirrorUserModule { }
