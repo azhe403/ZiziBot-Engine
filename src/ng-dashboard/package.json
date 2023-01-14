@@ -2,6 +2,7 @@
   "name": "ng-dashboard",
   "version": "0.0.0",
   "scripts": {
+    "npm restore": "npm install",
     "ng": "ng",
     "start": "ng serve --port 17210",
     "build": "ng build",
