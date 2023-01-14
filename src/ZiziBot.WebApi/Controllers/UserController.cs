@@ -6,17 +6,24 @@ namespace ZiziBot.WebApi.Controllers;
 [Route("api/[controller]")]
 public class UserController : ApiControllerBase
 {
-	[HttpGet]
-	public IActionResult Index()
-	{
-		return Ok(true);
-	}
+    [HttpGet]
+    public IActionResult Index()
+    {
+        return Ok(true);
+    }
 
-	[HttpPost("session/telegram")]
-	[ApiExplorerSettings(IgnoreApi = true)]
-	public async Task<IActionResult> PostTelegramSession([FromBody] SaveTelegramSessionRequestModel requestModel)
-	{
-		var result = await Mediator.Send(requestModel);
-		return Ok(result);
-	}
+    [HttpPost("session/telegram")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task<IActionResult> PostTelegramSession([FromBody] SaveTelegramSessionRequestModel requestModel)
+    {
+        var result = await Mediator.Send(requestModel);
+        return Ok(result);
+    }
+
+    [HttpPost("session/telegram/validate")]
+    public async Task<IActionResult> CheckDashboardSession([FromBody] CheckDashboardSessionRequestDto requestDto)
+    {
+        var result = await Mediator.Send(requestDto);
+        return Ok(result);
+    }
 }

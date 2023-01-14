@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
-import {DashboardService} from "../services/dashboard.service";
+import {DashboardService} from "../services/dashboard/dashboard.service";
 import {TelegramUserLogin} from "../types/TelegramUserLogin";
 import {map} from "rxjs";
 

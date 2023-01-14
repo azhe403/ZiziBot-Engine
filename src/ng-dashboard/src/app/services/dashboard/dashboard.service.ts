@@ -1,8 +1,10 @@
 import {Injectable} from '@angular/core';
 import {CookieService} from "ngx-cookie-service";
 import {HttpClient} from "@angular/common/http";
-import {TelegramUserLogin} from "../types/TelegramUserLogin";
 import * as uuid from "uuid";
+import {firstValueFrom, map} from "rxjs";
+import {TelegramUserLogin} from "../../types/TelegramUserLogin";
+import {ApiResponse} from "../../types/api-response";
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +14,23 @@ export class DashboardService {
   constructor(private cookieService: CookieService, private httpClient: HttpClient) {
   }
 
-  public checkCookie() {
-    // if (ssid && token) {
-    //   return true;
-    // }
+  public async checkSession(): Promise<boolean> {
+    const userId = this.cookieService.get('user_id');
+    const sessionId = this.cookieService.get('session_id');
+
+    if (userId || sessionId) {
+      const result = await this.httpClient.post<ApiResponse<boolean>>('/api/user/session/telegram/validate',
+        {
+          userId: userId,
+          sessionId: sessionId
+        })
+
+        .pipe(map(x => {
+          return x.result;
+        }));
+
+      return firstValueFrom(result);
+    }
 
     return false;
   }
@@ -37,5 +52,11 @@ export class DashboardService {
     })
       .subscribe(value => {
       });
+  }
+
+  public logoutSession() {
+    console.debug('Clearing dashboard session..')
+    this.cookieService.delete('session_id');
+    this.cookieService.delete('user_id');
   }
 }
