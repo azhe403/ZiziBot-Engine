@@ -24,6 +24,8 @@ public class SudoService
         }
 
         _appSettingsDbContext.Sudoers.Add(sudoer);
+		await _appSettingsDbContext.SaveChangesAsync();
+
         return serviceResult.Complete("Sudoer added successfully.");
     }
 }
