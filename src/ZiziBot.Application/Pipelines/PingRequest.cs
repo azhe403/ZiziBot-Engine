@@ -1,4 +1,5 @@
 using MediatR;
+using Telegram.Bot;
 
 namespace ZiziBot.Application.Pipelines;
 
@@ -8,19 +9,35 @@ public class PingRequestModel : RequestBase
 
 public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase>
 {
-    private readonly IMediator _mediator;
 
-    public PingRequestHandler(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+	public PingRequestHandler()
+	{
+	}
 
-    public async Task<ResponseBase> Handle(PingRequestModel request, CancellationToken cancellationToken)
-    {
-        ResponseBase responseBase = new(request);
+	public async Task<ResponseBase> Handle(PingRequestModel request, CancellationToken cancellationToken)
+	{
+		ResponseBase responseBase = new(request);
 
-        await responseBase.SendMessageText("Pong!");
+		var webhookInfo = await responseBase.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
 
-        return responseBase.Complete();
-    }
+		var htmlMessage = HtmlMessage.Empty
+			.BoldBr("Pong!")
+			.Br();
+
+		if (!string.IsNullOrEmpty(webhookInfo.Url))
+		{
+			htmlMessage
+				.Bold("EngineMode: ").TextBr("WebHook")
+				.Bold("URL: ").TextBr(webhookInfo.Url)
+				.Bold("Custom Cert: ").TextBr(webhookInfo.HasCustomCertificate.ToString())
+				.Bold("Allowed Updates: ").TextBr(webhookInfo.AllowedUpdates?.ToString())
+				.Bold("Pending Count: ").TextBr((webhookInfo.PendingUpdateCount - 1).ToString())
+				.Bold("Max Connection: ").TextBr(webhookInfo.MaxConnections.ToString())
+				.Bold("Last Error: ").TextBr(webhookInfo.LastErrorDate?.ToString())
+				.Bold("Error Message: ").TextBr(webhookInfo.LastErrorMessage)
+				.Br();
+		}
+
+		return await responseBase.SendMessageText(htmlMessage.ToString());
+	}
 }
