@@ -30,7 +30,7 @@ internal class NewChatMembersRequestHandler : IRequestHandler<NewChatMembersRequ
             .Aggregate((s, next) => s + ", " + next);
 
         var message = "Hai " + users + "" +
-                      "\nSelamat datang di Kontrakan " + request.ChatTTitle;
+                      "\nSelamat datang di Kontrakan " + request.ChatTitle;
 
         await responseBase.SendMessageText(message);
         return responseBase.Complete();
