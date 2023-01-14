@@ -9,9 +9,11 @@ public class PingRequestModel : RequestBase
 
 public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase>
 {
+	private readonly SudoService _sudoService;
 
-	public PingRequestHandler()
+	public PingRequestHandler(SudoService sudoService)
 	{
+		_sudoService = sudoService;
 	}
 
 	public async Task<ResponseBase> Handle(PingRequestModel request, CancellationToken cancellationToken)
@@ -24,7 +26,8 @@ public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase
 			.BoldBr("Pong!")
 			.Br();
 
-		if (!string.IsNullOrEmpty(webhookInfo.Url))
+		if (!string.IsNullOrEmpty(webhookInfo.Url) &&
+		    await _sudoService.IsSudoAsync(request.UserId))
 		{
 			htmlMessage
 				.Bold("EngineMode: ").TextBr("WebHook")

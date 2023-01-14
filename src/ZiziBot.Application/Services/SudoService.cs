@@ -4,28 +4,37 @@ namespace ZiziBot.Application.Services;
 
 public class SudoService
 {
-    private readonly AppSettingsDbContext _appSettingsDbContext;
+	private readonly AppSettingsDbContext _appSettingsDbContext;
 
-    public SudoService(AppSettingsDbContext appSettingsDbContext)
-    {
-        _appSettingsDbContext = appSettingsDbContext;
-    }
+	public SudoService(AppSettingsDbContext appSettingsDbContext)
+	{
+		_appSettingsDbContext = appSettingsDbContext;
+	}
 
-    public async Task<ServiceResult> SaveSudo(Sudoer sudoer)
-    {
-        ServiceResult serviceResult = new();
+	public async Task<bool> IsSudoAsync(long userId)
+	{
+		return await _appSettingsDbContext.Sudoers.AnyAsync(
+			x =>
+				x.UserId == userId &&
+				x.Status == (int) EventStatus.Complete
+		);
+	}
 
-        var findSudo = await _appSettingsDbContext.Sudoers
-            .FirstOrDefaultAsync(x => x.UserId == sudoer.UserId);
+	public async Task<ServiceResult> SaveSudo(Sudoer sudoer)
+	{
+		ServiceResult serviceResult = new();
 
-        if (findSudo != null)
-        {
-            return serviceResult.Complete("This user is already a sudoer.");
-        }
+		var findSudo = await _appSettingsDbContext.Sudoers
+			.FirstOrDefaultAsync(x => x.UserId == sudoer.UserId);
 
-        _appSettingsDbContext.Sudoers.Add(sudoer);
+		if (findSudo != null)
+		{
+			return serviceResult.Complete("This user is already a sudoer.");
+		}
+
+		_appSettingsDbContext.Sudoers.Add(sudoer);
 		await _appSettingsDbContext.SaveChangesAsync();
 
-        return serviceResult.Complete("Sudoer added successfully.");
-    }
+		return serviceResult.Complete("Sudoer added successfully.");
+	}
 }
