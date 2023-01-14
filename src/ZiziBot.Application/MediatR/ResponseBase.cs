@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -11,6 +12,7 @@ public class ResponseBase
     private readonly RequestBase _request = new();
 
     private readonly Stopwatch _stopwatch = new();
+    public ILogger Logger { get; set; }
     public ITelegramBotClient Bot { get; }
     public TimeSpan ExecutionTime { get; private set; }
 
@@ -45,7 +47,7 @@ public class ResponseBase
 
     public async Task<ResponseBase> SendMessageText(string text)
     {
-        // _logger.LogDebug("Sending message to chat {ChatId}", ChatId);
+        // Logger?.LogDebug("Sending message to chat {ChatId}", ChatId);
         SentMessage = await Bot.SendTextMessageAsync(
             chatId: ChatId,
             text: text,
@@ -54,12 +56,12 @@ public class ResponseBase
             allowSendingWithoutReply: true
         );
 
-        // _logger.LogInformation("Message sent to chat {ChatId}", chatId);
+        // Logger?.LogInformation("Message sent to chat {ChatId}", ChatId);
 
         if (DeleteAfter.Ticks <= 0)
             return Complete();
 
-        // _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
+        // Logger?.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
         XMediator.Schedule(new DeleteMessageRequestModel()
         {
             Options = _request.Options,
@@ -68,7 +70,20 @@ public class ResponseBase
             DeleteAfter = _request.DeleteAfter
         });
 
-        // _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
+        if (_request.CleanupStrategy == CleanupStrategy.FromBotAndSender)
+        {
+            XMediator.Schedule(
+                new DeleteMessageRequestModel()
+                {
+                    Options = _request.Options,
+                    Message = _request.Message,
+                    MessageId = _request.Message.MessageId,
+                    DeleteAfter = _request.DeleteAfter,
+                }
+            );
+        }
+
+        // Logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
 
         return Complete();
     }
