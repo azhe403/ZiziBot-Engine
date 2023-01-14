@@ -22,14 +22,11 @@ public static class ServiceRegistrar
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        // services.AddScoped<FirebaseService>();
-        // services.AddScoped<CacheService>();
-
         services.Scan(scan => scan
             .FromAssembliesOf(typeof(PingRequestHandler))
             .AddClasses(filter => filter.InNamespaceOf<CacheService>())
             .AsSelf()
-            .WithScopedLifetime());
+            .WithTransientLifetime());
 
         return services;
     }

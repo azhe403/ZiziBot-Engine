@@ -13,9 +13,9 @@ public static class DataSourceExtension
             throw new ApplicationException($"{Env.MONGODB_CONNECTION_STRING} environment variable is not set.");
         }
 
-        services.AddScoped<AppSettingsDbContext>(provider => new AppSettingsDbContext(mongodbConnectionString));
-        services.AddScoped<MirrorDbContext>(provider => new MirrorDbContext(mongodbConnectionString));
-        services.AddScoped<UserDbContext>(provider => new UserDbContext(mongodbConnectionString));
+        services.AddTransient<AppSettingsDbContext>(provider => new AppSettingsDbContext(mongodbConnectionString));
+        services.AddTransient<MirrorDbContext>(provider => new MirrorDbContext(mongodbConnectionString));
+        services.AddTransient<UserDbContext>(provider => new UserDbContext(mongodbConnectionString));
 
         return services;
     }
