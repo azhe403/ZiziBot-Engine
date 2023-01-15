@@ -2,6 +2,7 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {TelegramUserLogin} from "../../types/TelegramUserLogin";
 import {environment} from "../../../environments/environment";
 import {DashboardService} from "../../services/dashboard/dashboard.service";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-telegram-login-widget',
@@ -12,7 +13,10 @@ export class TelegramLoginWidgetComponent implements OnInit, AfterViewInit {
   public botName = environment.botName;
   public showLoginWidget = false;
 
-  constructor(private dashboardService: DashboardService) {
+  constructor(
+    private route: ActivatedRoute,
+    private dashboardService: DashboardService
+  ) {
   }
 
   async ngOnInit(): Promise<void> {

@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import {DashboardService} from "../services/dashboard/dashboard.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-root',
@@ -8,11 +9,17 @@ import {DashboardService} from "../services/dashboard/dashboard.service";
 })
 export class RootComponent {
 
-  constructor(private dashboardService: DashboardService) {
+  constructor(
+    private router: Router,
+    private dashboardService: DashboardService
+  ) {
   }
 
   onLogout() {
     this.dashboardService.logoutSession();
-    alert('logout success!');
+    this.router.navigate(['/']).then(r => {
+      console.debug('after-logout', r);
+      window.location.reload();
+    });
   }
 }

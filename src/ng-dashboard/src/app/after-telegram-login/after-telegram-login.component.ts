@@ -23,7 +23,10 @@ export class AfterTelegramLoginComponent implements OnInit {
       .pipe(map(x => x as TelegramUserLogin))
       .subscribe(value => {
         this.dashboardService.saveSession(value);
-        this.router.navigate(['/']).then(r => r);
+        this.router.navigate(['/']).then(r => {
+          console.debug('after verify session', r);
+          window.location.reload();
+        });
       });
   }
 }
