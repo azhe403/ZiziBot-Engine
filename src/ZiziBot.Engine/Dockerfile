@@ -3,15 +3,15 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM azhe403/dotnet-sdk-node:latest AS build
 WORKDIR /src
 
 # Install NodeJs
-RUN apt-get update && \
-apt-get install -y wget && \
-apt-get install -y gnupg2 && \
-wget -qO- https://deb.nodesource.com/setup_18.x | bash - && \
-apt-get install -y build-essential nodejs
+#RUN apt-get update && \
+#apt-get install -y wget && \
+#apt-get install -y gnupg2 && \
+#wget -qO- https://deb.nodesource.com/setup_18.x | bash - && \
+#apt-get install -y build-essential nodejs
 # End Install
 
 COPY ["src/ZiziBot.Engine/ZiziBot.Engine.csproj", "src/ZiziBot.Engine/"]
