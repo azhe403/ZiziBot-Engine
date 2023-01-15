@@ -5,6 +5,7 @@ import * as uuid from "uuid";
 import {firstValueFrom, map} from "rxjs";
 import {TelegramUserLogin} from "../../types/TelegramUserLogin";
 import {ApiResponse} from "../../types/api-response";
+import {ApiUrl} from "../../consts/api-url";
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class DashboardService {
     const sessionId = this.cookieService.get('session_id');
 
     if (userId || sessionId) {
-      const result = await this.httpClient.post<ApiResponse<boolean>>('/api/user/session/telegram/validate',
+      const result = await this.httpClient.post<ApiResponse<boolean>>(ApiUrl.SESSION_VALIDATE,
         {
           userId: userId,
           sessionId: sessionId
@@ -42,14 +43,15 @@ export class DashboardService {
     this.cookieService.set("session_id", sessionId);
     this.cookieService.set("user_id", userLogin.id.toString());
 
-    this.httpClient.post('/api/user/session/telegram', {
-      id: userLogin.id,
-      first_name: userLogin.first_name,
-      username: userLogin.username,
-      photo_url: userLogin.photo_url,
-      hash: userLogin.hash,
-      session_id: sessionId
-    })
+    this.httpClient.post(ApiUrl.SESSION_SAVE,
+      {
+        id: userLogin.id,
+        first_name: userLogin.first_name,
+        username: userLogin.username,
+        photo_url: userLogin.photo_url,
+        hash: userLogin.hash,
+        session_id: sessionId
+      })
       .subscribe(value => {
       });
   }
