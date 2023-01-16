@@ -4,34 +4,70 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Pipelines;
 
-public class CheckDashboardSessionRequestDto : IRequest<bool>
+public class CheckDashboardSessionRequestDto : IRequest<CheckDashboardSessionResponseDto>
 {
     public long UserId { get; set; }
     public string SessionId { get; set; }
 }
 
-public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboardSessionRequestDto, bool>
+public class CheckDashboardSessionResponseDto
+{
+    public bool IsSessionValid { get; set; }
+    public string Role { get; set; }
+}
+
+public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboardSessionRequestDto, CheckDashboardSessionResponseDto>
 {
     private readonly ILogger<CheckDashboardSessionRequestHandler> _logger;
     private readonly UserDbContext _userDbContext;
+    private readonly AppSettingsDbContext _appSettingsDbContext;
 
-    public CheckDashboardSessionRequestHandler(ILogger<CheckDashboardSessionRequestHandler> logger, UserDbContext userDbContext)
+    public CheckDashboardSessionRequestHandler(
+        ILogger<CheckDashboardSessionRequestHandler> logger,
+        UserDbContext userDbContext,
+        AppSettingsDbContext appSettingsDbContext
+    )
     {
         _logger = logger;
         _userDbContext = userDbContext;
+        _appSettingsDbContext = appSettingsDbContext;
     }
 
-    public async Task<bool> Handle(CheckDashboardSessionRequestDto request, CancellationToken cancellationToken)
+    public async Task<CheckDashboardSessionResponseDto> Handle(CheckDashboardSessionRequestDto request, CancellationToken cancellationToken)
     {
-        var session = await _userDbContext.DashboardSessions
-            .Where(session =>
-                session.SessionId == request.SessionId &&
-                session.TelegramUserId == request.UserId
+        CheckDashboardSessionResponseDto responseDto = new();
+
+        #region Check Dashboard Session
+
+        var dashboardSession = await _userDbContext.DashboardSessions
+            .Where(
+                session =>
+                    session.SessionId == request.SessionId &&
+                    session.TelegramUserId == request.UserId
             )
-            .AnyAsync(cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        _logger.LogInformation("Session {SessionId} for user {UserId} is? {Session}", request.SessionId, request.UserId, session);
+        responseDto.IsSessionValid = dashboardSession != null;
 
-        return session;
+        if (dashboardSession == null)
+            return responseDto;
+
+        #endregion
+
+        #region Get User Role
+
+        var checkSudo = await _appSettingsDbContext.Sudoers
+            .FirstOrDefaultAsync(sudoer => sudoer.UserId == request.UserId, cancellationToken: cancellationToken);
+
+        if (checkSudo != null)
+        {
+            responseDto.Role = "Sudo";
+        }
+
+        #endregion
+
+        _logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", request.SessionId, request.UserId, dashboardSession);
+
+        return responseDto;
     }
 }

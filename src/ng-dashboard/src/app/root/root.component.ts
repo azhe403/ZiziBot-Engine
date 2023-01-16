@@ -9,10 +9,13 @@ import {Router} from "@angular/router";
 })
 export class RootComponent {
 
+  menus: any = [];
+
   constructor(
     private router: Router,
     private dashboardService: DashboardService
   ) {
+    this.buildMenu();
   }
 
   onLogout() {
@@ -21,5 +24,18 @@ export class RootComponent {
       console.debug('after-logout', r);
       window.location.reload();
     });
+  }
+
+  buildMenu() {
+    this.menus = [
+      {
+        title: 'Mirror User',
+        url: '/mirror-user/management',
+      },
+      {
+        title: 'Angular',
+        url: '/angular',
+      }
+    ];
   }
 }

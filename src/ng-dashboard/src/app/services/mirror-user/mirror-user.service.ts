@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
-import {CookieService} from "ngx-cookie-service";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {AddMirrorUserDto, MirrorUser} from "../../types/mirror-user";
 import {ApiResponse} from "../../types/api-response";
 import {ApiUrl} from "../../consts/api-url";
+import * as uuid from "uuid";
+import {StorageService} from "../storage/storage.service";
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +13,18 @@ import {ApiUrl} from "../../consts/api-url";
 export class MirrorUserService {
 
   constructor(
-    private cookieService: CookieService,
+    private storageService: StorageService,
     private httpClient: HttpClient
   ) {
   }
 
   public getUsers(): Observable<ApiResponse<MirrorUser[]>> {
-    return this.httpClient.get<ApiResponse<MirrorUser[]>>(ApiUrl.MIRROR_USERS);
+    return this.httpClient.get<ApiResponse<MirrorUser[]>>(ApiUrl.MIRROR_USERS, {
+      headers: {
+        'transactionId': uuid.v4(),
+        'userId': this.storageService.get('user_id')
+      }
+    });
   }
 
   public saveUser(userDto: AddMirrorUserDto): Observable<any> {

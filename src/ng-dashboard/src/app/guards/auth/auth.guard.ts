@@ -13,7 +13,12 @@ export class AuthGuard implements CanActivate {
   async canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Promise<boolean> {
-    return await this.dashboardService.checkSession();
+    const session = await this.dashboardService.checkSession();
+
+    if (!session.isSessionValid)
+      return false
+
+    return session.role == 'Sudo';
   }
 
 }

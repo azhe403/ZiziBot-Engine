@@ -1,31 +1,35 @@
 import {Injectable} from '@angular/core';
-import {CookieService} from "ngx-cookie-service";
 import {HttpClient} from "@angular/common/http";
 import * as uuid from "uuid";
 import {firstValueFrom, map} from "rxjs";
 import {TelegramUserLogin} from "../../types/TelegramUserLogin";
 import {ApiResponse} from "../../types/api-response";
 import {ApiUrl} from "../../consts/api-url";
+import {DashboardSession} from "../../types/dashboard-session";
+import {StorageService} from "../storage/storage.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
 
-  constructor(private cookieService: CookieService, private httpClient: HttpClient) {
+  constructor(private storageService: StorageService, private httpClient: HttpClient) {
   }
 
-  public async checkSession(): Promise<boolean> {
-    const userId = this.cookieService.get('user_id');
-    const sessionId = this.cookieService.get('session_id');
+  public async checkSession(): Promise<DashboardSession> {
+    const userId = this.storageService.get('user_id');
+    const sessionId = this.storageService.get('session_id');
 
     if (userId || sessionId) {
-      const result = await this.httpClient.post<ApiResponse<boolean>>(ApiUrl.SESSION_VALIDATE,
+      const result = this.httpClient.post<ApiResponse<DashboardSession>>(ApiUrl.SESSION_VALIDATE,
         {
           userId: userId,
           sessionId: sessionId
+        }, {
+          headers: {
+            'transactionId': uuid.v4()
+          }
         })
-
         .pipe(map(x => {
           return x.result;
         }));
@@ -33,15 +37,15 @@ export class DashboardService {
       return firstValueFrom(result);
     }
 
-    return false;
+    return {} as DashboardSession;
   }
 
   public saveSession(userLogin: TelegramUserLogin) {
     console.log('sending user session');
     const sessionId = uuid.v4();
 
-    this.cookieService.set("session_id", sessionId);
-    this.cookieService.set("user_id", userLogin.id.toString());
+    this.storageService.set("session_id", sessionId);
+    this.storageService.set("user_id", userLogin.id.toString());
 
     this.httpClient.post(ApiUrl.SESSION_SAVE,
       {
@@ -58,7 +62,7 @@ export class DashboardService {
 
   public logoutSession() {
     console.debug('Clearing dashboard session..')
-    this.cookieService.delete('session_id');
-    this.cookieService.delete('user_id');
+    this.storageService.delete('session_id');
+    this.storageService.delete('user_id');
   }
 }
