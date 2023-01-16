@@ -7,7 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Allowed.Telegram.Bot" Version="4.0.0" />
+      <PackageReference Include="Allowed.Telegram.Bot" Version="4.1.0" />
+      <PackageReference Include="FluffySpoon.Ngrok" Version="1.112.0" />
       <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
       <PackageReference Include="MediatR" Version="11.1.0" />
     </ItemGroup>

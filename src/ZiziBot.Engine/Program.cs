@@ -59,6 +59,7 @@ if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
 	app.UseAzureAppConfiguration();
 
 app.UseHangfire();
+app.RunTelegramBot();
 
 app.MapFallbackToFile("index.html");
 

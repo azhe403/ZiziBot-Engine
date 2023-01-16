@@ -1,5 +1,8 @@
+using Allowed.Telegram.Bot.Abstractions;
 using Allowed.Telegram.Bot.Extensions;
+using Allowed.Telegram.Bot.Factories;
 using Allowed.Telegram.Bot.Models;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,18 +15,34 @@ public static class TelegramExtension
     public static IServiceCollection ConfigureTelegramBot(this IServiceCollection services)
     {
         var provider = services.BuildServiceProvider();
-        var appSettingsDbContext = provider.GetRequiredService<AppSettingsDbContext>();
         var environment = provider.GetRequiredService<IWebHostEnvironment>();
+
+        services.AddTelegramControllers();
+
+        if (environment.IsDevelopment())
+            services.AddTelegramManager();
+        else
+            services.AddTelegramWebHookManager();
+
+        return services;
+    }
+
+    public static IApplicationBuilder RunTelegramBot(this IApplicationBuilder app)
+    {
+        var provider = app.ApplicationServices;
+        var appSettingsDbContext = provider.GetRequiredService<AppSettingsDbContext>();
 
         var listBotOptions = provider.GetRequiredService<IOptions<List<SimpleTelegramBotClientOptions>>>().Value;
 
         if (!listBotOptions.Any())
         {
-            appSettingsDbContext.BotSettings.Add(new BotSettings()
-            {
-                Name = "BOT_NAME",
-                Token = "BOT_TOKEN"
-            });
+            appSettingsDbContext.BotSettings.Add(
+                new BotSettings()
+                {
+                    Name = "BOT_NAME",
+                    Token = "BOT_TOKEN"
+                }
+            );
 
             appSettingsDbContext.SaveChanges();
 
@@ -39,13 +58,9 @@ public static class TelegramExtension
             throw new ApplicationException("Please add your Bot to 'BotSettings'");
         }
 
-        services.AddTelegramClients(validBot);
+        var telegramManager = provider.GetRequiredService<ITelegramManager>();
+        telegramManager.Start(validBot.Select(options => TelegramBotClientFactory.CreateClient(options)));
 
-        if (environment.IsDevelopment())
-            services.AddTelegramManager();
-        else
-            services.AddTelegramWebHookManager();
-
-        return services;
+        return app;
     }
 }
