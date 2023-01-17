@@ -5,9 +5,14 @@ namespace ZiziBot.Application;
 
 public static class MediatorExtension
 {
-    public static async Task<ResponseBase> RecurringAsync(this IMediator mediator, string jobName, RequestBase request, string cron)
+    public static async Task<ResponseBase> RecurringAsync(
+        this IMediator mediator,
+        string jobName,
+        RequestBase request,
+        string cron
+    )
     {
-        if (request.DirectAction)
+        if (request.ExecutionStrategy == ExecutionStrategy.Instant)
         {
             return await mediator.Send(request);
         }
@@ -25,13 +30,19 @@ public static class MediatorExtension
 
     public static async Task<ResponseBase> EnqueueAsync(this IMediator mediator, RequestBase request)
     {
-        if (request.DirectAction)
+        if (request.ExecutionStrategy == ExecutionStrategy.Instant)
         {
             return await mediator.Send(request);
         }
 
         ResponseBase response = new();
-        BackgroundJob.Enqueue<MediatorBridge>(x => x.Send(request));
+
+        var enqueue = request.ExecutionStrategy switch
+        {
+            ExecutionStrategy.Hangfire => BackgroundJob.Enqueue<MediatorBridge>(x => x.Send(request)),
+            _ => throw new ArgumentOutOfRangeException(nameof(request.ExecutionStrategy), request.ExecutionStrategy, null)
+        };
+
         return response.Complete();
     }
 
