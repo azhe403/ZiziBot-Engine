@@ -63,12 +63,13 @@ public class MemberChangesTest
 
         foreach (var botData in ListBotData)
         {
-            await _mediator.EnqueueAsync(new NewChatMembersRequestModel()
-            {
-                Options = botData,
-                Message = message,
-                DirectAction = true
-            });
+            await _mediator.EnqueueAsync(
+                new NewChatMembersRequestModel()
+                {
+                    Options = botData,
+                    Message = message
+                }
+            );
         }
 
         Assert.True(true);

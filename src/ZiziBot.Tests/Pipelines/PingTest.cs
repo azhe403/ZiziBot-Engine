@@ -39,12 +39,13 @@ public class PingTest
 
         foreach (var botData in ListBotData)
         {
-            await _mediator.EnqueueAsync(new PingRequestModel
-            {
-                Options = botData,
-                Message = message,
-                DirectAction = true
-            });
+            await _mediator.EnqueueAsync(
+                new PingRequestModel
+                {
+                    Options = botData,
+                    Message = message
+                }
+            );
         }
 
         Assert.True(true);
