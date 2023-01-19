@@ -12,3 +12,6 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+@import "sweetalert2/dist/sweetalert2.css";
+@import '@sweetalert2/themes/dark/dark.scss';

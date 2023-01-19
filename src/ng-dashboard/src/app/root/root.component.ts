@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {DashboardService} from "../services/dashboard/dashboard.service";
 import {Router} from "@angular/router";
+import {StorageService} from '../services/storage/storage.service';
 
 @Component({
   selector: 'app-root',
@@ -9,12 +10,15 @@ import {Router} from "@angular/router";
 })
 export class RootComponent {
 
+  sessionId: string;
   menus: any = [];
 
   constructor(
     private router: Router,
+    private storageService: StorageService,
     private dashboardService: DashboardService
   ) {
+    this.sessionId = "";
     this.buildMenu();
   }
 
@@ -27,6 +31,8 @@ export class RootComponent {
   }
 
   buildMenu() {
+    this.sessionId = this.storageService.get('session_id');
+
     this.menus = [
       {
         title: 'Mirror User',

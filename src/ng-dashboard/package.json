@@ -2,7 +2,6 @@
   "name": "ng-dashboard",
   "version": "0.0.0",
   "scripts": {
-    "npm restore": "npm install",
     "ng": "ng",
     "start": "ng serve --port 17210",
     "build": "ng build",
@@ -10,8 +9,11 @@
     "build-prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "clean-node-modules": "rimraf node_modules",
-    "clean-angular-caches": "rimraf .angular"
+    "install-prereq": "npm install -g @angular/cli rimraf",
+    "restore": "npm install",
+    "npm-clear": "rimraf node_modules",
+    "ng-clear": "rimraf .angular",
+    "refresh": "npm run npm-clear && npm run ng-clear && npm run install-prereq && npm run restore"
   },
   "private": true,
   "dependencies": {
@@ -25,8 +27,11 @@
     "@angular/platform-browser": "^15.0.0",
     "@angular/platform-browser-dynamic": "^15.0.0",
     "@angular/router": "^15.0.0",
+    "@sweetalert2/ngx-sweetalert2": "^12.1.0",
+    "@sweetalert2/themes": "^5.0.15",
     "ngx-cookie-service": "^15.0.0",
     "rxjs": "~7.5.0",
+    "sweetalert2": "^11.7.0",
     "tslib": "^2.3.0",
     "uuid": "^9.0.0",
     "zone.js": "~0.12.0"

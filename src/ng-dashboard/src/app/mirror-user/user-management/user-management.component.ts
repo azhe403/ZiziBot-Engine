@@ -5,6 +5,7 @@ import {Subscription} from "rxjs";
 import {MatDialog} from "@angular/material/dialog";
 import {AddMirrorUserComponent} from "../add-mirror-user/add-mirror-user.component";
 import {ApiResponse} from "../../types/api-response";
+import {SwalService} from '../../services/swal/swal.service';
 
 @Component({
   selector: 'app-user-management',
@@ -19,6 +20,7 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private matDialog: MatDialog,
+    private swalService: SwalService,
     private mirrorUserService: MirrorUserService
   ) {
   }
@@ -39,11 +41,17 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
   }
 
   deleteUser(userId: number) {
-    alert(`delete user ${userId}?`);
-    this.mirrorSubscription = this.mirrorUserService.deleteUser(userId)
-      .subscribe(value => {
-        console.log(value);
-        this.loadUsers();
+    this.swalService.showConfirmation('Delete User', 'Are you sure you want to delete this user?', 'warning')
+      .then(result => {
+        if (result.isConfirmed) {
+          this.mirrorSubscription = this.mirrorUserService.deleteUser(userId)
+            .subscribe(value => {
+              console.debug('delete mirror user:', value);
+              this.loadUsers();
+            });
+        } else {
+          console.debug('User cancelled delete operation');
+        }
       });
   }
 
@@ -51,10 +59,8 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
     const dialogRef = this.matDialog.open(AddMirrorUserComponent, {});
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log(`Dialog result: ${result}`);
-      if (result) {
-        this.loadUsers();
-      }
+      console.debug(`Dialog result: ${result}`);
+      this.loadUsers();
     });
   }
 }
