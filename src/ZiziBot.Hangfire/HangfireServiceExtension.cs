@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -15,38 +15,50 @@ public static class HangfireServiceExtension
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
         var hangfireConfig = serviceProvider.GetRequiredService<IOptionsSnapshot<HangfireConfig>>().Value;
 
-        logger.LogInformation("Configuring Hangfire. Storage type: {StorageType}", hangfireConfig.CurrentStorage);
-
         JobStorage.Current = hangfireConfig.CurrentStorage switch
         {
             CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
             _ => new InMemoryStorage(new InMemoryStorageOptions())
         };
 
-        services.AddHangfire(configuration =>
-        {
-            configuration
-                .UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
-                .UseDarkDashboard()
-                .UseMediatR();
+        services.AddHangfire(
+            configuration => {
+                configuration
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseDarkDashboard()
+                    .UseMediatR();
 
-            configuration.UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3));
-        });
+                configuration.UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3));
+            }
+        );
 
-        services.AddHangfireServer(storage: JobStorage.Current, additionalProcesses: new[] { new ProcessMonitor(checkInterval: TimeSpan.FromSeconds(1)) });
+        services.AddHangfireServer(
+            storage: JobStorage.Current,
+            additionalProcesses: new[]
+            {
+                new ProcessMonitor(checkInterval: TimeSpan.FromSeconds(1))
+            }
+        );
+
+        services.AddScoped<IDashboardAuthorizationFilter, HangfireAuthorizationFilter>();
 
         return services;
     }
 
     public static IApplicationBuilder UseHangfire(this IApplicationBuilder app)
     {
-        app.UseHangfireDashboard(options: new DashboardOptions()
-        {
-            DashboardTitle = "Zizi Dev - Hangfire Dashboard",
-            IgnoreAntiforgeryToken = true,
-            Authorization = new[] { new HangfireAuthorization() }
-        });
+        var dashboardAuthorizationFilters = app.ApplicationServices.CreateScope().ServiceProvider.GetServices<IDashboardAuthorizationFilter>();
+
+        app.UseHangfireDashboard(
+            pathMatch: "/hangfire-jobs",
+            options: new DashboardOptions()
+            {
+                DashboardTitle = "Zizi Dev - Hangfire Dashboard",
+                IgnoreAntiforgeryToken = false,
+                Authorization = dashboardAuthorizationFilters
+            }
+        );
 
         return app;
     }
@@ -61,8 +73,10 @@ public static class HangfireServiceExtension
 
         mongoClient.GetDatabase(mongoUrlBuilder.DatabaseName);
 
-        var mongoStorage = new MongoStorage(mongoClient, mongoUrlBuilder.DatabaseName,
-            new MongoStorageOptions()
+        var mongoStorage = new MongoStorage(
+            mongoClient: mongoClient,
+            databaseName: mongoUrlBuilder.DatabaseName,
+            storageOptions: new MongoStorageOptions()
             {
                 MigrationOptions = new MongoMigrationOptions
                 {
@@ -71,7 +85,8 @@ public static class HangfireServiceExtension
                 },
                 CheckConnection = false,
                 CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.Poll
-            });
+            }
+        );
 
         return mongoStorage;
     }
