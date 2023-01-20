@@ -35,7 +35,7 @@ export class TelegramLoginWidgetComponent implements OnInit, AfterViewInit {
     const session = await this.dashboardService.checkSession();
     console.debug('cloud session', session);
 
-    this.showLoginWidget = !session;
+    this.showLoginWidget = !session.isSessionValid;
   }
 
   async loadWidgetLogin() {
