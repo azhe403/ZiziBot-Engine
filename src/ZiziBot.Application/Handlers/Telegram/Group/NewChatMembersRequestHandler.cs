@@ -27,8 +27,8 @@ internal class NewChatMembersRequestHandler : IRequestHandler<NewChatMembersRequ
             .Select(user => (user.FirstName + " " + user.LastName).Trim())
             .Aggregate((s, next) => s + ", " + next);
 
-        var message = "Hai " + users + "" +
-                      "\nSelamat datang di Kontrakan " + request.ChatTitle;
+        var message = $"Hai {users}\n" +
+                      $"Selamat datang di Kontrakan {request.ChatTitle}";
 
         await responseBase.SendMessageText(message);
         return responseBase.Complete();

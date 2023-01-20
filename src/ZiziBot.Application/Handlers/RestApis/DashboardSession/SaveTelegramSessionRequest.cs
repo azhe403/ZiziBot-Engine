@@ -40,16 +40,17 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
     {
         _userDbContext.DashboardSessions.Add(
             new DataSource.MongoDb.Entities.DashboardSession()
-        {
-            TelegramUserId = request.TelegramUserId,
-            FirstName = request.FirstName,
-            PhotoUrl = request.PhotoUrl,
-            Username = request.Username,
-            AuthDate = request.AuthDate,
-            Hash = request.Hash,
-            SessionId = request.SessionId,
-            Status = (int)EventStatus.Complete
-        });
+            {
+                TelegramUserId = request.TelegramUserId,
+                FirstName = request.FirstName,
+                PhotoUrl = request.PhotoUrl,
+                Username = request.Username,
+                AuthDate = request.AuthDate,
+                Hash = request.Hash,
+                SessionId = request.SessionId,
+                Status = (int) EventStatus.Complete
+            }
+        );
 
         await _userDbContext.SaveChangesAsync(cancellationToken);
 

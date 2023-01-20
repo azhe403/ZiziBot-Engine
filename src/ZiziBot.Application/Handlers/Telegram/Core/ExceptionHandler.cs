@@ -19,7 +19,12 @@ public class ExceptionHandler<TRequest, TResponse, TException> : IRequestExcepti
         _eventLogOptions = eventLogOptions;
     }
 
-    public async Task Handle(TRequest request, TException exception, RequestExceptionHandlerState<TResponse> state, CancellationToken cancellationToken)
+    public async Task Handle(
+        TRequest request,
+        TException exception,
+        RequestExceptionHandlerState<TResponse> state,
+        CancellationToken cancellationToken
+    )
     {
         ResponseBase responseBase = new(request.Options.Token);
 

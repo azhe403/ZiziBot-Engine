@@ -19,11 +19,12 @@ public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserReques
     {
         _mirrorDbContext.MirrorUsers.Add(
             new MirrorUserEntity()
-        {
-            UserId = request.UserId,
-            ExpireAt = DateTime.UtcNow.AddDays(request.AddDays),
-            Status = (int)EventStatus.Complete
-        });
+            {
+                UserId = request.UserId,
+                ExpireAt = DateTime.UtcNow.AddDays(request.AddDays),
+                Status = (int) EventStatus.Complete
+            }
+        );
 
         await _mirrorDbContext.SaveChangesAsync(cancellationToken);
 
