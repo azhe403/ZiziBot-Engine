@@ -8,6 +8,6 @@ namespace ZiziBot.DataSource.MongoDb
         {
         }
 
-        public MongoDbSet<MirrorUser> MirrorUsers { get; set; }
+        public MongoDbSet<MirrorUserEntity> MirrorUsers { get; set; }
     }
 }

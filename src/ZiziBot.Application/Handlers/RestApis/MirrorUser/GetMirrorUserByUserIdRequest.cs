@@ -1,14 +1,13 @@
-using MediatR;
 using MongoFramework.Linq;
 
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
-public class GetMirrorUserByUserIdRequestDto : IRequest<MirrorUser>
+public class GetMirrorUserByUserIdRequestDto : IRequest<MirrorUserEntity>
 {
 	public long UserId { get; set; }
 }
 
-public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUserByUserIdRequestDto, MirrorUser>
+public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUserByUserIdRequestDto, MirrorUserEntity>
 {
 	private readonly MirrorDbContext _mirrorDbContext;
 
@@ -17,7 +16,7 @@ public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUser
 		_mirrorDbContext = mirrorDbContext;
 	}
 
-	public async Task<MirrorUser> Handle(GetMirrorUserByUserIdRequestDto request, CancellationToken cancellationToken)
+    public async Task<MirrorUserEntity> Handle(GetMirrorUserByUserIdRequestDto request, CancellationToken cancellationToken)
 	{
 		var user = await _mirrorDbContext.MirrorUsers
 			.Where(x => x.UserId == request.UserId)

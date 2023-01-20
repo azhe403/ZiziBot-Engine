@@ -1,8 +1,7 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
 
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
 public class CheckDashboardSessionRequestDto : IRequest<CheckDashboardSessionResponseDto>
 {

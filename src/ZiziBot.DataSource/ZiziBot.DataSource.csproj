@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MongoFramework" Version="0.27.0"/>
+        <PackageReference Include="MongoFramework" Version="0.27.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

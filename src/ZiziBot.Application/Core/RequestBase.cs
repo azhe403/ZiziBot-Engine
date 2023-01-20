@@ -1,9 +1,8 @@
 using Allowed.Telegram.Bot.Models;
-using MediatR;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace ZiziBot.Application.MediatR;
+namespace ZiziBot.Application.Core;
 
 public class RequestBase : IRequest<ResponseBase>
 {

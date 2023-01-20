@@ -1,7 +1,8 @@
 // Global using directives
 
-global using ZiziBot.Application.MediatR;
-global using ZiziBot.Application.Pipelines;
+global using JetBrains.Annotations;
+global using MediatR;
+global using ZiziBot.Application.Core;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Contracts;
 global using ZiziBot.Contracts.Configs;

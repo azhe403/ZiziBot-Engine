@@ -1,11 +1,11 @@
 using System.Diagnostics;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.Application.Handlers.Telegram.Core;
 
-namespace ZiziBot.Application.MediatR;
+namespace ZiziBot.Application.Core;
 
 public class ResponseBase
 {
@@ -62,13 +62,15 @@ public class ResponseBase
             return Complete();
 
         // Logger?.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
-        XMediator.Schedule(new DeleteMessageRequestModel()
-        {
-            Options = _request.Options,
-            Message = _request.Message,
-            MessageId = SentMessage.MessageId,
-            DeleteAfter = _request.DeleteAfter
-        });
+        XMediator.Schedule(
+            new DeleteMessageRequestModel()
+            {
+                Options = _request.Options,
+                Message = _request.Message,
+                MessageId = SentMessage.MessageId,
+                DeleteAfter = _request.DeleteAfter
+            }
+        );
 
         if (_request.CleanupStrategy == CleanupStrategy.FromBotAndSender)
         {

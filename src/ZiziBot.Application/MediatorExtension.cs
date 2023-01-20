@@ -1,5 +1,4 @@
 using Hangfire;
-using MediatR;
 
 namespace ZiziBot.Application;
 

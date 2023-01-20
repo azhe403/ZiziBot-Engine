@@ -1,7 +1,6 @@
-using MediatR;
 using MongoFramework.Linq;
 
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
 public class DeleteMirrorUserRequestDto : IRequest<bool>
 {

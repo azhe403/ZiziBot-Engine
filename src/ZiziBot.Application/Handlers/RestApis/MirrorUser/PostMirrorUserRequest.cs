@@ -1,6 +1,4 @@
-using MediatR;
-
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
 public class PostMirrorUserRequestDto : IRequest<bool>
 {
@@ -19,7 +17,8 @@ public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserReques
 
     public async Task<bool> Handle(PostMirrorUserRequestDto request, CancellationToken cancellationToken)
     {
-        _mirrorDbContext.MirrorUsers.Add(new MirrorUser()
+        _mirrorDbContext.MirrorUsers.Add(
+            new MirrorUserEntity()
         {
             UserId = request.UserId,
             ExpireAt = DateTime.UtcNow.AddDays(request.AddDays),

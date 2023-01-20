@@ -1,9 +1,8 @@
-using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.Telegram.Core;
 
 public class ExceptionHandler<TRequest, TResponse, TException> : IRequestExceptionHandler<TRequest, TResponse, TException>
     where TRequest : RequestBase, IRequest<TResponse>

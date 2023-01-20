@@ -1,9 +1,7 @@
-using JetBrains.Annotations;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.Telegram.Core;
 
 public class SendMessageTextRequestModel : RequestBase
 {

@@ -1,8 +1,6 @@
-﻿using JetBrains.Annotations;
-using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.Telegram.Group;
 
 public class NewChatMembersRequestModel : RequestBase
 {

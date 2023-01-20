@@ -1,7 +1,4 @@
-using JetBrains.Annotations;
-using MediatR;
-
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.Telegram.Permission;
 
 public class AddSudoRequestModel : RequestBase
 {

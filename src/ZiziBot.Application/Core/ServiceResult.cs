@@ -1,4 +1,4 @@
-namespace ZiziBot.Application.MediatR;
+namespace ZiziBot.Application.Core;
 
 public class ServiceResult
 {

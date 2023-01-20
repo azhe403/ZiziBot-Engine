@@ -1,8 +1,7 @@
-using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace ZiziBot.Application.Pipelines;
+namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
 public class SaveTelegramSessionRequestModel : IRequest<bool>
 {
@@ -39,7 +38,8 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
 
     public async Task<bool> Handle(SaveTelegramSessionRequestModel request, CancellationToken cancellationToken)
     {
-        _userDbContext.DashboardSessions.Add(new DashboardSession()
+        _userDbContext.DashboardSessions.Add(
+            new DataSource.MongoDb.Entities.DashboardSession()
         {
             TelegramUserId = request.TelegramUserId,
             FirstName = request.FirstName,
