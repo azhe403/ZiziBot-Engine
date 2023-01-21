@@ -4,6 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.Application.Handlers.Telegram.Core;
+using File=System.IO.File;
 
 namespace ZiziBot.Application.Core;
 
@@ -90,9 +91,24 @@ public class ResponseBase
         return Complete();
     }
 
-    public async Task EditMessageText(string text)
+    public async Task<ResponseBase> EditMessageText(string text)
     {
-        await Bot.EditMessageTextAsync(ChatId, SentMessage.MessageId, text);
+        await Bot.EditMessageTextAsync(ChatId, SentMessage.MessageId, text, parseMode: ParseMode.Html);
+
+        return Complete();
+    }
+
+    public async Task<string> DownloadFileAsync(string prefixName)
+    {
+        var photo = (_request.ReplyToMessage ?? _request.Message).Photo?.LastOrDefault();
+        var fileId = photo?.FileId;
+
+        var filePath = PathConst.TEMP_PATH + prefixName + photo?.FileUniqueId + ".jpg";
+
+        await using Stream fileStream = File.OpenWrite(filePath.EnsureDirectory());
+        await Bot.GetInfoAndDownloadFileAsync(fileId, fileStream);
+
+        return filePath;
     }
 
     public ResponseBase Complete()

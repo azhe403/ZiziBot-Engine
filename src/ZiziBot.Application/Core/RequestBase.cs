@@ -9,6 +9,7 @@ public class RequestBase : IRequest<ResponseBase>
     public IMediator Mediator { get; set; }
     public SimpleTelegramBotClientOptions Options { get; set; }
     public Message Message { get; set; }
+    public Message? ReplyToMessage => Message.ReplyToMessage;
 
     public ChatId ChatId => Message.Chat.Id;
     public ChatType ChatType => Message.Chat.Type;
@@ -22,7 +23,7 @@ public class RequestBase : IRequest<ResponseBase>
     public DateTime RequestTime => DateTime.UtcNow;
     public int ReplyToMessageId { get; set; }
 
-    public bool DirectAction { get; set; }
+    public bool ReplyMessage { get; set; }
 
     public ExecutionStrategy ExecutionStrategy { get; set; }
 
