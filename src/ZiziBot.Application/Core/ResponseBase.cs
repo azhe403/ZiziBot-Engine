@@ -43,6 +43,10 @@ public class ResponseBase
         _request = request;
         ChatId = _request.ChatId;
         Bot = new TelegramBotClient(request.Options.Token);
+
+        if (_request.ReplyMessage)
+            _request.ReplyToMessageId = _request.Message.MessageId;
+
         _stopwatch.Start();
     }
 

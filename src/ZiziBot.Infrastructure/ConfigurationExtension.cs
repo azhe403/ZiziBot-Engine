@@ -31,6 +31,8 @@ public static class ConfigurationExtension
         services.Configure<CacheConfig>(config.GetSection("Cache"));
         services.Configure<EventLogConfig>(config.GetSection("EventLog"));
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
+        services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
+
         services.Configure<List<SimpleTelegramBotClientOptions>>(
             list => {
                 var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);

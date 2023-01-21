@@ -11,4 +11,8 @@
       <PackageReference Include="MediatR.Contracts" Version="1.0.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj" />
+    </ItemGroup>
+
 </Project>

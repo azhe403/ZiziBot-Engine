@@ -23,7 +23,8 @@ public class OcrController : CommandController
             {
                 Options = data.Options,
                 Message = data.Message,
-                ReplyMessage = true
+                ReplyMessage = true,
+                DeleteAfter = TimeSpan.FromHours(1)
             }
         );
     }
