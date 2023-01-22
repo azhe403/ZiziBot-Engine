@@ -1,8 +1,9 @@
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using ZiziBot.Application.Handlers.Telegram.Core;
 using File=System.IO.File;
 
@@ -13,7 +14,6 @@ public class ResponseBase
     private readonly RequestBase _request = new();
 
     private readonly Stopwatch _stopwatch = new();
-    public ILogger Logger { get; set; }
     public ITelegramBotClient Bot { get; }
     public TimeSpan ExecutionTime { get; private set; }
 
@@ -50,23 +50,25 @@ public class ResponseBase
         _stopwatch.Start();
     }
 
-    public async Task<ResponseBase> SendMessageText(string text)
+    public async Task<ResponseBase> SendMessageText(string text, IReplyMarkup? replyMarkup = null)
     {
-        // Logger?.LogDebug("Sending message to chat {ChatId}", ChatId);
+        Log.Information("Sending message to chat {ChatId}", ChatId);
         SentMessage = await Bot.SendTextMessageAsync(
             chatId: ChatId,
             text: text,
             replyToMessageId: _request.ReplyToMessageId,
             parseMode: ParseMode.Html,
-            allowSendingWithoutReply: true
+            allowSendingWithoutReply: true,
+            replyMarkup: replyMarkup
         );
 
-        // Logger?.LogInformation("Message sent to chat {ChatId}", ChatId);
+        Log.Information("Message sent to chat {ChatId}", ChatId);
 
-        if (DeleteAfter.Ticks <= 0)
+        if (DeleteAfter.Ticks <= 0 &&
+            _request.CleanupTargets.Contains(CleanupTarget.FromBot))
             return Complete();
 
-        // Logger?.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
+        Log.Debug("Deleting message {MessageId} in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
         XMediator.Schedule(
             new DeleteMessageRequestModel()
             {
@@ -77,20 +79,20 @@ public class ResponseBase
             }
         );
 
-        if (_request.CleanupStrategy == CleanupStrategy.FromBotAndSender)
+        if (_request.CleanupTargets.Contains(CleanupTarget.FromSender))
         {
             XMediator.Schedule(
                 new DeleteMessageRequestModel()
                 {
                     Options = _request.Options,
                     Message = _request.Message,
-                    MessageId = _request.Message.MessageId,
+                    MessageId = _request.MessageId,
                     DeleteAfter = _request.DeleteAfter,
                 }
             );
         }
 
-        // Logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
+        Log.Information("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
 
         return Complete();
     }
@@ -120,6 +122,8 @@ public class ResponseBase
         _stopwatch.Stop();
 
         ExecutionTime = _stopwatch.Elapsed;
+
+        Log.Information("Processing complete in: {Elapses}", ExecutionTime);
 
         return this;
     }

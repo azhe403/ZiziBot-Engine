@@ -1,4 +1,5 @@
 using Hangfire;
+using Serilog;
 
 namespace ZiziBot.Application;
 
@@ -29,6 +30,8 @@ public static class MediatorExtension
 
     public static async Task<ResponseBase> EnqueueAsync(this IMediator mediator, RequestBase request)
     {
+        Log.Debug("Enqueueing request {@request} in {Mode}", request, request.ExecutionStrategy);
+
         if (request.ExecutionStrategy == ExecutionStrategy.Instant)
         {
             return await mediator.Send(request);

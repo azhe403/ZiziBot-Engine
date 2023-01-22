@@ -21,10 +21,13 @@ public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestM
 
     public async Task<ResponseBase> Handle(DeleteMessageRequestModel request, CancellationToken cancellationToken)
     {
-        var chatId = request.Message.Chat.Id;
+        var chatId = request.ChatIdentifier;
+
         var botToken = request.Options.Token;
 
         ResponseBase responseBase = new(botToken);
+
+        if (chatId == 0) return responseBase;
 
         _logger.LogDebug("Deleting message {MessageId} from chat {ChatId}", request.MessageId, chatId);
         await responseBase.Bot.DeleteMessageAsync(chatId, request.MessageId, cancellationToken: cancellationToken);
