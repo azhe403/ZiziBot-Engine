@@ -24,12 +24,17 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
             .Where(
                 session =>
                     session.TelegramUserId == request.UserId &&
-                    session.Status == (int) EventStatus.Complete
+                    session.Status == (int)EventStatus.Complete
             )
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var sessionId = Guid.NewGuid().ToString();
         var webUrl = Env.WEB_VERIFY_SESSION_URL + sessionId;
+
+        if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))
+        {
+            await responseBase.SendMessageText("Maaf fitur ini belum dipersiapkan");
+        }
 
         if (dashboardSession != null)
         {
@@ -43,7 +48,7 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
                     FirstName = request.UserFullName,
                     TelegramUserId = request.UserId,
                     SessionId = sessionId,
-                    Status = (int) EventStatus.Complete
+                    Status = (int)EventStatus.Complete
                 }
             );
 
