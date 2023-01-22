@@ -16,6 +16,10 @@ export class DashboardService {
   constructor(private storageService: StorageService, private httpClient: HttpClient) {
   }
 
+  public checkSessionId() {
+
+  }
+
   public async checkSession(): Promise<DashboardSession> {
     const userId = this.storageService.get('user_id');
     const sessionId = this.storageService.get('session_id');

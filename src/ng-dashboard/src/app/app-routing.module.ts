@@ -11,6 +11,10 @@ const routes: Routes = [
   {
     path: 'mirror-user',
     loadChildren: () => import('./mirror-user/mirror-user.module').then(m => m.MirrorUserModule)
+  },
+  {
+    path: 'verify',
+    loadChildren: () => import('./modules/session/session.module').then(m => m.SessionModule)
   }
 ];
 
