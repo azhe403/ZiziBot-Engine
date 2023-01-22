@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 17210",
+    "start": "ng serve --port 7121",
     "build": "ng build",
     "build-staging": "ng build --configuration staging",
     "build-prod": "ng build --configuration production",
