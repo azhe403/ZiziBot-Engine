@@ -58,8 +58,14 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
         var htmlMessage = HtmlMessage.Empty
             .TextBr("WebSession berhasil dibuat!")
             .TextBr("silakan klik tombol dibawah ini untuk membuka.")
-            .Code(webUrl).Br().Br()
-            .Bold("Catatan: ").Text("tautan ini hanya berfungsi untuk Anda!");
+            .Br();
+
+        if (webUrl.Contains("localhost"))
+        {
+            htmlMessage.Code(webUrl).Br();
+        }
+
+        htmlMessage.Bold("Catatan: ").Text("tautan ini hanya berfungsi untuk Anda!");
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
         if (!webUrl.Contains("localhost"))
