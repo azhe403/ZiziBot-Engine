@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {StorageService} from '../../../services/storage/storage.service';
-import {map, Subscription} from 'rxjs';
+import {map, Subscription, timer} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DashboardService} from '../../../services/dashboard/dashboard.service';
 import {CookieService} from 'ngx-cookie-service';
@@ -13,6 +13,7 @@ import {CookieService} from 'ngx-cookie-service';
 export class VerifySessionComponent implements OnInit, OnDestroy {
 
   routeSubs: Subscription;
+  authMessage: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -25,6 +26,8 @@ export class VerifySessionComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.authMessage.push('Sedang memverifikasi..');
+
     this.routeSubs = this.route.paramMap
       .pipe(map(x => x))
       .subscribe(async value => {
@@ -36,12 +39,19 @@ export class VerifySessionComponent implements OnInit, OnDestroy {
 
         if (session.isSessionValid) {
           this.storageService.set('session_id', sessionId);
+          this.storageService.set('user_id', session.userId.toString());
           this.cookieService.set('session_id', sessionId, undefined, '/');
+
+          this.authMessage.push('Anda berhasil masuk..');
+        } else {
+          this.authMessage.push('Sesi Anda tidak valid!')
         }
 
-        this.router.navigate(['/']).then(r => {
-          console.debug('after verify session', r);
-          window.location.reload();
+        timer(3000).subscribe(value1 => {
+          this.authMessage.push('Sedang mengalihkan..')
+          this.router.navigate(['/']).then(r => {
+            console.debug('after verify session', r);
+          });
         });
       });
   }
