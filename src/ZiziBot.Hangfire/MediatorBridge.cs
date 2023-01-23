@@ -12,12 +12,14 @@ public class MediatorBridge
     }
 
     [DisplayName("{0}")]
+    [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     public async Task<object?> Send(IBaseRequest command)
     {
         return await _mediator.Send(command);
     }
 
     [DisplayName("{0}")]
+    [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     public async Task<object?> Send(string jobName, IBaseRequest command)
     {
         return await _mediator.Send(command);
