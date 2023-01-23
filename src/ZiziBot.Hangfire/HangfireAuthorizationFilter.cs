@@ -15,28 +15,16 @@ public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
 
     public bool Authorize(DashboardContext context)
     {
-        var sessionId = context.Request.GetQuery("session_id");
         var httpContext = context.GetHttpContext();
-        httpContext.Request.Cookies.TryGetValue("hangfire_session", out var hangfireSessionId);
+        httpContext.Request.Cookies.TryGetValue("session_id", out var sessionId);
 
-        var currentSessionId = sessionId ?? hangfireSessionId;
-
-        _logger.LogInformation("Checking Hangfire sessionId: {SessionId}", currentSessionId);
+        _logger.LogInformation("Checking Hangfire sessionId: {SessionId}", sessionId);
 
         if (sessionId != null)
         {
-            _logger.LogDebug("Updating Hangfire sessionId");
-            httpContext.Response.Headers.Add("Set-Cookie", $"hangfire_session={sessionId}");
-
             return CheckSession(sessionId);
         }
 
-        if (hangfireSessionId != null)
-        {
-            return CheckSession(hangfireSessionId);
-        }
-
-        // httpContext.Response.WriteAsync("<script>alert('Your session is expired!');</script>;window.location ='/';");
         _logger.LogInformation("Session expired or invalid. Redirecting to Home..");
         httpContext.Response.Redirect("/", true);
 
