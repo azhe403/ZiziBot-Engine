@@ -59,7 +59,7 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
     const dialogRef = this.matDialog.open(AddMirrorUserComponent, {});
 
     dialogRef.afterClosed().subscribe(result => {
-      console.debug(`Dialog result: ${result}`);
+      console.debug('Dialog result:', result);
       this.loadUsers();
     });
   }

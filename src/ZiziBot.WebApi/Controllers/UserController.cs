@@ -26,4 +26,12 @@ public class UserController : ApiControllerBase
         var result = await Mediator.Send(requestDto);
         return Ok(result);
     }
+
+    [HttpPost("session/validate")]
+    public async Task<IActionResult> CheckDashboardSessionId([FromBody] CheckDashboardSessionIdRequestDto requestDto)
+    {
+        var result = await Mediator.Send(requestDto);
+        return SwitchStatus(result);
+
+    }
 }

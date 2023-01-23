@@ -27,14 +27,18 @@ export class VerifySessionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.routeSubs = this.route.paramMap
       .pipe(map(x => x))
-      .subscribe(value => {
+      .subscribe(async value => {
         const sessionId = value.get('sessionId') ?? "";
         console.debug('route:', sessionId)
 
-        this.storageService.set('session_id', sessionId);
-        this.cookieService.set('session_id', sessionId, undefined, '/');
+        const session = await this.dashboardService.checkSessionId(sessionId);
+        console.debug('check sessionId', session);
 
-        this.dashboardService.checkSessionId();
+        if (session.isSessionValid) {
+          this.storageService.set('session_id', sessionId);
+          this.cookieService.set('session_id', sessionId, undefined, '/');
+        }
+
         this.router.navigate(['/']).then(r => {
           console.debug('after verify session', r);
           window.location.reload();

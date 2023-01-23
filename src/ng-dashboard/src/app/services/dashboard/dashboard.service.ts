@@ -16,8 +16,24 @@ export class DashboardService {
   constructor(private storageService: StorageService, private httpClient: HttpClient) {
   }
 
-  public checkSessionId() {
+  public checkSessionId(sessionId: string): Promise<DashboardSession> {
+    if (sessionId) {
+      const result = this.httpClient.post<ApiResponse<DashboardSession>>(ApiUrl.SESSION_VALIDATE_ID,
+        {
+          sessionId: sessionId
+        }, {
+          headers: {
+            'transactionId': uuid.v4()
+          }
+        })
+        .pipe(map(x => {
+          return x.result;
+        }));
 
+      return firstValueFrom(result);
+    }
+
+    return {} as Promise<DashboardSession>;
   }
 
   public async checkSession(): Promise<DashboardSession> {
