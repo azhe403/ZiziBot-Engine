@@ -12,6 +12,7 @@ public class CheckDashboardSessionIdRequestDto : IRequest<ApiResponseBase<CheckD
 public class CheckDashboardSessionIdResponseDto
 {
     public bool IsSessionValid { get; set; }
+    public long UserId { get; set; }
     public string Role { get; set; }
 }
 
@@ -55,6 +56,8 @@ public class CheckDashboardSessionIdRequestHandler : IRequestHandler<CheckDashbo
             apiResponse.StatusCode = HttpStatusCode.OK;
             return apiResponse;
         }
+
+        apiResponse.Data.UserId = dashboardSession.TelegramUserId;
 
         #endregion
 
