@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-import { SessionRoutingModule } from './session-routing.module';
-import { VerifySessionComponent } from './verify-session/verify-session.component';
+import {SessionRoutingModule} from './session-routing.module';
+import {VerifySessionComponent} from './verify-session/verify-session.component';
 
 
 @NgModule({
@@ -14,4 +14,5 @@ import { VerifySessionComponent } from './verify-session/verify-session.componen
     SessionRoutingModule
   ]
 })
-export class SessionModule { }
+export class SessionModule {
+}

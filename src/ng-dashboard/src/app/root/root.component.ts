@@ -10,7 +10,7 @@ import {StorageService} from '../services/storage/storage.service';
 })
 export class RootComponent {
 
-  sessionId: string;
+  sessionId: string | undefined;
   menus: any = [];
 
   constructor(
@@ -18,7 +18,6 @@ export class RootComponent {
     private storageService: StorageService,
     private dashboardService: DashboardService
   ) {
-    this.sessionId = "";
     this.buildMenu();
   }
 

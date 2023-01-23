@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {StorageService} from '../../../services/storage/storage.service';
 import {map, Subscription} from 'rxjs';
-import {TelegramUserLogin} from '../../../types/TelegramUserLogin';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DashboardService} from '../../../services/dashboard/dashboard.service';
+import {CookieService} from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-verify-session',
@@ -18,7 +18,8 @@ export class VerifySessionComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private storageService: StorageService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private cookieService: CookieService
   ) {
     this.routeSubs = new Subscription();
   }
@@ -31,6 +32,8 @@ export class VerifySessionComponent implements OnInit, OnDestroy {
         console.debug('route:', sessionId)
 
         this.storageService.set('session_id', sessionId);
+        this.cookieService.set('session_id', sessionId, undefined, '/');
+
         this.dashboardService.checkSessionId();
         this.router.navigate(['/']).then(r => {
           console.debug('after verify session', r);
