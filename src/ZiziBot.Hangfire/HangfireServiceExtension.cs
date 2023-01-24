@@ -41,14 +41,16 @@ public static class HangfireServiceExtension
             }
         );
 
-        services.AddScoped<IDashboardAuthorizationFilter, HangfireAuthorizationFilter>();
+        services.AddSingleton<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
 
         return services;
     }
 
     public static IApplicationBuilder UseHangfire(this IApplicationBuilder app)
     {
-        var dashboardAuthorizationFilters = app.ApplicationServices.CreateScope().ServiceProvider.GetServices<IDashboardAuthorizationFilter>();
+        var serviceProvider = app.ApplicationServices;
+        var authorizationFilters = serviceProvider.GetServices<IDashboardAuthorizationFilter>();
+        var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
 
         app.UseHangfireDashboard(
             pathMatch: "/hangfire-jobs",
@@ -56,7 +58,8 @@ public static class HangfireServiceExtension
             {
                 DashboardTitle = "Zizi Dev - Hangfire Dashboard",
                 IgnoreAntiforgeryToken = false,
-                Authorization = dashboardAuthorizationFilters
+                Authorization = authorizationFilters,
+                AsyncAuthorization = asyncAuthorizationFilters
             }
         );
 

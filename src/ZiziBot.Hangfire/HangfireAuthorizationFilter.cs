@@ -1,19 +1,26 @@
 using Microsoft.Extensions.Logging;
+using MongoFramework.Linq;
 
 namespace ZiziBot.Hangfire;
 
-public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
+public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
 {
     private readonly ILogger<HangfireAuthorizationFilter> _logger;
+    private readonly AppSettingsDbContext _appSettingsDbContext;
     private readonly UserDbContext _userDbContext;
 
-    public HangfireAuthorizationFilter(ILogger<HangfireAuthorizationFilter> logger, UserDbContext userDbContext)
+    public HangfireAuthorizationFilter(
+        ILogger<HangfireAuthorizationFilter> logger,
+        AppSettingsDbContext appSettingsDbContext,
+        UserDbContext userDbContext
+    )
     {
         _logger = logger;
+        _appSettingsDbContext = appSettingsDbContext;
         _userDbContext = userDbContext;
     }
 
-    public bool Authorize(DashboardContext context)
+    public async Task<bool> AuthorizeAsync(DashboardContext context)
     {
         var httpContext = context.GetHttpContext();
         httpContext.Request.Cookies.TryGetValue("session_id", out var sessionId);
@@ -22,7 +29,10 @@ public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
 
         if (sessionId != null)
         {
-            return CheckSession(sessionId);
+            var checkSession = await CheckSession(sessionId);
+            _logger.LogDebug("SessionId is have access? {CheckSession}", checkSession);
+            if (checkSession)
+                return true;
         }
 
         _logger.LogInformation("Session expired or invalid. Redirecting to Home..");
@@ -31,14 +41,27 @@ public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
         return true;
     }
 
-    private bool CheckSession(string sessionId)
+    private async Task<bool> CheckSession(string sessionId)
     {
-        var dashboardSessions = _userDbContext.DashboardSessions
-            .FirstOrDefault(session => session.SessionId == sessionId);
+        var dashboardSessions = await _userDbContext.DashboardSessions
+            .FirstOrDefaultAsync(
+                session =>
+                    session.SessionId == sessionId &&
+                    session.Status == (int) EventStatus.Complete
+            );
 
-        var isSessionValid = dashboardSessions != null;
-        _logger.LogDebug("SessionId {SessionId} is valid? {isSessionValid}", sessionId, isSessionValid);
+        if (dashboardSessions == null)
+            return false;
 
-        return isSessionValid;
+        var sudoer = _appSettingsDbContext.Sudoers.FirstOrDefault(
+            sudo =>
+                sudo.UserId == dashboardSessions.TelegramUserId &&
+                sudo.Status == (int) EventStatus.Complete
+        );
+
+        if (sudoer == null)
+            return false;
+
+        return true;
     }
 }
