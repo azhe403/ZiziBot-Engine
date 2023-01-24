@@ -3,11 +3,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration()
-	.WriteTo.Console()
-	.CreateLogger();
-
-builder.Host.UseSerilog();
+builder.Host.InitSerilogBootstrapper();
 
 builder.WebHost.ConfigureCustomListenPort();
 

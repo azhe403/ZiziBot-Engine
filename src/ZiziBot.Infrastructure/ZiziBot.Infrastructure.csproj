@@ -15,14 +15,16 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="MongoFramework" Version="0.27.0" />
       <PackageReference Include="Scrutor.AspNetCore" Version="3.3.0" />
+      <PackageReference Include="Serilog" Version="2.10.0" />
+      <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
       <PackageReference Include="TIPC.Web.AutoWrapper" Version="6.0.4" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj" />
-      <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
-      <ProjectReference Include="..\ZiziBot.Caching\ZiziBot.Caching.csproj" />
-      <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
+        <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj" />
+        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
+        <ProjectReference Include="..\ZiziBot.Caching\ZiziBot.Caching.csproj" />
+        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
     </ItemGroup>
 
 </Project>
