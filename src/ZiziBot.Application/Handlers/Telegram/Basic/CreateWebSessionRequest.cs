@@ -1,4 +1,5 @@
 using MongoFramework.Linq;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
@@ -65,12 +66,15 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
             htmlMessage.Code(webUrl).Br();
         }
 
-        htmlMessage.Bold("Catatan: ").Text("tautan ini hanya berfungsi untuk Anda!");
+        htmlMessage.Bold("Catatan: ").Text("Tombol ini hanya berfungsi untuk Anda!");
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
         if (!webUrl.Contains("localhost"))
         {
-            replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithUrl("Open Web", webUrl));
+            replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithLoginUrl("Open Web", new LoginUrl()
+            {
+                Url = webUrl
+            }));
         }
 
         return await responseBase.SendMessageText(htmlMessage.ToString(), replyMarkup);
