@@ -9,7 +9,7 @@
     <ItemGroup>
       <PackageReference Include="CacheTower" Version="0.13.0" />
       <PackageReference Include="FirebaseDatabase.net" Version="4.1.0" />
-      <PackageReference Include="Google.Apis.Auth" Version="1.58.0" />
+      <PackageReference Include="Google.Apis.Auth" Version="1.59.0"/>
     </ItemGroup>
 
 </Project>
