@@ -26,7 +26,7 @@ public class ExceptionHandler<TRequest, TResponse, TException> : IRequestExcepti
         CancellationToken cancellationToken
     )
     {
-        ResponseBase responseBase = new(request.Options.Token);
+        ResponseBase responseBase = new(request.BotToken);
 
         _logger.LogError(exception, "Something went wrong while handling request of type {@requestType}", typeof(TRequest));
 

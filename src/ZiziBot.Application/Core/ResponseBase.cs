@@ -42,7 +42,7 @@ public class ResponseBase
     {
         _request = request;
         ChatId = _request.ChatId;
-        Bot = new TelegramBotClient(request.Options.Token);
+        Bot = new TelegramBotClient(request.BotToken);
 
         if (_request.ReplyMessage)
             _request.ReplyToMessageId = _request.Message.MessageId;
@@ -72,7 +72,7 @@ public class ResponseBase
         XMediator.Schedule(
             new DeleteMessageRequestModel()
             {
-                Options = _request.Options,
+                BotToken = _request.BotToken,
                 Message = _request.Message,
                 MessageId = SentMessage.MessageId,
                 DeleteAfter = _request.DeleteAfter
@@ -84,7 +84,7 @@ public class ResponseBase
             XMediator.Schedule(
                 new DeleteMessageRequestModel()
                 {
-                    Options = _request.Options,
+                    BotToken = _request.BotToken,
                     Message = _request.Message,
                     MessageId = _request.MessageId,
                     DeleteAfter = _request.DeleteAfter,

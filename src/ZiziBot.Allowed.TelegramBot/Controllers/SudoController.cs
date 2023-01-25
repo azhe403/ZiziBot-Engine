@@ -20,9 +20,8 @@ public class SudoController : CommandController
     {
         await _mediator.EnqueueAsync(new AddSudoRequestModel()
         {
-            Options = data.Options,
+            BotToken = data.Options.Token,
             Message = data.Message,
-            Mediator = _mediator,
             DeleteAfter = TimeSpan.FromMinutes(1),
             ReplyToMessageId = data.Message.MessageId,
         });

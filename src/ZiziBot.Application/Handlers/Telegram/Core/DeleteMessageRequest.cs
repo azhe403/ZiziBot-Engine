@@ -23,7 +23,7 @@ public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestM
     {
         var chatId = request.ChatIdentifier;
 
-        var botToken = request.Options.Token;
+        var botToken = request.BotToken;
 
         ResponseBase responseBase = new(botToken);
 

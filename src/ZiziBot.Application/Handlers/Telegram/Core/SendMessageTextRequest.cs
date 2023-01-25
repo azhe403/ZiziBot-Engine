@@ -22,19 +22,18 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
 
     public async Task<ResponseBase> Handle(SendMessageTextRequestModel request, CancellationToken cancellationToken)
     {
-        var botToken = request.Options.Token;
-        var chatId = request.Message.Chat.Id;
+        var botToken = request.BotToken;
         ResponseBase response = new(botToken);
 
-        _logger.LogDebug("Sending message to chat {ChatId}", chatId);
+        _logger.LogDebug("Sending message to chat {ChatId}", request.ChatId);
         var sentMessage = await response.Bot.SendTextMessageAsync(
-            chatId: chatId,
+            chatId: request.ChatId,
             text: request.Text,
             replyToMessageId: request.ReplyToMessageId,
             cancellationToken: cancellationToken
         );
 
-        _logger.LogInformation("Message sent to chat {ChatId}", chatId);
+        _logger.LogInformation("Message sent to chat {ChatId}", request.ChatId);
 
         if (request.DeleteAfter.Ticks <= 0)
             return response.Complete();
@@ -43,7 +42,7 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
         _mediator.Schedule(
             new DeleteMessageRequestModel()
             {
-                Options = request.Options,
+                BotToken = request.BotToken,
                 Message = request.Message,
                 MessageId = sentMessage.MessageId,
                 ExecutionStrategy = request.ExecutionStrategy,

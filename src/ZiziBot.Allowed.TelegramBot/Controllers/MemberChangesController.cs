@@ -21,7 +21,7 @@ public class MemberChangesController : CommandController
     {
         await _mediator.EnqueueAsync(new NewChatMembersRequestModel()
         {
-            Options = data.Options,
+            BotToken = data.Options.Token,
             Message = data.Message,
             DeleteAfter = TimeSpan.FromMinutes(1)
         });

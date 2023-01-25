@@ -20,10 +20,15 @@ public class PingController : CommandController
         await _mediator.EnqueueAsync(
             new PingRequestModel()
             {
-                Options = data.Options,
+                BotToken = data.Options.Token,
                 Message = data.Message,
                 DeleteAfter = TimeSpan.FromMinutes(1),
-                ReplyToMessageId = data.Message.MessageId
+                ReplyToMessageId = data.Message.MessageId,
+                CleanupTargets = new[]
+                {
+                    CleanupTarget.FromBot,
+                    CleanupTarget.FromSender
+                }
             }
         );
     }

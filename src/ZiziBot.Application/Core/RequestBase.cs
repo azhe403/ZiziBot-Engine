@@ -6,8 +6,9 @@ namespace ZiziBot.Application.Core;
 
 public class RequestBase : IRequest<ResponseBase>
 {
+    public string BotToken { get; set; }
     public IMediator Mediator { get; set; }
-    public SimpleTelegramBotClientOptions Options { get; set; }
+
     public Message? Message { get; set; }
     public Message? ReplyToMessage => Message?.ReplyToMessage;
 

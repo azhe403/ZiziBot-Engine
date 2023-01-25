@@ -21,7 +21,7 @@ public class DebugController : CommandController
         await _mediator.EnqueueAsync(
             new GetIdRequestModel()
             {
-                Options = data.Options,
+                BotToken = data.Options.Token,
                 Message = data.Message,
                 ReplyToMessageId = data.Message.MessageId,
             }
@@ -34,7 +34,7 @@ public class DebugController : CommandController
         await _mediator.EnqueueAsync(
             new CreateWebSessionRequestModel()
             {
-                Options = data.Options,
+                BotToken = data.Options.Token,
                 Message = data.Message,
                 ReplyMessage = true,
                 CleanupTargets = new[]

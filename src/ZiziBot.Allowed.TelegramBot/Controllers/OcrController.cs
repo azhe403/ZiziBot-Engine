@@ -21,7 +21,7 @@ public class OcrController : CommandController
         await _mediator.EnqueueAsync(
             new OcrRequestModel()
             {
-                Options = data.Options,
+                BotToken = data.Options.Token,
                 Message = data.Message,
                 ReplyMessage = true,
                 DeleteAfter = TimeSpan.FromHours(1)
