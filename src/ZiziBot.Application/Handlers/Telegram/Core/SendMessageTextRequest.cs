@@ -22,8 +22,7 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
 
     public async Task<ResponseBase> Handle(SendMessageTextRequestModel request, CancellationToken cancellationToken)
     {
-        var botToken = request.BotToken;
-        ResponseBase response = new(botToken);
+        ResponseBase response = new(request);
 
         _logger.LogDebug("Sending message to chat {ChatId}", request.ChatId);
         var sentMessage = await response.Bot.SendTextMessageAsync(

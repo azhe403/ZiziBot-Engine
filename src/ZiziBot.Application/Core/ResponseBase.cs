@@ -4,8 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using ZiziBot.Application.Handlers.Telegram.Core;
-using File=System.IO.File;
+using File = System.IO.File;
 
 namespace ZiziBot.Application.Core;
 
@@ -56,7 +55,7 @@ public class ResponseBase
         SentMessage = await Bot.SendTextMessageAsync(
             chatId: ChatId,
             text: text,
-            replyToMessageId: _request.ReplyToMessageId,
+            replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
             parseMode: ParseMode.Html,
             allowSendingWithoutReply: true,
             replyMarkup: replyMarkup
@@ -102,6 +101,11 @@ public class ResponseBase
         await Bot.EditMessageTextAsync(ChatId, SentMessage.MessageId, text, parseMode: ParseMode.Html);
 
         return Complete();
+    }
+
+    public async Task DeleteMessageAsync()
+    {
+        await Bot.DeleteMessageAsync(ChatId, _request.MessageId);
     }
 
     public async Task<string> DownloadFileAsync(string prefixName)

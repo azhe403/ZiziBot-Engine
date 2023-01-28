@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using MediatR;
+using MediatR.Extensions.AttributedBehaviors;
 using MediatR.Pipeline;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,10 @@ public static class ServiceExtension
         services.AddMediatR(assembly);
         services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AntiSpamPipelineBehaviour<,>));
+
+        services.AddMediatRAttributedBehaviors(assembly);
+
 
         return services;
     }
