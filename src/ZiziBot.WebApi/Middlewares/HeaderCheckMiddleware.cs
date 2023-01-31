@@ -17,10 +17,9 @@ public class HeaderCheckMiddleware : IMiddleware
     {
         _logger.LogDebug("Request Context: {Context}", context.Request.Path);
 
-        if (context.Request.Path.Value?.StartsWith("/hangfire") ?? false)
+        if (!(context.Request.Path.Value?.StartsWith("/api") ?? false))
         {
-            _logger.LogTrace("Url is Hangfire dashboard");
-
+            _logger.LogTrace("Url is not api");
             await next(context);
             return;
         }
@@ -37,7 +36,7 @@ public class HeaderCheckMiddleware : IMiddleware
     private static async Task ReturnBadRequest(HttpContext context, string message)
     {
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
         await context.Response.WriteAsync(message);
     }
 }
