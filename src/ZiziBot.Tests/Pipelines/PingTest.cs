@@ -42,7 +42,7 @@ public class PingTest
             await _mediator.EnqueueAsync(
                 new PingRequestModel
                 {
-                    Options = botData,
+                    BotToken = botData.Token,
                     Message = message
                 }
             );

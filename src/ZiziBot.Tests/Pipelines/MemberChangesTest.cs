@@ -66,7 +66,7 @@ public class MemberChangesTest
             await _mediator.EnqueueAsync(
                 new NewChatMembersRequestModel()
                 {
-                    Options = botData,
+                    BotToken = botData.Token,
                     Message = message
                 }
             );
