@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
     if (!session.isSessionValid)
       return false
 
-    return session.role == 'Sudo';
+    return session.roleName == 'Sudo';
   }
 
 }

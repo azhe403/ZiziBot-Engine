@@ -12,7 +12,8 @@ public class CheckDashboardSessionRequestDto : IRequest<CheckDashboardSessionRes
 public class CheckDashboardSessionResponseDto
 {
     public bool IsSessionValid { get; set; }
-    public string Role { get; set; }
+    public int RoleId { get; set; }
+    public string RoleName { get; set; }
 }
 
 public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboardSessionRequestDto, CheckDashboardSessionResponseDto>
@@ -60,7 +61,8 @@ public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboar
 
         if (checkSudo != null)
         {
-            responseDto.Role = "Sudo";
+            responseDto.RoleId = 1;
+            responseDto.RoleName = "Sudo";
         }
 
         #endregion

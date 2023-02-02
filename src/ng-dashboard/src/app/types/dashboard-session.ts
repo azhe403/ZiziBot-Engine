@@ -1,5 +1,6 @@
 export interface DashboardSession {
   userId: number;
   isSessionValid: boolean;
-  role: string;
+  roleId: string;
+  roleName: string;
 }

@@ -52,18 +52,22 @@ export class RootComponent implements OnInit, AfterViewInit {
       {
         title: 'Mirror User',
         url: '/mirror-user/management',
+        minimumRole: 1
       },
       {
         title: 'Anti-Spam',
         url: '/antispam/fed-ban-management',
+        minimumRole: 1
       },
       {
         title: 'Notes',
         url: '/notes',
+        minimumRole: 1
       },
       {
         title: 'Angular',
         url: '/angular',
+        minimumRole: 9
       }
     ];
   }
