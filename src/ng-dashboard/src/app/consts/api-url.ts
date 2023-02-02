@@ -8,5 +8,7 @@ export class ApiUrl {
 
   public static TAG = '/api/note'
 
+  public static ANTI_SPAM = '/api/anti-spam/ess-ban'
+
 
 }

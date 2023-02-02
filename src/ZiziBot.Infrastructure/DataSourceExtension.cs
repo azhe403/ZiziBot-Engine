@@ -14,6 +14,7 @@ public static class DataSourceExtension
         }
 
         services.AddTransient<AppSettingsDbContext>(provider => new AppSettingsDbContext(mongodbConnectionString));
+        services.AddTransient<AntiSpamDbContext>(provider => new AntiSpamDbContext(mongodbConnectionString));
         services.AddTransient<MirrorDbContext>(provider => new MirrorDbContext(mongodbConnectionString));
         services.AddTransient<UserDbContext>(provider => new UserDbContext(mongodbConnectionString));
 

@@ -13,5 +13,9 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+@import 'ag-grid-community/styles/ag-grid.css';
+@import 'ag-grid-community/styles/ag-theme-alpine.min.css';
+@import 'ag-grid-community/styles/ag-theme-balham.min.css';
+
 @import "sweetalert2/dist/sweetalert2.css";
 @import '@sweetalert2/themes/dark/dark.scss';

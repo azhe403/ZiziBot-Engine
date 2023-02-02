@@ -16,7 +16,7 @@ export class SwalService {
       title: title,
       text: text,
       showConfirmButton: false,
-      timer: 1500
+      timer: 3000
     })
   }
 

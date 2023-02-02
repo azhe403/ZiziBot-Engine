@@ -13,6 +13,10 @@ const routes: Routes = [
     loadChildren: () => import('./mirror-user/mirror-user.module').then(m => m.MirrorUserModule)
   },
   {
+    path: 'antispam',
+    loadChildren: () => import('./modules/antispam/antispam.module').then(m => m.AntispamModule)
+  },
+  {
     path: 'verify',
     loadChildren: () => import('./modules/session/session.module').then(m => m.SessionModule)
   }

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using FluentValidation;
 using MediatR;
 using MediatR.Extensions.AttributedBehaviors;
 using MediatR.Pipeline;
@@ -20,6 +21,8 @@ public static class ServiceExtension
         services.AddCacheTower();
         services.AddAllService();
         services.AddAllMiddleware();
+
+        services.AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>();
 
         return services;
     }

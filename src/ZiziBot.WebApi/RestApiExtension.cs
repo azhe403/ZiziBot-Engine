@@ -23,6 +23,7 @@ public static class RestApiExtension
                 LogRequestDataOnException = true
             }
         );
+
         return app;
     }
 

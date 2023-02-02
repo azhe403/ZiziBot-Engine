@@ -34,6 +34,7 @@ export class RootComponent implements OnInit, AfterViewInit {
         this.buildMenu();
       }
     })
+
   }
 
   onLogout() {
@@ -51,6 +52,10 @@ export class RootComponent implements OnInit, AfterViewInit {
       {
         title: 'Mirror User',
         url: '/mirror-user/management',
+      },
+      {
+        title: 'Anti-Spam',
+        url: '/antispam/fed-ban-management',
       },
       {
         title: 'Notes',
