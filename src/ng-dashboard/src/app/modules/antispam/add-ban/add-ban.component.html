@@ -8,15 +8,16 @@
   <form [formGroup]="formOptions" novalidate>
     <mat-form-field appearance="fill">
       <mat-label>Telegram User Id</mat-label>
-      <input formControlName="userId" type="number" matInput>
-      <div *ngIf="formOptions.controls['userId'].errors">UserId is required</div>
+      <input formControlName="userId" type="number" matInput required>
+      <div *ngIf="formOptions.controls['userId'].errors">UserId invalid</div>
     </mat-form-field>
     <mat-form-field appearance="fill">
-      <mat-label>Additional notes</mat-label>
-      <textarea formControlName="content" matInput [rows]="3"></textarea>
+      <mat-label>Reason/Additional note</mat-label>
+      <textarea formControlName="reason" matInput [rows]="4"></textarea>
     </mat-form-field>
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="saveBan()">Save</button>
+  <button mat-raised-button (click)="saveBan()">Save</button>
+  <button mat-raised-button color="warn" (click)="onDelete()">Delete</button>
 </div>

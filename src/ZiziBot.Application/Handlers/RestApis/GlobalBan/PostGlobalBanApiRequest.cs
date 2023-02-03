@@ -7,6 +7,7 @@ namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 public class PostGlobalBanApiRequest : ApiRequestBase<bool>
 {
     public long UserId { get; set; }
+    public string Reason { get; set; }
 }
 
 public class PostGlobalBanApiValidator : AbstractValidator<PostGlobalBanApiRequest>
@@ -32,21 +33,20 @@ public class PostGlobalBanRequestHandler : IRequestHandler<PostGlobalBanApiReque
 
         if (ban != null)
         {
-            return new ApiResponseBase<bool>()
-            {
-                StatusCode = HttpStatusCode.NotModified,
-                Data = true
-            };
+            ban.Reason = request.Reason;
         }
+        else
+        {
 
-        _antiSpamDbContext.GlobalBan.Add(
-            new GlobalBanEntity()
-            {
-                UserId = request.UserId,
-                Status = (int) EventStatus.Complete
-            }
-        );
-
+            _antiSpamDbContext.GlobalBan.Add(
+                new GlobalBanEntity()
+                {
+                    UserId = request.UserId,
+                    Reason = request.Reason,
+                    Status = (int) EventStatus.Complete
+                }
+            );
+        }
         await _antiSpamDbContext.SaveChangesAsync(cancellationToken);
 
         return new ApiResponseBase<bool>()

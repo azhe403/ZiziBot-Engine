@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { FedBanManagementComponent } from './fed-ban-management.component';
+import {FedBanManagementComponent} from './fed-ban-management.component';
 
 describe('FedbanManagementComponent', () => {
   let component: FedBanManagementComponent;
@@ -8,9 +8,9 @@ describe('FedbanManagementComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FedBanManagementComponent ]
+      declarations: [FedBanManagementComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(FedBanManagementComponent);
     component = fixture.componentInstance;

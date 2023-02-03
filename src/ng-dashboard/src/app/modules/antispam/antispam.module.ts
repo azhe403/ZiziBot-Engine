@@ -5,7 +5,7 @@ import {AntispamRoutingModule} from './antispam-routing.module';
 import {FedBanManagementComponent} from './fed-ban-management/fed-ban-management.component';
 import {AgGridModule} from "ag-grid-angular";
 import {MatCompoundModule} from '../partial/mat-compound.module';
-import { AddBanComponent } from './add-ban/add-ban.component';
+import {AddBanComponent} from './add-ban/add-ban.component';
 
 
 @NgModule({
@@ -20,4 +20,5 @@ import { AddBanComponent } from './add-ban/add-ban.component';
     MatCompoundModule
   ]
 })
-export class AntispamModule { }
+export class AntispamModule {
+}

@@ -3,8 +3,6 @@
   <div class="example-button-row">
     <button mat-raised-button color="primary" (click)="onRefresh()">Refresh</button>
     <button mat-raised-button color="primary" (click)="showAddUserDialog()">Add</button>
-    <button mat-raised-button class="accent-red-700" (click)="showDeleteDialog()">Delete</button>
-    <button mat-raised-button class="accent-red-700" (click)="restoreDelete()">Restore</button>
   </div>
 </section>
 <div class="2xl:container w-full h-5/6 px-1">
@@ -15,7 +13,7 @@
     [rowData]="rowData$ | async"
     [rowSelection]="'multiple'"
     [animateRows]="true"
-    (gridReady)="onGridReady($event)"
-    (cellClicked)="onCellClicked($event)">
+    (cellClicked)="onCellClicked($event)"
+    (gridReady)="onGridReady($event)">
   </ag-grid-angular>
 </div>

@@ -6,7 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {AntispamService} from '../../../services/antispam/antispam.service';
 import {ApiResponse} from '../../../types/api-response';
 import {Antispam} from '../../../types/antispam';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {AddBanComponent} from '../add-ban/add-ban.component';
 import {SwalService} from '../../../services/swal/swal.service';
 
@@ -56,6 +56,19 @@ export class FedBanManagementComponent implements OnInit {
   // Example of consuming Grid Event
   onCellClicked(e: CellClickedEvent): void {
     console.log('cellClicked', e);
+    const dialogRef = this.matDialog.open(AddBanComponent, {
+      width: '90%',
+      maxWidth: '600px',
+      minHeight: '300px',
+      height: '50%',
+      data: e.data
+    });
+
+    dialogRef.afterClosed()
+      .subscribe(result => {
+        console.log(`edit result: `, result);
+        this.loadData();
+      });
   }
 
   // Example using Grid's API
@@ -75,14 +88,16 @@ export class FedBanManagementComponent implements OnInit {
   }
 
   showAddUserDialog() {
-    const dialogRef = this.matDialog.open(AddBanComponent, {
+    const dialogRef: MatDialogRef<AddBanComponent, boolean> = this.matDialog.open(AddBanComponent, {
       width: '90%',
-      maxWidth: '600px'
+      maxWidth: '600px',
+      minHeight: '300px',
+      height: '50%'
     });
 
     dialogRef.afterClosed()
       .subscribe(result => {
-        console.log(`Dialog result: `, result);
+        console.log(`insert result: `, result);
         this.loadData();
       });
   }
