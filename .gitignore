@@ -265,7 +265,7 @@ __pycache__/
 
 # WinTenDev
 **/Storage/AppSettings
-.env
-
-
 **/Storage/Temp/**
+
+.env
+package-lock.json
