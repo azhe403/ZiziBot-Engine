@@ -37,9 +37,9 @@ public class AntiSpamPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<
         requestBase.ReplyMessage = false;
         ResponseBase responseBase = new(requestBase);
 
-        var combotAntispamApiDto = await _antiSpamService.CheckCombotAntiSpamAsync(requestBase.ChatIdentifier, requestBase.UserId);
+        var combotAntispamApiDto = await _antiSpamService.CheckSpamAsync(requestBase.ChatIdentifier, requestBase.UserId);
 
-        if (combotAntispamApiDto.Result != null)
+        if (combotAntispamApiDto)
         {
             await responseBase.SendMessageText("User is banned from Global Ban");
             await responseBase.DeleteMessageAsync();

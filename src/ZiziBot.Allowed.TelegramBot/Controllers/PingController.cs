@@ -32,4 +32,17 @@ public class PingController : CommandController
             }
         );
     }
+
+    [DefaultCommand]
+    [TextCommand()]
+    public async Task Default(MessageData data)
+    {
+        await _mediator.EnqueueAsync(
+            new DefaultRequestModel()
+            {
+                BotToken = data.Options.Token,
+                Message = data.Message
+            }
+        );
+    }
 }
