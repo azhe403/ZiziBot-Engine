@@ -2,6 +2,7 @@
 
 global using JetBrains.Annotations;
 global using MediatR;
+global using ZiziBot.Allowed.TelegramBot.Models;
 global using ZiziBot.Application.Core;
 global using ZiziBot.Application.Handlers.Telegram.Core;
 global using ZiziBot.Application.Services;

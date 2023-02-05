@@ -33,6 +33,19 @@ public class PingController : CommandController
         );
     }
 
+    [CallbackQuery(CallbackConst.BOT)]
+    public async Task PingCallback(CallbackQueryData data, PingCallbackQueryModel model)
+    {
+        await _mediator.EnqueueAsync(
+            new PingCallbackRequestModel()
+            {
+                BotToken = data.Options.Token,
+                CallbackQuery = data.CallbackQuery,
+                ExecutionStrategy = ExecutionStrategy.Hangfire
+            }
+        );
+    }
+
     [DefaultCommand]
     [TextCommand()]
     public async Task Default(MessageData data)

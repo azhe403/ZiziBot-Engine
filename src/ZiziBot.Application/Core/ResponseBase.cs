@@ -20,6 +20,8 @@ public class ResponseBase
 
     public ChatId ChatId { get; set; }
 
+    public string CallbackQueryId => _request.CallbackQuery?.Id;
+
     public TimeSpan DeleteAfter => _request.DeleteAfter;
 
     public bool DirectAction { get; set; }
@@ -106,6 +108,12 @@ public class ResponseBase
     public async Task DeleteMessageAsync()
     {
         await Bot.DeleteMessageAsync(ChatId, _request.MessageId);
+    }
+
+    public async Task<ResponseBase> AnswerCallbackAsync(string message, bool showAlert = false)
+    {
+        await Bot.AnswerCallbackQueryAsync(CallbackQueryId, message, showAlert);
+        return Complete();
     }
 
     public async Task<string> DownloadFileAsync(string prefixName)
