@@ -3,6 +3,8 @@ import {DashboardService} from "../services/dashboard/dashboard.service";
 import {NavigationEnd, Router} from "@angular/router";
 import {StorageService} from '../services/storage/storage.service';
 import {StorageKey} from '../consts/storage-key';
+import {BreakpointObserver} from '@angular/cdk/layout';
+import {MatSidenav} from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-root',
@@ -14,18 +16,20 @@ export class RootComponent implements OnInit, AfterViewInit {
   sessionId: string | undefined;
   menus: any = [];
 
-  @ViewChild('drawer') drawer: any;
+  @ViewChild('drawer') drawer!: MatSidenav;
 
   constructor(
     private router: Router,
     private storageService: StorageService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private breakpointObserver: BreakpointObserver
   ) {
     this.buildMenu();
   }
 
   ngAfterViewInit(): void {
     this.loadDrawerState();
+    this.enableResponsiveMode();
   }
 
   ngOnInit(): void {
@@ -73,18 +77,28 @@ export class RootComponent implements OnInit, AfterViewInit {
   }
 
   toggleDrawer() {
-    console.debug('toggleDrawer');
-
     this.storageService.set(StorageKey.DRAWER_STATE, this.drawer.opened ? 'false' : 'true');
-    this.drawer.toggle();
+    this.drawer.toggle().then(r => console.debug('drawer status:', r));
   }
 
   loadDrawerState() {
     const drawer = this.storageService.get(StorageKey.DRAWER_STATE);
     if (drawer == 'true') {
-      this.drawer.open();
+      this.drawer.open().then(r => console.debug('drawer status:', r));
     } else {
-      this.drawer.close();
+      this.drawer.close().then(r => console.debug('drawer status:', r));
     }
+  }
+
+  enableResponsiveMode() {
+    this.breakpointObserver.observe(['(max-width: 800px)']).subscribe(res => {
+      if (res.matches) {
+        this.drawer.mode = 'over';
+        this.drawer.close().then(r => console.debug('drawer status:', r));
+      } else {
+        this.drawer.mode = 'side';
+        this.drawer.open().then(r => console.debug('drawer status:', r));
+      }
+    });
   }
 }
