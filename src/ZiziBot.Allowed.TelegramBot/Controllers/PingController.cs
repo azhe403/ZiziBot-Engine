@@ -15,6 +15,7 @@ public class PingController : CommandController
     }
 
     [Command("ping")]
+    [TextCommand("ping")]
     public async Task Ping(MessageData data)
     {
         await _mediator.EnqueueAsync(
@@ -24,6 +25,7 @@ public class PingController : CommandController
                 Message = data.Message,
                 DeleteAfter = TimeSpan.FromMinutes(1),
                 ReplyToMessageId = data.Message.MessageId,
+                ReplyMessage = true,
                 CleanupTargets = new[]
                 {
                     CleanupTarget.FromBot,

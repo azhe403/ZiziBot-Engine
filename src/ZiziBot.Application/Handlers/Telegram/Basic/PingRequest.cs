@@ -1,4 +1,3 @@
-using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
@@ -19,32 +18,30 @@ public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase
     public async Task<ResponseBase> Handle(PingRequestModel request, CancellationToken cancellationToken)
     {
         ResponseBase responseBase = new(request);
-
-        var webhookInfo = await responseBase.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
-
         var htmlMessage = HtmlMessage.Empty
             .BoldBr("Pong!")
             .Br();
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
 
-        if (await _sudoService.IsSudoAsync(request.UserId) &&
-            webhookInfo.Url != null)
+        if (await _sudoService.IsSudoAsync(request.UserId))
         {
-            replyMarkup = new InlineKeyboardMarkup(new[]
-            {
+            replyMarkup = new InlineKeyboardMarkup(
                 new[]
                 {
-                    new InlineKeyboardButton("WebHook Info")
+                    new[]
                     {
-                        CallbackData = new PingCallbackQueryModel()
+                        new InlineKeyboardButton("WebHook Info")
                         {
-                            Path = CallbackConst.BOT,
-                            Data = "webhook-info"
+                            CallbackData = new PingCallbackQueryModel()
+                            {
+                                Path = CallbackConst.BOT,
+                                Data = "webhook-info"
+                            }
                         }
                     }
                 }
-            });
+            );
         }
 
         return await responseBase.SendMessageText(htmlMessage.ToString(), replyMarkup);
