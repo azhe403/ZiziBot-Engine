@@ -4,96 +4,98 @@ namespace ZiziBot.Infrastructure.MongoConfig;
 
 public class MongoConfigSource : IConfigurationSource
 {
-	readonly AppSettingsDbContext _dbContext;
+    private readonly AppSettingsDbContext _dbContext;
 
-	public MongoConfigSource(string connectionString)
-	{
-		_dbContext = new AppSettingsDbContext(connectionString);
-	}
+    public MongoConfigSource(string connectionString)
+    {
+        _dbContext = new AppSettingsDbContext(connectionString);
+    }
 
-	public IConfigurationProvider Build(IConfigurationBuilder builder)
-	{
-		return new MongoConfigProvider(this);
-	}
+    public IConfigurationProvider Build(IConfigurationBuilder builder)
+    {
+        return new MongoConfigProvider(this);
+    }
 
-	public Dictionary<string, string?> GetAppSettings()
-	{
-		SeedEventLogConfig();
-		SeedHangfireConfig();
+    public Dictionary<string, string?> GetAppSettings()
+    {
+        SeedAppSettings();
 
-		var appSettingsList = _dbContext.AppSettings.ToList();
+        var appSettingsList = _dbContext.AppSettings.ToList();
 
-		return appSettingsList
-			.Select(x => new KeyValuePair<string, string?>(x.Name, x.Value))
-			.DistinctBy(pair => pair.Key)
-			.ToDictionary(x => x.Key, x => x.Value);
-	}
+        return appSettingsList
+            .Select(x => new KeyValuePair<string, string?>(x.Name, x.Value))
+            .DistinctBy(pair => pair.Key)
+            .ToDictionary(x => x.Key, x => x.Value);
+    }
 
-	private void SeedEventLogConfig()
-	{
-		var appSettingsList = _dbContext.AppSettings.Where(settings => settings.Name.Contains("EventLog")).ToList();
+    private void SeedAppSettings()
+    {
+        var listAppSettings = new List<SeedSettingDto>
+        {
+            new()
+            {
+                Root = "EventLog",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "ChatId", 12345 },
+                    { "ThreadId", 34567 }
+                }
+            },
+            new()
+            {
+                Root = "Hangfire",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "CurrentStorage", 2 },
+                    { "MongoDbConnection", "mongo://localhost:21750" },
+                    { "WorkerMultiplier", 2 },
+                    { "Queues", "default" }
+                }
+            },
+            new()
+            {
+                Root = "Gcp",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "FirebaseProjectUrl", "https://yourapp.firebaseio.com" },
+                    { "FirebaseServiceAccountJson", "{\"your_firebase_service_account_json\":\"string\"}" }
+                }
+            },
+            new()
+            {
+                Root = "OptiicDev",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "ApiKey", "YOUR_API_KEY" }
+                }
+            }
+        };
 
-		if (appSettingsList.Any())
-		{
-			return;
-		}
+        listAppSettings.ForEach(
+            dto => {
+                foreach (var config in dto.KeyPair)
+                {
+                    var prefix = dto.Root;
+                    var field = $"{prefix}:{config.Key}";
 
-		var configs = new Dictionary<string, object>()
-		{
-			{ "ChatId", 12345 },
-			{ "ThreadId", 34567 }
-		};
+                    var appSetting = _dbContext.AppSettings.FirstOrDefault(settings => settings.Name == field);
 
-		foreach (var config in configs)
-		{
-			_dbContext.AppSettings.Add(
-				new AppSettings()
-				{
-					Name = $"EventLog:{config.Key}",
-					Value = $"{config.Value}",
-					Field = $"EventLog:{config.Key}",
-					DefaultValue = $"{config.Value}",
-					Status = (int) EventStatus.Complete,
-					TransactionId = Guid.NewGuid().ToString()
-				}
-			);
-		}
+                    if (appSetting != null) continue;
 
-		_dbContext.SaveChanges();
-	}
+                    _dbContext.AppSettings.Add(
+                        new AppSettings()
+                        {
+                            Name = field,
+                            Field = field,
+                            Value = $"{config.Value}",
+                            DefaultValue = $"{config.Value}",
+                            Status = (int) EventStatus.Complete
+                        }
+                    );
+                }
+            }
+        );
 
-	private void SeedHangfireConfig()
-	{
-		var appSettingsList = _dbContext.AppSettings.Where(settings => settings.Name.Contains("Hangfire")).ToList();
-
-		if (appSettingsList.Any())
-		{
-			return;
-		}
-
-		var configs = new Dictionary<string, object>()
-		{
-			{ "CurrentStorage", 2 },
-			{ "MongoDbConnection", "mongo://localhost:21750" },
-			{ "WorkerMultiplier", 2 },
-			{ "Queues", "default" }
-		};
-
-		foreach (var config in configs)
-		{
-			_dbContext.AppSettings.Add(
-				new AppSettings()
-				{
-					Name = $"Hangfire:{config.Key}",
-					Value = $"{config.Value}",
-					Field = $"Hangfire:{config.Key}",
-					DefaultValue = $"{config.Value}",
-					Status = (int) EventStatus.Complete,
-					TransactionId = Guid.NewGuid().ToString()
-				}
-			);
-		}
-
-		_dbContext.SaveChanges();
-	}
+        _dbContext.SaveChanges();
+    }
 }
