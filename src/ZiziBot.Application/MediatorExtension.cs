@@ -30,7 +30,7 @@ public static class MediatorExtension
 
     public static async Task<ResponseBase> EnqueueAsync(this IMediator mediator, RequestBase request)
     {
-        Log.Debug("Enqueueing request {@request} in {Mode}", request, request.ExecutionStrategy);
+        Log.Debug("Enqueueing request {request} in {Mode}", request, request.ExecutionStrategy);
 
         if (request.ExecutionStrategy == ExecutionStrategy.Instant)
         {
