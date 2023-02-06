@@ -27,6 +27,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     public async ValueTask EvictAsync(string cacheKey)
     {
         await GetClient()
+            .Child(_cacheOptions.RootDir)
             .Child(cacheKey)
             .DeleteAsync();
     }
@@ -36,13 +37,14 @@ public class CacheTowerFirebaseProvider : ICacheLayer
         var cacheEntry = default(CacheEntry<T>);
 
         var data = await GetClient()
+            .Child(_cacheOptions.RootDir)
             .Child(cacheKey)
             .OnceAsync<FirebaseCacheEntry>();
 
         var obj = data.FirstOrDefault(o => o.Object.CacheKey == cacheKey);
 
         if (obj?.Object != null)
-            return new CacheEntry<T>((T)obj.Object.Value, obj.Object.Expiry);
+            return new CacheEntry<T>((T) obj.Object.Value, obj.Object.Expiry);
 
         return cacheEntry;
     }
@@ -50,13 +52,16 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
     {
         await GetClient()
+            .Child(_cacheOptions.RootDir)
             .Child(cacheKey)
-            .PostAsync(new FirebaseCacheEntry()
-            {
-                CacheKey = cacheKey,
-                Value = cacheEntry.Value!,
-                Expiry = cacheEntry.Expiry
-            });
+            .PutAsync(
+                new FirebaseCacheEntry()
+                {
+                    CacheKey = cacheKey,
+                    Value = cacheEntry.Value!,
+                    Expiry = cacheEntry.Expiry
+                }
+            );
     }
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
@@ -66,7 +71,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
 
     private FirebaseClient GetClient()
     {
-        using var client = new FirebaseClient(
+        var client = new FirebaseClient(
             baseUrl: _cacheOptions.ProjectUrl,
             options: new FirebaseOptions
             {
@@ -75,13 +80,12 @@ public class CacheTowerFirebaseProvider : ICacheLayer
             }
         );
 
-
         return client;
     }
 
     private async Task<string> GetAccessToken()
     {
-        var credential = GoogleCredential.FromFile(_cacheOptions.ServiceAccountJson)
+        var credential = GoogleCredential.FromJson(_cacheOptions.ServiceAccountJson)
             .CreateScoped(
                 new[]
                 {
@@ -100,4 +104,5 @@ public class FirebaseCacheOptions
 {
     public string ProjectUrl { get; set; }
     public string ServiceAccountJson { get; set; }
+    public string RootDir { get; set; } = "cache";
 }
