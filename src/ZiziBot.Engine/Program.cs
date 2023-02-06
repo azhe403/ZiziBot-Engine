@@ -35,6 +35,7 @@ builder.Services.ConfigureTelegramBot();
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
+app.ConfigureFlurlLogging();
 
 app.PrintAbout();
 
