@@ -1,3 +1,5 @@
+using CacheTower.Providers.FileSystem;
+using CacheTower.Serializers.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -10,15 +12,17 @@ public static class CacheTowerExtension
         var serviceProvider = services.BuildServiceProvider();
         var cacheConfig = serviceProvider.GetRequiredService<IOptions<CacheConfig>>().Value;
 
-        var firebaseOptions = new FirebaseCacheOptions
-        {
-            ProjectUrl = cacheConfig.FirebaseProjectUrl,
-            ServiceAccountJson = cacheConfig.FirebaseServiceAccountJson
-        };
+        // var firebaseOptions = new FirebaseCacheOptions
+        // {
+        //     ProjectUrl = cacheConfig.FirebaseProjectUrl,
+        //     ServiceAccountJson = cacheConfig.FirebaseServiceAccountJson
+        // };
 
         services.AddCacheStack(
             builder => {
-                builder.CacheLayers.Add(new CacheTowerFirebaseProvider(firebaseOptions));
+                // builder.CacheLayers.Add(new CacheTowerFirebaseProvider(firebaseOptions));
+                builder.AddFileCacheLayer(new FileCacheLayerOptions("Storage/CacheTower/File/".EnsureDirectory(), NewtonsoftJsonCacheSerializer.Instance))
+                    .WithCleanupFrequency(TimeSpan.FromDays(1));
             }
         );
 
