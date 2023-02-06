@@ -43,22 +43,22 @@ public class GlobalExceptionHandler<TRequest, TResponse, TException> : IRequestE
         responseBase.ChatId = EventLogConfig.ChatId;
 
         var htmlMessage = HtmlMessage.Empty
-            .BoldBr("Exception Handler")
-            .Bold("Message: ").TextBr(exception.Message)
-            .Bold("Source: ").TextBr(exception.Source ?? "N/A")
-            .Bold("Type: ").TextBr(exception.GetType().Name)
-            .Bold("Exception: ").TextBr(typeof(TException).Name)
-            .Bold("Request: ").TextBr(typeof(TRequest).Name);
+            .BoldBr("🛑 Exception Handler")
+            .Bold("Message: ").CodeBr(exception.Message)
+            .Bold("Source: ").CodeBr(exception.Source ?? "N/A")
+            .Bold("Type: ").CodeBr(exception.GetType().Name)
+            .Bold("Exception: ").CodeBr(typeof(TException).Name)
+            .Bold("Request: ").CodeBr(typeof(TRequest).Name);
 
         if (stackFrame != null)
         {
             htmlMessage
-                .Bold("File: ").TextBr(stackFrame.GetFileName()!)
-                .Bold("Coordinate: ").TextBr($"{stackFrame.GetFileLineNumber()}:{stackFrame.GetFileColumnNumber()}")
-                .Bold("Namespace: ").TextBr(stackFrame.GetMethod()!.DeclaringType!.Namespace!)
-                .Bold("Assembly: ").TextBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Name ?? string.Empty)
-                .Bold("Assembly Version: ").TextBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Version!.ToString())
-                .Bold("Assembly Location: ").TextBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
+                .Bold("File: ").CodeBr(stackFrame.GetFileName()!)
+                .Bold("Coordinate: ").CodeBr($"{stackFrame.GetFileLineNumber()}:{stackFrame.GetFileColumnNumber()}")
+                .Bold("Namespace: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Namespace!)
+                .Bold("Assembly: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Name ?? string.Empty)
+                .Bold("Assembly Version: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Version!.ToString())
+                .Bold("Assembly Location: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
         }
 
         await responseBase.SendMessageText(htmlMessage.ToString());
