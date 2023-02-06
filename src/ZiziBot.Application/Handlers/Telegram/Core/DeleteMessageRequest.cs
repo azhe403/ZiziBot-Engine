@@ -27,10 +27,25 @@ public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestM
 
         if (chatId == 0) return responseBase;
 
-        _logger.LogDebug("Deleting message {MessageId} from chat {ChatId}", request.MessageId, chatId);
-        await responseBase.Bot.DeleteMessageAsync(chatId, request.MessageId, cancellationToken: cancellationToken);
+        try
+        {
+            _logger.LogDebug("Deleting message {MessageId} from chat {ChatId}", request.MessageId, chatId);
+            await responseBase.Bot.DeleteMessageAsync(chatId, request.MessageId, cancellationToken: cancellationToken);
 
-        _logger.LogInformation("Message {MessageId} deleted from chat {ChatId}", request.MessageId, chatId);
+            _logger.LogInformation("Message {MessageId} deleted from chat {ChatId}", request.MessageId, chatId);
+        }
+        catch (Exception exception)
+        {
+            if (exception.Message.CanBeIgnored())
+            {
+                _logger.LogWarning("Message {MessageId} could not be deleted from chat {ChatId}", request.MessageId, chatId);
+            }
+            else
+            {
+                _logger.LogError(exception, "Message {MessageId} could not be deleted from chat {ChatId}", request.MessageId, chatId);
+                throw;
+            }
+        }
 
         return responseBase.Complete();
     }
