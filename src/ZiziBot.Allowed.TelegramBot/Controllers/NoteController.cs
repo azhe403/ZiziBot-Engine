@@ -44,7 +44,8 @@ public class NotesController : CommandController
                 Message = data.Message,
                 ReplyMessage = true,
                 Query = data.Params.GetCommandParamAt<string>(0),
-                Content = data.Message.ReplyToMessage.Text,
+                Content = data.Message.ReplyToMessage?.Text,
+                FileId = data.Message.ReplyToMessage?.GetFileId(),
                 CleanupTargets = new[]
                 {
                     CleanupTarget.FromBot,

@@ -5,8 +5,8 @@ namespace ZiziBot.Application.Handlers.Telegram.Note;
 public class CreateNoteRequestModel : RequestBase
 {
     public string Query { get; set; }
-    public string Content { get; set; }
-    public string FileId { get; set; }
+    public string? Content { get; set; }
+    public string? FileId { get; set; }
 }
 
 public class CreateNoteValidator : AbstractValidator<CreateNoteRequestModel>
@@ -34,7 +34,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
 
         var validationResult = await request.ValidateAsync<CreateNoteValidator, CreateNoteRequestModel>();
 
-        if (!validationResult.IsValid)
+        if ((!validationResult?.IsValid) ?? false)
         {
             htmlMessage.Text(validationResult.Errors.Select(x => x.ErrorMessage).Aggregate((x, y) => $"{x})\n{y}"));
             return await responseBase.SendMessageText(htmlMessage.ToString());
