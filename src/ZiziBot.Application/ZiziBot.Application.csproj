@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
         <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
         <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj" />
         <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj" />

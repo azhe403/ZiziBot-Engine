@@ -22,9 +22,14 @@
         </PackageReference>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\ZiziBot.Parsers\ZiziBot.Parsers.csproj" />
-        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
-        <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj" />
-        <ProjectReference Include="..\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj" />
+        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Update=".env">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 </Project>
