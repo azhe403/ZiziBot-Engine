@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using CloudCraic.Hosting.BackgroundQueue.DependencyInjection;
 using FluentValidation;
 using MediatR;
 using MediatR.Extensions.AttributedBehaviors;
@@ -18,6 +19,7 @@ public static class ServiceExtension
 
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+        services.AddBackgroundQueue();
         services.AddCacheTower();
         services.AddAllService();
         services.AddAllMiddleware();
@@ -50,6 +52,19 @@ public static class ServiceExtension
                     .AddClasses(filter => filter.InNamespaceOf<CacheService>())
                     .AsSelf()
                     .WithTransientLifetime()
+        );
+
+        return services;
+    }
+
+    private static IServiceCollection AddBackgroundQueue(this IServiceCollection services)
+    {
+        services.AddBackgroundQueue(
+            maxConcurrentCount: 3,
+            millisecondsToWaitBeforePickingUpTask: 1000,
+            onException: exception => {
+
+            }
         );
 
         return services;
