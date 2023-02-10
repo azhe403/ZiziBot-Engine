@@ -6,3 +6,4 @@ global using ZiziBot.Application.Handlers.Telegram.Group;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Hangfire;
 global using ZiziBot.Infrastructure;
+global using ZiziBot.Parsers.WebParser;

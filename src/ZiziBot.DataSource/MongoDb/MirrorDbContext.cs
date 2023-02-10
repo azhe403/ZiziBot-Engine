@@ -9,5 +9,6 @@ namespace ZiziBot.DataSource.MongoDb
         }
 
         public MongoDbSet<MirrorUserEntity> MirrorUsers { get; set; }
+        public MongoDbSet<MirrorApprovalEntity> MirrorApproval { get; set; }
     }
 }
