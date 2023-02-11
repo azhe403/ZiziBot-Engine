@@ -11,17 +11,13 @@ public class ApiControllerBase : ControllerBase
 
     protected IActionResult SwitchStatus<T>(ApiResponseBase<T> responseBase)
     {
-        switch (responseBase.StatusCode)
+        return responseBase.StatusCode switch
         {
-            case HttpStatusCode.OK:
-                return Ok(responseBase.Data);
-                break;
-            case HttpStatusCode.BadRequest:
-                return BadRequest(responseBase.Data);
-            default:
-                return BadRequest(responseBase.Data);
-                break;
-        }
+            HttpStatusCode.OK => Ok(responseBase),
+            HttpStatusCode.BadRequest => BadRequest(responseBase),
+            HttpStatusCode.NotFound => NotFound(responseBase),
+            _ => BadRequest(responseBase)
+        };
     }
 
 }

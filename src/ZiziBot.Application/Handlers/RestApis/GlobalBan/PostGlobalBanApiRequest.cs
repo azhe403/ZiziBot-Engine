@@ -51,7 +51,7 @@ public class PostGlobalBanRequestHandler : IRequestHandler<PostGlobalBanApiReque
 
         return new ApiResponseBase<bool>()
         {
-            Data = true,
+            Result = true,
             StatusCode = HttpStatusCode.OK
         };
     }

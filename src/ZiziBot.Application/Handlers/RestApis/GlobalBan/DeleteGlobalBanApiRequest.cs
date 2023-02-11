@@ -42,7 +42,7 @@ public class DeleteGlobalBanRequestHandler : IRequestHandler<DeleteGlobalBanApiR
 
         return new ApiResponseBase<bool>()
         {
-            Data = true,
+            Result = true,
             StatusCode = HttpStatusCode.OK
         };
     }

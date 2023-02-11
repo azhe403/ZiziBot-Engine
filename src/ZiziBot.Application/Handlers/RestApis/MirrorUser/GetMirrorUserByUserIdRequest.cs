@@ -1,13 +1,22 @@
+using System.Net;
 using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
-public class GetMirrorUserByUserIdRequestDto : IRequest<MirrorUserEntity>
+public class GetMirrorUserByUserIdRequestDto : ApiRequestBase<GetMirrorUserDto>
 {
     public long UserId { get; set; }
 }
 
-public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUserByUserIdRequestDto, MirrorUserEntity>
+public class GetMirrorUserDto
+{
+    public long UserId { get; set; }
+    public bool IsExpired { get; set; }
+    public DateTime SubscriptionUntil { get; set; }
+    public DateTime MemberSince { get; set; }
+}
+
+public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUserByUserIdRequestDto, ApiResponseBase<GetMirrorUserDto>>
 {
     private readonly MirrorDbContext _mirrorDbContext;
 
@@ -16,12 +25,34 @@ public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUser
         _mirrorDbContext = mirrorDbContext;
     }
 
-    public async Task<MirrorUserEntity> Handle(GetMirrorUserByUserIdRequestDto request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<GetMirrorUserDto>> Handle(GetMirrorUserByUserIdRequestDto request, CancellationToken cancellationToken)
     {
+        ApiResponseBase<GetMirrorUserDto> response = new();
+
         var user = await _mirrorDbContext.MirrorUsers
             .Where(x => x.UserId == request.UserId)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        return user;
+        if (user == null)
+        {
+            response.StatusCode = HttpStatusCode.NotFound;
+            response.Message = "User not found";
+            return response;
+        }
+        else
+        {
+            response.StatusCode = HttpStatusCode.OK;
+            response.Message = "User found";
+        }
+
+        response.Result = new GetMirrorUserDto
+        {
+            UserId = user.UserId,
+            IsExpired = user.ExpireAt < DateTime.UtcNow,
+            SubscriptionUntil = user.ExpireAt,
+            MemberSince = user.CreatedDate
+        };
+
+        return response;
     }
 }

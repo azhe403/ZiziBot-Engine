@@ -4,7 +4,7 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class CheckDashboardSessionIdRequestDto : IRequest<ApiResponseBase<CheckDashboardSessionIdResponseDto>>
+public class CheckDashboardSessionIdRequestDto : ApiRequestBase<CheckDashboardSessionIdResponseDto>
 {
     public string SessionId { get; set; }
 }
@@ -35,10 +35,7 @@ public class CheckDashboardSessionIdRequestHandler : IRequestHandler<CheckDashbo
 
     public async Task<ApiResponseBase<CheckDashboardSessionIdResponseDto>> Handle(CheckDashboardSessionIdRequestDto request, CancellationToken cancellationToken)
     {
-        ApiResponseBase<CheckDashboardSessionIdResponseDto> apiResponse = new()
-        {
-            Data = new()
-        };
+        ApiResponseBase<CheckDashboardSessionIdResponseDto> apiResponse = new();
 
         #region Check Dashboard Session
 
@@ -49,7 +46,7 @@ public class CheckDashboardSessionIdRequestHandler : IRequestHandler<CheckDashbo
             )
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        apiResponse.Data.IsSessionValid = dashboardSession != null;
+        apiResponse.Result.IsSessionValid = dashboardSession != null;
 
         if (dashboardSession == null)
         {
@@ -57,7 +54,7 @@ public class CheckDashboardSessionIdRequestHandler : IRequestHandler<CheckDashbo
             return apiResponse;
         }
 
-        apiResponse.Data.UserId = dashboardSession.TelegramUserId;
+        apiResponse.Result.UserId = dashboardSession.TelegramUserId;
 
         #endregion
 
@@ -72,7 +69,7 @@ public class CheckDashboardSessionIdRequestHandler : IRequestHandler<CheckDashbo
 
         if (checkSudo != null)
         {
-            apiResponse.Data.Role = "Sudo";
+            apiResponse.Result.Role = "Sudo";
         }
 
         #endregion

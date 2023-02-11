@@ -36,7 +36,7 @@ public class UndeleteGlobalBanRequestHandler : IRequestHandler<UndeleteGlobalBan
             return new ApiResponseBase<bool>()
             {
                 StatusCode = HttpStatusCode.NotModified,
-                Data = true
+                Result = true
             };
         }
 
@@ -46,7 +46,7 @@ public class UndeleteGlobalBanRequestHandler : IRequestHandler<UndeleteGlobalBan
 
         return new ApiResponseBase<bool>()
         {
-            Data = true,
+            Result = true,
             StatusCode = HttpStatusCode.OK
         };
     }

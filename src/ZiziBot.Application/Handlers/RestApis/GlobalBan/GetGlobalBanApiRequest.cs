@@ -47,7 +47,7 @@ public class GetGlobalBanApiRequestHandler : IRequestHandler<GetGlobalBanApiRequ
 
         return new ApiResponseBase<List<GetGlobalBanApiDto>>()
         {
-            Data = globalBanList,
+            Result = globalBanList,
             StatusCode = HttpStatusCode.OK
         };
     }
