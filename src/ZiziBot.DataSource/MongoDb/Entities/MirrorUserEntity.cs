@@ -6,6 +6,5 @@ namespace ZiziBot.DataSource.MongoDb.Entities;
 public class MirrorUserEntity : EntityBase
 {
     public long UserId { get; set; }
-    public DateTime ExpireAt { get; set; }
-    public int AddDays { get; set; }
+    public DateTime ExpireDate { get; set; }
 }
