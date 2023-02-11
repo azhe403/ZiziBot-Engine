@@ -23,7 +23,7 @@ public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserReques
             new MirrorUserEntity()
             {
                 UserId = request.UserId,
-                ExpireAt = DateTime.UtcNow.AddDays(request.AddDays),
+                ExpireDate = DateTime.UtcNow.AddDays(request.AddDays),
                 Status = (int) EventStatus.Complete
             }
         );

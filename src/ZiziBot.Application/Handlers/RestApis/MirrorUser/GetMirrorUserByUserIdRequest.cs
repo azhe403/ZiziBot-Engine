@@ -48,8 +48,8 @@ public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUser
         response.Result = new GetMirrorUserDto
         {
             UserId = user.UserId,
-            IsExpired = user.ExpireAt < DateTime.UtcNow,
-            SubscriptionUntil = user.ExpireAt,
+            IsExpired = user.ExpireDate < DateTime.UtcNow,
+            SubscriptionUntil = user.ExpireDate,
             MemberSince = user.CreatedDate
         };
 

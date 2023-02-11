@@ -46,15 +46,18 @@ public class CheckDashboardSessionIdRequestHandler : IRequestHandler<CheckDashbo
             )
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        apiResponse.Result.IsSessionValid = dashboardSession != null;
 
         if (dashboardSession == null)
         {
-            apiResponse.StatusCode = HttpStatusCode.OK;
+            apiResponse.StatusCode = HttpStatusCode.Unauthorized;
             return apiResponse;
         }
 
-        apiResponse.Result.UserId = dashboardSession.TelegramUserId;
+        apiResponse.Result = new CheckDashboardSessionIdResponseDto
+        {
+            IsSessionValid = true,
+            UserId = dashboardSession.TelegramUserId
+        };
 
         #endregion
 

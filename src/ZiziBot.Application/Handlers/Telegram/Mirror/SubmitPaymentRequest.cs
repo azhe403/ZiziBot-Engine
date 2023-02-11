@@ -80,16 +80,16 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
                 new MirrorUserEntity()
                 {
                     UserId = request.UserId,
-                    ExpireAt = DateTime.Now.AddMonths(trakteerParsedDto.CendolCount),
+                    ExpireDate = DateTime.Now.AddMonths(trakteerParsedDto.CendolCount),
                     Status = (int) EventStatus.Complete
                 }
             );
         }
         else
         {
-            mirrorUser.ExpireAt = mirrorUser.ExpireAt < DateTime.Now
+            mirrorUser.ExpireDate = mirrorUser.ExpireDate < DateTime.Now
                 ? DateTime.Now.AddMonths(trakteerParsedDto.CendolCount)// If expired, will be started from now
-                : mirrorUser.ExpireAt.AddMonths(trakteerParsedDto.CendolCount);// If not expired, will be extended from expire date
+                : mirrorUser.ExpireDate.AddMonths(trakteerParsedDto.CendolCount);// If not expired, will be extended from expire date
         }
 
         await _mirrorDbContext.SaveChangesAsync(cancellationToken);
