@@ -5,7 +5,7 @@ public class TrakteerParsedDto
     public bool IsValid { get; set; }
     public string PaymentUrl { get; set; }
     public string? RawText { get; set; }
-    public string? CendolsCount { get; set; }
+    public int CendolCount { get; set; }
     public string? Cendols { get; set; }
     public string? AdminFees { get; set; }
     public string? Subtotal { get; set; }

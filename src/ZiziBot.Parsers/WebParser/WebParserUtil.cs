@@ -8,6 +8,10 @@ public static class WebParserUtil
     {
         var trakteerParsedDto = new TrakteerParsedDto();
         var document = await url.OpenUrl();
+
+        if (document == null)
+            return trakteerParsedDto;
+
         var container = document.QuerySelector("div.pr-container");
         var hasNode = container?.HasChildNodes;
 
@@ -39,8 +43,8 @@ public static class WebParserUtil
 
         trakteerParsedDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
         trakteerParsedDto.PaymentUrl = url;
-        trakteerParsedDto.CendolsCount = cendolCount;
-        trakteerParsedDto.Cendols = cendols;
+        trakteerParsedDto.Cendols = cendolCount;
+        trakteerParsedDto.CendolCount = int.Parse(cendolCount.Replace("Cendol", string.Empty).Trim(), CultureInfo.InvariantCulture);
         trakteerParsedDto.AdminFees = adminFees;
         trakteerParsedDto.Subtotal = subtotal;
         trakteerParsedDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);

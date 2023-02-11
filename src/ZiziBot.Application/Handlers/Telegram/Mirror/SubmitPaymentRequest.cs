@@ -18,6 +18,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
 
     public async Task<ResponseBase> Handle(VerifyPaymentRequestModel request, CancellationToken cancellationToken)
     {
+        var htmlMessage = HtmlMessage.Empty;
         ResponseBase responseBase = new(request);
 
         if (string.IsNullOrEmpty(request.PaymentUrl))
@@ -39,29 +40,58 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
         }
 
         await responseBase.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
-        var payment = await request.PaymentUrl.ParseTrakteerWeb();
+        var trakteerParsedDto = await request.PaymentUrl.ParseTrakteerWeb();
+
+        if (!trakteerParsedDto.IsValid)
+        {
+            htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
+                .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
+            return await responseBase.EditMessageText(htmlMessage.ToString());
+        }
 
         _mirrorDbContext.MirrorApproval.Add(
             new MirrorApprovalEntity()
             {
                 UserId = request.UserId,
-                PaymentUrl = payment.PaymentUrl,
-                RawText = payment.RawText,
-                CendolsCount = payment.CendolsCount,
-                Cendols = payment.Cendols,
-                AdminFees = payment.AdminFees,
-                Subtotal = payment.Subtotal,
-                OrderDate = payment.OrderDate,
-                PaymentMethod = payment.PaymentMethod,
-                OrderId = payment.OrderId,
+                PaymentUrl = trakteerParsedDto.PaymentUrl,
+                RawText = trakteerParsedDto.RawText,
+                CendolCount = trakteerParsedDto.CendolCount,
+                Cendols = trakteerParsedDto.Cendols,
+                AdminFees = trakteerParsedDto.AdminFees,
+                Subtotal = trakteerParsedDto.Subtotal,
+                OrderDate = trakteerParsedDto.OrderDate,
+                PaymentMethod = trakteerParsedDto.PaymentMethod,
+                OrderId = trakteerParsedDto.OrderId,
                 Status = (int) EventStatus.Complete
             }
         );
 
+        var mirrorUser = await _mirrorDbContext.MirrorUsers
+            .FirstOrDefaultAsync(
+                x =>
+                    x.UserId == request.UserId &&
+                    x.Status == (int) EventStatus.Complete,
+                cancellationToken: cancellationToken
+            );
+
+        if (mirrorUser == null)
+        {
+            _mirrorDbContext.MirrorUsers.Add(
+                new MirrorUserEntity()
+                {
+                    UserId = request.UserId,
+                    Status = (int) EventStatus.Complete
+                }
+            );
+        }
+        else
+        {
+            mirrorUser.ExpireAt = mirrorUser.ExpireAt.AddMonths(1);
+        }
+
         await _mirrorDbContext.SaveChangesAsync(cancellationToken);
 
-        var htmlMessage = HtmlMessage.Empty
-            .Bold("Pembayaran Diterima").Br()
+        htmlMessage.Bold("Pembayaran Diterima").Br()
             .Text("Silakan tekan /ms untuk memeriksa.").Br();
 
         return await responseBase.EditMessageText(htmlMessage.ToString());
