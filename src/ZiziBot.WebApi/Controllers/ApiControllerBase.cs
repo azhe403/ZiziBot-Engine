@@ -11,6 +11,8 @@ public class ApiControllerBase : ControllerBase
 
     protected IActionResult SwitchStatus<T>(ApiResponseBase<T> responseBase)
     {
+        responseBase.transactionId = HttpContext.Request.Headers["transactionId"].ToString();
+
         return responseBase.StatusCode switch
         {
             HttpStatusCode.OK => Ok(responseBase),
