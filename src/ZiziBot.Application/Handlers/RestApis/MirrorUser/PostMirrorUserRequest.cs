@@ -1,12 +1,14 @@
+using System.Net;
+
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
-public class PostMirrorUserRequestDto : IRequest<bool>
+public class PostMirrorUserRequestDto : ApiRequestBase<bool>
 {
     public long UserId { get; set; }
     public int AddDays { get; set; }
 }
 
-public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserRequestDto, bool>
+public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserRequestDto, ApiResponseBase<bool>>
 {
     private readonly MirrorDbContext _mirrorDbContext;
 
@@ -15,7 +17,7 @@ public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserReques
         _mirrorDbContext = mirrorDbContext;
     }
 
-    public async Task<bool> Handle(PostMirrorUserRequestDto request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<bool>> Handle(PostMirrorUserRequestDto request, CancellationToken cancellationToken)
     {
         _mirrorDbContext.MirrorUsers.Add(
             new MirrorUserEntity()
@@ -28,6 +30,11 @@ public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserReques
 
         await _mirrorDbContext.SaveChangesAsync(cancellationToken);
 
-        return true;
+        return new ApiResponseBase<bool>
+        {
+            StatusCode = HttpStatusCode.OK,
+            Message = "User added",
+            Result = true
+        };
     }
 }

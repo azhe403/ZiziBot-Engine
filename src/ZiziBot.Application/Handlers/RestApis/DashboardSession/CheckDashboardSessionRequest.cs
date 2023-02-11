@@ -3,7 +3,7 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class CheckDashboardSessionRequestDto : IRequest<CheckDashboardSessionResponseDto>
+public class CheckDashboardSessionRequestDto : ApiRequestBase<CheckDashboardSessionResponseDto>
 {
     public long UserId { get; set; }
     public string SessionId { get; set; }
@@ -16,7 +16,7 @@ public class CheckDashboardSessionResponseDto
     public string RoleName { get; set; }
 }
 
-public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboardSessionRequestDto, CheckDashboardSessionResponseDto>
+public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboardSessionRequestDto, ApiResponseBase<CheckDashboardSessionResponseDto>>
 {
     private readonly ILogger<CheckDashboardSessionRequestHandler> _logger;
     private readonly UserDbContext _userDbContext;
@@ -33,9 +33,12 @@ public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboar
         _appSettingsDbContext = appSettingsDbContext;
     }
 
-    public async Task<CheckDashboardSessionResponseDto> Handle(CheckDashboardSessionRequestDto request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<CheckDashboardSessionResponseDto>> Handle(CheckDashboardSessionRequestDto request, CancellationToken cancellationToken)
     {
-        CheckDashboardSessionResponseDto responseDto = new();
+        ApiResponseBase<CheckDashboardSessionResponseDto> responseDto = new()
+        {
+            Result = new CheckDashboardSessionResponseDto()
+        };
 
         #region Check Dashboard Session
 
@@ -47,7 +50,7 @@ public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboar
             )
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        responseDto.IsSessionValid = dashboardSession != null;
+        responseDto.Result.IsSessionValid = dashboardSession != null;
 
         if (dashboardSession == null)
             return responseDto;
@@ -61,8 +64,8 @@ public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboar
 
         if (checkSudo != null)
         {
-            responseDto.RoleId = 1;
-            responseDto.RoleName = "Sudo";
+            responseDto.Result.RoleId = 1;
+            responseDto.Result.RoleName = "Sudo";
         }
 
         #endregion

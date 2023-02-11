@@ -17,14 +17,14 @@ public class MirrorUserController : ApiControllerBase
 	public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto requestDto)
 	{
 		var mirrorUser = await Mediator.Send(requestDto);
-		return Ok(mirrorUser);
+        return SwitchStatus(mirrorUser);
 	}
 
 	[HttpPost()]
-	public async Task<bool> PostUserMirror([FromBody] PostMirrorUserRequestDto requestDto)
+    public async Task<IActionResult> PostUserMirror([FromBody] PostMirrorUserRequestDto requestDto)
 	{
 		var result = await Mediator.Send(requestDto);
-		return result;
+        return SwitchStatus(result);
 	}
 
 	[HttpDelete]

@@ -53,7 +53,6 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}"
 );
 
-app.ConfigureAutoWrapper();
 app.UseAllMiddleware();
 
 if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
