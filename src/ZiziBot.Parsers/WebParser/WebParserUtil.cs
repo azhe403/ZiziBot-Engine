@@ -7,19 +7,19 @@ public static class WebParserUtil
     public static async Task<TrakteerParsedDto> ParseTrakteerWeb(this string url)
     {
         var trakteerParsedDto = new TrakteerParsedDto();
+        Log.Information("Parsing trakteer url: {Url}", url);
         var document = await url.OpenUrl();
-
-        if (document == null)
-            return trakteerParsedDto;
 
         var container = document.QuerySelector("div.pr-container");
         var hasNode = container?.HasChildNodes;
 
-        if (!hasNode.HasValue ||
-            !hasNode.Value)
+        if (container == null)
         {
+            Log.Information("Not found container for url: {Url}", url);
             return trakteerParsedDto;
         }
+
+        Log.Debug("Found container: {Container} in Url: {Url}", container?.ClassName, url);
 
         var cendolCount = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-left > div.subtotal-left__unit > span")
             ?.TextContent;
@@ -51,6 +51,8 @@ public static class WebParserUtil
         trakteerParsedDto.PaymentMethod = paymentMethod;
         trakteerParsedDto.OrderId = orderId;
         trakteerParsedDto.RawText = innerText;
+
+        Log.Information("Parsed trakteer url: {Url}", url);
 
         return trakteerParsedDto;
     }

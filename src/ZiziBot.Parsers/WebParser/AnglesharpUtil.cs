@@ -7,8 +7,8 @@ public static class AnglesharpUtil
 {
     public static async Task<IDocument> OpenUrl(this string url)
     {
-        var config = Configuration.Default.WithDefaultLoader()
-            .WithMetaRefresh()
+        var config = Configuration.Default
+            .WithDefaultLoader()
             .WithDefaultCookies();
 
         var context = BrowsingContext.New(config);
