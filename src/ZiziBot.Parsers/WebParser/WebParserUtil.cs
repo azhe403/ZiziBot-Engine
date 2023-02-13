@@ -9,6 +9,7 @@ public static class WebParserUtil
         var trakteerParsedDto = new TrakteerParsedDto();
         Log.Information("Parsing trakteer url: {Url}", url);
         var document = await url.OpenUrl();
+        Log.Debug("Web title of Url: {Url} => {Title}", url, document.Title);
 
         var container = document.QuerySelector("div.pr-container");
         var hasNode = container?.HasChildNodes;
