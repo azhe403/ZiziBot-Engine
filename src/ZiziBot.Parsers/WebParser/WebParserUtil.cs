@@ -9,6 +9,12 @@ public static class WebParserUtil
         var trakteerParsedDto = new TrakteerParsedDto();
         Log.Information("Parsing trakteer url: {Url}", url);
         var document = await url.OpenUrl();
+        if (document == null)
+        {
+            Log.Error("Cannot load url: {Url}", url);
+            return trakteerParsedDto;
+        }
+
         Log.Debug("Web title of Url: {Url} => {Title}", url, document.Title);
 
         var container = document.QuerySelector("div.pr-container");
