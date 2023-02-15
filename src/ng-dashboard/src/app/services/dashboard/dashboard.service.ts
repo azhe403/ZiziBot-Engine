@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import * as uuid from "uuid";
-import {firstValueFrom, map} from "rxjs";
+import {firstValueFrom, map, Observable} from "rxjs";
 import {TelegramUserLogin} from "../../types/TelegramUserLogin";
 import {ApiResponse} from "../../types/api-response";
 import {ApiUrl} from "../../consts/api-url";
@@ -60,14 +60,13 @@ export class DashboardService {
     return {} as DashboardSession;
   }
 
-  public saveSession(userLogin: TelegramUserLogin) {
-    console.log('sending user session');
-    const sessionId = uuid.v4();
+  public async saveSession(userLogin: TelegramUserLogin): Promise<boolean> {
+    console.debug('sending user session');
+    const sessionId = userLogin.sessionId;
 
     this.storageService.set("session_id", sessionId);
-    this.storageService.set("user_id", userLogin.id.toString());
 
-    this.httpClient.post(ApiUrl.SESSION_SAVE,
+    const result = await this.httpClient.post<ApiResponse<boolean>>(ApiUrl.SESSION_SAVE,
       {
         id: userLogin.id,
         first_name: userLogin.first_name,
@@ -75,9 +74,15 @@ export class DashboardService {
         photo_url: userLogin.photo_url,
         hash: userLogin.hash,
         session_id: sessionId
-      })
-      .subscribe(value => {
-      });
+      }, {
+        headers: {
+          'transactionId': uuid.v4()
+        }
+      }).pipe(map(x => {
+      return x.result;
+    }));
+
+    return firstValueFrom(result)
   }
 
   public logoutSession() {

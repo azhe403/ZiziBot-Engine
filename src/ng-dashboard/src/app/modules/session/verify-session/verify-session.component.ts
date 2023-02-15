@@ -4,6 +4,7 @@ import {map, Subscription, timer} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DashboardService} from '../../../services/dashboard/dashboard.service';
 import {CookieService} from 'ngx-cookie-service';
+import {TelegramUserLogin} from '../../../types/TelegramUserLogin';
 
 @Component({
   selector: 'app-verify-session',
@@ -28,27 +29,15 @@ export class VerifySessionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.authMessage.push('Sedang memverifikasi..');
 
-    this.routeSubs = this.route.paramMap
-      .pipe(map(x => x))
+    this.routeSubs = this.route.queryParams
+      .pipe(map(x => x as TelegramUserLogin))
       .subscribe(async value => {
-        const sessionId = value.get('sessionId') ?? "";
-        console.debug('route:', sessionId)
+        console.debug('queryParams:', value);
+        await this.dashboardService.saveSession(value);
 
-        const session = await this.dashboardService.checkSessionId(sessionId);
-        console.debug('check sessionId', session);
-
-        if (session.isSessionValid) {
-          this.storageService.set('session_id', sessionId);
-          this.storageService.set('user_id', session.userId.toString());
-          this.cookieService.set('session_id', sessionId, undefined, '/');
-
-          this.authMessage.push('Anda berhasil masuk..');
-        } else {
-          this.authMessage.push('Sesi Anda tidak valid!')
-        }
-
-        timer(3000).subscribe(value1 => {
-          this.authMessage.push('Sedang mengalihkan..')
+        this.authMessage.push('Anda berhasil masuk..');
+        timer(3000).subscribe(x => {
+          this.authMessage.push('Sedang mengalihkan..');
           this.router.navigate(['/']).then(r => {
             console.debug('after verify session', r);
           });

@@ -9,4 +9,5 @@ public class DashboardSession : EntityBase
     public long AuthDate { get; set; }
     public string Hash { get; set; }
     public string SessionId { get; set; }
+    public string BearerToken { get; set; }
 }
