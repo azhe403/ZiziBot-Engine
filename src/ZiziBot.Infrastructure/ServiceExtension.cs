@@ -33,13 +33,13 @@ public static class ServiceExtension
     {
         var assembly = typeof(PingRequestHandler).GetTypeInfo().Assembly;
 
-        services.AddMediatR(assembly);
+        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblyContaining<PingRequestHandler>());
+
         services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AntiSpamPipelineBehaviour<,>));
 
         services.AddMediatRAttributedBehaviors(assembly);
-
 
         return services;
     }
