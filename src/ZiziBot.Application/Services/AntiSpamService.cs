@@ -18,16 +18,23 @@ public class AntiSpamService
         _cacheService = cacheService;
     }
 
-    public async Task<bool> CheckSpamAsync(long chatId, long userId)
+    public async Task<AntiSpamDto> CheckSpamAsync(long chatId, long userId)
     {
+        var antispamDto = new AntiSpamDto();
+
+        if (userId == 0)
+            return antispamDto;
+
         var taskCheckEss = CheckEssAsync(chatId, userId);
         var taskCheckCombotAntiSpam = CheckCombotAntiSpamAsync(chatId, userId);
         await Task.WhenAll(taskCheckEss, taskCheckCombotAntiSpam);
 
-        var isEss = await taskCheckEss;
-        var combotAntispamApiDto = await taskCheckCombotAntiSpam;
+        antispamDto.IsBanEss = await taskCheckEss;
+        antispamDto.IsBanCasFed = (await taskCheckCombotAntiSpam).Result != null;
+        antispamDto.CasRecord = (await taskCheckCombotAntiSpam).Result;
+        antispamDto.IsBanAny = antispamDto.IsBanEss || antispamDto.IsBanCasFed;
 
-        return isEss || combotAntispamApiDto.Result != null;
+        return antispamDto;
     }
 
     private async Task<bool> CheckEssAsync(long chatId, long userId)
@@ -51,7 +58,7 @@ public class AntiSpamService
         var cacheData = await _cacheService.GetOrSetAsync(
             cacheKey: "ban_combot_" + userId,
             action: async () => {
-                var url = UrlConst.COMBOT_ANTISPAM_API.SetQueryParam("userId", userId).SetQueryParam("chatId", chatId);
+                var url = UrlConst.COMBOT_ANTISPAM_API.SetQueryParam("userId", userId);
                 var antispamApiDto = await url.GetJsonAsync<CombotAntispamApiDto>();
 
                 _logger.LogDebug("Combot AntiSpam for {UserId}: {@Dto}", userId, antispamApiDto);
