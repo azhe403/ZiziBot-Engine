@@ -1,6 +1,5 @@
 using MongoFramework;
 using MongoFramework.Infrastructure;
-using ZiziBot.Contracts.Enums;
 
 namespace ZiziBot.DataSource.MongoDb;
 
