@@ -6,4 +6,5 @@ export interface TelegramUserLogin{
   photo_url?: string
   auth_date: number;
   hash: string;
+  sessionId: string;
 }

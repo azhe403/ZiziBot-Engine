@@ -1,6 +1,5 @@
 using MongoFramework;
 using MongoFramework.Infrastructure;
-using ZiziBot.Contracts.Enums;
 
 namespace ZiziBot.DataSource.MongoDb;
 
@@ -42,7 +41,6 @@ public class MongoDbContextBase : MongoDbContext
                     ((EntityBase) entityEntry.Entity).CreatedDate = DateTime.UtcNow;
                     break;
                 case EntityEntryState.Deleted:
-                    ((EntityBase) entityEntry.Entity).DeletedDate = DateTime.UtcNow;
                     ((EntityBase) entityEntry.Entity).Status = (int) EventStatus.Deleted;
                     break;
             }

@@ -11,9 +11,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Scrutor" Version="4.2.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-        <PackageReference Include="TIPC.Web.AutoWrapper" Version="6.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.3"/>
+        <PackageReference Include="Scrutor" Version="4.2.1"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+        <PackageReference Include="TIPC.Web.AutoWrapper" Version="6.0.4"/>
     </ItemGroup>
 
     <ItemGroup>

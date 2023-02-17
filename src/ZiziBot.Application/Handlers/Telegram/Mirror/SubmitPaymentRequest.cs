@@ -23,7 +23,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
 
         if (string.IsNullOrEmpty(request.PaymentUrl))
         {
-            return await responseBase.SendMessageText("Silakan balas pesan yang berisi Screenshot bukti pembayaran.");
+            return await responseBase.SendMessageText("Sertakan tautan dari Trakteer.id untuk diverifikasi.");
         }
 
         var mirrorApproval = await _mirrorDbContext.MirrorApproval

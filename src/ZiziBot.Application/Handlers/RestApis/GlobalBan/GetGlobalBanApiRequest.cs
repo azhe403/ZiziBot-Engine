@@ -40,8 +40,7 @@ public class GetGlobalBanApiRequestHandler : IRequestHandler<GetGlobalBanApiRequ
                 Reason = x.Reason,
                 Status = x.Status,
                 CreatedDate = x.CreatedDate,
-                UpdatedDate = x.UpdatedDate,
-                DeletedDate = x.DeletedDate
+                UpdatedDate = x.UpdatedDate
             }
         ).ToList();
 

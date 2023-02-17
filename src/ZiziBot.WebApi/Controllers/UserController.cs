@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ZiziBot.WebApi.Controllers;
@@ -14,6 +15,7 @@ public class UserController : ApiControllerBase
 
     [HttpPost("session/telegram")]
     [ApiExplorerSettings(IgnoreApi = true)]
+    [AllowAnonymous]
     public async Task<IActionResult> PostTelegramSession([FromBody] SaveTelegramSessionRequestModel requestModel)
     {
         var result = await Mediator.Send(requestModel);
@@ -21,6 +23,7 @@ public class UserController : ApiControllerBase
     }
 
     [HttpPost("session/telegram/validate")]
+    [AllowAnonymous]
     public async Task<IActionResult> CheckDashboardSession([FromBody] CheckDashboardSessionRequestDto requestDto)
     {
         var result = await Mediator.Send(requestDto);
@@ -28,6 +31,7 @@ public class UserController : ApiControllerBase
     }
 
     [HttpPost("session/validate")]
+    [AllowAnonymous]
     public async Task<IActionResult> CheckDashboardSessionId([FromBody] CheckDashboardSessionIdRequestDto requestDto)
     {
         var result = await Mediator.Send(requestDto);

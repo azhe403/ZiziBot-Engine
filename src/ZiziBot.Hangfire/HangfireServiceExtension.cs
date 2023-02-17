@@ -1,3 +1,4 @@
+using Hangfire.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,13 @@ public static class HangfireServiceExtension
         var serviceProvider = services.BuildServiceProvider();
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
         var hangfireConfig = serviceProvider.GetRequiredService<IOptionsSnapshot<HangfireConfig>>().Value;
+
+        var queues = new string[]
+        {
+            "default",
+            "rss",
+            "shalat-time"
+        };
 
         JobStorage.Current = hangfireConfig.CurrentStorage switch
         {
@@ -34,10 +42,15 @@ public static class HangfireServiceExtension
         );
 
         services.AddHangfireServer(
+            optionsAction: (provider, options) => {
+                options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
+                options.ServerTimeout = TimeSpan.FromMinutes(10);
+                options.Queues = queues;
+            },
             storage: JobStorage.Current,
-            additionalProcesses: new[]
+            additionalProcesses: new IBackgroundProcess[]
             {
-                new ProcessMonitor(checkInterval: TimeSpan.FromSeconds(1))
+                new ProcessMonitor(TimeSpan.FromSeconds(3))
             }
         );
 

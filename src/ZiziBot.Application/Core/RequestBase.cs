@@ -13,6 +13,7 @@ public class RequestBase : IRequest<ResponseBase>
 
     public CallbackQuery? CallbackQuery { get; set; }
 
+    public string? MessageText => Message?.Text;
     public string[]? MessageTexts => Message?.Text?.Split(" ");
     public string[]? RepliedMessageTexts => ReplyToMessage?.Text?.Split(" ");
 

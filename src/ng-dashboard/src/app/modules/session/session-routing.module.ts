@@ -6,6 +6,10 @@ const routes: Routes = [
   {
     path: 'session/:sessionId',
     component: VerifySessionComponent
+  },
+  {
+    path: 'session',
+    component: VerifySessionComponent
   }
 ];
 

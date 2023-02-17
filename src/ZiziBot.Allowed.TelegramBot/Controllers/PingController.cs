@@ -7,24 +7,23 @@ namespace ZiziBot.Allowed.TelegramBot.Controllers;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class PingController : CommandController
 {
-    private readonly IMediator _mediator;
+    private readonly MediatorService _mediatorService;
 
-    public PingController(IMediator mediator)
+    public PingController(MediatorService mediatorService)
     {
-        _mediator = mediator;
+        _mediatorService = mediatorService;
     }
 
     [Command("ping")]
     [TextCommand("ping")]
     public async Task Ping(MessageData data)
     {
-        await _mediator.EnqueueAsync(
+        await _mediatorService.EnqueueAsync(
             new PingRequestModel()
             {
                 BotToken = data.Options.Token,
                 Message = data.Message,
                 DeleteAfter = TimeSpan.FromMinutes(1),
-                ReplyToMessageId = data.Message.MessageId,
                 ReplyMessage = true,
                 CleanupTargets = new[]
                 {
@@ -38,7 +37,7 @@ public class PingController : CommandController
     [CallbackQuery(CallbackConst.BOT)]
     public async Task PingCallback(CallbackQueryData data, PingCallbackQueryModel model)
     {
-        await _mediator.EnqueueAsync(
+        await _mediatorService.EnqueueAsync(
             new PingCallbackRequestModel()
             {
                 BotToken = data.Options.Token,
@@ -52,11 +51,20 @@ public class PingController : CommandController
     [TextCommand()]
     public async Task Default(MessageData data)
     {
-        await _mediator.EnqueueAsync(
+        await _mediatorService.EnqueueAsync(
             new DefaultRequestModel()
             {
                 BotToken = data.Options.Token,
                 Message = data.Message
+            }
+        );
+
+        await _mediatorService.EnqueueAsync(
+            new FindNoteRequest()
+            {
+                BotToken = data.Options.Token,
+                Message = data.Message,
+                ReplyMessage = true,
             }
         );
     }

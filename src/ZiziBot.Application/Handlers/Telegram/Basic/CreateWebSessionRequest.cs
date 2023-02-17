@@ -30,7 +30,8 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var sessionId = Guid.NewGuid().ToString();
-        var webUrl = Env.WEB_VERIFY_SESSION_URL + sessionId;
+        var webUrlBase = Env.WEB_VERIFY_SESSION_URL + "?sessionId=";
+        var webUrl = webUrlBase + sessionId;
 
         if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))
         {
@@ -39,7 +40,7 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
 
         if (dashboardSession != null)
         {
-            webUrl = Env.WEB_VERIFY_SESSION_URL + dashboardSession.SessionId;
+            webUrl = webUrlBase + dashboardSession.SessionId;
         }
         else
         {

@@ -34,19 +34,18 @@ public class AntiSpamPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<
             return await next();
         }
 
-        requestBase.ReplyMessage = false;
         ResponseBase responseBase = new(requestBase);
 
         var combotAntispamApiDto = await _antiSpamService.CheckSpamAsync(requestBase.ChatIdentifier, requestBase.UserId);
 
-        if (combotAntispamApiDto)
-        {
-            await responseBase.SendMessageText("User is banned from Global Ban");
-            await responseBase.DeleteMessageAsync();
-            return default!;
-        }
+        if (!combotAntispamApiDto.IsBanAny)
+            return await next();
 
+        var htmlMessage = HtmlMessage.Empty
+            .Text("User is banned from Global Ban");
 
-        return await next();
+        await responseBase.DeleteMessageAsync();
+        await responseBase.SendMessageText(htmlMessage.ToString());
+        return default!;
     }
 }
