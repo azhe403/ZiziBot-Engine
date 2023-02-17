@@ -4,7 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using File = System.IO.File;
+using File=System.IO.File;
 
 namespace ZiziBot.Application.Core;
 
@@ -12,11 +12,11 @@ public class ResponseBase
 {
     private readonly RequestBase _request = new();
 
-    private readonly Stopwatch _stopwatch = new();
+    private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     public ITelegramBotClient Bot { get; }
-    public TimeSpan ExecutionTime { get; private set; }
+    public TimeSpan ExecutionTime { get; internal set; }
 
-    public IMediator XMediator => _request.Mediator;
+    public MediatorService XMediator { get; set; }
 
     public ChatId ChatId { get; set; }
 
@@ -27,16 +27,11 @@ public class ResponseBase
     public bool DirectAction { get; set; }
 
     public Message SentMessage { get; set; }
+    public ResponseSource ResponseSource { get; set; } = ResponseSource.Unknown;
 
     public ResponseBase()
     {
-        _stopwatch.Start();
-    }
-
-    public ResponseBase(string botToken)
-    {
-        Bot = new TelegramBotClient(botToken);
-        _stopwatch.Start();
+        // _stopwatch.Start();
     }
 
     public ResponseBase(RequestBase request)
@@ -48,7 +43,7 @@ public class ResponseBase
         if (_request.ReplyMessage)
             _request.ReplyToMessageId = _request.Message.MessageId;
 
-        _stopwatch.Start();
+        // _stopwatch.Start();
     }
 
     public async Task<ResponseBase> SendMessageText(string text, IReplyMarkup? replyMarkup = null)
@@ -65,8 +60,7 @@ public class ResponseBase
 
         Log.Information("Message sent to chat {ChatId}", ChatId);
 
-        if (DeleteAfter.Ticks <= 0 &&
-            _request.CleanupTargets.Contains(CleanupTarget.FromBot))
+        if (_request.CleanupTargets.Contains(CleanupTarget.Nothing))
             return Complete();
 
         Log.Debug("Deleting message {MessageId} in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
@@ -136,6 +130,8 @@ public class ResponseBase
         ExecutionTime = _stopwatch.Elapsed;
 
         Log.Information("Processing complete in: {Elapses}", ExecutionTime);
+
+        ResponseSource = ResponseSource.Bot;
 
         return this;
     }

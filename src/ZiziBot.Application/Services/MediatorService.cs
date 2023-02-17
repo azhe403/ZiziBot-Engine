@@ -42,4 +42,11 @@ public class MediatorService
 
         return response.Complete();
     }
+
+    public ResponseBase Schedule(RequestBase request)
+    {
+        ResponseBase response = new();
+        BackgroundJob.Schedule<MediatorBridge>(x => x.Send(request), request.DeleteAfter);
+        return response.Complete();
+    }
 }
