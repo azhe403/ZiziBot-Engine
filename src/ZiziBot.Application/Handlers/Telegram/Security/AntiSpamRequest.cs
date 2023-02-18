@@ -1,3 +1,4 @@
+using System.Security;
 using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Handlers.Telegram.Security;
@@ -42,10 +43,12 @@ public class AntiSpamPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<
             return await next();
 
         var htmlMessage = HtmlMessage.Empty
-            .Text("User is banned from Global Ban");
+            .User(requestBase.UserId, requestBase.UserFullName)
+            .Text(" is banned from Global Ban");
 
         await responseBase.DeleteMessageAsync();
         await responseBase.SendMessageText(htmlMessage.ToString());
-        return default!;
+
+        throw new SecurityException($"UserId: {requestBase.UserId} is not a Administrator in ChatId: {requestBase.ChatIdentifier} ");
     }
 }
