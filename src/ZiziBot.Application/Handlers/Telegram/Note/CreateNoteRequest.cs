@@ -1,4 +1,5 @@
 using FluentValidation;
+using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
@@ -8,6 +9,7 @@ public class CreateNoteRequestModel : RequestBase
     public string? Content { get; set; }
     public string? FileId { get; set; }
     public string? RawButton { get; set; }
+    public bool? RefreshNote { get; set; }
 }
 
 public class CreateNoteValidator : AbstractValidator<CreateNoteRequestModel>
@@ -21,12 +23,12 @@ public class CreateNoteValidator : AbstractValidator<CreateNoteRequestModel>
 public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, ResponseBase>
 {
     private readonly TelegramService _telegramService;
-    private readonly NoteService _noteService;
+    private readonly ChatDbContext _chatDbContext;
 
-    public CreateNoteRequestHandler(TelegramService telegramService, NoteService noteService)
+    public CreateNoteRequestHandler(TelegramService telegramService, ChatDbContext chatDbContext)
     {
         _telegramService = telegramService;
-        _noteService = noteService;
+        _chatDbContext = chatDbContext;
     }
 
     public async Task<ResponseBase> Handle(CreateNoteRequestModel request, CancellationToken cancellationToken)
@@ -43,22 +45,54 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
             return await _telegramService.SendMessageText(htmlMessage.ToString());
         }
 
-        await _telegramService.SendMessageText("Sedang membuat catatan...");
+        var note = await _chatDbContext.Note
+            .FirstOrDefaultAsync(
+                entity =>
+                    entity.ChatId == request.ChatIdentifier &&
+                    entity.Query == request.Query &&
+                    entity.Status == (int) EventStatus.Complete,
+                cancellationToken: cancellationToken
+            );
 
-        await _noteService.Save(
-            new NoteEntity()
+        if (note != null)
+        {
+            if(request.RefreshNote ?? false)
             {
-                ChatId = request.ChatIdentifier,
-                UserId = request.UserId,
-                Query = request.Query,
-                Content = request.Content,
-                FileId = request.FileId,
-                RawButton = request.RawButton,
-                DataType = (int) request.ReplyToMessage.Type,
-                Status = (int) EventStatus.Complete,
-            }
-        );
+                await _telegramService.SendMessageText("Sedang memperbarui catatan...");
 
-        return await _telegramService.EditMessageText("Catatan berhasil dibuat");
+                note.Content = request.Content;
+                note.FileId = request.FileId;
+                note.RawButton = request.RawButton;
+                note.DataType = (int) request.ReplyToMessage.Type;
+                note.Status = (int) EventStatus.Complete;
+            }
+            else
+            {
+                htmlMessage.Text("Catatan sudah ada, silahkan gunakan nama lainnya. Atau gunakan perintah /renote untuk memperbarui catatan");
+                return await _telegramService.SendMessageText(htmlMessage.ToString());
+            }
+        }
+        else
+        {
+            await _telegramService.SendMessageText("Sedang membuat catatan...");
+
+            _chatDbContext.Note.Add(
+                new NoteEntity()
+                {
+                    ChatId = request.ChatIdentifier,
+                    UserId = request.UserId,
+                    Query = request.Query,
+                    Content = request.Content,
+                    FileId = request.FileId,
+                    RawButton = request.RawButton,
+                    DataType = (int) request.ReplyToMessage.Type,
+                    Status = (int) EventStatus.Complete,
+                }
+            );
+        }
+
+        await _chatDbContext.SaveChangesAsync(cancellationToken);
+
+        return await _telegramService.EditMessageText("Catatan berhasil disimpan");
     }
 }
