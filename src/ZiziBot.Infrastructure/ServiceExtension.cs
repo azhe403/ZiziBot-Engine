@@ -1,9 +1,5 @@
-﻿using System.Reflection;
-using CloudCraic.Hosting.BackgroundQueue.DependencyInjection;
+﻿using CloudCraic.Hosting.BackgroundQueue.DependencyInjection;
 using FluentValidation;
-using MediatR;
-using MediatR.Extensions.AttributedBehaviors;
-using MediatR.Pipeline;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,21 +21,6 @@ public static class ServiceExtension
         services.AddAllMiddleware();
 
         services.AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddMediator(this IServiceCollection services)
-    {
-        var assembly = typeof(PingRequestHandler).GetTypeInfo().Assembly;
-
-        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblyContaining<PingRequestHandler>());
-
-        services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AntiSpamPipelineBehaviour<,>));
-
-        services.AddMediatRAttributedBehaviors(assembly);
 
         return services;
     }

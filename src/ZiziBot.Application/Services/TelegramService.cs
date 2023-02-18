@@ -221,6 +221,14 @@ public class TelegramService
         return filePath;
     }
 
+    public async Task<bool> CheckAdministration()
+    {
+        var chatAdmins = await Bot.GetChatAdministratorsAsync(ChatId);
+        var isAdmin = chatAdmins.Any(x => x.User.Id == _request.UserId);
+
+        return isAdmin;
+    }
+
     public ResponseBase Complete()
     {
         _stopwatch.Stop();

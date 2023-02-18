@@ -56,7 +56,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
 
         if (note != null)
         {
-            if(request.RefreshNote ?? false)
+            if (request.RefreshNote ?? false)
             {
                 await _telegramService.SendMessageText("Sedang memperbarui catatan...");
 
@@ -86,7 +86,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
                     FileId = request.FileId,
                     RawButton = request.RawButton,
                     DataType = (int) request.ReplyToMessage.Type,
-                    Status = (int) EventStatus.Complete,
+                    Status = (int) EventStatus.Complete
                 }
             );
         }
