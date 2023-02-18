@@ -8,17 +8,17 @@ namespace ZiziBot.Allowed.TelegramBot.Controllers;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class NotesController : CommandController
 {
-    private readonly IMediator _mediator;
+    private readonly MediatorService _mediatorService;
 
-    public NotesController(IMediator mediator)
+    public NotesController(MediatorService mediatorService)
     {
-        _mediator = mediator;
+        _mediatorService = mediatorService;
     }
 
     [Command("notes")]
     public async Task GetNotes(MessageData data)
     {
-        await _mediator.EnqueueAsync(
+        await _mediatorService.EnqueueAsync(
             new GetNoteRequestModel()
             {
                 BotToken = data.Options.Token,
@@ -37,7 +37,7 @@ public class NotesController : CommandController
     [Command("note")]
     public async Task CreateNote(MessageData data)
     {
-        await _mediator.EnqueueAsync(
+        await _mediatorService.EnqueueAsync(
             new CreateNoteRequestModel()
             {
                 BotToken = data.Options.Token,
@@ -45,6 +45,7 @@ public class NotesController : CommandController
                 ReplyMessage = true,
                 Query = data.Params.GetCommandParamAt<string>(0, separator: "\n"),
                 Content = data.Message.ReplyToMessage?.Text,
+                RawButton = data.Params.GetCommandParamAt<string>(1, separator: "\n"),
                 FileId = data.Message.ReplyToMessage?.GetFileId(),
                 CleanupTargets = new[]
                 {

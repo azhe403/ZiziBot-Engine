@@ -7,6 +7,7 @@ public class CreateNoteRequestModel : RequestBase
     public string Query { get; set; }
     public string? Content { get; set; }
     public string? FileId { get; set; }
+    public string? RawButton { get; set; }
 }
 
 public class CreateNoteValidator : AbstractValidator<CreateNoteRequestModel>
@@ -19,16 +20,18 @@ public class CreateNoteValidator : AbstractValidator<CreateNoteRequestModel>
 
 public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, ResponseBase>
 {
+    private readonly TelegramService _telegramService;
     private readonly NoteService _noteService;
 
-    public CreateNoteRequestHandler(NoteService noteService)
+    public CreateNoteRequestHandler(TelegramService telegramService, NoteService noteService)
     {
+        _telegramService = telegramService;
         _noteService = noteService;
     }
 
     public async Task<ResponseBase> Handle(CreateNoteRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty;
 
@@ -37,23 +40,25 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
         if ((!validationResult?.IsValid) ?? false)
         {
             htmlMessage.Text(validationResult.Errors.Select(x => x.ErrorMessage).Aggregate((x, y) => $"{x})\n{y}"));
-            return await responseBase.SendMessageText(htmlMessage.ToString());
+            return await _telegramService.SendMessageText(htmlMessage.ToString());
         }
 
-        await responseBase.SendMessageText("Sedang membuat catatan...");
+        await _telegramService.SendMessageText("Sedang membuat catatan...");
 
         await _noteService.Save(
             new NoteEntity()
             {
+                ChatId = request.ChatIdentifier,
+                UserId = request.UserId,
                 Query = request.Query,
                 Content = request.Content,
-                ChatId = request.ChatIdentifier,
                 FileId = request.FileId,
+                RawButton = request.RawButton,
+                DataType = (int) request.ReplyToMessage.Type,
                 Status = (int) EventStatus.Complete,
-                UserId = request.UserId
             }
         );
 
-        return await responseBase.EditMessageText("Catatan berhasil dibuat");
+        return await _telegramService.EditMessageText("Catatan berhasil dibuat");
     }
 }

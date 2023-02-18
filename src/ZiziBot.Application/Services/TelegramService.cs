@@ -103,11 +103,10 @@ public class TelegramService
     }
 
     public async Task<ResponseBase> SendMediaAsync(
-        string fileId,
+        string? fileId,
         CommonMediaType mediaType,
-        string caption = "",
+        string? caption = "",
         IReplyMarkup? replyMarkup = null,
-        int replyToMsgId = -1,
         long customChatId = -1,
         string customFileName = ""
     )
@@ -135,7 +134,7 @@ public class TelegramService
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: replyToMsgId
+                    replyToMessageId: _request.ReplyToMessageId
                 );
                 break;
 
@@ -152,7 +151,7 @@ public class TelegramService
                         caption: caption,
                         parseMode: ParseMode.Html,
                         replyMarkup: replyMarkup,
-                        replyToMessageId: replyToMsgId
+                        replyToMessageId: _request.ReplyToMessageId
                     );
                 }
 
@@ -165,7 +164,7 @@ public class TelegramService
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: replyToMsgId
+                    replyToMessageId: _request.ReplyToMessageId
                 );
                 break;
 
@@ -176,7 +175,7 @@ public class TelegramService
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: replyToMsgId
+                    replyToMessageId: _request.ReplyToMessageId
                 );
                 break;
 
@@ -185,7 +184,7 @@ public class TelegramService
                     chatId: targetChatId,
                     sticker: fileId,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: replyToMsgId
+                    replyToMessageId: _request.ReplyToMessageId
                 );
 
                 break;
@@ -222,7 +221,7 @@ public class TelegramService
         return filePath;
     }
 
-    private ResponseBase Complete()
+    public ResponseBase Complete()
     {
         _stopwatch.Stop();
 
