@@ -13,6 +13,7 @@ namespace ZiziBot.Application.Services;
 public class TelegramService
 {
     private readonly ILogger<TelegramService> _logger;
+    private readonly CacheService _cacheService;
     private readonly MediatorService _mediatorService;
     private RequestBase _request = new();
 
@@ -32,9 +33,10 @@ public class TelegramService
 
     public ResponseSource ResponseSource { get; set; } = ResponseSource.Unknown;
 
-    public TelegramService(ILogger<TelegramService> logger, MediatorService mediatorService)
+    public TelegramService(ILogger<TelegramService> logger, CacheService cacheService, MediatorService mediatorService)
     {
         _logger = logger;
+        _cacheService = cacheService;
         _mediatorService = mediatorService;
     }
 
@@ -223,10 +225,23 @@ public class TelegramService
 
     public async Task<bool> CheckAdministration()
     {
-        var chatAdmins = await Bot.GetChatAdministratorsAsync(ChatId);
+        var chatAdmins = await GetChatAdministrator(_request.ChatIdentifier);
         var isAdmin = chatAdmins.Any(x => x.User.Id == _request.UserId);
 
         return isAdmin;
+    }
+
+    public async Task<ChatMember[]> GetChatAdministrator(long chatId)
+    {
+        var cacheValue = await _cacheService.GetOrSetAsync(
+            cacheKey: CacheKey.LIST_CHAT_ADMIN + chatId,
+            action: async () => {
+                var chatAdmins = await Bot.GetChatAdministratorsAsync(chatId);
+                return chatAdmins;
+            }
+        );
+
+        return cacheValue;
     }
 
     public ResponseBase Complete()
