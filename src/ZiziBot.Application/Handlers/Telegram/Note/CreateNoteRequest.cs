@@ -1,4 +1,5 @@
 using FluentValidation;
+using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
@@ -7,6 +8,8 @@ public class CreateNoteRequestModel : RequestBase
     public string Query { get; set; }
     public string? Content { get; set; }
     public string? FileId { get; set; }
+    public string? RawButton { get; set; }
+    public bool? RefreshNote { get; set; }
 }
 
 public class CreateNoteValidator : AbstractValidator<CreateNoteRequestModel>
@@ -19,16 +22,18 @@ public class CreateNoteValidator : AbstractValidator<CreateNoteRequestModel>
 
 public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, ResponseBase>
 {
-    private readonly NoteService _noteService;
+    private readonly TelegramService _telegramService;
+    private readonly ChatDbContext _chatDbContext;
 
-    public CreateNoteRequestHandler(NoteService noteService)
+    public CreateNoteRequestHandler(TelegramService telegramService, ChatDbContext chatDbContext)
     {
-        _noteService = noteService;
+        _telegramService = telegramService;
+        _chatDbContext = chatDbContext;
     }
 
     public async Task<ResponseBase> Handle(CreateNoteRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty;
 
@@ -37,23 +42,57 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
         if ((!validationResult?.IsValid) ?? false)
         {
             htmlMessage.Text(validationResult.Errors.Select(x => x.ErrorMessage).Aggregate((x, y) => $"{x})\n{y}"));
-            return await responseBase.SendMessageText(htmlMessage.ToString());
+            return await _telegramService.SendMessageText(htmlMessage.ToString());
         }
 
-        await responseBase.SendMessageText("Sedang membuat catatan...");
+        var note = await _chatDbContext.Note
+            .FirstOrDefaultAsync(
+                entity =>
+                    entity.ChatId == request.ChatIdentifier &&
+                    entity.Query == request.Query &&
+                    entity.Status == (int) EventStatus.Complete,
+                cancellationToken: cancellationToken
+            );
 
-        await _noteService.Save(
-            new NoteEntity()
+        if (note != null)
+        {
+            if (request.RefreshNote ?? false)
             {
-                Query = request.Query,
-                Content = request.Content,
-                ChatId = request.ChatIdentifier,
-                FileId = request.FileId,
-                Status = (int) EventStatus.Complete,
-                UserId = request.UserId
-            }
-        );
+                await _telegramService.SendMessageText("Sedang memperbarui catatan...");
 
-        return await responseBase.EditMessageText("Catatan berhasil dibuat");
+                note.Content = request.Content;
+                note.FileId = request.FileId;
+                note.RawButton = request.RawButton;
+                note.DataType = (int) request.ReplyToMessage.Type;
+                note.Status = (int) EventStatus.Complete;
+            }
+            else
+            {
+                htmlMessage.Text("Catatan sudah ada, silahkan gunakan nama lainnya. Atau gunakan perintah /renote untuk memperbarui catatan");
+                return await _telegramService.SendMessageText(htmlMessage.ToString());
+            }
+        }
+        else
+        {
+            await _telegramService.SendMessageText("Sedang membuat catatan...");
+
+            _chatDbContext.Note.Add(
+                new NoteEntity()
+                {
+                    ChatId = request.ChatIdentifier,
+                    UserId = request.UserId,
+                    Query = request.Query,
+                    Content = request.Content,
+                    FileId = request.FileId,
+                    RawButton = request.RawButton,
+                    DataType = (int) request.ReplyToMessage.Type,
+                    Status = (int) EventStatus.Complete
+                }
+            );
+        }
+
+        await _chatDbContext.SaveChangesAsync(cancellationToken);
+
+        return await _telegramService.EditMessageText("Catatan berhasil disimpan");
     }
 }

@@ -9,15 +9,18 @@ public class PingRequestModel : RequestBase
 public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase>
 {
     private readonly SudoService _sudoService;
+    private readonly TelegramService _telegramService;
 
-    public PingRequestHandler(SudoService sudoService)
+    public PingRequestHandler(SudoService sudoService, TelegramService telegramService)
     {
         _sudoService = sudoService;
+        _telegramService = telegramService;
     }
 
     public async Task<ResponseBase> Handle(PingRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
+
         var htmlMessage = HtmlMessage.Empty
             .BoldBr("Pong!")
             .Br();
@@ -44,6 +47,6 @@ public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase
             );
         }
 
-        return await responseBase.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
     }
 }

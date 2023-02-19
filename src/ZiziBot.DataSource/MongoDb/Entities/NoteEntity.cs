@@ -10,6 +10,6 @@ public class NoteEntity : EntityBase
     public string Query { get; set; }
     public string? Content { get; set; }
     public string? FileId { get; set; }
-    public CommonMediaType DataType { get; set; }
-    public string RawButton { get; set; }
+    public int DataType { get; set; }
+    public string? RawButton { get; set; }
 }

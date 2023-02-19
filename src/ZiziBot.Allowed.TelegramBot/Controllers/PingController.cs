@@ -65,6 +65,11 @@ public class PingController : CommandController
                 BotToken = data.Options.Token,
                 Message = data.Message,
                 ReplyMessage = true,
+                CleanupTargets = new[]
+                {
+                    CleanupTarget.FromBot,
+                    CleanupTarget.FromSender
+                }
             }
         );
     }

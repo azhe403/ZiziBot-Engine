@@ -6,4 +6,6 @@ namespace ZiziBot.Contracts.Constants;
 public static class PathConst
 {
     public const string TEMP_PATH = "Storage/Temp/";
+
+    public static readonly string CACHE_TOWER_PATH = "Storage/CacheTower/File/".EnsureDirectory();
 }

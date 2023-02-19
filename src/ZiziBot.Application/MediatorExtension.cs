@@ -3,6 +3,7 @@ using Serilog;
 
 namespace ZiziBot.Application;
 
+[Obsolete("Please use MediatorService")]
 public static class MediatorExtension
 {
     public static async Task<ResponseBase> RecurringAsync(
@@ -28,6 +29,7 @@ public static class MediatorExtension
         BackgroundJob.Enqueue<MediatorBridge>(x => x.Send(request));
     }
 
+    [Obsolete("Please use EnqueueAsync from MediatorService")]
     public static async Task<ResponseBase> EnqueueAsync(this IMediator mediator, RequestBase request)
     {
         Log.Debug("Enqueueing request {request} in {Mode}", request, request.ExecutionStrategy);
@@ -48,6 +50,7 @@ public static class MediatorExtension
         return response.Complete();
     }
 
+    [Obsolete("Please use EnqueueAsync from MediatorService")]
     public static ResponseBase Schedule(this IMediator mediator, RequestBase request)
     {
         ResponseBase response = new();

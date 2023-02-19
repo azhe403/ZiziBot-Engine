@@ -16,12 +16,21 @@ public class CacheTowerFirebaseProvider : ICacheLayer
 
     public ValueTask FlushAsync()
     {
-        throw new NotImplementedException();
+        GetClient()
+            .Child(_cacheOptions.RootDir)
+            .DeleteAsync();
+
+        return ValueTask.CompletedTask;
     }
 
     public ValueTask CleanupAsync()
     {
-        throw new NotImplementedException();
+        GetClient()
+            .Child(_cacheOptions.RootDir)
+            .DeleteAsync();
+
+        return ValueTask.CompletedTask;
+
     }
 
     public async ValueTask EvictAsync(string cacheKey)
@@ -49,7 +58,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
         return cacheEntry;
     }
 
-    public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
+    public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T?> cacheEntry)
     {
         await GetClient()
             .Child(_cacheOptions.RootDir)
@@ -58,7 +67,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
                 new FirebaseCacheEntry()
                 {
                     CacheKey = cacheKey,
-                    Value = cacheEntry.Value!,
+                    Value = cacheEntry.Value,
                     Expiry = cacheEntry.Expiry
                 }
             );
@@ -66,7 +75,12 @@ public class CacheTowerFirebaseProvider : ICacheLayer
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
     {
-        return await Task.FromResult(true);
+        var obj = await GetClient()
+            .Child(_cacheOptions.RootDir)
+            .Child(cacheKey)
+            .OnceAsync<object>();
+
+        return obj.Any();
     }
 
     private FirebaseClient GetClient()
@@ -102,7 +116,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
 
 public class FirebaseCacheOptions
 {
-    public string ProjectUrl { get; set; }
-    public string ServiceAccountJson { get; set; }
+    public string? ProjectUrl { get; set; }
+    public string? ServiceAccountJson { get; set; }
     public string RootDir { get; set; } = "cache";
 }
