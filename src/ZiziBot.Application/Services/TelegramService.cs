@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
+using MongoFramework.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -14,6 +15,7 @@ public class TelegramService
 {
     private readonly ILogger<TelegramService> _logger;
     private readonly CacheService _cacheService;
+    private readonly AppSettingsDbContext _appSettingsDbContext;
     private readonly MediatorService _mediatorService;
     private RequestBase _request = new();
 
@@ -33,10 +35,11 @@ public class TelegramService
 
     public ResponseSource ResponseSource { get; set; } = ResponseSource.Unknown;
 
-    public TelegramService(ILogger<TelegramService> logger, CacheService cacheService, MediatorService mediatorService)
+    public TelegramService(ILogger<TelegramService> logger, CacheService cacheService, AppSettingsDbContext appSettingsDbContext, MediatorService mediatorService)
     {
         _logger = logger;
         _cacheService = cacheService;
+        _appSettingsDbContext = appSettingsDbContext;
         _mediatorService = mediatorService;
     }
 
@@ -49,6 +52,14 @@ public class TelegramService
 
         if (_request.ReplyMessage)
             _request.ReplyToMessageId = _request.Message?.MessageId ?? default;
+    }
+
+    public async Task<bool> IsBotName(string name)
+    {
+        var botSettings = await _appSettingsDbContext.BotSettings
+            .FirstOrDefaultAsync(x => x.Token == _request.BotToken);
+
+        return botSettings.Name == name;
     }
 
     public async Task<ResponseBase> SendMessageText(string text, IReplyMarkup? replyMarkup = null)
