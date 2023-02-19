@@ -20,29 +20,36 @@ public class GetNoteRequestHandler : IRequestHandler<GetNoteRequestModel, Respon
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);
 
-        var tags = await _noteService.GetAllByChat(request.ChatIdentifier);
+        var allNotes = await _noteService.GetAllByChat(request.ChatIdentifier);
 
-        if (tags.Count == 0)
+        if (allNotes.Count == 0)
         {
             htmlMessage.Text("Tidak ada catatan di Obrolan ini.");
         }
         else
         {
-            htmlMessage.Bold("Daftar Tagar:").Br();
-            var grouped = tags
+            var grouped = allNotes
                 .GroupBy(entity => entity.Query.Split(" ").Length <= 1)
                 .ToList();
 
-            grouped.First(x => x.Key == true)
-                .ToList()
-                .ForEach(entity => htmlMessage.Text("#").Text(entity.Query).Text(" "));
+            var tags = grouped.FirstOrDefault(x => x.Key == true);
+            if (tags != null)
+            {
+                htmlMessage.Bold("Daftar Tagar:").Br();
+                tags.ToList()
+                    .ForEach(entity => htmlMessage.Text("#").Text(entity.Query).Text(" "));
+            }
 
-            htmlMessage.Br().Br()
-                .Bold("Daftar Catatan:").Br();
+            var notes = grouped.FirstOrDefault(x => x.Key == false);
+            if (notes != null)
+            {
+                htmlMessage.Br().Br()
+                    .Bold("Daftar Catatan:").Br();
 
-            grouped.First(x => x.Key == false)
-                .ToList()
-                .ForEach(entity => htmlMessage.Text("- ").Code(entity.Query).Br());
+                notes
+                    .ToList()
+                    .ForEach(entity => htmlMessage.Text("- ").Code(entity.Query).Br());
+            }
         }
 
         return await _telegramService.SendMessageText(htmlMessage.ToString());
