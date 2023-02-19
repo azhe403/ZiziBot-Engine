@@ -8,7 +8,7 @@ global using ZiziBot.Application.Handlers.Telegram.Basic;
 global using ZiziBot.Application.Handlers.Telegram.Note;
 global using ZiziBot.Application.Handlers.Telegram.Security;
 global using ZiziBot.Application.Services;
-global using ZiziBot.Caching;
+global using ZiziBot.Caching.Firebase;
 global using ZiziBot.Contracts.Attributes;
 global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Constants;

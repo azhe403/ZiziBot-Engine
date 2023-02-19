@@ -3,7 +3,7 @@ using Firebase.Database;
 using Firebase.Database.Query;
 using Google.Apis.Auth.OAuth2;
 
-namespace ZiziBot.Caching;
+namespace ZiziBot.Caching.Firebase;
 
 public class CacheTowerFirebaseProvider : ICacheLayer
 {
@@ -37,7 +37,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     {
         await GetClient()
             .Child(_cacheOptions.RootDir)
-            .Child(cacheKey)
+            .ChildTree(cacheKey)
             .DeleteAsync();
     }
 
@@ -47,7 +47,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
 
         var data = await GetClient()
             .Child(_cacheOptions.RootDir)
-            .Child(cacheKey)
+            .ChildTree(cacheKey)
             .OnceAsync<FirebaseCacheEntry>();
 
         var obj = data.FirstOrDefault(o => o.Object.CacheKey == cacheKey);
@@ -62,7 +62,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     {
         await GetClient()
             .Child(_cacheOptions.RootDir)
-            .Child(cacheKey)
+            .ChildTree(cacheKey)
             .PutAsync(
                 new FirebaseCacheEntry()
                 {
@@ -77,7 +77,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     {
         var obj = await GetClient()
             .Child(_cacheOptions.RootDir)
-            .Child(cacheKey)
+            .ChildTree(cacheKey)
             .OnceAsync<object>();
 
         return obj.Any();

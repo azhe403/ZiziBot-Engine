@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
+using MongoFramework.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -14,6 +15,7 @@ public class TelegramService
 {
     private readonly ILogger<TelegramService> _logger;
     private readonly CacheService _cacheService;
+    private readonly AppSettingsDbContext _appSettingsDbContext;
     private readonly MediatorService _mediatorService;
     private RequestBase _request = new();
 
@@ -23,7 +25,10 @@ public class TelegramService
 
     public ChatId ChatId { get; set; }
 
+    public DateTime MessageDate => _request.Message?.Date ?? _request.Message?.EditDate ?? DateTime.UtcNow;
+
     public string CallbackQueryId => _request.CallbackQuery?.Id;
+    private string _timeInit;
 
     public TimeSpan DeleteAfter => _request.DeleteAfter;
 
@@ -33,10 +38,11 @@ public class TelegramService
 
     public ResponseSource ResponseSource { get; set; } = ResponseSource.Unknown;
 
-    public TelegramService(ILogger<TelegramService> logger, CacheService cacheService, MediatorService mediatorService)
+    public TelegramService(ILogger<TelegramService> logger, CacheService cacheService, AppSettingsDbContext appSettingsDbContext, MediatorService mediatorService)
     {
         _logger = logger;
         _cacheService = cacheService;
+        _appSettingsDbContext = appSettingsDbContext;
         _mediatorService = mediatorService;
     }
 
@@ -44,6 +50,7 @@ public class TelegramService
     {
         _request = request ?? throw new ArgumentNullException(nameof(request));
 
+        _timeInit = MessageDate.GetDelay();
         ChatId = _request.ChatId;
         Bot = new TelegramBotClient(request.BotToken);
 
@@ -51,8 +58,25 @@ public class TelegramService
             _request.ReplyToMessageId = _request.Message?.MessageId ?? default;
     }
 
+    public async Task<bool> IsBotName(string name)
+    {
+        var botSettings = await _appSettingsDbContext.BotSettings
+            .FirstOrDefaultAsync(x => x.Token == _request.BotToken);
+
+        return botSettings.Name == name;
+    }
+
+    private string GetExecStamp()
+    {
+        var timeProc = MessageDate.GetDelay();
+        var stamp = $"⏳ <code>{_timeInit} s</code> | ⏱ <code>{timeProc} s</code>";
+        return stamp;
+    }
+
     public async Task<ResponseBase> SendMessageText(string text, IReplyMarkup? replyMarkup = null)
     {
+        text += "\n\n" + GetExecStamp();
+
         _logger.LogInformation("Sending message to chat {ChatId}", ChatId);
         SentMessage = await Bot.SendTextMessageAsync(
             chatId: ChatId,
@@ -99,6 +123,8 @@ public class TelegramService
 
     public async Task<ResponseBase> EditMessageText(string text)
     {
+        text += "\n\n" + GetExecStamp();
+
         await Bot.EditMessageTextAsync(ChatId, SentMessage.MessageId, text, parseMode: ParseMode.Html);
 
         return Complete();

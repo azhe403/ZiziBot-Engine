@@ -22,6 +22,7 @@ public class NoteService
                     entity.ChatId == chatId &&
                     entity.Status == (int) EventStatus.Complete
             )
+            .OrderBy(entity => entity.Query)
             .ToListAsync();
 
         return tags;
