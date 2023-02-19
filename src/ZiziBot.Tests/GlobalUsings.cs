@@ -8,3 +8,4 @@ global using ZiziBot.Hangfire;
 global using ZiziBot.Infrastructure;
 global using ZiziBot.Parsers.WebParser;
 global using ZiziBot.Tests.SampleData;
+global using ZiziBot.Tests.SampleData;
