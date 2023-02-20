@@ -83,7 +83,8 @@ public class TelegramService
             replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
             parseMode: ParseMode.Html,
             allowSendingWithoutReply: true,
-            replyMarkup: replyMarkup
+            replyMarkup: replyMarkup,
+            disableWebPagePreview: true
         );
 
         _logger.LogInformation("Message sent to chat {ChatId}", ChatId);
