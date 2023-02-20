@@ -37,7 +37,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     {
         await GetClient()
             .Child(_cacheOptions.RootDir)
-            .ChildTree(cacheKey)
+            .Child(cacheKey)
             .DeleteAsync();
     }
 
@@ -47,7 +47,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
 
         var data = await GetClient()
             .Child(_cacheOptions.RootDir)
-            .ChildTree(cacheKey)
+            .Child(cacheKey)
             .OnceAsync<FirebaseCacheEntry>();
 
         var obj = data.FirstOrDefault(o => o.Object.CacheKey == cacheKey);
@@ -62,7 +62,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     {
         await GetClient()
             .Child(_cacheOptions.RootDir)
-            .ChildTree(cacheKey)
+            .Child(cacheKey)
             .PutAsync(
                 new FirebaseCacheEntry()
                 {
@@ -77,7 +77,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     {
         var obj = await GetClient()
             .Child(_cacheOptions.RootDir)
-            .ChildTree(cacheKey)
+            .Child(cacheKey)
             .OnceAsync<object>();
 
         return obj.Any();

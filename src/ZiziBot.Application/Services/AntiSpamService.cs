@@ -40,7 +40,7 @@ public class AntiSpamService
     private async Task<bool> CheckEssAsync(long chatId, long userId)
     {
         var cacheData = await _cacheService.GetOrSetAsync(
-            cacheKey: "ban_ess_" + userId,
+            cacheKey: CacheKey.BAN_ESS + userId,
             action: async () => {
                 var globalBanEntities = await _antiSpamDbContext.GlobalBan
                     .Where(entity => entity.UserId == userId && entity.Status == (int) EventStatus.Complete)
@@ -56,7 +56,7 @@ public class AntiSpamService
     private async Task<CombotAntispamApiDto> CheckCombotAntiSpamAsync(long chatId, long userId)
     {
         var cacheData = await _cacheService.GetOrSetAsync(
-            cacheKey: "ban_combot_" + userId,
+            cacheKey: CacheKey.BAN_CAS + userId,
             action: async () => {
                 var url = UrlConst.COMBOT_ANTISPAM_API.SetQueryParam("userId", userId);
                 var antispamApiDto = await url.GetJsonAsync<CombotAntispamApiDto>();
