@@ -1,56 +1,55 @@
-using System.Security;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
+using Nut.MediatR;
+using Telegram.Bot.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Security;
 
-public class AntiSpamRequestModel : RequestBase
+[WithBehaviors(typeof(FluentValidationBehavior<,>))]
+public class AntiSpamRequestModel : BotMiddlewareRequestBase<AntiSpamDto>
 {
+    public User? User { get; set; }
 }
 
-public class AntiSpamPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class AntiSpamRequestValidation : AbstractValidator<AntiSpamRequestModel>
 {
-    private readonly ILogger<AntiSpamPipelineBehaviour<TRequest, TResponse>> _logger;
-    private readonly AntiSpamService _antiSpamService;
-    private readonly TelegramService _telegramService;
+    public AntiSpamRequestValidation()
+    {
+        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.ChatId).GreaterThan(0);
+    }
+}
 
-    public AntiSpamPipelineBehaviour(ILogger<AntiSpamPipelineBehaviour<TRequest, TResponse>> logger, AntiSpamService antiSpamService, TelegramService telegramService)
+public class AntiSpamRequest : IRequestHandler<AntiSpamRequestModel, BotMiddlewareResponseBase<AntiSpamDto>>
+{
+    private readonly ILogger<AntiSpamRequest> _logger;
+    private readonly AntiSpamService _antiSpamService;
+
+    public AntiSpamRequest(ILogger<AntiSpamRequest> logger, AntiSpamService antiSpamService)
     {
         _logger = logger;
         _antiSpamService = antiSpamService;
-        _telegramService = telegramService;
     }
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<BotMiddlewareResponseBase<AntiSpamDto>> Handle(AntiSpamRequestModel request, CancellationToken cancellationToken)
     {
-        var requestBase = request as RequestBase;
-        if (requestBase == null)
-            return await next();
+        _logger.LogDebug("Checking antispam for UserId: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
 
-        var ignoreTypes = new List<Type>
-        {
-            typeof(DeleteMessageRequestModel)
-        };
+        var response = new BotMiddlewareResponseBase<AntiSpamDto>();
+        var combotAntispamApiDto = await _antiSpamService.CheckSpamAsync(request.ChatId, request.UserId);
 
-        if (ignoreTypes.Contains(typeof(TRequest)))
-        {
-            _logger.LogDebug("Ignoring request of type {@requestType} because should be ignored", typeof(TRequest));
-            return await next();
-        }
-
-        _telegramService.SetupResponse(requestBase);
-
-        var combotAntispamApiDto = await _antiSpamService.CheckSpamAsync(requestBase.ChatIdentifier, requestBase.UserId);
+        response.CanContinue = !combotAntispamApiDto.IsBanAny;
 
         if (!combotAntispamApiDto.IsBanAny)
-            return await next();
+            return response;
 
         var htmlMessage = HtmlMessage.Empty
-            .User(requestBase.UserId, requestBase.UserFullName)
+            .User(request.UserId, request.User.GetFullName())
             .Text(" is banned from Global Ban");
 
-        await _telegramService.DeleteMessageAsync();
-        await _telegramService.SendMessageText(htmlMessage.ToString());
+        response.Message = htmlMessage.ToString();
+        response.Result = combotAntispamApiDto;
 
-        throw new SecurityException($"UserId: {requestBase.UserId} is marked as spammer");
+        return response;
     }
 }

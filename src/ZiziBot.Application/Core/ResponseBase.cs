@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -34,8 +33,6 @@ public class ResponseBase
 
         ExecutionTime = Stopwatch.Elapsed;
         ResponseSource = ResponseSource.Bot;
-
-        Log.Information("Processing complete in: {Elapses}", ExecutionTime);
 
         return this;
     }
