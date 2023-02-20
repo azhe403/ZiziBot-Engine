@@ -8,17 +8,17 @@ namespace ZiziBot.Allowed.TelegramBot.Controllers;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class DebugController : CommandController
 {
-    private readonly IMediator _mediator;
+    private readonly MediatorService _mediatorService;
 
-    public DebugController(IMediator mediator)
+    public DebugController(MediatorService mediatorService)
     {
-        _mediator = mediator;
+        _mediatorService = mediatorService;
     }
 
     [Command("id")]
     public async Task GetId(MessageData data)
     {
-        await _mediator.EnqueueAsync(
+        await _mediatorService.EnqueueAsync(
             new GetIdRequestModel()
             {
                 BotToken = data.Options.Token,
@@ -31,7 +31,7 @@ public class DebugController : CommandController
     [Command("weblogin")]
     public async Task WebLogin(MessageData data)
     {
-        await _mediator.EnqueueAsync(
+        await _mediatorService.EnqueueAsync(
             new CreateWebSessionRequestModel()
             {
                 BotToken = data.Options.Token,

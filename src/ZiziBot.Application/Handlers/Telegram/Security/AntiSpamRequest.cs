@@ -11,11 +11,13 @@ public class AntiSpamPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<
 {
     private readonly ILogger<AntiSpamPipelineBehaviour<TRequest, TResponse>> _logger;
     private readonly AntiSpamService _antiSpamService;
+    private readonly TelegramService _telegramService;
 
-    public AntiSpamPipelineBehaviour(ILogger<AntiSpamPipelineBehaviour<TRequest, TResponse>> logger, AntiSpamService antiSpamService)
+    public AntiSpamPipelineBehaviour(ILogger<AntiSpamPipelineBehaviour<TRequest, TResponse>> logger, AntiSpamService antiSpamService, TelegramService telegramService)
     {
         _logger = logger;
         _antiSpamService = antiSpamService;
+        _telegramService = telegramService;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -35,7 +37,7 @@ public class AntiSpamPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<
             return await next();
         }
 
-        ResponseBase responseBase = new(requestBase);
+        _telegramService.SetupResponse(requestBase);
 
         var combotAntispamApiDto = await _antiSpamService.CheckSpamAsync(requestBase.ChatIdentifier, requestBase.UserId);
 
@@ -46,9 +48,9 @@ public class AntiSpamPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<
             .User(requestBase.UserId, requestBase.UserFullName)
             .Text(" is banned from Global Ban");
 
-        await responseBase.DeleteMessageAsync();
-        await responseBase.SendMessageText(htmlMessage.ToString());
+        await _telegramService.DeleteMessageAsync();
+        await _telegramService.SendMessageText(htmlMessage.ToString());
 
-        throw new SecurityException($"UserId: {requestBase.UserId} is not a Administrator in ChatId: {requestBase.ChatIdentifier} ");
+        throw new SecurityException($"UserId: {requestBase.UserId} is marked as spammer");
     }
 }

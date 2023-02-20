@@ -9,21 +9,23 @@ public class VerifyPaymentRequestModel : RequestBase
 
 public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestModel, ResponseBase>
 {
+    private readonly TelegramService _telegramService;
     private readonly MirrorDbContext _mirrorDbContext;
 
-    public SubmitPaymentRequestHandler(MirrorDbContext mirrorDbContext)
+    public SubmitPaymentRequestHandler(TelegramService telegramService, MirrorDbContext mirrorDbContext)
     {
+        _telegramService = telegramService;
         _mirrorDbContext = mirrorDbContext;
     }
 
     public async Task<ResponseBase> Handle(VerifyPaymentRequestModel request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
         if (string.IsNullOrEmpty(request.PaymentUrl))
         {
-            return await responseBase.SendMessageText("Sertakan tautan dari Trakteer.id untuk diverifikasi.");
+            return await _telegramService.SendMessageText("Sertakan tautan dari Trakteer.id untuk diverifikasi.");
         }
 
         var mirrorApproval = await _mirrorDbContext.MirrorApproval
@@ -36,17 +38,17 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
 
         if (mirrorApproval != null)
         {
-            return await responseBase.SendMessageText("Pembayaran sudah terverifikasi.");
+            return await _telegramService.SendMessageText("Pembayaran sudah terverifikasi.");
         }
 
-        await responseBase.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
+        await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
         var trakteerParsedDto = await request.PaymentUrl.ParseTrakteerWeb();
 
         if (!trakteerParsedDto.IsValid)
         {
             htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
                 .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
-            return await responseBase.EditMessageText(htmlMessage.ToString());
+            return await _telegramService.EditMessageText(htmlMessage.ToString());
         }
 
         _mirrorDbContext.MirrorApproval.Add(
@@ -97,6 +99,6 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
         htmlMessage.Bold("Pembayaran Diterima").Br()
             .Text("Silakan tekan /ms untuk memeriksa.").Br();
 
-        return await responseBase.EditMessageText(htmlMessage.ToString());
+        return await _telegramService.EditMessageText(htmlMessage.ToString());
     }
 }

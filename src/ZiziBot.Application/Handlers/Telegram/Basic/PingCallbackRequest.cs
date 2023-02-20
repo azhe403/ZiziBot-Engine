@@ -9,22 +9,24 @@ public class PingCallbackRequestModel : RequestBase
 public class PingCallbackRequestHandler : IRequestHandler<PingCallbackRequestModel, ResponseBase>
 {
     private readonly SudoService _sudoService;
+    private readonly TelegramService _telegramService;
 
-    public PingCallbackRequestHandler(SudoService sudoService)
+    public PingCallbackRequestHandler(SudoService sudoService, TelegramService telegramService)
     {
         _sudoService = sudoService;
+        _telegramService = telegramService;
     }
 
     public async Task<ResponseBase> Handle(PingCallbackRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
         if (!await _sudoService.IsSudoAsync(request.UserId))
         {
-            return await responseBase.AnswerCallbackAsync("Kamu tidak memiliki akses");
+            return await _telegramService.AnswerCallbackAsync("Kamu tidak memiliki akses");
         }
 
-        var webhookInfo = await responseBase.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
+        var webhookInfo = await _telegramService.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
 
         var htmlMessage = HtmlMessage.Empty;
 
@@ -37,6 +39,6 @@ public class PingCallbackRequestHandler : IRequestHandler<PingCallbackRequestMod
             htmlMessage.Text("Engine mode bukan Webhook");
         }
 
-        return await responseBase.AnswerCallbackAsync(webhookInfo.Url, showAlert: true);
+        return await _telegramService.AnswerCallbackAsync(webhookInfo.Url, showAlert: true);
     }
 }

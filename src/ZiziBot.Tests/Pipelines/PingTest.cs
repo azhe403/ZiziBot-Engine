@@ -1,5 +1,4 @@
 using Allowed.Telegram.Bot.Models;
-using MediatR;
 using Microsoft.Extensions.Options;
 using Xunit;
 
@@ -7,14 +6,14 @@ namespace ZiziBot.Tests.Pipelines;
 
 public class PingTest
 {
-    private readonly IMediator _mediator;
+    private readonly MediatorService _mediatorService;
     private readonly IOptionsSnapshot<List<SimpleTelegramBotClientOptions>> _botOptions;
 
     private List<SimpleTelegramBotClientOptions> ListBotData => _botOptions.Value;
 
-    public PingTest(IMediator mediator, IOptionsSnapshot<List<SimpleTelegramBotClientOptions>> botOptions)
+    public PingTest(MediatorService mediatorService, IOptionsSnapshot<List<SimpleTelegramBotClientOptions>> botOptions)
     {
-        _mediator = mediator;
+        _mediatorService = mediatorService;
         _botOptions = botOptions;
     }
 
@@ -23,7 +22,7 @@ public class PingTest
     {
         foreach (var botData in ListBotData)
         {
-            await _mediator.EnqueueAsync(
+            await _mediatorService.EnqueueAsync(
                 new PingRequestModel
                 {
                     BotToken = botData.Token,

@@ -12,25 +12,27 @@ public class DeleteMessageRequestModel : RequestBase
 public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestModel, ResponseBase>
 {
     private readonly ILogger<DeleteMessageRequestHandler> _logger;
+    private readonly TelegramService _telegramService;
 
-    public DeleteMessageRequestHandler(ILogger<DeleteMessageRequestHandler> logger)
+    public DeleteMessageRequestHandler(ILogger<DeleteMessageRequestHandler> logger, TelegramService telegramService)
     {
         _logger = logger;
-        _logger = logger;
+        _telegramService = telegramService;
     }
 
     public async Task<ResponseBase> Handle(DeleteMessageRequestModel request, CancellationToken cancellationToken)
     {
         var chatId = request.ChatIdentifier;
 
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
-        if (chatId == 0) return responseBase;
+        if (chatId == 0)
+            return _telegramService.Complete();
 
         try
         {
             _logger.LogDebug("Deleting message {MessageId} from chat {ChatId}", request.MessageId, chatId);
-            await responseBase.Bot.DeleteMessageAsync(chatId, request.MessageId, cancellationToken: cancellationToken);
+            await _telegramService.Bot.DeleteMessageAsync(chatId, request.MessageId, cancellationToken: cancellationToken);
 
             _logger.LogInformation("Message {MessageId} deleted from chat {ChatId}", request.MessageId, chatId);
         }
@@ -47,6 +49,6 @@ public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestM
             }
         }
 
-        return responseBase.Complete();
+        return _telegramService.Complete();
     }
 }

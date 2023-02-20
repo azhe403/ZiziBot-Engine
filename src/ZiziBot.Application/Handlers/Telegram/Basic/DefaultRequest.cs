@@ -6,12 +6,19 @@ public class DefaultRequestModel : RequestBase
 
 public class DefaultRequestHandler : IRequestHandler<DefaultRequestModel, ResponseBase>
 {
+    private readonly TelegramService _telegramService;
+
+    public DefaultRequestHandler(TelegramService telegramService)
+    {
+        _telegramService = telegramService;
+    }
+
     public async Task<ResponseBase> Handle(DefaultRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
         await Task.Delay(1, cancellationToken);
 
-        return responseBase.Complete();
+        return _telegramService.Complete();
     }
 }

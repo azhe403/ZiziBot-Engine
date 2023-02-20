@@ -6,26 +6,27 @@ public class OcrRequestModel : RequestBase
 
 public class OcrRequestHandler : IRequestHandler<OcrRequestModel, ResponseBase>
 {
+    private readonly TelegramService _telegramService;
     private readonly OptiicDevService _optiicDevService;
 
-    public OcrRequestHandler(OptiicDevService optiicDevService)
+    public OcrRequestHandler(TelegramService telegramService, OptiicDevService optiicDevService)
     {
+        _telegramService = telegramService;
         _optiicDevService = optiicDevService;
     }
 
     public async Task<ResponseBase> Handle(OcrRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
-        await responseBase.SendMessageText("🔎 Sedang melakukan OCR");
+        await _telegramService.SendMessageText("🔎 Sedang melakukan OCR");
 
         try
         {
-
-            var localFile = await responseBase.DownloadFileAsync("ocr_");
+            var localFile = await _telegramService.DownloadFileAsync("ocr_");
             var ocrResult = await _optiicDevService.ScanImageAsync(localFile);
 
-            return await responseBase.EditMessageText(ocrResult.Text);
+            return await _telegramService.EditMessageText(ocrResult.Text);
         }
         catch (Exception e)
         {
@@ -33,7 +34,7 @@ public class OcrRequestHandler : IRequestHandler<OcrRequestModel, ResponseBase>
                 .Bold("Terjadi kesalahan ketika menjalankan OCR").Br()
                 .Bold("Error: ").Text(e.Message.Split(":").FirstOrDefault());
 
-            return await responseBase.EditMessageText(htmlMessage.ToString());
+            return await _telegramService.EditMessageText(htmlMessage.ToString());
         }
     }
 }
