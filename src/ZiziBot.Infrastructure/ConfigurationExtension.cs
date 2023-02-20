@@ -37,6 +37,7 @@ public static class ConfigurationExtension
             list => {
                 var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
                 var listBotData = appSettingDbContext.BotSettings
+                    .Where(settings => settings.Status == (int) EventStatus.Complete)
                     .AsEnumerable()
                     .Select(settings => new SimpleTelegramBotClientOptions(settings.Name, settings.Token, host, null, false))
                     .ToList();
