@@ -21,22 +21,14 @@ public class TgBotPostProcessorBehavior<TRequest, TResponse> : IRequestPostProce
     {
         _telegramService.SetupResponse(request);
 
-        if (response.ResponseSource != ResponseSource.Bot)
-            return;
+        await Task.Delay(1, cancellationToken);
 
-        if (request.ChatIdentifier == 0 ||
-            request.UserId == 0) return;
-
-        if (!await _telegramService.IsBotName("Main")) return;
-
-        await _mediatorService.EnqueueAsync(
-            new EnsureChatAdminRequestModel()
-            {
-                BotToken = request.BotToken,
-                ChatId = request.ChatIdentifier,
-                UserId = request.UserId,
-                ExecutionStrategy = ExecutionStrategy.Instant
-            }
-        );
+        // if (response.ResponseSource != ResponseSource.Bot)
+        //     return;
+        //
+        // if (request.ChatIdentifier == 0 ||
+        //     request.UserId == 0) return;
+        //
+        // if (!await _telegramService.IsBotName("Main")) return;
     }
 }
