@@ -3,11 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Handlers.Core;
 
-public class LoggingPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class LoggingPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
 {
-    private readonly ILogger<TRequest> _logger;
+    private readonly ILogger<LoggingPipelineBehaviour<TRequest, TResponse>> _logger;
 
-    public LoggingPipelineBehaviour(ILogger<TRequest> logger)
+    public LoggingPipelineBehaviour(ILogger<LoggingPipelineBehaviour<TRequest, TResponse>> logger)
     {
         _logger = logger;
     }

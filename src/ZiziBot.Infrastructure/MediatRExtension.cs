@@ -14,11 +14,11 @@ public static class MediatRExtension
         services.AddMediatR(
             configuration => configuration
                 .RegisterServicesFromAssemblyContaining<PingRequestHandler>()
+                .AddOpenBehavior(typeof(BotMiddlewarePipelineBehaviour<,>))
         );
 
         services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AntiSpamPipelineBehaviour<,>));
 
         services.AddMediatRBehaviors();
 

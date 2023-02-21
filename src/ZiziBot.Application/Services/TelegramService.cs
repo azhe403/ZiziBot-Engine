@@ -21,7 +21,6 @@ public class TelegramService
 
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     public ITelegramBotClient Bot { get; set; }
-    public TimeSpan ExecutionTime { get; private set; }
 
     public ChatId ChatId { get; set; }
 
@@ -84,7 +83,8 @@ public class TelegramService
             replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
             parseMode: ParseMode.Html,
             allowSendingWithoutReply: true,
-            replyMarkup: replyMarkup
+            replyMarkup: replyMarkup,
+            disableWebPagePreview: true
         );
 
         _logger.LogInformation("Message sent to chat {ChatId}", ChatId);
@@ -274,18 +274,12 @@ public class TelegramService
     {
         _stopwatch.Stop();
 
-        ExecutionTime = _stopwatch.Elapsed;
-
-        _logger.LogInformation("Processing complete in: {Elapses}", ExecutionTime);
-
-        ResponseSource = ResponseSource.Bot;
-
         return new ResponseBase()
         {
             ChatId = _request.ChatId,
             SentMessage = SentMessage,
             ResponseSource = ResponseSource.Bot,
-            ExecutionTime = ExecutionTime
+            ExecutionTime = _stopwatch.Elapsed
         };
     }
 }

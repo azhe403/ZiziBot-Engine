@@ -8,17 +8,18 @@ namespace ZiziBot.Allowed.TelegramBot.Controllers;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SudoController : CommandController
 {
-    private readonly IMediator _mediator;
+    private readonly MediatorService _mediatorService;
 
-    public SudoController(IMediator mediator)
+    public SudoController(MediatorService mediatorService)
     {
-        _mediator = mediator;
+        _mediatorService = mediatorService;
     }
 
     [Command("addsudo")]
     public async Task AddSudo(MessageData data)
     {
-        await _mediator.EnqueueAsync(new AddSudoRequestModel()
+        await _mediatorService.EnqueueAsync(
+            new AddSudoRequestModel()
         {
             BotToken = data.Options.Token,
             Message = data.Message,

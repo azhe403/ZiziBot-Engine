@@ -9,21 +9,24 @@ namespace ZiziBot.Allowed.TelegramBot.Controllers;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class MemberChangesController : CommandController
 {
-    private readonly IMediator _mediator;
+    private readonly MediatorService _mediatorService;
 
-    public MemberChangesController(IMediator mediator)
+    public MemberChangesController(MediatorService mediatorServiceService)
     {
-        _mediator = mediator;
+        _mediatorService = mediatorServiceService;
     }
 
     [TypedCommand(MessageType.ChatMembersAdded)]
     public async Task NewChatMembers(MessageData data)
     {
-        await _mediator.EnqueueAsync(new NewChatMembersRequestModel()
-        {
-            BotToken = data.Options.Token,
-            Message = data.Message,
-            DeleteAfter = TimeSpan.FromMinutes(1)
-        });
+        await _mediatorService.EnqueueAsync(
+            new NewChatMembersRequestModel()
+            {
+                BotToken = data.Options.Token,
+                Message = data.Message,
+                NewUser = data.Message.NewChatMembers!,
+                DeleteAfter = TimeSpan.FromMinutes(10)
+            }
+        );
     }
 }

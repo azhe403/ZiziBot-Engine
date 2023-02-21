@@ -10,16 +10,18 @@ public class CreateWebSessionRequestModel : RequestBase
 
 public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRequestModel, ResponseBase>
 {
+    private readonly TelegramService _telegramService;
     private readonly UserDbContext _userDbContext;
 
-    public CreateWebSessionRequestHandler(UserDbContext userDbContext)
+    public CreateWebSessionRequestHandler(TelegramService telegramService, UserDbContext userDbContext)
     {
+        _telegramService = telegramService;
         _userDbContext = userDbContext;
     }
 
     public async Task<ResponseBase> Handle(CreateWebSessionRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
         var dashboardSession = await _userDbContext.DashboardSessions
             .Where(
@@ -35,7 +37,7 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
 
         if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))
         {
-            await responseBase.SendMessageText("Maaf fitur ini belum dipersiapkan");
+            await _telegramService.SendMessageText("Maaf fitur ini belum dipersiapkan");
         }
 
         if (dashboardSession != null)
@@ -78,6 +80,6 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
             }));
         }
 
-        return await responseBase.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
     }
 }

@@ -5,5 +5,8 @@ namespace ZiziBot.Contracts.Constants;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public class CacheKey
 {
-    public const string LIST_CHAT_ADMIN = "chat_admin_";
+    public const string BAN_ESS = "ban/ess/";
+    public const string BAN_CAS = "ban/cas/";
+
+    public const string LIST_CHAT_ADMIN = "chat/admin/";
 }

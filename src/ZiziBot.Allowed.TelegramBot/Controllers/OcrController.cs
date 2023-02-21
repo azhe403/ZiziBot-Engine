@@ -8,17 +8,17 @@ namespace ZiziBot.Allowed.TelegramBot.Controllers;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class OcrController : CommandController
 {
-    private readonly IMediator _mediator;
+    private readonly MediatorService _mediatorService;
 
-    public OcrController(IMediator mediator)
+    public OcrController(MediatorService mediatorService)
     {
-        _mediator = mediator;
+        _mediatorService = mediatorService;
     }
 
     [Command("ocr")]
     public async Task Ocr(MessageData data)
     {
-        await _mediator.EnqueueAsync(
+        await _mediatorService.EnqueueAsync(
             new OcrRequestModel()
             {
                 BotToken = data.Options.Token,

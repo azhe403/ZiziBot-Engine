@@ -6,7 +6,7 @@ public static class FirebaseUtil
 {
     public static ChildQuery ChildTree(this ChildQuery childQuery, string key)
     {
-        var trees = key.Split("_").SkipLast(1);
+        var trees = key.Split("_");
 
         foreach (var tree in trees)
         {

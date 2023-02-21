@@ -25,20 +25,17 @@ public static class LoggingExtension
             settings => {
                 settings.BeforeCall = flurlCall => {
                     var request = flurlCall.Request;
-                    var url = request.Url;
-                    var method = request.Verb;
-                    Log.Information("FlurlHttp: {Method} {url}", method, url);
+                    Log.Information("FlurlHttp: {Method} {url}", request.Verb, request.Url);
                 };
 
                 settings.AfterCall = flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
-                    var statusCode = response.StatusCode;
                     Log.Information(
                         "FlurlHttp: {Method} {Url} {StatusCode}. Elapsed: {Elapsed}",
                         request.Verb,
                         request.Url,
-                        statusCode,
+                        response?.StatusCode,
                         flurlCall.Duration
                     );
                 };

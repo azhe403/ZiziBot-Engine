@@ -7,18 +7,20 @@ public class AddSudoRequestModel : RequestBase
 [UsedImplicitly]
 public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, ResponseBase>
 {
+    private readonly TelegramService _telegramService;
     private readonly SudoService _sudoService;
 
-    public AddSudoRequestHandler(AppSettingsDbContext appSettingsDbContext, SudoService sudoService)
+    public AddSudoRequestHandler(TelegramService telegramService, AppSettingsDbContext appSettingsDbContext, SudoService sudoService)
     {
+        _telegramService = telegramService;
         _sudoService = sudoService;
     }
 
     public async Task<ResponseBase> Handle(AddSudoRequestModel request, CancellationToken cancellationToken)
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
-        await responseBase.SendMessageText("Adding sudo user...");
+        await _telegramService.SendMessageText("Adding sudo user...");
 
         var serviceResult = await _sudoService.SaveSudo(
             new Sudoer()
@@ -30,8 +32,8 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, Respon
             }
         );
 
-        await responseBase.EditMessageText(serviceResult.Message);
+        await _telegramService.EditMessageText(serviceResult.Message);
 
-        return responseBase.Complete();
+        return _telegramService.Complete();
     }
 }

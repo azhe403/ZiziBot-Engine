@@ -10,13 +10,19 @@ public class GlobalExceptionHandler<TRequest, TResponse, TException> : IRequestE
 {
     private readonly ILogger<GlobalExceptionHandler<TRequest, TResponse, TException>> _logger;
     private readonly IOptions<EventLogConfig> _eventLogOptions;
+    private readonly TelegramService _telegramService;
 
     private EventLogConfig EventLogConfig => _eventLogOptions.Value;
 
-    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler<TRequest, TResponse, TException>> logger, IOptions<EventLogConfig> eventLogOptions)
+    public GlobalExceptionHandler(
+        ILogger<GlobalExceptionHandler<TRequest, TResponse, TException>> logger,
+        IOptions<EventLogConfig> eventLogOptions,
+        TelegramService telegramService
+    )
     {
         _logger = logger;
         _eventLogOptions = eventLogOptions;
+        _telegramService = telegramService;
     }
 
     public async Task Handle(
@@ -26,7 +32,7 @@ public class GlobalExceptionHandler<TRequest, TResponse, TException> : IRequestE
         CancellationToken cancellationToken
     )
     {
-        ResponseBase responseBase = new(request);
+        _telegramService.SetupResponse(request);
 
         _logger.LogError(exception, "Something went wrong while handling request of type {@requestType}", typeof(TRequest));
 
@@ -40,7 +46,7 @@ public class GlobalExceptionHandler<TRequest, TResponse, TException> : IRequestE
             return;
         }
 
-        responseBase.ChatId = EventLogConfig.ChatId;
+        _telegramService.ChatId = EventLogConfig.ChatId;
 
         var htmlMessage = HtmlMessage.Empty
             .BoldBr("🛑 Exception Handler")
@@ -61,7 +67,7 @@ public class GlobalExceptionHandler<TRequest, TResponse, TException> : IRequestE
                 .Bold("Assembly Location: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
         }
 
-        await responseBase.SendMessageText(htmlMessage.ToString());
+        await _telegramService.SendMessageText(htmlMessage.ToString());
 
         state.SetHandled(default!);
     }

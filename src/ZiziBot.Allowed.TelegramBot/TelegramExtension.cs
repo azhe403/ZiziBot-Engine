@@ -40,7 +40,8 @@ public static class TelegramExtension
                 new BotSettings()
                 {
                     Name = "BOT_NAME",
-                    Token = "BOT_TOKEN"
+                    Token = "BOT_TOKEN",
+                    Status = (int) EventStatus.InProgress
                 }
             );
 

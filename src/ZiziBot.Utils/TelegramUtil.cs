@@ -5,6 +5,19 @@ namespace ZiziBot.Utils;
 
 public static class TelegramUtil
 {
+    public static string GetFullName(this User user)
+    {
+        var fullName = (user.FirstName + " " + user.LastName).Trim();
+        return fullName;
+    }
+
+    public static string GetFullMention(this User user)
+    {
+        var fullName = (user.FirstName + " " + user.LastName).Trim();
+        var mention = "<a href=\"tg://user?id=" + user.Id + "\">" + fullName + "</a>";
+        return mention;
+    }
+
     public static string? GetFileId(this Message message)
     {
         var fileId = message.Type switch
