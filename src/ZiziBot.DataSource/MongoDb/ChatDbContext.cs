@@ -11,4 +11,5 @@ public class ChatDbContext : MongoDbContextBase
 
     public MongoDbSet<NoteEntity> Note { get; set; }
     public MongoDbSet<ChatAdminEntity> ChatAdmin { get; set; }
+    public MongoDbSet<ChatSettingEntity> ChatSetting { get; set; }
 }
