@@ -249,24 +249,44 @@ public class TelegramService
         return filePath;
     }
 
+    #region Role Management
+
     public async Task<bool> CheckAdministration()
     {
-        var chatAdmins = await GetChatAdministrator(_request.ChatIdentifier);
+        var chatAdmins = await GetChatAdministrator();
         var isAdmin = chatAdmins.Any(x => x.User.Id == _request.UserId);
-
         return isAdmin;
     }
 
-    public async Task<ChatMember[]> GetChatAdministrator(long chatId)
+    public async Task<bool> CheckChatAdminOrPrivate()
+    {
+        if (_request.ChatType == ChatType.Private)
+            return true;
+
+        return await CheckAdministration();
+    }
+
+    public async Task<bool> CheckChatCreator()
+    {
+        var chatAdmins = await GetChatAdministrator();
+        var isAdmin = chatAdmins.Any(x =>
+            x.User.Id == _request.UserId &&
+            x.Status == ChatMemberStatus.Creator
+        );
+        return isAdmin;
+    }
+
+    #endregion
+
+    public async Task<ChatMember[]> GetChatAdministrator()
     {
         var cacheValue = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.LIST_CHAT_ADMIN + chatId,
+            cacheKey: CacheKey.LIST_CHAT_ADMIN + ChatId,
             action: async () => {
-                var chatAdmins = await Bot.GetChatAdministratorsAsync(chatId);
+                var chatAdmins = await Bot.GetChatAdministratorsAsync(ChatId);
                 return chatAdmins;
             }
         );
-
         return cacheValue;
     }
 

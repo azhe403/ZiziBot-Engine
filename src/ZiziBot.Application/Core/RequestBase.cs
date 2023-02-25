@@ -5,6 +5,8 @@ namespace ZiziBot.Application.Core;
 
 public class RequestBase : IRequest<ResponseBase>
 {
+    public RoleLevel MinimumRole { get; set; }
+
     public string BotToken { get; set; }
     public IMediator Mediator { get; set; }
 
