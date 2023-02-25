@@ -1,5 +1,6 @@
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
+using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -22,6 +23,9 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostPr
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
+
+        if (request.ChatType == ChatType.Private)
+            return;
 
         _chatDbContext.ChatAdmin
             .RemoveRange(
