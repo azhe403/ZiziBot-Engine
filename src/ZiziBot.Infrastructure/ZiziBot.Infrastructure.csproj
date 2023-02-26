@@ -25,6 +25,7 @@
         <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
         <ProjectReference Include="..\ZiziBot.Caching\ZiziBot.Caching.csproj" />
         <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
+        <ProjectReference Include="..\ZiziBot.Kot.MongoMigrations\ZiziBot.Kot.MongoMigrations.csproj" />
         <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj" />
     </ItemGroup>
 

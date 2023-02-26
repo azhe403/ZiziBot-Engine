@@ -12,5 +12,6 @@ global using ZiziBot.Contracts.Enums;
 global using ZiziBot.DataSource.MongoDb;
 global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.Infrastructure.MongoConfig;
+global using ZiziBot.Kot.MongoMigrations;
 global using ZiziBot.Utils;
 global using ZiziBot.WebApi;

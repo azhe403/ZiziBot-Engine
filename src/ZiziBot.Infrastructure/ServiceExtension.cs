@@ -10,6 +10,7 @@ public static class ServiceExtension
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         services.ConfigureSettings();
+        services.AddKotMongoMigrations();
 
         services.AddMediator();
 
