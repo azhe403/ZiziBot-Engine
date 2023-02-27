@@ -6,6 +6,7 @@ public class CombotAntispamApiDto
 {
     [JsonProperty("ok")]
     public bool Ok { get; set; }
+    public bool IsBanned => Result != null;
 
     [JsonProperty("result")]
     public CombotAntispamResult? Result { get; set; }
