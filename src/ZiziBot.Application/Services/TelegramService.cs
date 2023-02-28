@@ -5,6 +5,7 @@ using MongoFramework.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using File=System.IO.File;
@@ -233,6 +234,12 @@ public class TelegramService
     public async Task<ResponseBase> AnswerCallbackAsync(string message, bool showAlert = false)
     {
         await Bot.AnswerCallbackQueryAsync(CallbackQueryId, message, showAlert);
+        return Complete();
+    }
+
+    public async Task<ResponseBase> AnswerInlineQueryAsync(IEnumerable<InlineQueryResult> results)
+    {
+        await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, results);
         return Complete();
     }
 

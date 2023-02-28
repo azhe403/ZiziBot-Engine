@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace ZiziBot.Utils;
 
 public static class LinqUtil
@@ -21,5 +23,10 @@ public static class LinqUtil
         dynamic value = strings.ElementAtOrDefault(index) ?? string.Empty;
 
         return (T) Convert.ChangeType(value, typeof(T));
+    }
+
+    public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, bool condition, Expression<Func<T, bool>> whereClause)
+    {
+        return condition ? query.Where(whereClause) : query;
     }
 }

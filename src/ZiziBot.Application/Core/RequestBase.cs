@@ -14,6 +14,7 @@ public class RequestBase : IRequest<ResponseBase>
     public Message? ReplyToMessage => Message?.ReplyToMessage;
 
     public CallbackQuery? CallbackQuery { get; set; }
+    public InlineQuery? InlineQuery { get; set; }
 
     public string? MessageText => Message?.Text;
     public string[]? MessageTexts => Message?.Text?.Split(" ");
@@ -24,7 +25,9 @@ public class RequestBase : IRequest<ResponseBase>
     public ChatType ChatType => Message?.Chat.Type ?? default;
     public string ChatTitle => Message?.Chat.Title ?? Message?.From?.FirstName ?? Message?.From?.Username ?? Message?.From?.LastName ?? "Unknown";
 
-    public long UserId => Message?.From?.Id ?? CallbackQuery?.From?.Id ?? 0;
+    public User? User => Message?.From ?? CallbackQuery?.From ?? InlineQuery.From ?? default;
+
+    public long UserId => Message?.From?.Id ?? CallbackQuery?.From?.Id ?? InlineQuery.From?.Id ?? 0;
     public string UserFullName => $"{Message?.From?.FirstName} {Message?.From?.LastName}".Trim();
 
     public string Text { get; set; }

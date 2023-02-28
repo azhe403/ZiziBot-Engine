@@ -24,7 +24,8 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostPr
     {
         _telegramService.SetupResponse(request);
 
-        if (request.ChatType == ChatType.Private)
+        if (request.ChatType == ChatType.Private ||
+            request.InlineQuery != null)
             return;
 
         _chatDbContext.ChatAdmin

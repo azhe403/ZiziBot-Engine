@@ -19,6 +19,9 @@ public class EnsureChatSettingBehavior<TRequest, TResponse> : IRequestPostProces
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
+        if (request.ChatId == 0)
+            return;
+
         _logger.LogInformation("Ensure ChatSetting for ChatId: {ChatId} Started", request.ChatId);
 
         var chatSetting = await _chatDbContext.ChatSetting

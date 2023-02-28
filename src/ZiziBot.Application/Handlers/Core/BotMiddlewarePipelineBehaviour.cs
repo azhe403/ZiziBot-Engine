@@ -32,7 +32,7 @@ public class BotMiddlewarePipelineBehaviour<TRequest, TResponse> : IPipelineBeha
             {
                 UserId = request.UserId,
                 ChatId = request.ChatIdentifier,
-                User = request.Message.From
+                User = request.User
             },
             cancellationToken
         );

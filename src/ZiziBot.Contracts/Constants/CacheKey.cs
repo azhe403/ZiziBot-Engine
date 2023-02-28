@@ -11,4 +11,6 @@ public class CacheKey
 
     public const string SUDO = "sudo/";
     public const string LIST_CHAT_ADMIN = "chat/admin/";
+
+    public const string API_DOC = "api-doc";
 }

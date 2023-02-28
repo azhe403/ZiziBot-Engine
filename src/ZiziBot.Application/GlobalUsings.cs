@@ -13,6 +13,7 @@ global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Constants;
 global using ZiziBot.Contracts.Dtos;
 global using ZiziBot.Contracts.Enums;
+global using ZiziBot.Contracts.Types;
 global using ZiziBot.DataSource.MongoDb;
 global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.Exceptions;
