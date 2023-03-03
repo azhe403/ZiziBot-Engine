@@ -13,6 +13,7 @@ public static class AnglesharpUtil
 
         var config = Configuration.Default
             .With(new HttpClientRequester(httpClient))
+            .WithJs()
             .WithTemporaryCookies()
             .WithDefaultLoader();
 
