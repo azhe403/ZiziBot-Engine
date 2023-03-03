@@ -10,8 +10,7 @@ builder.WebHost.ConfigureCustomListenPort();
 builder.Configuration.LoadSettings();
 
 builder.Services.AddControllers(
-        options =>
-        {
+        options => {
             options.Conventions.Add(new ControllerHidingConvention());
             options.Conventions.Add(new ActionHidingConvention());
             options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
@@ -21,8 +20,7 @@ builder.Services.AddControllers(
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
-    options =>
-    {
+    options => {
         // options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
     }
 );
@@ -38,6 +36,8 @@ app.UseSerilogRequestLogging();
 app.ConfigureFlurlLogging();
 
 app.PrintAbout();
+
+await app.RunMigrationsAsync();
 
 app.UseSwagger();
 app.UseSwaggerUI();

@@ -15,4 +15,5 @@ public class MirrorApprovalEntity : EntityBase
     public DateTime OrderDate { get; set; }
     public string? PaymentMethod { get; set; }
     public string? OrderId { get; set; }
+    public string? FileId { get; set; }
 }

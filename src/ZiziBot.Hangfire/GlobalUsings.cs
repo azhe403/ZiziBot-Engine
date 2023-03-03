@@ -9,7 +9,6 @@ global using Hangfire.InMemory;
 global using Hangfire.Mongo;
 global using Hangfire.Mongo.Migration.Strategies;
 global using Hangfire.Mongo.Migration.Strategies.Backup;
-global using MediatR;
 global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Enums;
 global using ZiziBot.DataSource.MongoDb;

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Kot.MongoDB.Migrations.DI" Version="2.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
+        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
+    </ItemGroup>
+
+</Project>

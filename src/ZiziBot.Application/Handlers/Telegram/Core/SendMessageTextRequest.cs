@@ -12,13 +12,13 @@ public class SendMessageTextRequestModel : RequestBase
 public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequestModel, ResponseBase>
 {
     private readonly ILogger<SendMessageTextRequestHandler> _logger;
-    private readonly IMediator _mediator;
+    private readonly MediatorService _mediatorService;
     private readonly TelegramService _telegramService;
 
-    public SendMessageTextRequestHandler(ILogger<SendMessageTextRequestHandler> logger, IMediator mediator, TelegramService telegramService)
+    public SendMessageTextRequestHandler(ILogger<SendMessageTextRequestHandler> logger, MediatorService mediatorService, TelegramService telegramService)
     {
         _logger = logger;
-        _mediator = mediator;
+        _mediatorService = mediatorService;
         _telegramService = telegramService;
     }
 
@@ -40,7 +40,7 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
             return _telegramService.Complete();
 
         _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
-        _mediator.Schedule(
+        _mediatorService.Schedule(
             new DeleteMessageRequestModel()
             {
                 BotToken = request.BotToken,

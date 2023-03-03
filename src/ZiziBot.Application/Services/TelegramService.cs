@@ -5,6 +5,7 @@ using MongoFramework.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using File=System.IO.File;
@@ -236,6 +237,12 @@ public class TelegramService
         return Complete();
     }
 
+    public async Task<ResponseBase> AnswerInlineQueryAsync(IEnumerable<InlineQueryResult> results)
+    {
+        await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, results);
+        return Complete();
+    }
+
     public async Task<string> DownloadFileAsync(string prefixName)
     {
         var photo = (_request.ReplyToMessage ?? _request.Message).Photo?.LastOrDefault();
@@ -249,24 +256,44 @@ public class TelegramService
         return filePath;
     }
 
+    #region Role Management
+
     public async Task<bool> CheckAdministration()
     {
-        var chatAdmins = await GetChatAdministrator(_request.ChatIdentifier);
+        var chatAdmins = await GetChatAdministrator();
         var isAdmin = chatAdmins.Any(x => x.User.Id == _request.UserId);
-
         return isAdmin;
     }
 
-    public async Task<ChatMember[]> GetChatAdministrator(long chatId)
+    public async Task<bool> CheckChatAdminOrPrivate()
+    {
+        if (_request.ChatType == ChatType.Private)
+            return true;
+
+        return await CheckAdministration();
+    }
+
+    public async Task<bool> CheckChatCreator()
+    {
+        var chatAdmins = await GetChatAdministrator();
+        var isAdmin = chatAdmins.Any(x =>
+            x.User.Id == _request.UserId &&
+            x.Status == ChatMemberStatus.Creator
+        );
+        return isAdmin;
+    }
+
+    #endregion
+
+    public async Task<ChatMember[]> GetChatAdministrator()
     {
         var cacheValue = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.LIST_CHAT_ADMIN + chatId,
+            cacheKey: CacheKey.LIST_CHAT_ADMIN + ChatId,
             action: async () => {
-                var chatAdmins = await Bot.GetChatAdministratorsAsync(chatId);
+                var chatAdmins = await Bot.GetChatAdministratorsAsync(ChatId);
                 return chatAdmins;
             }
         );
-
         return cacheValue;
     }
 

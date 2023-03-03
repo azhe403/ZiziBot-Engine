@@ -9,6 +9,7 @@ public class CreateNoteRequestModel : RequestBase
     public string? Content { get; set; }
     public string? FileId { get; set; }
     public string? RawButton { get; set; }
+    public int DataType { get; set; }
     public bool? RefreshNote { get; set; }
 }
 
@@ -46,8 +47,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
         }
 
         var note = await _chatDbContext.Note
-            .FirstOrDefaultAsync(
-                entity =>
+            .FirstOrDefaultAsync(entity =>
                     entity.ChatId == request.ChatIdentifier &&
                     entity.Query == request.Query &&
                     entity.Status == (int) EventStatus.Complete,
@@ -63,7 +63,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
                 note.Content = request.Content;
                 note.FileId = request.FileId;
                 note.RawButton = request.RawButton;
-                note.DataType = (int) request.ReplyToMessage.Type;
+                note.DataType = request.DataType;
                 note.Status = (int) EventStatus.Complete;
             }
             else
@@ -76,19 +76,17 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
         {
             await _telegramService.SendMessageText("Sedang membuat catatan...");
 
-            _chatDbContext.Note.Add(
-                new NoteEntity()
-                {
-                    ChatId = request.ChatIdentifier,
-                    UserId = request.UserId,
-                    Query = request.Query,
-                    Content = request.Content,
-                    FileId = request.FileId,
-                    RawButton = request.RawButton,
-                    DataType = (int) request.ReplyToMessage.Type,
-                    Status = (int) EventStatus.Complete
-                }
-            );
+            _chatDbContext.Note.Add(new NoteEntity()
+            {
+                ChatId = request.ChatIdentifier,
+                UserId = request.UserId,
+                Query = request.Query,
+                Content = request.Content,
+                FileId = request.FileId,
+                RawButton = request.RawButton,
+                DataType = request.DataType,
+                Status = (int) EventStatus.Complete
+            });
         }
 
         await _chatDbContext.SaveChangesAsync(cancellationToken);

@@ -7,11 +7,15 @@ namespace ZiziBot.Infrastructure;
 
 public static class LoggingExtension
 {
+    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
+
     public static IHostBuilder InitSerilogBootstrapper(this IHostBuilder hostBuilder)
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Console()
+            .Enrich.WithDemystifiedStackTraces()
+            .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
             .CreateBootstrapLogger();
 
         hostBuilder.UseSerilog();

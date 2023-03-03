@@ -18,14 +18,34 @@ public class MirrorController : CommandController
     [Command("mp")]
     public async Task SubmitMirrorPayment(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(
-            new VerifyPaymentRequestModel()
+        await _mediatorService.EnqueueAsync(new VerifyPaymentRequestModel()
+        {
+            BotToken = data.Options.Token,
+            ReplyMessage = true,
+            Message = data.Message,
+            Payload = data.Params,
+            MinimumRole = RoleLevel.Sudo,
+            CleanupTargets = new[]
             {
-                BotToken = data.Options.Token,
-                ReplyMessage = true,
-                Message = data.Message,
-                PaymentUrl = data.Params
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
             }
-        );
+        });
+    }
+
+    [Command("ms")]
+    public async Task MirrorSubscription(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new GetMirrorSubscriptionRequest()
+        {
+            BotToken = data.Options.Token,
+            ReplyMessage = true,
+            Message = data.Message,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
     }
 }

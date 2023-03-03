@@ -1,15 +1,18 @@
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
+using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
-public class EnsureChatAdminRequestHandler : IRequestPostProcessor<RequestBase, ResponseBase>
+public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostProcessor<TRequest, TResponse>
+    where TRequest : RequestBase, IRequest<TResponse>
+    where TResponse : ResponseBase
 {
-    private readonly ILogger<EnsureChatAdminRequestHandler> _logger;
+    private readonly ILogger<EnsureChatAdminRequestHandler<TRequest, TResponse>> _logger;
     private readonly TelegramService _telegramService;
     private readonly ChatDbContext _chatDbContext;
 
-    public EnsureChatAdminRequestHandler(ILogger<EnsureChatAdminRequestHandler> logger, TelegramService telegramService, ChatDbContext chatDbContext)
+    public EnsureChatAdminRequestHandler(ILogger<EnsureChatAdminRequestHandler<TRequest, TResponse>> logger, TelegramService telegramService, ChatDbContext chatDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
@@ -17,19 +20,23 @@ public class EnsureChatAdminRequestHandler : IRequestPostProcessor<RequestBase, 
 
     }
 
-    public async Task Process(RequestBase request, ResponseBase response, CancellationToken cancellationToken)
+    public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
+
+        if (request.ChatType == ChatType.Private ||
+            request.InlineQuery != null)
+            return;
 
         _chatDbContext.ChatAdmin
             .RemoveRange(
                 entity =>
-                    entity.ChatId == request.ChatId
+                    entity.ChatId == request.ChatIdentifier
             );
 
         await _chatDbContext.SaveChangesAsync(cancellationToken);
 
-        var chatAdministrators = await _telegramService.GetChatAdministrator(request.ChatIdentifier);
+        var chatAdministrators = await _telegramService.GetChatAdministrator();
         _logger.LogDebug("List of Administrator in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Length);
 
         var chatAdminEntities = chatAdministrators

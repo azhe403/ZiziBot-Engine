@@ -54,6 +54,17 @@ public class MongoConfigSource : IConfigurationSource
             },
             new()
             {
+                Root = "Cache",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "UseJsonFile", false },
+                    { "UseFirebase", false },
+                    { "UseRedis", false },
+                    { "RedisConnection", "localhost:6379" }
+                }
+            },
+            new()
+            {
                 Root = "Gcp",
                 KeyPair = new Dictionary<string, object>
                 {
@@ -89,6 +100,7 @@ public class MongoConfigSource : IConfigurationSource
                             Field = field,
                             Value = $"{config.Value}",
                             DefaultValue = $"{config.Value}",
+                            TransactionId = Guid.NewGuid().ToString(),
                             Status = (int) EventStatus.Complete
                         }
                     );

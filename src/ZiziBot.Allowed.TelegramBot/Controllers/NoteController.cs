@@ -18,43 +18,41 @@ public class NotesController : CommandController
     [Command("notes")]
     public async Task GetNotes(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(
-            new GetNoteRequestModel()
+        await _mediatorService.EnqueueAsync(new GetNoteRequestModel()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            DeleteAfter = TimeSpan.FromHours(1),
+            CleanupTargets = new[]
             {
-                BotToken = data.Options.Token,
-                Message = data.Message,
-                ReplyMessage = true,
-                DeleteAfter = TimeSpan.FromHours(1),
-                CleanupTargets = new[]
-                {
-                    CleanupTarget.FromBot,
-                    CleanupTarget.FromSender
-                }
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
             }
-        );
+        });
     }
 
     [Command("note")]
     [Command("renote")]
     public async Task CreateNote(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(
-            new CreateNoteRequestModel()
+        await _mediatorService.EnqueueAsync(new CreateNoteRequestModel()
+        {
+            BotToken = data.Options.Token,
+            MinimumRole = RoleLevel.ChatAdminOrPrivate,
+            Message = data.Message,
+            ReplyMessage = true,
+            Query = data.Params.GetCommandParamAt<string>(0, separator: "\n"),
+            Content = data.Message.ReplyToMessage?.Text,
+            RawButton = data.Params.GetCommandParamAt<string>(1, separator: "\n"),
+            FileId = data.Message.ReplyToMessage?.GetFileId(),
+            DataType = (int) data.Message.ReplyToMessage.Type,
+            RefreshNote = data.Message.Text?.StartsWith("/renote"),
+            CleanupTargets = new[]
             {
-                BotToken = data.Options.Token,
-                Message = data.Message,
-                ReplyMessage = true,
-                Query = data.Params.GetCommandParamAt<string>(0, separator: "\n"),
-                Content = data.Message.ReplyToMessage?.Text,
-                RawButton = data.Params.GetCommandParamAt<string>(1, separator: "\n"),
-                FileId = data.Message.ReplyToMessage?.GetFileId(),
-                RefreshNote = data.Message.Text?.StartsWith("/renote"),
-                CleanupTargets = new[]
-                {
-                    CleanupTarget.FromBot,
-                    CleanupTarget.FromSender
-                }
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
             }
-        );
+        });
     }
 }

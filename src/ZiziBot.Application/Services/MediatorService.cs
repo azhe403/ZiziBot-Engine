@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CloudCraic.Hosting.BackgroundQueue;
 using Hangfire;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,8 @@ public class MediatorService
         _backgroundQueue = backgroundQueue;
     }
 
+    #region Execution
+
     public async Task<ResponseBase> EnqueueAsync(RequestBase request)
     {
         ResponseBase response = new();
@@ -31,7 +34,7 @@ public class MediatorService
         switch (request.ExecutionStrategy)
         {
             case ExecutionStrategy.Hangfire:
-                BackgroundJob.Enqueue<MediatorBridge>(x => x.Send(request));
+                BackgroundJob.Enqueue<MediatorService>(x => x.Send(request));
                 break;
             case ExecutionStrategy.Background:
                 _backgroundQueue.Enqueue(async token => await _mediator.Send(request, token));
@@ -46,7 +49,28 @@ public class MediatorService
     public ResponseBase Schedule(RequestBase request)
     {
         ResponseBase response = new();
-        BackgroundJob.Schedule<MediatorBridge>(x => x.Send(request), request.DeleteAfter);
+        BackgroundJob.Schedule<MediatorService>(x => x.Send(request), request.DeleteAfter);
         return response.Complete();
     }
+
+    #endregion
+
+    #region Bridge
+
+    [DisplayName("{0}")]
+    [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
+    public async Task<object?> Send(IBaseRequest command)
+    {
+        return await _mediator.Send(command);
+    }
+
+    [DisplayName("{0}")]
+    [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
+    public async Task<object?> Send(string jobName, IBaseRequest command)
+    {
+        return await _mediator.Send(command);
+    }
+
+    #endregion
+
 }
