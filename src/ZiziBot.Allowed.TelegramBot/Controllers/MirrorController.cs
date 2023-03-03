@@ -32,4 +32,20 @@ public class MirrorController : CommandController
             }
         });
     }
+
+    [Command("ms")]
+    public async Task MirrorSubscription(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new GetMirrorSubscriptionRequest()
+        {
+            BotToken = data.Options.Token,
+            ReplyMessage = true,
+            Message = data.Message,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
 }
