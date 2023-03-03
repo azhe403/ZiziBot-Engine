@@ -52,6 +52,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
                 {
                     UserId = request.UserId,
                     RawText = request.ReplyToMessage.Text,
+                    OrderId = messageId,
                     FileId = request.ReplyToMessage.GetFileId(),
                     Status = (int) EventStatus.Complete,
                     TransactionId = transactionId
