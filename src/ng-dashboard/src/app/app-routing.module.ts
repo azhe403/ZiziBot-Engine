@@ -10,7 +10,7 @@ const routes: Routes = [
   {path: 'after-telegram-login', component: AfterTelegramLoginComponent},
   {
     path: 'mirror-user',
-    loadChildren: () => import('./mirror-user/mirror-user.module').then(m => m.MirrorUserModule)
+        loadChildren: () => import('./modules/mirror-user/mirror-user.module').then(m => m.MirrorUserModule)
   },
   {
     path: 'antispam',

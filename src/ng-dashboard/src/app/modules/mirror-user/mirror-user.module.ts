@@ -12,24 +12,27 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {ReactiveFormsModule} from "@angular/forms";
+import {AgGridModule} from "ag-grid-angular";
 
 
 @NgModule({
-  declarations: [
-    UserManagementComponent,
-    AddMirrorUserComponent
-  ],
-  imports: [
-    CommonModule,
-    MirrorUserRoutingModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatGridListModule,
-    MatDialogModule,
-    MatInputModule,
-    MatSelectModule,
-    ReactiveFormsModule
-  ]
+    declarations: [
+        UserManagementComponent,
+        AddMirrorUserComponent
+    ],
+    imports: [
+        CommonModule,
+        MirrorUserRoutingModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatGridListModule,
+        MatDialogModule,
+        MatInputModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        AgGridModule
+    ]
 })
-export class MirrorUserModule { }
+export class MirrorUserModule {
+}

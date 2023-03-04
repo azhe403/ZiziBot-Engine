@@ -6,31 +6,31 @@ namespace ZiziBot.WebApi.Controllers;
 [Route("api/mirror-user")]
 public class MirrorUserController : ApiControllerBase
 {
-	[HttpGet()]
-	public async Task<IActionResult> GetUsersAll()
-	{
-		var mirrorUsers = await Mediator.Send(new GetMirrorUsersRequestDto());
-		return Ok(mirrorUsers);
-	}
+    [HttpGet()]
+    public async Task<IActionResult> GetUsersAll()
+    {
+        var mirrorUsers = await Mediator.Send(new GetMirrorUsersRequestDto());
+        return SwitchStatus(mirrorUsers);
+    }
 
-	[HttpGet("find")]
-	public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto requestDto)
-	{
-		var mirrorUser = await Mediator.Send(requestDto);
+    [HttpGet("find")]
+    public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto requestDto)
+    {
+        var mirrorUser = await Mediator.Send(requestDto);
         return SwitchStatus(mirrorUser);
-	}
+    }
 
-	[HttpPost()]
+    [HttpPost()]
     public async Task<IActionResult> PostUserMirror([FromBody] PostMirrorUserRequestDto requestDto)
-	{
-		var result = await Mediator.Send(requestDto);
+    {
+        var result = await Mediator.Send(requestDto);
         return SwitchStatus(result);
-	}
+    }
 
-	[HttpDelete]
-	public async Task<IActionResult> DeleteMirrorUser([FromQuery] DeleteMirrorUserRequestDto requestDto)
-	{
-		var result = await Mediator.Send(requestDto);
-		return Ok(result);
-	}
+    [HttpDelete]
+    public async Task<IActionResult> DeleteMirrorUser([FromQuery] DeleteMirrorUserRequestDto requestDto)
+    {
+        var result = await Mediator.Send(requestDto);
+        return Ok(result);
+    }
 }
