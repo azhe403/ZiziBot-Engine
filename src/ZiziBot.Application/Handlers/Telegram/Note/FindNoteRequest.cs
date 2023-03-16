@@ -1,34 +1,34 @@
+using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
-public class FindNoteRequest : RequestBase
+public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor<TRequest, TResponse>
+    where TRequest : RequestBase, IRequest<TResponse>
+    where TResponse : ResponseBase
 {
-
-}
-
-public class FindNoteRequestHandler : IRequestHandler<FindNoteRequest, ResponseBase>
-{
-    private readonly ILogger<FindNoteRequestHandler> _logger;
+    private readonly ILogger<FindNoteRequestHandler<TRequest, TResponse>> _logger;
     private readonly TelegramService _telegramService;
     private readonly NoteService _noteService;
 
-    public FindNoteRequestHandler(ILogger<FindNoteRequestHandler> logger, TelegramService telegramService, NoteService noteService)
+    public FindNoteRequestHandler(ILogger<FindNoteRequestHandler<TRequest, TResponse>> logger, TelegramService telegramService, NoteService noteService)
     {
         _logger = logger;
         _telegramService = telegramService;
         _noteService = noteService;
     }
 
-    public async Task<ResponseBase> Handle(FindNoteRequest request, CancellationToken cancellationToken)
+    public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
+        request.ReplyMessage = true;
+
         _telegramService.SetupResponse(request);
 
         var listNote = await _noteService.GetAllByChat(request.ChatIdentifier);
         if (listNote.Count == 0)
         {
             _logger.LogInformation("No note found in chat {chatId}", request.ChatIdentifier);
-            return _telegramService.Complete();
+            return;
         }
 
         var words = request.MessageTexts?.Where(x => x.StartsWith('#')).ToList();
@@ -51,13 +51,15 @@ public class FindNoteRequestHandler : IRequestHandler<FindNoteRequest, ResponseB
             await SendNoteAsync(note);
 
         }
-
-        return _telegramService.Complete();
     }
 
     private async Task SendNoteAsync(NoteEntity? notes)
     {
-        if (notes == null) return;
+        if (notes == null)
+        {
+            _logger.LogDebug("No Notes for Send to ChatId: {ChatId}", _telegramService.ChatId);
+            return;
+        }
 
         var dataType = (CommonMediaType) notes.DataType;
 
