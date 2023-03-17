@@ -4,7 +4,8 @@ namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
 public class VerifyPaymentRequestModel : RequestBase
 {
-    public string Payload { get; set; }
+    public string? Payload { get; set; }
+    public long ForUserId { get; set; }
 }
 
 public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestModel, ResponseBase>
@@ -39,7 +40,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
                 var mirrorApproval = await _mirrorDbContext.MirrorApproval
                     .FirstOrDefaultAsync(x =>
                             x.TransactionId == transactionId &&
-                            x.Status == (int) EventStatus.Complete,
+                            x.Status == (int)EventStatus.Complete,
                         cancellationToken: cancellationToken);
 
                 if (mirrorApproval != null)
@@ -54,13 +55,16 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
                     RawText = request.ReplyToMessage.Text,
                     OrderId = messageId,
                     FileId = request.ReplyToMessage.GetFileId(),
-                    Status = (int) EventStatus.Complete,
+                    Status = (int)EventStatus.Complete,
                     TransactionId = transactionId
                 });
             }
             else
             {
-                return await _telegramService.SendMessageText("Sertakan durasi berlangganan dengan benar.\nContoh: 1, 2, 3, dst");
+                htmlMessage.Text("Sertakan durasi berlangganan dengan benar.").Br()
+                    .Bold("Contoh: ").Code("/mp (duration) [userId]");
+
+                return await _telegramService.SendMessageText(htmlMessage.ToString());
             }
 
             var forwardMessage = request.ReplyToMessage.ForwardFrom;
@@ -79,7 +83,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
             var mirrorApproval = await _mirrorDbContext.MirrorApproval
                 .FirstOrDefaultAsync(x =>
                         x.PaymentUrl == request.Payload &&
-                        x.Status == (int) EventStatus.Complete,
+                        x.Status == (int)EventStatus.Complete,
                     cancellationToken);
 
             if (mirrorApproval != null)
@@ -109,7 +113,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
                 OrderDate = trakteerParsedDto.OrderDate,
                 PaymentMethod = trakteerParsedDto.PaymentMethod,
                 OrderId = trakteerParsedDto.OrderId,
-                Status = (int) EventStatus.Complete,
+                Status = (int)EventStatus.Complete,
                 TransactionId = transactionId
             });
 
@@ -119,7 +123,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
         var mirrorUser = await _mirrorDbContext.MirrorUsers
             .FirstOrDefaultAsync(x =>
                     x.UserId == userId &&
-                    x.Status == (int) EventStatus.Complete,
+                    x.Status == (int)EventStatus.Complete,
                 cancellationToken: cancellationToken
             );
 
@@ -131,25 +135,27 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
             {
                 UserId = userId,
                 ExpireDate = expireDate,
-                Status = (int) EventStatus.Complete,
+                Status = (int)EventStatus.Complete,
                 TransactionId = transactionId
             });
         }
         else
         {
             expireDate = mirrorUser.ExpireDate < DateTime.Now
-                ? expireDate// If expired, will be started from now
-                : mirrorUser.ExpireDate.AddMonths(cendolCount);// If not expired, will be extended from expire date
+                ? expireDate // If expired, will be started from now
+                : mirrorUser.ExpireDate.AddMonths(cendolCount); // If not expired, will be extended from expire date
 
             mirrorUser.ExpireDate = expireDate;
-            mirrorUser.Status = (int) EventStatus.Complete;
+            mirrorUser.Status = (int)EventStatus.Complete;
             mirrorUser.TransactionId = transactionId;
         }
 
         await _mirrorDbContext.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Pengguna berhasil disimpan").Br()
-            .Bold("Langganan sampai: ").Text(expireDate.ToString("yyyy-MM-dd HH:mm:ss")).Br();
+            .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
+            .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
+            .Bold("Langganan sampai: ").Code(expireDate.ToString("yyyy-MM-dd HH:mm:ss")).Br();
 
         return await _telegramService.EditMessageText(htmlMessage.ToString());
     }
