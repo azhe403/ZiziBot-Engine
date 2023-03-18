@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,18 +8,11 @@ builder.WebHost.ConfigureCustomListenPort();
 
 builder.Configuration.LoadSettings();
 
-builder.Services.AddControllers(
-        options => {
-            options.Conventions.Add(new ControllerHidingConvention());
-            options.Conventions.Add(new ActionHidingConvention());
-            options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
-        }
-    )
-    .AddNewtonsoftJson();
+builder.Services.ConfigureApi();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(
-    options => {
+builder.Services.AddSwaggerGen(options =>
+    {
         // options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
     }
 );

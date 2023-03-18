@@ -25,17 +25,18 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MatTooltipModule,
     ReactiveFormsModule,
   ],
-  exports:[
-    MatButtonModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatGridListModule,
-    MatDialogModule,
-    MatInputModule,
-    MatSelectModule,
-    MatTooltipModule,
-    ReactiveFormsModule,
+  exports: [
+      MatButtonModule,
+      MatButtonModule,
+      MatToolbarModule,
+      MatIconModule,
+      MatGridListModule,
+      MatDialogModule,
+      MatInputModule,
+      MatSelectModule,
+      MatTooltipModule,
+      ReactiveFormsModule,
   ]
 })
-export class MatCompoundModule { }
+export class MatCompoundModule {
+}

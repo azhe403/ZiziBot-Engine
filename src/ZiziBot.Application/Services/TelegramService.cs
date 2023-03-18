@@ -8,19 +8,21 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
-using File=System.IO.File;
+using File = System.IO.File;
 
 namespace ZiziBot.Application.Services;
 
 public class TelegramService
 {
-    private readonly ILogger<TelegramService> _logger;
-    private readonly CacheService _cacheService;
     private readonly AppSettingsDbContext _appSettingsDbContext;
+    private readonly CacheService _cacheService;
+    private readonly ILogger<TelegramService> _logger;
     private readonly MediatorService _mediatorService;
-    private RequestBase _request = new();
 
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+    private RequestBase _request = new();
+    private string _timeInit;
+
     public ITelegramBotClient Bot { get; set; }
 
     public ChatId ChatId { get; set; }
@@ -28,7 +30,6 @@ public class TelegramService
     public DateTime MessageDate => _request.Message?.Date ?? _request.Message?.EditDate ?? DateTime.UtcNow;
 
     public string CallbackQueryId => _request.CallbackQuery?.Id;
-    private string _timeInit;
 
     public TimeSpan DeleteAfter => _request.DeleteAfter;
 
@@ -73,6 +74,36 @@ public class TelegramService
         return stamp;
     }
 
+    public async Task<string> DownloadFileAsync(string prefixName)
+    {
+        var photo = (_request.ReplyToMessage ?? _request.Message).Photo?.LastOrDefault();
+        var fileId = photo?.FileId;
+
+        var filePath = PathConst.TEMP_PATH + prefixName + photo?.FileUniqueId + ".jpg";
+
+        await using Stream fileStream = File.OpenWrite(filePath.EnsureDirectory());
+        await Bot.GetInfoAndDownloadFileAsync(fileId, fileStream);
+
+        return filePath;
+    }
+
+
+    public ResponseBase Complete()
+    {
+        _stopwatch.Stop();
+
+        return new ResponseBase
+        {
+            ChatId = _request.ChatId,
+            SentMessage = SentMessage,
+            ResponseSource = ResponseSource.Bot,
+            ExecutionTime = _stopwatch.Elapsed
+        };
+    }
+
+
+    #region Response
+
     public async Task<ResponseBase> SendMessageText(string text, IReplyMarkup? replyMarkup = null)
     {
         text += "\n\n" + GetExecStamp();
@@ -90,12 +121,11 @@ public class TelegramService
 
         _logger.LogInformation("Message sent to chat {ChatId}", ChatId);
 
-        if (_request.CleanupTargets.Contains(CleanupTarget.Nothing))
+        if (_request.CleanupTargets.Contains(CleanupTarget.None))
             return Complete();
 
         _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
-        _mediatorService.Schedule(
-            new DeleteMessageRequestModel()
+        _mediatorService.Schedule(new DeleteMessageRequestModel
             {
                 BotToken = _request.BotToken,
                 Message = _request.Message,
@@ -106,8 +136,7 @@ public class TelegramService
 
         if (_request.CleanupTargets.Contains(CleanupTarget.FromSender))
         {
-            _mediatorService.Schedule(
-                new DeleteMessageRequestModel()
+            _mediatorService.Schedule(new DeleteMessageRequestModel
                 {
                     BotToken = _request.BotToken,
                     Message = _request.Message,
@@ -243,20 +272,48 @@ public class TelegramService
         return Complete();
     }
 
-    public async Task<string> DownloadFileAsync(string prefixName)
+    #endregion
+
+
+    #region Command
+
+    public string? GetCommand(bool withoutSlash = false, bool withoutUsername = true)
     {
-        var photo = (_request.ReplyToMessage ?? _request.Message).Photo?.LastOrDefault();
-        var fileId = photo?.FileId;
+        var cmd = string.Empty;
 
-        var filePath = PathConst.TEMP_PATH + prefixName + photo?.FileUniqueId + ".jpg";
+        if (!_request.MessageText?.StartsWith("/") ?? true) return cmd;
 
-        await using Stream fileStream = File.OpenWrite(filePath.EnsureDirectory());
-        await Bot.GetInfoAndDownloadFileAsync(fileId, fileStream);
+        cmd = _request.MessageTexts?.ElementAtOrDefault(0);
 
-        return filePath;
+        if (withoutSlash)
+            cmd = cmd?.TrimStart('/');
+        if (withoutUsername)
+            cmd = cmd?.Split("@").FirstOrDefault();
+
+        return cmd;
     }
 
-    #region Role Management
+    public bool IsCommand(string command)
+    {
+        return GetCommand() == command;
+    }
+
+    #endregion
+
+    #region Role
+
+    public async Task<ChatMember[]> GetChatAdministrator()
+    {
+        var cacheValue = await _cacheService.GetOrSetAsync(
+            cacheKey: CacheKey.LIST_CHAT_ADMIN + ChatId,
+            action: async () =>
+            {
+                var chatAdmins = await Bot.GetChatAdministratorsAsync(ChatId);
+                return chatAdmins;
+            }
+        );
+        return cacheValue;
+    }
 
     public async Task<bool> CheckAdministration()
     {
@@ -284,29 +341,4 @@ public class TelegramService
     }
 
     #endregion
-
-    public async Task<ChatMember[]> GetChatAdministrator()
-    {
-        var cacheValue = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.LIST_CHAT_ADMIN + ChatId,
-            action: async () => {
-                var chatAdmins = await Bot.GetChatAdministratorsAsync(ChatId);
-                return chatAdmins;
-            }
-        );
-        return cacheValue;
-    }
-
-    public ResponseBase Complete()
-    {
-        _stopwatch.Stop();
-
-        return new ResponseBase()
-        {
-            ChatId = _request.ChatId,
-            SentMessage = SentMessage,
-            ResponseSource = ResponseSource.Bot,
-            ExecutionTime = _stopwatch.Elapsed
-        };
-    }
 }

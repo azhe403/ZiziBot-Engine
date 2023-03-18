@@ -8,6 +8,7 @@ namespace ZiziBot.WebApi.Controllers;
 public class ApiControllerBase : ControllerBase
 {
     protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();
+    protected MediatorService MediatorService => HttpContext.RequestServices.GetRequiredService<MediatorService>();
 
     protected IActionResult SwitchStatus<T>(ApiResponseBase<T> responseBase)
     {
@@ -21,5 +22,4 @@ public class ApiControllerBase : ControllerBase
             _ => BadRequest(responseBase)
         };
     }
-
 }

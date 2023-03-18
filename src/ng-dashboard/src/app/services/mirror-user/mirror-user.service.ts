@@ -8,35 +8,51 @@ import * as uuid from "uuid";
 import {StorageService} from "../storage/storage.service";
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class MirrorUserService {
 
-  constructor(
-    private storageService: StorageService,
-    private httpClient: HttpClient
-  ) {
-  }
+    constructor(
+        private storageService: StorageService,
+        private httpClient: HttpClient
+    ) {
+    }
 
-  public getUsers(): Observable<ApiResponse<MirrorUser[]>> {
-    return this.httpClient.get<ApiResponse<MirrorUser[]>>(ApiUrl.MIRROR_USERS, {
-      headers: {
-        'transactionId': uuid.v4(),
-        'userId': this.storageService.get('user_id')
-      }
-    });
-  }
+    public getUsers(): Observable<ApiResponse<MirrorUser[]>> {
+        return this.httpClient.get<ApiResponse<MirrorUser[]>>(ApiUrl.MIRROR_USERS, {
+            headers: {
+                'transactionId': uuid.v4(),
+                'userId': this.storageService.get('user_id')
+            }
+        });
+    }
 
-  public saveUser(userDto: AddMirrorUserDto): Observable<any> {
-    return this.httpClient.post(ApiUrl.MIRROR_USERS, userDto);
-  }
+    public getUser(userId: number): Observable<ApiResponse<MirrorUser>> {
+        return this.httpClient.get<ApiResponse<MirrorUser>>(ApiUrl.FIND_MIRROR_USER, {
+            headers: {
+                'transactionId': uuid.v4(),
+                'userId': this.storageService.get('user_id')
+            },
+            params: {
+                userId: userId
+            }
+        });
+    }
 
-  public deleteUser(userId: number): Observable<any> {
-    return this.httpClient.delete(ApiUrl.MIRROR_USERS, {
-      params:
-        {
-          userId: userId
-        }
-    });
-  }
+    public saveUser(userDto: AddMirrorUserDto): Observable<any> {
+        return this.httpClient.post(ApiUrl.MIRROR_USERS, userDto, {
+            headers: {
+                'transactionId': uuid.v4(),
+            }
+        });
+    }
+
+    public deleteUser(userId: number): Observable<any> {
+        return this.httpClient.delete(ApiUrl.MIRROR_USERS, {
+            params:
+                {
+                    userId: userId
+                }
+        });
+    }
 }

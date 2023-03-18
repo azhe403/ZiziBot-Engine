@@ -1,5 +1,6 @@
 using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
+using Allowed.Telegram.Bot.Enums;
 using Allowed.Telegram.Bot.Models;
 
 namespace ZiziBot.Allowed.TelegramBot.Controllers;
@@ -23,7 +24,8 @@ public class MirrorController : CommandController
             BotToken = data.Options.Token,
             ReplyMessage = true,
             Message = data.Message,
-            Payload = data.Params,
+            Payload = data.Params.GetCommandParamAt<string>(0),
+            ForUserId = data.Params.GetCommandParamAt<long>(1),
             MinimumRole = RoleLevel.Sudo,
             CleanupTargets = new[]
             {

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.DependencyInjection;
 using TIPC.Web.AutoWrapper;
 
@@ -25,6 +27,22 @@ public static class RestApiExtension
         );
 
         return app;
+    }
+
+    public static IServiceCollection ConfigureApi(this IServiceCollection services)
+    {
+        services
+            .Configure<ApiBehaviorOptions>(options => { options.SuppressInferBindingSourcesForParameters = true; })
+            .AddControllers(options =>
+                {
+                    options.Conventions.Add(new ControllerHidingConvention());
+                    options.Conventions.Add(new ActionHidingConvention());
+                    options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+                }
+            )
+            .AddNewtonsoftJson();
+
+        return services;
     }
 
     public static IServiceCollection AddAllMiddleware(this IServiceCollection services)

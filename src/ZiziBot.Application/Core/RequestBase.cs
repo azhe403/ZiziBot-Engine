@@ -40,10 +40,11 @@ public class RequestBase : IRequest<ResponseBase>
     public bool ReplyMessage { get; set; }
 
     public ExecutionStrategy ExecutionStrategy { get; set; }
+    public CleanupTarget CleanupTarget { get; set; }
 
     public CleanupTarget[] CleanupTargets { get; set; } = new[]
     {
-        CleanupTarget.Nothing
+        CleanupTarget.None
     };
 
     public TimeSpan DeleteAfter { get; set; } = TimeSpan.FromMinutes(1);

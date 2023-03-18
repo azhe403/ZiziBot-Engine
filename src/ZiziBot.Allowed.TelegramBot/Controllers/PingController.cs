@@ -58,14 +58,5 @@ public class PingController : CommandController
                 Message = data.Message
             }
         );
-
-        await _mediatorService.EnqueueAsync(
-            new FindNoteRequest()
-            {
-                BotToken = data.Options.Token,
-                Message = data.Message,
-                ReplyMessage = true
-            }
-        );
     }
 }

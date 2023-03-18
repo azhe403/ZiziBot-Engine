@@ -1,8 +1,9 @@
 namespace ZiziBot.Contracts.Enums;
 
+[Flags]
 public enum CleanupTarget
 {
-    Nothing,
+    None,
     FromSender,
     FromBot
 }
