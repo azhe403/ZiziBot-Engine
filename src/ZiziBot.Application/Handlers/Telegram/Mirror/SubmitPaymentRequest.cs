@@ -67,6 +67,11 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
                 return await _telegramService.SendMessageText(htmlMessage.ToString());
             }
 
+            if (request.ForUserId != 0)
+            {
+                userId = request.ForUserId;
+            }
+
             var forwardMessage = request.ReplyToMessage.ForwardFrom;
             if (forwardMessage != null)
             {
