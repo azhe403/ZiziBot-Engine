@@ -1,5 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoFramework.Linq;
@@ -8,7 +10,7 @@ using Newtonsoft.Json.Converters;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class SaveTelegramSessionRequestModel : IRequest<bool>
+public class SaveTelegramSessionRequestModel : IRequest<ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     [JsonProperty("id")]
     public long TelegramUserId { get; set; }
@@ -32,26 +34,40 @@ public class SaveTelegramSessionRequestModel : IRequest<bool>
     public string SessionId { get; set; }
 }
 
-public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequestModel, bool>
+public class SaveDashboardSessionIdResponseDto
+{
+    public bool IsSessionValid { get; set; }
+    public string BearerToken { get; set; }
+}
+
+public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequestModel, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     private readonly ILogger<SaveTelegramSessionRequestHandler> _logger;
+    private readonly IConfiguration _configuration;
     private readonly AppSettingsDbContext _appSettingsDbContext;
     private readonly UserDbContext _userDbContext;
 
-    public SaveTelegramSessionRequestHandler(ILogger<SaveTelegramSessionRequestHandler> logger, AppSettingsDbContext appSettingsDbContext, UserDbContext userDbContext)
+    public SaveTelegramSessionRequestHandler(
+        ILogger<SaveTelegramSessionRequestHandler> logger,
+        IConfiguration configuration,
+        AppSettingsDbContext appSettingsDbContext,
+        UserDbContext userDbContext
+    )
     {
         _logger = logger;
+        _configuration = configuration;
         _appSettingsDbContext = appSettingsDbContext;
         _userDbContext = userDbContext;
     }
 
-    public async Task<bool> Handle(SaveTelegramSessionRequestModel request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(SaveTelegramSessionRequestModel request, CancellationToken cancellationToken)
     {
+        ApiResponseBase<SaveDashboardSessionIdResponseDto> apiResponse = new();
+
         var checkSudo = await _appSettingsDbContext.Sudoers
-            .FirstOrDefaultAsync(
-                sudoer =>
+            .FirstOrDefaultAsync(sudoer =>
                     sudoer.UserId == request.TelegramUserId &&
-                    sudoer.Status == (int) EventStatus.Complete,
+                    sudoer.Status == (int)EventStatus.Complete,
                 cancellationToken: cancellationToken
             );
 
@@ -64,7 +80,8 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
                     new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer")
                 }
             ),
-            Expires = DateTime.UtcNow.AddDays(1)
+            Expires = DateTime.UtcNow.AddDays(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])), SecurityAlgorithms.HmacSha256Signature)
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -75,7 +92,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             .FirstOrDefaultAsync(
                 session =>
                     session.TelegramUserId == request.TelegramUserId &&
-                    session.Status == (int) EventStatus.Complete,
+                    session.Status == (int)EventStatus.Complete,
                 cancellationToken: cancellationToken
             );
 
@@ -94,7 +111,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
                     Hash = request.Hash,
                     SessionId = request.SessionId,
                     BearerToken = stringToken,
-                    Status = (int) EventStatus.Complete
+                    Status = (int)EventStatus.Complete
                 }
             );
         }
@@ -109,12 +126,17 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             dashboardSession.Hash = request.Hash;
             dashboardSession.SessionId = request.SessionId;
             dashboardSession.BearerToken = stringToken;
-            dashboardSession.Status = (int) EventStatus.Complete;
+            dashboardSession.Status = (int)EventStatus.Complete;
         }
-
 
         await _userDbContext.SaveChangesAsync(cancellationToken);
 
-        return true;
+        apiResponse.Result = new SaveDashboardSessionIdResponseDto()
+        {
+            IsSessionValid = true,
+            BearerToken = stringToken
+        };
+
+        return apiResponse;
     }
 }
