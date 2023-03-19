@@ -1,0 +1,35 @@
+using AsyncAwaitBestPractices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace ZiziBot.Application.HostedServices;
+
+public class TaskRunnerHostedService : BackgroundService
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<TaskRunnerHostedService> _logger;
+
+    public TaskRunnerHostedService(IServiceProvider serviceProvider, ILogger<TaskRunnerHostedService> logger)
+    {
+        _serviceProvider = serviceProvider;
+        _logger = logger;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var services = _serviceProvider.GetServices<IStartupTask>();
+
+        foreach (var service in services)
+        {
+            if (service.SkipAwait)
+            {
+                service.ExecuteAsync().SafeFireAndForget(exception => _logger.LogError(exception, "Error while executing startup task: {Service}", service));
+            }
+            else
+            {
+                await service.ExecuteAsync();
+            }
+        }
+    }
+}
