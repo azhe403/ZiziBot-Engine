@@ -88,7 +88,9 @@ export class DashboardService {
         const session = await firstValueFrom(dashboardSessionObservable);
         console.debug('session saved', session);
 
-        this.cookieService.set('bearer_token', session.bearerToken);
+        this.cookieService.set(`bearer_token`, session.bearerToken, {
+            path: '/',
+        });
 
         return session;
     }
