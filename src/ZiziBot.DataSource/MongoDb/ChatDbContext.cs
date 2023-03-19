@@ -14,4 +14,5 @@ public class ChatDbContext : MongoDbContextBase
     public MongoDbSet<NoteEntity> Note { get; set; }
     public MongoDbSet<RssSettingEntity> RssSetting { get; set; }
     public MongoDbSet<RssHistoryEntity> RssHistory { get; set; }
+    public MongoDbSet<WebhookChatEntity> WebhookChat { get; set; }
 }
