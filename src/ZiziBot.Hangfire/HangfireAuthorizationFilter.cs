@@ -23,7 +23,7 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
     public async Task<bool> AuthorizeAsync(DashboardContext context)
     {
         var httpContext = context.GetHttpContext();
-        httpContext.Request.Cookies.TryGetValue("session_id", out var sessionId);
+        httpContext.Request.Cookies.TryGetValue("bearer_token", out var sessionId);
 
         _logger.LogInformation("Checking Hangfire sessionId: {SessionId}", sessionId);
 
@@ -44,20 +44,19 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
     private async Task<bool> CheckSession(string sessionId)
     {
         var dashboardSessions = await _userDbContext.DashboardSessions
-            .FirstOrDefaultAsync(
-                session =>
-                    session.SessionId == sessionId &&
-                    session.Status == (int) EventStatus.Complete
+            .FirstOrDefaultAsync(session =>
+                session.BearerToken == sessionId &&
+                session.Status == (int)EventStatus.Complete
             );
 
         if (dashboardSessions == null)
             return false;
 
-        var sudoer = _appSettingsDbContext.Sudoers.FirstOrDefault(
-            sudo =>
+        var sudoer = _appSettingsDbContext.Sudoers
+            .FirstOrDefault(sudo =>
                 sudo.UserId == dashboardSessions.TelegramUserId &&
-                sudo.Status == (int) EventStatus.Complete
-        );
+                sudo.Status == (int)EventStatus.Complete
+            );
 
         if (sudoer == null)
             return false;
