@@ -18,31 +18,51 @@ public class DebugController : CommandController
     [Command("id")]
     public async Task GetId(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(
-            new GetIdRequestModel()
+        await _mediatorService.EnqueueAsync(new GetIdRequestModel()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyToMessageId = data.Message.MessageId,
+            CleanupTargets = new[]
             {
-                BotToken = data.Options.Token,
-                Message = data.Message,
-                ReplyToMessageId = data.Message.MessageId,
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
             }
-        );
+        });
+    }
+
+    [Command("dbg")]
+    [Command("yaml")]
+    [Command("json")]
+    public async Task GetDebug(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new GetDebugRequestModel()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            CleanupTarget = CleanupTarget.FromBot | CleanupTarget.FromSender,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
     }
 
     [Command("weblogin")]
     public async Task WebLogin(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(
-            new CreateWebSessionRequestModel()
+        await _mediatorService.EnqueueAsync(new CreateWebSessionRequestModel()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            CleanupTargets = new[]
             {
-                BotToken = data.Options.Token,
-                Message = data.Message,
-                ReplyMessage = true,
-                CleanupTargets = new[]
-                {
-                    CleanupTarget.FromBot,
-                    CleanupTarget.FromSender
-                }
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
             }
-        );
+        });
     }
 }

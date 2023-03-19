@@ -30,6 +30,11 @@ public class CheckAfkSessionBehavior<TRequest, TResponse> : IRequestPostProcesso
 
         request.ReplyMessage = true;
         request.DeleteAfter = TimeSpan.FromMinutes(1);
+        request.CleanupTargets = new[]
+        {
+            CleanupTarget.FromBot
+        };
+
 
         _telegramService.SetupResponse(request);
 
@@ -38,17 +43,34 @@ public class CheckAfkSessionBehavior<TRequest, TResponse> : IRequestPostProcesso
 
         _logger.LogInformation("CheckAfkSessionBehavior Started");
 
+        var userId = request.UserId;
+        var userName = request.User.GetFullMention();
+
+        if (request.ReplyToMessage != null)
+        {
+            userId = request.ReplyToMessage.From.Id;
+            userName = request.ReplyToMessage.From.GetFullMention();
+        }
+
         var afkEntity = await _chatDbContext.Afk
             .FirstOrDefaultAsync(entity =>
-                    entity.UserId == request.UserId &&
+                    entity.UserId == userId &&
                     entity.Status == (int)EventStatus.Complete,
                 cancellationToken);
 
-        if (afkEntity != null)
+        if (afkEntity == null)
+            return;
+
+        if (userId == request.UserId)
         {
-            await _telegramService.SendMessageText("Sudah tidak AFK");
+            await _telegramService.SendMessageText($"{userName} sudah tidak AFK");
             afkEntity.Status = (int)EventStatus.Deleted;
         }
+        else
+        {
+            await _telegramService.SendMessageText($"{userName} sedang AFK");
+        }
+
 
         await _chatDbContext.SaveChangesAsync(cancellationToken);
     }

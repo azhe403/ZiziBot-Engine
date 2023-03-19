@@ -18,11 +18,14 @@ public static class LinqUtil
         return source.Select(x => x.Trim()).ToList();
     }
 
-    public static T GetCommandParamAt<T>(this string[] strings, int index)
+    public static T? GetCommandParamAt<T>(this string[] strings, int index)
     {
-        dynamic value = strings.ElementAtOrDefault(index) ?? string.Empty;
+        dynamic value = strings.ElementAtOrDefault(index);
 
-        return (T) Convert.ChangeType(value, typeof(T));
+        if (value == null)
+            return default;
+
+        return (T)Convert.ChangeType(value, typeof(T));
     }
 
     public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, bool condition, Expression<Func<T, bool>> whereClause)
