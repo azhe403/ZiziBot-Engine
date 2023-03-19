@@ -35,6 +35,7 @@ public class RequestBase : IRequest<ResponseBase>
     public DateTime RequestDate => DateTime.UtcNow;
 
     public int MessageId => Message?.MessageId ?? default;
+    public int ThreadId => Message?.MessageThreadId ?? default;
     public int ReplyToMessageId { get; set; }
 
     public bool ReplyMessage { get; set; }
