@@ -50,9 +50,9 @@ public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUser
             response.Result = new GetMirrorUserDto
             {
                 UserId = request.UserId,
-                HasSubscription = user.ExpireDate > DateTime.UtcNow,
-                SubscriptionUntil = user.ExpireDate,
-                MemberSince = user.CreatedDate
+                HasSubscription = user.ExpireDate > DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE),
+                SubscriptionUntil = user.ExpireDate.AddHours(Env.DEFAULT_TIMEZONE),
+                MemberSince = user.CreatedDate.AddHours(Env.DEFAULT_TIMEZONE)
             };
 
             return response;
