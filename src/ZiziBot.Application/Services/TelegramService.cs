@@ -6,7 +6,6 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
-using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using File = System.IO.File;
 
@@ -161,7 +160,7 @@ public class TelegramService
     }
 
     public async Task<ResponseBase> SendMediaAsync(
-        string? fileId,
+        string fileId,
         CommonMediaType mediaType,
         string? caption = "",
         IReplyMarkup? replyMarkup = null,
@@ -176,24 +175,35 @@ public class TelegramService
         switch (mediaType)
         {
             case CommonMediaType.Document:
-                var inputFile = new InputOnlineFile(fileId);
 
                 if (fileId.IsValidUrl())
                 {
                     _logger.LogInformation("Converting URL: '{Url}' to stream", fileId);
                     var stream = await fileId.GetStreamAsync();
+                    var inputFile = new InputFile(stream, customFileName);
 
-                    inputFile = new InputOnlineFile(stream, customFileName);
+                    SentMessage = await Bot.SendDocumentAsync(
+                        chatId: targetChatId,
+                        document: inputFile,
+                        caption: caption,
+                        parseMode: ParseMode.Html,
+                        replyMarkup: replyMarkup,
+                        replyToMessageId: _request.ReplyToMessageId
+                    );
+                }
+                else
+                {
+                    var inputFile = new InputFileId(fileId);
+                    SentMessage = await Bot.SendDocumentAsync(
+                        chatId: targetChatId,
+                        document: inputFile,
+                        caption: caption,
+                        parseMode: ParseMode.Html,
+                        replyMarkup: replyMarkup,
+                        replyToMessageId: _request.ReplyToMessageId
+                    );
                 }
 
-                SentMessage = await Bot.SendDocumentAsync(
-                    chatId: targetChatId,
-                    document: inputFile,
-                    caption: caption,
-                    parseMode: ParseMode.Html,
-                    replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId
-                );
                 break;
 
             case CommonMediaType.LocalDocument:
@@ -201,7 +211,7 @@ public class TelegramService
 
                 await using (var fileStream = File.OpenRead(path: fileId))
                 {
-                    var inputOnlineFile = new InputOnlineFile(content: fileStream, fileName: fileName);
+                    var inputOnlineFile = new InputFile(content: fileStream, fileName: fileName);
 
                     SentMessage = await Bot.SendDocumentAsync(
                         chatId: targetChatId,
@@ -218,7 +228,7 @@ public class TelegramService
             case CommonMediaType.Photo:
                 SentMessage = await Bot.SendPhotoAsync(
                     chatId: targetChatId,
-                    photo: fileId,
+                    photo: new InputFileId(fileId),
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -229,7 +239,7 @@ public class TelegramService
             case CommonMediaType.Video:
                 SentMessage = await Bot.SendVideoAsync(
                     chatId: targetChatId,
-                    video: fileId,
+                    video: new InputFileId(fileId),
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -240,7 +250,7 @@ public class TelegramService
             case CommonMediaType.Sticker:
                 SentMessage = await Bot.SendStickerAsync(
                     chatId: targetChatId,
-                    sticker: fileId,
+                    sticker: new InputFileId(fileId),
                     replyMarkup: replyMarkup,
                     replyToMessageId: _request.ReplyToMessageId
                 );
