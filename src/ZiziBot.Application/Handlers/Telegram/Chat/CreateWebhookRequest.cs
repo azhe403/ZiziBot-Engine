@@ -43,14 +43,12 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookRequest, Respon
             _chatDbContext.WebhookChat.Add(new WebhookChatEntity()
             {
                 ChatId = request.ChatIdentifier,
-                ThreadId = request.ThreadId,
                 RouteId = routeId,
                 Status = (int)EventStatus.Complete,
             });
         }
         else
         {
-            webhookChat.ThreadId = request.ThreadId;
             webhookUrl = UrlConst.WEBHOOK_URL + webhookChat.RouteId;
         }
 

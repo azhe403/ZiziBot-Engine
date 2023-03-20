@@ -6,6 +6,5 @@ namespace ZiziBot.DataSource.MongoDb.Entities;
 public class WebhookChatEntity : EntityBase
 {
     public long ChatId { get; set; }
-    public int ThreadId { get; set; }
     public string RouteId { get; set; }
 }
