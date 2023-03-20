@@ -27,15 +27,14 @@ public class UserController : ApiControllerBase
     public async Task<IActionResult> CheckDashboardSession([FromBody] CheckDashboardSessionRequestDto requestDto)
     {
         var result = await Mediator.Send(requestDto);
-        return Ok(result);
+        return SwitchStatus(result);
     }
 
     [HttpPost("session/validate")]
     [AllowAnonymous]
-    public async Task<IActionResult> CheckDashboardSessionId([FromBody] CheckDashboardSessionIdRequestDto requestDto)
+    public async Task<IActionResult> CheckDashboardSessionId(CheckDashboardBearerSessionRequestDto requestDto)
     {
         var result = await Mediator.Send(requestDto);
         return SwitchStatus(result);
-
     }
 }
