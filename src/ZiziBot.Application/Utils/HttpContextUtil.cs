@@ -38,4 +38,9 @@ public static class HttpContextUtil
 
         return source != WebhookSource.Unknown ? source : WebhookSource.Unknown;
     }
+
+    public static string GetCookieValue(this IRequestCookieCollection cookieCollection, string key)
+    {
+        return cookieCollection.TryGetValue(key, out var value) ? value : string.Empty;
+    }
 }

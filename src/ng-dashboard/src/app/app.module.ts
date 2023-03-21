@@ -16,33 +16,39 @@ import {TelegramLoginWidgetComponent} from './components/telegram-login-widget/t
 import {dynamicScriptDirective} from "./directives/dynamic-script/dynamic-script.directive";
 import {AfterTelegramLoginComponent} from './after-telegram-login/after-telegram-login.component';
 import {CookieService} from "ngx-cookie-service";
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import {AuthInterceptor} from "./interceptors/auth/auth.interceptor";
 
 @NgModule({
-  declarations: [
-    WelcomeComponent,
-    HomeComponent,
-    RootComponent,
-    TelegramLoginWidgetComponent,
-    dynamicScriptDirective,
-    AfterTelegramLoginComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    HttpClientModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatMenuModule,
-    MatSidenavModule,
-    MatListModule
-  ],
-  providers: [
-    CookieService
-  ],
-  bootstrap: [RootComponent]
+    declarations: [
+        WelcomeComponent,
+        HomeComponent,
+        RootComponent,
+        TelegramLoginWidgetComponent,
+        dynamicScriptDirective,
+        AfterTelegramLoginComponent
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        HttpClientModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatMenuModule,
+        MatSidenavModule,
+        MatListModule
+    ],
+    providers: [
+        CookieService,
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptor,
+            multi: true
+        }
+    ],
+    bootstrap: [RootComponent]
 })
 export class AppModule {
 }

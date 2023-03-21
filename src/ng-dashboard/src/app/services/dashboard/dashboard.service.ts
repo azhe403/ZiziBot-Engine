@@ -21,24 +21,14 @@ export class DashboardService {
     ) {
     }
 
-    public checkSessionId(sessionId: string): Promise<DashboardSession> {
-        if (sessionId) {
-            const result = this.httpClient.post<ApiResponse<DashboardSession>>(ApiUrl.SESSION_VALIDATE_ID,
-                {
-                    sessionId: sessionId
-                }, {
-                    headers: {
-                        'transactionId': uuid.v4()
-                    }
-                })
-                .pipe(map(x => {
-                    return x.result;
-                }));
+    public checkBearerSession(): Promise<DashboardSession> {
+        const result = this.httpClient.post<ApiResponse<DashboardSession>>(ApiUrl.SESSION_VALIDATE_ID, {})
+            .pipe(map(x => {
+                return x.result;
+            }));
 
-            return firstValueFrom(result);
-        }
+        return firstValueFrom(result);
 
-        return {} as Promise<DashboardSession>;
     }
 
     public async checkSession(): Promise<DashboardSession> {
@@ -88,8 +78,9 @@ export class DashboardService {
         const session = await firstValueFrom(dashboardSessionObservable);
         console.debug('session saved', session);
 
+        localStorage.setItem('bearer_token', session.bearerToken);
         this.cookieService.set(`bearer_token`, session.bearerToken, {
-            path: '/',
+            path: '/hangfire-jobs',
         });
 
         return session;

@@ -18,6 +18,7 @@ public class ApiControllerBase : ControllerBase
         {
             HttpStatusCode.OK => Ok(responseBase),
             HttpStatusCode.BadRequest => BadRequest(responseBase),
+            HttpStatusCode.Unauthorized => Unauthorized(responseBase),
             HttpStatusCode.NotFound => NotFound(responseBase),
             _ => BadRequest(responseBase)
         };

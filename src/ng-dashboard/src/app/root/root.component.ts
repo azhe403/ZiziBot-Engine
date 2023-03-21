@@ -14,7 +14,7 @@ import {CookieService} from "ngx-cookie-service";
 })
 export class RootComponent implements OnInit, AfterViewInit {
 
-    sessionId: string | undefined;
+    sessionId: string | null | undefined;
     menus: any = [];
 
     @ViewChild('drawer') drawer!: MatSidenav;
@@ -54,7 +54,7 @@ export class RootComponent implements OnInit, AfterViewInit {
     }
 
     buildMenu() {
-        this.sessionId = this.cookieService.get('bearer_token');
+        this.sessionId = localStorage.getItem('bearer_token');
 
         this.menus = [
             {
