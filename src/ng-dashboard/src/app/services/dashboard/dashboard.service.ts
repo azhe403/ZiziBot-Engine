@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import * as uuid from "uuid";
 import {firstValueFrom, map} from "rxjs";
 import {TelegramUserLogin} from "../../types/TelegramUserLogin";
 import {ApiResponse} from "../../types/api-response";
@@ -40,10 +39,6 @@ export class DashboardService {
                 {
                     userId: userId,
                     sessionId: sessionId
-                }, {
-                    headers: {
-                        'transactionId': uuid.v4()
-                    }
                 })
                 .pipe(map(x => {
                     return x.result;
@@ -66,10 +61,6 @@ export class DashboardService {
             photo_url: userLogin.photo_url,
             hash: userLogin.hash,
             session_id: sessionId
-        }, {
-            headers: {
-                'transactionId': uuid.v4()
-            }
         })
             .pipe(map(x => {
                 return x.result;
