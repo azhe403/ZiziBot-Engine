@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <SpaRoot>..\ng-dashboard</SpaRoot>
-        <SpaProxyServerUrl>http://localhost:7121</SpaProxyServerUrl>
+        <SpaProxyServerUrl>https://127.0.0.1:7121</SpaProxyServerUrl>
         <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     </PropertyGroup>
 
@@ -28,10 +28,10 @@
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
                 <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             </ResolvedFileToPublish>
-<!--            <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">-->
-<!--                <RelativePath>%(DistFiles.Identity)</RelativePath>-->
-<!--                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>-->
-<!--            </ResolvedFileToPublish>-->
+            <!--            <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">-->
+            <!--                <RelativePath>%(DistFiles.Identity)</RelativePath>-->
+            <!--                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>-->
+            <!--            </ResolvedFileToPublish>-->
         </ItemGroup>
     </Target>
 
