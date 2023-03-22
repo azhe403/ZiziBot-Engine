@@ -83,10 +83,21 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Error while sending RSS article to chat: {ChatId}", request.ChatId);
+            _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", request.ChatId, request.RssUrl);
 
-            if (exception.Message.Contains("chat not found"))
+            var ignoreErrorMsg = new[]
             {
+                "chat not found",
+                "connection could not be established",
+                "no such host is known",
+                "not match",
+                "unexpected token",
+            };
+
+            if (exception.Message.Contains(ignoreErrorMsg))
+            {
+                _logger.LogDebug("Disabling and remove RSS Url: {Url} from Cron", request.RssUrl);
+
                 var rssSetting = await _chatDbContext.RssSetting
                     .FirstOrDefaultAsync(entity =>
                             entity.ChatId == request.ChatId &&
@@ -96,6 +107,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 if (rssSetting != null)
                 {
                     rssSetting.Status = (int)EventStatus.InProgress;
+                    rssSetting.LastErrorMessage = exception.Message;
 
                     var jobId = "RssJob:" + rssSetting.Id;
                     _recurringJobManager.RemoveIfExists(jobId);
