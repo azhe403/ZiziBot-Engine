@@ -7,22 +7,16 @@ public class CheckRoleHandler<TRequest> : IRequestPreProcessor<TRequest> where T
 {
     private readonly ILogger<CheckRoleHandler<TRequest>> _logger;
     private readonly TelegramService _telegramService;
-    private readonly AppSettingsDbContext _appSettingsDbContext;
-    private readonly ChatDbContext _chatDbContext;
     private readonly SudoService _sudoService;
 
     public CheckRoleHandler(
         ILogger<CheckRoleHandler<TRequest>> logger,
         TelegramService telegramService,
-        AppSettingsDbContext appSettingsDbContext,
-        ChatDbContext chatDbContext,
         SudoService sudoService
     )
     {
         _logger = logger;
         _telegramService = telegramService;
-        _appSettingsDbContext = appSettingsDbContext;
-        _chatDbContext = chatDbContext;
         _sudoService = sudoService;
     }
 
@@ -47,6 +41,6 @@ public class CheckRoleHandler<TRequest> : IRequestPreProcessor<TRequest> where T
             typeof(TRequest), request.UserId, request.ChatId, request.MinimumRole, isRoleMeet);
 
         if (!isRoleMeet)
-            throw new MinimumRoleException<TRequest>(request.UserId, request.ChatIdentifier, request.MinimumRole);
+            throw new MinimumRoleException<TRequest>(request.UserId, request.ChatIdentifier, request.MinimumRole.ToString());
     }
 }

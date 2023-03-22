@@ -85,12 +85,12 @@ public static class ConfigurationExtension
 
     private static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
     {
-        var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING);
+        var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
         var mongoDbConnection = MongoDbConnection.FromConnectionString(mongodbConnectionString);
         if (string.IsNullOrEmpty(mongoDbConnection.Url.DatabaseName))
         {
-            throw new Exception("Database name is not specified in connection string. Example: mongodb://localhost:27017/DatabaseName");
+            throw new AppException("Database name is not specified in Connection String. Example: mongodb://localhost:27017/DatabaseName");
         }
 
         builder.Add(new MongoConfigSource(mongodbConnectionString));

@@ -16,9 +16,6 @@ public class TelegramSink : ILogEventSink
     public void Emit(LogEvent logEvent)
     {
         var exception = logEvent.Exception;
-        var stackFrame = exception.ToStackTrace()
-            .GetFrames()
-            .FirstOrDefault(frame => frame.GetFileLineNumber() > 0);
 
         if (ChatId == 0)
         {
@@ -27,11 +24,20 @@ public class TelegramSink : ILogEventSink
 
         var htmlMessage = HtmlMessage.Empty
             .BoldBr("🛑 EventLog")
-            .Bold("Message: ").CodeBr(exception.Message)
-            .Bold("Source: ").CodeBr(exception.Source ?? "N/A")
-            .Bold("Type: ").CodeBr(exception.GetType().Name);
-        // .Bold("Exception: ").CodeBr(exception.GetType().Name)
-        // .Bold("Request: ").CodeBr(typeof(TRequest).Name);
+            .Bold("Message: ").CodeBr(logEvent.RenderMessage());
+
+        if (exception != null)
+        {
+            htmlMessage.Bold("Message: ").CodeBr(exception.Message)
+                .Bold("Source: ").CodeBr(exception.Source ?? "N/A")
+                .Bold("Type: ").CodeBr(exception.GetType().Name);
+            // .Bold("Exception: ").CodeBr(exception.GetType().Name)
+            // .Bold("Request: ").CodeBr(typeof(TRequest).Name);
+        }
+
+        var stackFrame = exception?.ToStackTrace()
+            .GetFrames()
+            .FirstOrDefault(frame => frame.GetFileLineNumber() > 0);
 
         if (stackFrame != null)
         {
