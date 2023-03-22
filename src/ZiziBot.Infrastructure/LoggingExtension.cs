@@ -1,7 +1,10 @@
 using Flurl.Http;
+using HelpMate.Core.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
 
 namespace ZiziBot.Infrastructure;
 
@@ -12,13 +15,27 @@ public static class LoggingExtension
 
     public static IHostBuilder InitSerilogBootstrapper(this IHostBuilder hostBuilder)
     {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .Enrich.WithDemystifiedStackTraces()
-            .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
-            .CreateBootstrapLogger();
+        hostBuilder.UseSerilog((context, provider, config) =>
+        {
+            var appDbContext = provider.GetRequiredService<AppSettingsDbContext>();
 
-        hostBuilder.UseSerilog();
+            var appSettings = appDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId");
+            var botToken = appDbContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main");
+
+            config
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(provider)
+                .MinimumLevel.Debug()
+                .Enrich.WithDemystifiedStackTraces()
+                .WriteTo.Async(configuration => configuration
+                    .Console(outputTemplate: OUTPUT_TEMPLATE)
+                    .WriteTo.Sink(logEventSink: new TelegramSink()
+                    {
+                        BotToken = botToken?.Token,
+                        ChatId = appSettings.Value.ToInt64()
+                    }, LogEventLevel.Warning)
+                );
+        });
 
         return hostBuilder;
     }
@@ -26,13 +43,16 @@ public static class LoggingExtension
     public static IApplicationBuilder ConfigureFlurlLogging(this IApplicationBuilder app)
     {
         FlurlHttp.Configure(
-            settings => {
-                settings.BeforeCall = flurlCall => {
+            settings =>
+            {
+                settings.BeforeCall = flurlCall =>
+                {
                     var request = flurlCall.Request;
                     Log.Information("FlurlHttp: {Method} {url}", request.Verb, request.Url);
                 };
 
-                settings.AfterCall = flurlCall => {
+                settings.AfterCall = flurlCall =>
+                {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
                     Log.Information(
