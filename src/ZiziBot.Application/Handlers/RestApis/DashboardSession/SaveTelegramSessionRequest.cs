@@ -1,8 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoFramework.Linq;
 using Newtonsoft.Json;
@@ -43,19 +43,21 @@ public class SaveDashboardSessionIdResponseDto
 public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequestModel, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     private readonly ILogger<SaveTelegramSessionRequestHandler> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly IOptions<JwtConfig> _jwtConfigOption;
     private readonly AppSettingsDbContext _appSettingsDbContext;
     private readonly UserDbContext _userDbContext;
 
+    private JwtConfig JwtConfig => _jwtConfigOption.Value;
+
     public SaveTelegramSessionRequestHandler(
         ILogger<SaveTelegramSessionRequestHandler> logger,
-        IConfiguration configuration,
+        IOptions<JwtConfig> jwtConfigOption,
         AppSettingsDbContext appSettingsDbContext,
         UserDbContext userDbContext
     )
     {
         _logger = logger;
-        _configuration = configuration;
+        _jwtConfigOption = jwtConfigOption;
         _appSettingsDbContext = appSettingsDbContext;
         _userDbContext = userDbContext;
     }
@@ -71,22 +73,19 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
                 cancellationToken: cancellationToken
             );
 
-        var tokenDescriptor = new SecurityTokenDescriptor()
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtConfig.Key));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var claims = new[]
         {
-            Subject = new ClaimsIdentity(
-                new[]
-                {
-                    new Claim("userId", request.TelegramUserId.ToString()),
-                    new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer")
-                }
-            ),
-            Expires = DateTime.UtcNow.AddDays(1),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])), SecurityAlgorithms.HmacSha256Signature)
+            new Claim(ClaimTypes.NameIdentifier, request.Username),
+            new Claim("userId", request.TelegramUserId.ToString()),
+            new Claim(ClaimTypes.Name, request.FirstName),
+            new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer")
         };
+        var token = new JwtSecurityToken(JwtConfig.Issuer, JwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        var stringToken = tokenHandler.WriteToken(token);
+
+        var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
         var dashboardSession = await _userDbContext.DashboardSessions
             .FirstOrDefaultAsync(
@@ -98,7 +97,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
 
         if (dashboardSession == null)
         {
-            _logger.LogInformation("New dashboard session created for user {0}", request.TelegramUserId);
+            _logger.LogDebug("New dashboard session created for user {UserId}", request.TelegramUserId);
 
             _userDbContext.DashboardSessions.Add(
                 new DataSource.MongoDb.Entities.DashboardSession()
@@ -117,7 +116,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         }
         else
         {
-            _logger.LogInformation("Dashboard session updated for user {0}", request.TelegramUserId);
+            _logger.LogDebug("Dashboard session updated for user {UserId}", request.TelegramUserId);
 
             dashboardSession.FirstName = request.FirstName;
             dashboardSession.PhotoUrl = request.PhotoUrl;

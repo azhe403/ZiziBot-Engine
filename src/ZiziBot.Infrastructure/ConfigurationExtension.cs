@@ -31,13 +31,15 @@ public static class ConfigurationExtension
         services.Configure<CacheConfig>(config.GetSection("Cache"));
         services.Configure<EventLogConfig>(config.GetSection("EventLog"));
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
+        services.Configure<JwtConfig>(config.GetSection("Jwt"));
         services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
 
         services.Configure<List<SimpleTelegramBotClientOptions>>(
-            list => {
+            list =>
+            {
                 var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
                 var listBotData = appSettingDbContext.BotSettings
-                    .Where(settings => settings.Status == (int) EventStatus.Complete)
+                    .Where(settings => settings.Status == (int)EventStatus.Complete)
                     .AsEnumerable()
                     .Select(settings => new SimpleTelegramBotClientOptions(settings.Name, settings.Token, host, null, false))
                     .ToList();
@@ -62,7 +64,7 @@ public static class ConfigurationExtension
         }
 
         var settingFiles = Directory.GetFiles(settingsPath)
-            .Where(file => !file.EndsWith("x.json"))// End with x.json to ignore
+            .Where(file => !file.EndsWith("x.json")) // End with x.json to ignore
             .ToList();
 
         settingFiles.ForEach(file => builder.AddJsonFile(file, reloadOnChange: true, optional: false));

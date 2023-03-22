@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ZiziBot.WebApi.Controllers;
@@ -7,6 +8,7 @@ namespace ZiziBot.WebApi.Controllers;
 public class MirrorUserController : ApiControllerBase
 {
     [HttpGet()]
+    [Authorize(Roles = "Sudoer")]
     public async Task<IActionResult> GetUsersAll()
     {
         var mirrorUsers = await Mediator.Send(new GetMirrorUsersRequestDto());
