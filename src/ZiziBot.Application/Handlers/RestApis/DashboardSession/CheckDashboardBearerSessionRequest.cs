@@ -11,15 +11,18 @@ public class CheckDashboardBearerSessionRequestDto : ApiRequestBase<CheckDashboa
 public class CheckDashboardBearerSessionResponseDto
 {
     public bool IsSessionValid { get; set; }
+    public string UserName { get; set; }
+    public string PhotoUrl { get; set; }
     public int RoleId { get; set; }
     public string RoleName { get; set; }
-    public List<UserPermission> Permissions { get; set; }
+    public List<UserFeature> Features { get; set; }
 }
 
-public class UserPermission
+public class UserFeature
 {
-    public long ChatId { get; set; }
-    public string ChatTitle { get; set; }
+    public string Title { get; set; }
+    public string Url { get; set; }
+    public int MinimumRole { get; set; }
 }
 
 public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDashboardBearerSessionRequestDto, ApiResponseBase<CheckDashboardBearerSessionResponseDto>>
@@ -69,12 +72,14 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
 
         #region Get User Role
 
-        responseDto.Result = new CheckDashboardBearerSessionResponseDto()
+        var result = new CheckDashboardBearerSessionResponseDto()
         {
             IsSessionValid = true,
+            UserName = dashboardSession.FirstName,
+            PhotoUrl = dashboardSession.PhotoUrl,
             RoleId = 2,
             RoleName = "User",
-            Permissions = new List<UserPermission>()
+            Features = new List<UserFeature>()
         };
 
         var checkSudo = await _appSettingsDbContext.Sudoers
@@ -85,36 +90,55 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
 
         if (checkSudo != null)
         {
-            responseDto.Result.RoleId = 1;
-            responseDto.Result.RoleName = "Sudo";
+            result.RoleId = 1;
+            result.RoleName = "Sudo";
         }
 
         #endregion
 
-        #region User Permission
-
-        var chatAdmin = await _chatDbContext.ChatAdmin
-            .Where(entity =>
-                entity.UserId == userId &&
-                entity.Status == (int)EventStatus.Complete
-            )
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        var listPermission = chatAdmin.Select(entity => new UserPermission()
-            {
-                ChatId = entity.ChatId
-            })
-            .ToList();
-
-        responseDto.Result.Permissions = listPermission;
-
-        #endregion
+        result.Features = GetFeatures(result.RoleId);
 
         _logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", dashboardSession.SessionId, userId, dashboardSession);
 
         responseDto.Message = "Session is valid";
         responseDto.StatusCode = HttpStatusCode.OK;
+        responseDto.Result = result;
 
         return responseDto;
+    }
+
+    private List<UserFeature> GetFeatures(int roleId)
+    {
+        var features = new List<UserFeature>()
+        {
+            new()
+            {
+                Title = "Mirror User",
+                Url = "/mirror-user/management",
+                MinimumRole = 1
+            },
+            new()
+            {
+                Title = "Fed management",
+                Url = "/antispam/fed-ban-management",
+                MinimumRole = 1
+            },
+            new()
+            {
+                Title = "Notes Management",
+                Url = "/notes",
+                MinimumRole = 1
+            },
+            new()
+            {
+                Title = "Angular",
+                Url = "/angular",
+                MinimumRole = 9
+            }
+        };
+
+        return features
+            .Where(x => x.MinimumRole >= roleId)
+            .ToList();
     }
 }
