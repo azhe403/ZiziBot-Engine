@@ -36,6 +36,8 @@ export class RootComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.sessionId = localStorage.getItem('bearer_token');
+
     this.router.events.subscribe(async (val) => {
       if (val instanceof NavigationEnd) {
         const userSession = await this.dashboardService.checkBearerSession();
@@ -55,8 +57,6 @@ export class RootComponent implements OnInit, AfterViewInit {
   }
 
   buildMenu() {
-    this.sessionId = localStorage.getItem('bearer_token');
-
     this.menus = [
       {
         title: 'Mirror User',
