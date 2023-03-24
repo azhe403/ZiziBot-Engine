@@ -119,7 +119,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
             },
             new()
             {
-                Title = "Fed management",
+                Title = "Fed Management",
                 Url = "/antispam/fed-ban-management",
                 MinimumRole = 1
             },
