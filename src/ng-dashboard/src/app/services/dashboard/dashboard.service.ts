@@ -7,6 +7,7 @@ import {ApiUrl} from "../../consts/api-url";
 import {DashboardSession} from "../../types/dashboard-session";
 import {StorageService} from "../storage/storage.service";
 import {CookieService} from "ngx-cookie-service";
+import {UserSession} from "../../types/user-session";
 
 @Injectable({
     providedIn: 'root'
@@ -14,17 +15,17 @@ import {CookieService} from "ngx-cookie-service";
 export class DashboardService {
 
     constructor(
-        private storageService: StorageService,
-        private cookieService: CookieService,
-        private httpClient: HttpClient
+      private storageService: StorageService,
+      private cookieService: CookieService,
+      private httpClient: HttpClient
     ) {
     }
 
-    public checkBearerSession(): Promise<DashboardSession> {
-        const result = this.httpClient.post<ApiResponse<DashboardSession>>(ApiUrl.SESSION_VALIDATE_ID, {})
-            .pipe(map(x => {
-                return x.result;
-            }));
+    public checkBearerSession(): Promise<UserSession> {
+        const result = this.httpClient.post<ApiResponse<UserSession>>(ApiUrl.SESSION_VALIDATE_ID, {})
+          .pipe(map(x => {
+              return x.result;
+          }));
 
         return firstValueFrom(result);
 
