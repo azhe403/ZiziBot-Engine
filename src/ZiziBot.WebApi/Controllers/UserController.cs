@@ -37,4 +37,11 @@ public class UserController : ApiControllerBase
         var result = await Mediator.Send(requestDto);
         return SwitchStatus(result);
     }
+
+    [HttpGet("list-group")]
+    public async Task<IActionResult> GetListGroup([FromQuery] GetListGroupRequest request)
+    {
+        var result = await Mediator.Send(request);
+        return SwitchStatus(result);
+    }
 }
