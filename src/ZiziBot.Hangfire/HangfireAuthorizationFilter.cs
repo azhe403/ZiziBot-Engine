@@ -25,7 +25,7 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
         var httpContext = context.GetHttpContext();
         httpContext.Request.Cookies.TryGetValue("bearer_token", out var sessionId);
 
-        _logger.LogInformation("Checking Hangfire sessionId: {SessionId}", sessionId);
+        _logger.LogDebug("Checking Hangfire authorization..");
 
         if (sessionId != null)
         {
