@@ -91,12 +91,13 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 "connection could not be established",
                 "no such host is known",
                 "not match",
+                "name or service not known",
                 "unexpected token",
             };
 
             if (exception.Message.Contains(ignoreErrorMsg))
             {
-                _logger.LogDebug("Disabling and remove RSS Url: {Url} from Cron", request.RssUrl);
+                _logger.LogWarning("Disabling and remove RSS Url: {Url} from Cron", request.RssUrl);
 
                 var rssSetting = await _chatDbContext.RssSetting
                     .FirstOrDefaultAsync(entity =>
