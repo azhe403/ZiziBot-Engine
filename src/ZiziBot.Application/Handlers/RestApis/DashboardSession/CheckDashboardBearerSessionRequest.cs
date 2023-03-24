@@ -126,7 +126,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
             new()
             {
                 Title = "Notes Management",
-                Url = "/notes",
+                Url = "/notes/notes-management",
                 MinimumRole = 1
             },
             new()

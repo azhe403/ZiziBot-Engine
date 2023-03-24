@@ -7,7 +7,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatTooltipModule} from '@angular/material/tooltip';
 
 @NgModule({
@@ -24,18 +24,20 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MatSelectModule,
     MatTooltipModule,
     ReactiveFormsModule,
+    FormsModule
   ],
   exports: [
-      MatButtonModule,
-      MatButtonModule,
-      MatToolbarModule,
-      MatIconModule,
-      MatGridListModule,
-      MatDialogModule,
-      MatInputModule,
-      MatSelectModule,
-      MatTooltipModule,
-      ReactiveFormsModule,
+    MatButtonModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatGridListModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTooltipModule,
+    ReactiveFormsModule,
+    FormsModule
   ]
 })
 export class MatCompoundModule {

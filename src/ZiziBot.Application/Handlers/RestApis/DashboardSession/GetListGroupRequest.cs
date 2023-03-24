@@ -52,9 +52,17 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
             )
             .ToListAsync(cancellationToken: cancellationToken);
 
-        var listPermission = chatAdmin.Select(entity => new GetListGroupResponse()
+        var chatIds = chatAdmin.Select(y => y.ChatId);
+
+        var listChatSetting = await _chatDbContext.ChatSetting
+            .Where(x => chatIds.Contains(x.ChatId))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        var listPermission = chatAdmin
+            .Join(listChatSetting, adminEntity => adminEntity.ChatId, settingEntity => settingEntity.ChatId, (adminEntity, settingEntity) => new GetListGroupResponse()
             {
-                ChatId = entity.ChatId
+                ChatId = adminEntity.ChatId,
+                ChatTitle = settingEntity.ChatTitle
             })
             .ToList();
 

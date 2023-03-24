@@ -17,6 +17,10 @@ const routes: Routes = [
         loadChildren: () => import('./modules/antispam/antispam.module').then(m => m.AntispamModule)
     },
     {
+        path: 'notes',
+        loadChildren: () => import('./modules/notes/notes.module').then(m => m.NotesModule)
+    },
+    {
         path: 'session',
         loadChildren: () => import('./modules/session/session.module').then(m => m.SessionModule)
     }
