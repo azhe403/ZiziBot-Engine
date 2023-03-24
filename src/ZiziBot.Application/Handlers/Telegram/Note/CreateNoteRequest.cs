@@ -40,7 +40,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
 
         var validationResult = await request.ValidateAsync<CreateNoteValidator, CreateNoteRequestModel>();
 
-        if ((!validationResult?.IsValid) ?? false)
+        if (!validationResult.IsValid)
         {
             htmlMessage.Text(validationResult.Errors.Select(x => x.ErrorMessage).Aggregate((x, y) => $"{x})\n{y}"));
             return await _telegramService.SendMessageText(htmlMessage.ToString());
@@ -50,7 +50,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
             .FirstOrDefaultAsync(entity =>
                     entity.ChatId == request.ChatIdentifier &&
                     entity.Query == request.Query &&
-                    entity.Status == (int) EventStatus.Complete,
+                    entity.Status == (int)EventStatus.Complete,
                 cancellationToken: cancellationToken
             );
 
@@ -64,7 +64,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
                 note.FileId = request.FileId;
                 note.RawButton = request.RawButton;
                 note.DataType = request.DataType;
-                note.Status = (int) EventStatus.Complete;
+                note.Status = (int)EventStatus.Complete;
             }
             else
             {
@@ -85,7 +85,7 @@ public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, 
                 FileId = request.FileId,
                 RawButton = request.RawButton,
                 DataType = request.DataType,
-                Status = (int) EventStatus.Complete
+                Status = (int)EventStatus.Complete
             });
         }
 
