@@ -5,11 +5,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Serilog;
 using TIPC.Web.AutoWrapper;
 
 namespace ZiziBot.WebApi;
@@ -112,6 +110,7 @@ public static class RestApiExtension
     public static IApplicationBuilder UseAllMiddleware(this IApplicationBuilder app)
     {
         app.UseMiddleware<HeaderCheckMiddleware>();
+        app.UseMiddleware<InjectHeaderMiddleware>();
 
         app.UseAuthentication();
         app.UseAuthorization();

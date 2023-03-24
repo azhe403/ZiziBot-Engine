@@ -14,5 +14,8 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
     [FromHeader(Name = "Authorization")]
     public string? Authorization { get; set; }
 
+    [FromHeader(Name = "userId")]
+    public long UserId { get; set; }
+
     public string? BearerToken => Authorization?.Replace("Bearer ", string.Empty);
 }
