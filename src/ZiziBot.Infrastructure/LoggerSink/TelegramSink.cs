@@ -1,5 +1,7 @@
 using System.Text;
 using AsyncAwaitBestPractices;
+using Serilog;
+using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Debugging;
 using Serilog.Events;
@@ -8,8 +10,8 @@ namespace ZiziBot.Infrastructure.LoggerSink;
 
 public class TelegramSink : ILogEventSink
 {
-    public required string BotToken { get; set; }
-    public required long ChatId { get; set; }
+    public string? BotToken { get; init; }
+    public long? ChatId { get; init; }
 
     private string ApiUrl => $"https://api.telegram.org/bot{BotToken}/sendMessage";
 
@@ -17,14 +19,21 @@ public class TelegramSink : ILogEventSink
     {
         var exception = logEvent.Exception;
 
-        if (ChatId == 0)
+        if (ChatId == 0 || BotToken == null)
         {
             return;
         }
 
         var htmlMessage = HtmlMessage.Empty
             .BoldBr("🛑 EventLog")
-            .Bold("Message: ").CodeBr(logEvent.RenderMessage());
+            .CodeBr(logEvent.RenderMessage()).Br()
+            .Bold("Level: ").CodeBr(logEvent.Level.ToString())
+            .Bold("Timestamp: ").CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+
+        foreach (var (key, value) in logEvent.Properties)
+        {
+            htmlMessage.Bold($"{key}: ").CodeBr(value.ToString());
+        }
 
         if (exception != null)
         {
@@ -67,5 +76,29 @@ public class TelegramSink : ILogEventSink
 
         var responseMessage = await client.PostAsync(ApiUrl, new StringContent(json, Encoding.UTF8, "application/json"));
         SelfLog.WriteLine("Telegram response: {response}", await responseMessage.Content.ReadAsStringAsync());
+    }
+}
+
+public static class TelegramSinkExtension
+{
+    public static LoggerConfiguration Telegram(
+        this LoggerConfiguration loggerConfiguration,
+        string? botToken,
+        long chatId,
+        LogEventLevel logEventLevel = LogEventLevel.Warning
+    )
+    {
+        if (botToken == null || chatId == 0)
+        {
+            return loggerConfiguration;
+        }
+
+        loggerConfiguration.WriteTo.Sink(logEventSink: new TelegramSink()
+        {
+            BotToken = botToken,
+            ChatId = chatId
+        }, logEventLevel);
+
+        return loggerConfiguration;
     }
 }

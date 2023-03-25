@@ -15,12 +15,11 @@ public static class LoggingExtension
 
     public static IHostBuilder InitSerilogBootstrapper(this IHostBuilder hostBuilder)
     {
-        hostBuilder.UseSerilog((context, provider, config) =>
-        {
+        hostBuilder.UseSerilog((context, provider, config) => {
             var appDbContext = provider.GetRequiredService<AppSettingsDbContext>();
 
-            var appSettings = appDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId");
-            var botToken = appDbContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main");
+            var chatId = appDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
+            var botToken = appDbContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main")?.Token;
 
             config
                 .ReadFrom.Configuration(context.Configuration)
@@ -29,11 +28,7 @@ public static class LoggingExtension
                 .Enrich.WithDemystifiedStackTraces()
                 .WriteTo.Async(configuration => configuration
                     .Console(outputTemplate: OUTPUT_TEMPLATE)
-                    .WriteTo.Sink(logEventSink: new TelegramSink()
-                    {
-                        BotToken = botToken?.Token,
-                        ChatId = appSettings.Value.ToInt64()
-                    }, LogEventLevel.Warning)
+                    .Telegram(botToken, chatId.ToInt64())
                 );
         });
 
@@ -43,16 +38,13 @@ public static class LoggingExtension
     public static IApplicationBuilder ConfigureFlurlLogging(this IApplicationBuilder app)
     {
         FlurlHttp.Configure(
-            settings =>
-            {
-                settings.BeforeCall = flurlCall =>
-                {
+            settings => {
+                settings.BeforeCall = flurlCall => {
                     var request = flurlCall.Request;
                     Log.Information("FlurlHttp: {Method} {url}", request.Verb, request.Url);
                 };
 
-                settings.AfterCall = flurlCall =>
-                {
+                settings.AfterCall = flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
                     Log.Information(
