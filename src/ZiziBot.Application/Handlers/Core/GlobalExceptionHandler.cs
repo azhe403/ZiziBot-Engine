@@ -1,6 +1,5 @@
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace ZiziBot.Application.Handlers.Core;
 
@@ -9,20 +8,12 @@ public class GlobalExceptionHandler<TRequest, TResponse, TException> : IRequestE
     where TException : Exception
 {
     private readonly ILogger<GlobalExceptionHandler<TRequest, TResponse, TException>> _logger;
-    private readonly IOptions<EventLogConfig> _eventLogOptions;
-    private readonly TelegramService _telegramService;
-
-    private EventLogConfig EventLogConfig => _eventLogOptions.Value;
 
     public GlobalExceptionHandler(
-        ILogger<GlobalExceptionHandler<TRequest, TResponse, TException>> logger,
-        IOptions<EventLogConfig> eventLogOptions,
-        TelegramService telegramService
+        ILogger<GlobalExceptionHandler<TRequest, TResponse, TException>> logger
     )
     {
         _logger = logger;
-        _eventLogOptions = eventLogOptions;
-        _telegramService = telegramService;
     }
 
     public async Task Handle(
@@ -32,9 +23,7 @@ public class GlobalExceptionHandler<TRequest, TResponse, TException> : IRequestE
         CancellationToken cancellationToken
     )
     {
-        _telegramService.SetupResponse(request);
-
-        _logger.LogError(exception, "Something went wrong while handling request of type {@requestType}", typeof(TRequest));
+        _logger.LogError(exception, "Exception thrown when handling Request: {@Request}", typeof(TRequest));
 
         await Task.Delay(1, cancellationToken);
 
