@@ -4,6 +4,7 @@ import {NotesManagementComponent} from './notes-management/notes-management.comp
 import {AddNoteComponent} from './add-note/add-note.component';
 import {NotesRoutingModule} from './notes-routing.module';
 import {MatCompoundModule} from '../partial/mat-compound.module';
+import {ComponentModule} from "../../components/component.module";
 
 
 @NgModule({
@@ -15,6 +16,7 @@ import {MatCompoundModule} from '../partial/mat-compound.module';
     CommonModule,
     NotesRoutingModule,
     MatCompoundModule,
+    ComponentModule
   ]
 })
 export class NotesModule {

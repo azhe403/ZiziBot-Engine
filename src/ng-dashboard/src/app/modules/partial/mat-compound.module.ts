@@ -9,35 +9,54 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {MatMenuModule} from "@angular/material/menu";
+import {MatSidenavModule} from "@angular/material/sidenav";
+import {MatListModule} from "@angular/material/list";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatOptionModule} from "@angular/material/core";
 
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
+    FormsModule,
     MatButtonModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatGridListModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatGridListModule,
+    MatIconModule,
     MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatOptionModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
+    MatSidenavModule,
+    MatToolbarModule,
     MatTooltipModule,
     ReactiveFormsModule,
-    FormsModule
   ],
   exports: [
+    FormsModule,
     MatButtonModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatGridListModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatGridListModule,
+    MatIconModule,
     MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatOptionModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
+    MatSidenavModule,
+    MatToolbarModule,
     MatTooltipModule,
     ReactiveFormsModule,
-    FormsModule
   ]
 })
 export class MatCompoundModule {

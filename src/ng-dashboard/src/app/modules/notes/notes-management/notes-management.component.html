@@ -1,13 +1,6 @@
 <h1 class="mat-title">Notes Management</h1>
-<mat-form-field appearance="fill" *ngIf="listGroup" class="w-10/12">
-    <mat-label>Select Group</mat-label>
-    <mat-select [(ngModel)]="selectedGroup">
-        <mat-option *ngFor="let group of listGroup" [value]="group.chatId">
-            {{group.chatId}} - {{group.chatTitle}}
-        </mat-option>
-    </mat-select>
-</mat-form-field>
-<button mat-raised-button (click)="loadListGroup()">Refresh</button>
+
+<app-group-selector></app-group-selector>
 
 <mat-toolbar>
     <button mat-raised-button (click)="showAddNoteDialog()">Add Note</button>
