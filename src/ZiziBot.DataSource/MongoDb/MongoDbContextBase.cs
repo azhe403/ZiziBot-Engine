@@ -23,25 +23,26 @@ public class MongoDbContextBase : MongoDbContext
 
     private void EnsureTimestamp()
     {
+        ChangeTracker.DetectChanges();
+
         var entries = ChangeTracker
             .Entries()
-            .Where(
-                e =>
-                    e.Entity is EntityBase &&
-                    e.State is EntityEntryState.Added or EntityEntryState.Updated or EntityEntryState.Deleted
+            .Where(entityEntry =>
+                entityEntry.Entity is EntityBase &&
+                entityEntry.State is EntityEntryState.Added or EntityEntryState.Updated or EntityEntryState.Deleted
             );
 
         foreach (var entityEntry in entries)
         {
-            ((EntityBase) entityEntry.Entity).UpdatedDate = DateTime.UtcNow;
+            ((EntityBase)entityEntry.Entity).UpdatedDate = DateTime.UtcNow;
 
             switch (entityEntry.State)
             {
                 case EntityEntryState.Added:
-                    ((EntityBase) entityEntry.Entity).CreatedDate = DateTime.UtcNow;
+                    ((EntityBase)entityEntry.Entity).CreatedDate = DateTime.UtcNow;
                     break;
                 case EntityEntryState.Deleted:
-                    ((EntityBase) entityEntry.Entity).Status = (int) EventStatus.Deleted;
+                    ((EntityBase)entityEntry.Entity).Status = (int)EventStatus.Deleted;
                     break;
             }
 
