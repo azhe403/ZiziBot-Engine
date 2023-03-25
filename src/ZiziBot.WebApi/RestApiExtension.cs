@@ -1,7 +1,13 @@
+using System.Net;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using TIPC.Web.AutoWrapper;
 
 namespace ZiziBot.WebApi;
@@ -31,6 +37,9 @@ public static class RestApiExtension
 
     public static IServiceCollection ConfigureApi(this IServiceCollection services)
     {
+        var serviceProvider = services.BuildServiceProvider();
+        var jwtConfig = serviceProvider.GetRequiredService<IOptions<JwtConfig>>().Value;
+
         services
             .Configure<ApiBehaviorOptions>(options => { options.SuppressInferBindingSourcesForParameters = true; })
             .AddControllers(options =>
@@ -41,6 +50,44 @@ public static class RestApiExtension
                 }
             )
             .AddNewtonsoftJson();
+
+        services.AddAuthorization()
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(o =>
+            {
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = jwtConfig.Issuer,
+                    ValidAudience = jwtConfig.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key)),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true
+                };
+
+                o.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsJsonAsync(
+                            new ApiResponseBase<bool>()
+                            {
+                                StatusCode = HttpStatusCode.Unauthorized,
+                                Message = "Please ensure you have a valid token"
+                            }
+                        );
+                    }
+                };
+            });
 
         return services;
     }
@@ -63,6 +110,10 @@ public static class RestApiExtension
     public static IApplicationBuilder UseAllMiddleware(this IApplicationBuilder app)
     {
         app.UseMiddleware<HeaderCheckMiddleware>();
+        app.UseMiddleware<InjectHeaderMiddleware>();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         return app;
     }

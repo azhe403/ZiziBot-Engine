@@ -10,5 +10,6 @@ export class ApiUrl {
 
   public static ANTI_SPAM = '/api/anti-spam/ess-ban'
 
+  public static TELEGRAM_LIST_GROUP = "/api/user/list-group";
 
 }

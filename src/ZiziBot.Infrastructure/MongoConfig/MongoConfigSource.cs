@@ -34,6 +34,17 @@ public class MongoConfigSource : IConfigurationSource
         {
             new()
             {
+                Root = "Jwt",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "Key", "YOUR_SECURE_SECRET_KEY" },
+                    { "Issuer", "YOUR_ISSUER" },
+                    { "Audience", "YOUR_AUDIENCE" },
+                    { "ExpireDays", 3 },
+                }
+            },
+            new()
+            {
                 Root = "EventLog",
                 KeyPair = new Dictionary<string, object>
                 {
@@ -83,7 +94,8 @@ public class MongoConfigSource : IConfigurationSource
         };
 
         listAppSettings.ForEach(
-            dto => {
+            dto =>
+            {
                 foreach (var config in dto.KeyPair)
                 {
                     var prefix = dto.Root;
@@ -101,7 +113,7 @@ public class MongoConfigSource : IConfigurationSource
                             Value = $"{config.Value}",
                             DefaultValue = $"{config.Value}",
                             TransactionId = Guid.NewGuid().ToString(),
-                            Status = (int) EventStatus.Complete
+                            Status = (int)EventStatus.Complete
                         }
                     );
                 }

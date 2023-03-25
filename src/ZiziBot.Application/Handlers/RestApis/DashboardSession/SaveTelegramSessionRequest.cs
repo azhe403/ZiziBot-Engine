@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoFramework.Linq;
 using Newtonsoft.Json;
@@ -8,7 +10,7 @@ using Newtonsoft.Json.Converters;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class SaveTelegramSessionRequestModel : IRequest<bool>
+public class SaveTelegramSessionRequestModel : IRequest<ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     [JsonProperty("id")]
     public long TelegramUserId { get; set; }
@@ -32,56 +34,71 @@ public class SaveTelegramSessionRequestModel : IRequest<bool>
     public string SessionId { get; set; }
 }
 
-public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequestModel, bool>
+public class SaveDashboardSessionIdResponseDto
+{
+    public bool IsSessionValid { get; set; }
+    public string BearerToken { get; set; }
+}
+
+public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequestModel, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     private readonly ILogger<SaveTelegramSessionRequestHandler> _logger;
+    private readonly IOptions<JwtConfig> _jwtConfigOption;
     private readonly AppSettingsDbContext _appSettingsDbContext;
     private readonly UserDbContext _userDbContext;
 
-    public SaveTelegramSessionRequestHandler(ILogger<SaveTelegramSessionRequestHandler> logger, AppSettingsDbContext appSettingsDbContext, UserDbContext userDbContext)
+    private JwtConfig JwtConfig => _jwtConfigOption.Value;
+
+    public SaveTelegramSessionRequestHandler(
+        ILogger<SaveTelegramSessionRequestHandler> logger,
+        IOptions<JwtConfig> jwtConfigOption,
+        AppSettingsDbContext appSettingsDbContext,
+        UserDbContext userDbContext
+    )
     {
         _logger = logger;
+        _jwtConfigOption = jwtConfigOption;
         _appSettingsDbContext = appSettingsDbContext;
         _userDbContext = userDbContext;
     }
 
-    public async Task<bool> Handle(SaveTelegramSessionRequestModel request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(SaveTelegramSessionRequestModel request, CancellationToken cancellationToken)
     {
+        ApiResponseBase<SaveDashboardSessionIdResponseDto> apiResponse = new();
+
         var checkSudo = await _appSettingsDbContext.Sudoers
-            .FirstOrDefaultAsync(
-                sudoer =>
+            .FirstOrDefaultAsync(sudoer =>
                     sudoer.UserId == request.TelegramUserId &&
-                    sudoer.Status == (int) EventStatus.Complete,
+                    sudoer.Status == (int)EventStatus.Complete,
                 cancellationToken: cancellationToken
             );
 
-        var tokenDescriptor = new SecurityTokenDescriptor()
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtConfig.Key));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var claims = new[]
         {
-            Subject = new ClaimsIdentity(
-                new[]
-                {
-                    new Claim("userId", request.TelegramUserId.ToString()),
-                    new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer")
-                }
-            ),
-            Expires = DateTime.UtcNow.AddDays(1)
+            new Claim(ClaimTypes.NameIdentifier, request.Username),
+            new Claim(ClaimTypes.Name, request.FirstName),
+            new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer"),
+            new Claim("userId", request.TelegramUserId.ToString()),
+            new Claim("photoUrl", request.PhotoUrl),
         };
+        var token = new JwtSecurityToken(JwtConfig.Issuer, JwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        var stringToken = tokenHandler.WriteToken(token);
+
+        var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
         var dashboardSession = await _userDbContext.DashboardSessions
             .FirstOrDefaultAsync(
                 session =>
                     session.TelegramUserId == request.TelegramUserId &&
-                    session.Status == (int) EventStatus.Complete,
+                    session.Status == (int)EventStatus.Complete,
                 cancellationToken: cancellationToken
             );
 
         if (dashboardSession == null)
         {
-            _logger.LogInformation("New dashboard session created for user {0}", request.TelegramUserId);
+            _logger.LogDebug("New dashboard session created for user {UserId}", request.TelegramUserId);
 
             _userDbContext.DashboardSessions.Add(
                 new DataSource.MongoDb.Entities.DashboardSession()
@@ -94,13 +111,13 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
                     Hash = request.Hash,
                     SessionId = request.SessionId,
                     BearerToken = stringToken,
-                    Status = (int) EventStatus.Complete
+                    Status = (int)EventStatus.Complete
                 }
             );
         }
         else
         {
-            _logger.LogInformation("Dashboard session updated for user {0}", request.TelegramUserId);
+            _logger.LogDebug("Dashboard session updated for user {UserId}", request.TelegramUserId);
 
             dashboardSession.FirstName = request.FirstName;
             dashboardSession.PhotoUrl = request.PhotoUrl;
@@ -109,12 +126,17 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             dashboardSession.Hash = request.Hash;
             dashboardSession.SessionId = request.SessionId;
             dashboardSession.BearerToken = stringToken;
-            dashboardSession.Status = (int) EventStatus.Complete;
+            dashboardSession.Status = (int)EventStatus.Complete;
         }
-
 
         await _userDbContext.SaveChangesAsync(cancellationToken);
 
-        return true;
+        apiResponse.Result = new SaveDashboardSessionIdResponseDto()
+        {
+            IsSessionValid = true,
+            BearerToken = stringToken
+        };
+
+        return apiResponse;
     }
 }

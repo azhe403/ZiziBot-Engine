@@ -13,7 +13,7 @@ public static class FValidationUtil
         return results;
     }
 
-    public static async Task<ValidationResult?> ValidateAsync<TValidator, TObj>(this TObj toValidate) where TValidator : class, new() where TObj : class
+    public static async Task<ValidationResult> ValidateAsync<TValidator, TObj>(this TObj toValidate) where TValidator : class, new() where TObj : class
     {
         var validatorInstance = new TValidator() as AbstractValidator<TObj>;
         var results = await validatorInstance?.ValidateAsync(toValidate)!;

@@ -36,7 +36,11 @@ public class HeaderCheckMiddleware : IMiddleware
     private static async Task ReturnBadRequest(HttpContext context, string message)
     {
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
-        await context.Response.WriteAsync(message);
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        await context.Response.WriteAsJsonAsync(new ApiResponseBase<bool>()
+        {
+            StatusCode = HttpStatusCode.BadRequest,
+            Message = message
+        });
     }
 }

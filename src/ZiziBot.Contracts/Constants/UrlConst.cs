@@ -5,6 +5,8 @@ namespace ZiziBot.Contracts.Constants;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class UrlConst
 {
+    public static readonly string WEBHOOK_URL = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL) + "/api/webhook/";
+
     public const string OCR_URL_API = "https://api.optiic.dev/process";
 
     public const string ANTISPAM_COMBOT_API = "https://api.cas.chat/check";

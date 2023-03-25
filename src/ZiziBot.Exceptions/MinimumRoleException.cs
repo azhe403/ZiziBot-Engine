@@ -9,7 +9,7 @@ public class MinimumRoleException<T> : Exception where T : class
     {
     }
 
-    public MinimumRoleException(long userId, long chatId, RoleLevel roleLevel) :
+    public MinimumRoleException(long userId, long chatId, string roleLevel) :
         base($"Minimum Role {roleLevel} for Request: {typeof(T)} isn't meet for {userId} in ChatId: {chatId}")
     {
     }

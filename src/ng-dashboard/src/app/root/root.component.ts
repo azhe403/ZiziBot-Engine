@@ -5,6 +5,7 @@ import {StorageService} from '../services/storage/storage.service';
 import {StorageKey} from '../consts/storage-key';
 import {BreakpointObserver} from '@angular/cdk/layout';
 import {MatSidenav} from '@angular/material/sidenav';
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
   selector: 'app-root',
@@ -13,18 +14,20 @@ import {MatSidenav} from '@angular/material/sidenav';
 })
 export class RootComponent implements OnInit, AfterViewInit {
 
-  sessionId: string | undefined;
+  sessionId: string | null | undefined;
   menus: any = [];
 
   @ViewChild('drawer') drawer!: MatSidenav;
+  userName: string;
 
   constructor(
     private router: Router,
     private storageService: StorageService,
+    private cookieService: CookieService,
     private dashboardService: DashboardService,
     private breakpointObserver: BreakpointObserver
   ) {
-    this.buildMenu();
+    this.userName = "User Name";
   }
 
   ngAfterViewInit(): void {
@@ -33,9 +36,13 @@ export class RootComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.router.events.subscribe((val) => {
+    this.sessionId = localStorage.getItem('bearer_token');
+
+    this.router.events.subscribe(async (val) => {
       if (val instanceof NavigationEnd) {
-        this.buildMenu();
+        const userSession = await this.dashboardService.checkBearerSession();
+        this.userName = userSession.userName;
+        this.menus = userSession.features;
       }
     })
 
@@ -50,8 +57,6 @@ export class RootComponent implements OnInit, AfterViewInit {
   }
 
   buildMenu() {
-    this.sessionId = this.storageService.get('session_id');
-
     this.menus = [
       {
         title: 'Mirror User',

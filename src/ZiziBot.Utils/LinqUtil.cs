@@ -32,4 +32,9 @@ public static class LinqUtil
     {
         return condition ? query.Where(whereClause) : query;
     }
+
+    public static bool Contains(this string message, params string[] keywords)
+    {
+        return keywords.Any(keyword => message.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+    }
 }

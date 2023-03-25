@@ -2,6 +2,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace ZiziBot.Infrastructure;
 
@@ -28,12 +29,25 @@ public static class ServiceExtension
 
     private static IServiceCollection AddAllService(this IServiceCollection services)
     {
-        services.Scan(
-            selector =>
-                selector.FromAssembliesOf(typeof(CacheService))
-                    .AddClasses(filter => filter.InNamespaceOf<CacheService>())
-                    .AsSelf()
-                    .WithTransientLifetime()
+        services.Scan(selector =>
+            selector.FromAssembliesOf(typeof(CacheService))
+                .AddClasses(filter => filter.InNamespaceOf<CacheService>())
+                .AsSelf()
+                .WithTransientLifetime()
+        );
+
+        services.Scan(selector =>
+            selector.FromAssembliesOf(typeof(RegisterRssJobTasks))
+                .AddClasses(filter => filter.InNamespaceOf<RegisterRssJobTasks>())
+                .As<IStartupTask>()
+                .WithTransientLifetime()
+        );
+
+        services.Scan(selector =>
+            selector.FromAssembliesOf(typeof(TaskRunnerHostedService))
+                .AddClasses(filter => filter.InNamespaceOf<TaskRunnerHostedService>())
+                .As<IHostedService>()
+                .WithTransientLifetime()
         );
 
         return services;
@@ -44,9 +58,7 @@ public static class ServiceExtension
         services.AddBackgroundQueue(
             maxConcurrentCount: 3,
             millisecondsToWaitBeforePickingUpTask: 1000,
-            onException: exception => {
-
-            }
+            onException: exception => { }
         );
 
         return services;

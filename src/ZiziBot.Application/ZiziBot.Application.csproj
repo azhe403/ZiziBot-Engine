@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="Allowed.Telegram.Bot" Version="4.3.0"/>
+        <PackageReference Include="AsyncAwaitBestPractices" Version="6.0.6"/>
         <PackageReference Include="CacheTower" Version="0.13.0"/>
         <PackageReference Include="CloudCraic.Hosting.BackgroundQueue" Version="1.0.7"/>
         <PackageReference Include="FirebaseAdmin" Version="2.3.0"/>

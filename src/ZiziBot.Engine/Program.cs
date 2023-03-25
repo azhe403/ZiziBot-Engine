@@ -2,13 +2,16 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.LoadSettings();
+
 builder.Host.InitSerilogBootstrapper();
 
 builder.WebHost.ConfigureCustomListenPort();
 
-builder.Configuration.LoadSettings();
-
+builder.Services.ConfigureServices();
 builder.Services.ConfigureApi();
+builder.Services.ConfigureHangfire();
+builder.Services.ConfigureTelegramBot();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -17,10 +20,6 @@ builder.Services.AddSwaggerGen(options =>
     }
 );
 
-builder.Services.ConfigureServices();
-
-builder.Services.ConfigureHangfire();
-builder.Services.ConfigureTelegramBot();
 
 var app = builder.Build();
 

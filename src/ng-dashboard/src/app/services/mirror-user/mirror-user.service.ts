@@ -4,7 +4,6 @@ import {Observable} from "rxjs";
 import {AddMirrorUserDto, MirrorUser} from "../../types/mirror-user";
 import {ApiResponse} from "../../types/api-response";
 import {ApiUrl} from "../../consts/api-url";
-import * as uuid from "uuid";
 import {StorageService} from "../storage/storage.service";
 
 @Injectable({
@@ -19,20 +18,11 @@ export class MirrorUserService {
     }
 
     public getUsers(): Observable<ApiResponse<MirrorUser[]>> {
-        return this.httpClient.get<ApiResponse<MirrorUser[]>>(ApiUrl.MIRROR_USERS, {
-            headers: {
-                'transactionId': uuid.v4(),
-                'userId': this.storageService.get('user_id')
-            }
-        });
+        return this.httpClient.get<ApiResponse<MirrorUser[]>>(ApiUrl.MIRROR_USERS);
     }
 
     public getUser(userId: number): Observable<ApiResponse<MirrorUser>> {
         return this.httpClient.get<ApiResponse<MirrorUser>>(ApiUrl.FIND_MIRROR_USER, {
-            headers: {
-                'transactionId': uuid.v4(),
-                'userId': this.storageService.get('user_id')
-            },
             params: {
                 userId: userId
             }
@@ -40,11 +30,7 @@ export class MirrorUserService {
     }
 
     public saveUser(userDto: AddMirrorUserDto): Observable<any> {
-        return this.httpClient.post(ApiUrl.MIRROR_USERS, userDto, {
-            headers: {
-                'transactionId': uuid.v4(),
-            }
-        });
+        return this.httpClient.post(ApiUrl.MIRROR_USERS, userDto);
     }
 
     public deleteUser(userId: number): Observable<any> {

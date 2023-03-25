@@ -18,4 +18,21 @@ public static class StringUtil
     {
         return HttpUtility.HtmlDecode(html);
     }
+
+    public static string GetNanoId(int size = 11)
+    {
+        var id = Nanoid.Nanoid.Generate(size: size);
+        return id;
+    }
+
+    public static async Task<string> GetNanoIdAsync(int size = 11)
+    {
+        var id = await Nanoid.Nanoid.GenerateAsync(size: size);
+        return id;
+    }
+
+    public static bool IsNullOrEmpty(this string? str)
+    {
+        return string.IsNullOrEmpty(str);
+    }
 }

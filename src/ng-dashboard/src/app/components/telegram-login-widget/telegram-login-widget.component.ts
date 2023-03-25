@@ -5,50 +5,50 @@ import {DashboardService} from "../../services/dashboard/dashboard.service";
 import {ActivatedRoute} from "@angular/router";
 
 @Component({
-  selector: 'app-telegram-login-widget',
-  templateUrl: './telegram-login-widget.component.html',
-  styleUrls: ['./telegram-login-widget.component.scss']
+    selector: 'app-telegram-login-widget',
+    templateUrl: './telegram-login-widget.component.html',
+    styleUrls: ['./telegram-login-widget.component.scss']
 })
 export class TelegramLoginWidgetComponent implements OnInit, AfterViewInit {
-  public botName = environment.botName;
-  public showLoginWidget = false;
+    public botName = environment.botName;
+    public showLoginWidget = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private dashboardService: DashboardService
-  ) {
-  }
+    constructor(
+        private route: ActivatedRoute,
+        private dashboardService: DashboardService
+    ) {
+    }
 
-  async ngOnInit(): Promise<void> {
+    async ngOnInit(): Promise<void> {
 
-  }
+    }
 
-  onTelegramAuth(user: TelegramUserLogin) {
-    alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
-  }
+    onTelegramAuth(user: TelegramUserLogin) {
+        alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
+    }
 
-  async ngAfterViewInit(): Promise<void> {
-    await this.loadWidgetLogin();
-  }
+    async ngAfterViewInit(): Promise<void> {
+        await this.loadWidgetLogin();
+    }
 
-  async checkCloudSession() {
-    const session = await this.dashboardService.checkSession();
-    console.debug('cloud session', session);
+    async checkCloudSession() {
+        const session = await this.dashboardService.checkBearerSession();
+        console.debug('cloud session', session);
 
-    this.showLoginWidget = !session.isSessionValid;
-  }
+        this.showLoginWidget = !session.isSessionValid;
+    }
 
-  async loadWidgetLogin() {
-    await this.checkCloudSession();
+    async loadWidgetLogin() {
+        await this.checkCloudSession();
 
-    if (!this.showLoginWidget) return;
+        if (!this.showLoginWidget) return;
 
-    setTimeout(() => {
-      console.debug('creating widget login', this.botName);
-      const loginWidget = document.getElementById('login-widget');
-      // @ts-ignore
-      loginWidget.setAttribute('data-telegram-login', this.botName);
-    }, 0);
-  }
+        setTimeout(() => {
+            console.debug('creating widget login', this.botName);
+            const loginWidget = document.getElementById('login-widget');
+            // @ts-ignore
+            loginWidget.setAttribute('data-telegram-login', this.botName);
+        }, 0);
+    }
 
 }

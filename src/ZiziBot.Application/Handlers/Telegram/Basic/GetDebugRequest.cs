@@ -31,7 +31,7 @@ public class GetDebugRequestHandler : IRequestHandler<GetDebugRequestModel, Resp
                 htmlMessage.CodeBr(message.ToYaml().HtmlDecode());
                 break;
             case "/json":
-                htmlMessage.CodeBr(message.ToJson());
+                htmlMessage.CodeBr(message.ToJson(true).HtmlDecode());
                 break;
         }
 

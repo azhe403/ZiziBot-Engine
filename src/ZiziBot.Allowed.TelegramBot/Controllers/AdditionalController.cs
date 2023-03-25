@@ -32,4 +32,20 @@ public class AdditionalController : CommandController
         });
     }
 
+    [Command("webhook")]
+    public async Task CreateWebhook(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new CreateWebhookRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            MinimumRole = RoleLevel.ChatAdminOrPrivate,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
 }

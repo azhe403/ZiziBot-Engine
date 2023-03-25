@@ -2,9 +2,16 @@ namespace ZiziBot.Utils;
 
 public static class EnvUtil
 {
-    public static string GetEnv(string key, string? defaultValue = default)
+    public static string GetEnv(string key, string? defaultValue = default, bool throwIsMissing = false)
     {
-        return Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process) ?? defaultValue;
+        var envVal = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
+        if (!string.IsNullOrEmpty(envVal))
+            return envVal;
+
+        if (throwIsMissing)
+            throw new EnvMissingException(key);
+
+        return defaultValue ?? string.Empty;
     }
 
     public static bool IsEnvExist(string key)

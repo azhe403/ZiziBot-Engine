@@ -3,22 +3,22 @@ import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot} from '@angular
 import {DashboardService} from 'src/app/services/dashboard/dashboard.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
 
-  constructor(private dashboardService: DashboardService) {
-  }
+    constructor(private dashboardService: DashboardService) {
+    }
 
-  async canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Promise<boolean> {
-    const session = await this.dashboardService.checkSession();
+    async canActivate(
+        route: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot): Promise<boolean> {
+        const session = await this.dashboardService.checkBearerSession();
 
-    if (!session.isSessionValid)
-      return false
+        if (!session.isSessionValid)
+            return false
 
-    return session.roleName == 'Sudo';
-  }
+        return session.roleName == 'Sudo';
+    }
 
 }

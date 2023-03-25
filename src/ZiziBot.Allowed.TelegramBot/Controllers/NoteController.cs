@@ -46,7 +46,7 @@ public class NotesController : CommandController
             Content = data.Message.ReplyToMessage?.Text,
             RawButton = data.Params.GetCommandParamAt<string>(1, separator: "\n"),
             FileId = data.Message.ReplyToMessage?.GetFileId(),
-            DataType = (int) data.Message.ReplyToMessage.Type,
+            DataType = data.Message.ReplyToMessage != null ? (int)data.Message.ReplyToMessage.Type : -1,
             RefreshNote = data.Message.Text?.StartsWith("/renote"),
             CleanupTargets = new[]
             {
