@@ -18,18 +18,25 @@ public class TaskRunnerHostedService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var services = _serviceProvider.GetServices<IStartupTask>();
+        var services = _serviceProvider.GetServices<IStartupTask>().ToList();
 
         foreach (var service in services)
         {
+            _logger.LogInformation("Executing task: {Task}", service.GetType());
+
             if (service.SkipAwait)
             {
-                service.ExecuteAsync().SafeFireAndForget(exception => _logger.LogError(exception, "Error while executing startup task: {Service}", service));
+                service.ExecuteAsync().SafeFireAndForget(exception =>
+                    _logger.LogError(exception, "Error while executing startup task: {Service}", service));
             }
             else
             {
                 await service.ExecuteAsync();
             }
+
+            _logger.LogInformation("Task executed: {Task}", service.GetType());
         }
+
+        _logger.LogInformation("All tasks executed. Count: {Count}", services.Count);
     }
 }
