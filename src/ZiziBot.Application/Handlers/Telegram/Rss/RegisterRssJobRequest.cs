@@ -44,7 +44,7 @@ public class RegisterRssJobHandler : IRequestHandler<RegisterRssJobRequest, bool
 
         foreach (var rssSettingEntity in rssSettings)
         {
-            var uniqueId = StringUtil.GetNanoIdAsync(7);
+            var uniqueId = await StringUtil.GetNanoIdAsync(7);
             var rssId = rssSettingEntity.Id;
             var chatId = rssSettingEntity.ChatId;
             var rssUrl = rssSettingEntity.RssUrl;
