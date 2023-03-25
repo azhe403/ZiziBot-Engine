@@ -97,7 +97,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             if (exception.Message.Contains(ignoreErrorMsg))
             {
-                _logger.LogWarning("Disabling and remove RSS Url: {Url} from Cron", request.RssUrl);
+                _logger.LogWarning("Disabling and remove RSS Url: {Url} for ChatId: {ChatId}", request.RssUrl, request.ChatId);
 
                 var rssSetting = await _chatDbContext.RssSetting
                     .FirstOrDefaultAsync(entity =>

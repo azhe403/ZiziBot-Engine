@@ -30,4 +30,9 @@ public static class StringUtil
         var id = await Nanoid.Nanoid.GenerateAsync(size: size);
         return id;
     }
+
+    public static bool IsNullOrEmpty(this string? str)
+    {
+        return string.IsNullOrEmpty(str);
+    }
 }
