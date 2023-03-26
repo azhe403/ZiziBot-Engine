@@ -160,7 +160,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
         htmlMessage.Bold("Pengguna berhasil disimpan").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
-            .Bold("Langganan sampai: ").Code(expireDate.ToString("yyyy-MM-dd HH:mm:ss")).Br();
+            .Bold("Langganan sampai: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss zzz")).Br();
 
         return await _telegramService.EditMessageText(htmlMessage.ToString());
     }
