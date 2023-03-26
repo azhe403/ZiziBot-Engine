@@ -6,13 +6,13 @@ public static class HttpContextUtil
 {
     public static string GetTransactionId(this IHttpContextAccessor contextAccessor)
     {
-        var transactionId = contextAccessor.HttpContext?.Request.Headers["transactionId"].ToString();
+        var transactionId = contextAccessor.HttpContext?.Request.Headers[HeaderKey.TransactionId].ToString();
         return transactionId ?? string.Empty;
     }
 
     public static long GetUserId(this IHttpContextAccessor contextAccessor)
     {
-        var userId = Convert.ToInt64(contextAccessor.HttpContext?.Request.Headers["userId"]);
+        var userId = Convert.ToInt64(contextAccessor.HttpContext?.Request.Headers[HeaderKey.UserId]);
         return userId;
     }
 

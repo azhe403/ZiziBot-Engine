@@ -8,14 +8,16 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
     [FromServices]
     public IHttpContextAccessor? HttpContextAccessor { get; set; }
 
-    [FromHeader(Name = "transactionId")]
+    [FromHeader(Name = HeaderKey.TransactionId)]
     public string? TransactionId { get; set; }
 
-    [FromHeader(Name = "Authorization")]
+    [FromHeader(Name = HeaderKey.Authorization)]
     public string? Authorization { get; set; }
 
-    [FromHeader(Name = "userId")]
-    public long UserId { get; set; }
+    [FromHeader(Name = HeaderKey.UserId)]
+    public long? UserId { get; set; }
+
+    public List<long>? ListChatId => HttpContextAccessor?.HttpContext?.Request.Headers[HeaderKey.ListChatId].ToString().ToObject<List<long>>();
 
     public string? BearerToken => Authorization?.Replace("Bearer ", string.Empty);
 }

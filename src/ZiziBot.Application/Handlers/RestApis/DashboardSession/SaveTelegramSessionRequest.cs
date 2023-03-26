@@ -80,7 +80,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             new Claim(ClaimTypes.NameIdentifier, request.Username),
             new Claim(ClaimTypes.Name, request.FirstName),
             new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer"),
-            new Claim("userId", request.TelegramUserId.ToString()),
+            new Claim(HeaderKey.UserId, request.TelegramUserId.ToString()),
             new Claim("photoUrl", request.PhotoUrl),
         };
         var token = new JwtSecurityToken(JwtConfig.Issuer, JwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);

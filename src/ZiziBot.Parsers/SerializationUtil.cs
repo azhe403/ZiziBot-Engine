@@ -10,6 +10,11 @@ public static class SerializationUtil
         return JsonConvert.SerializeObject(source, indented ? Formatting.Indented : Formatting.None);
     }
 
+    public static T? ToObject<T>(this string source)
+    {
+        return JsonConvert.DeserializeObject<T>(source);
+    }
+
     public static string ToYaml(this object? obj)
     {
         var serializer = new SerializerBuilder()

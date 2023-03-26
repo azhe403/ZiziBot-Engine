@@ -18,6 +18,14 @@ public class ApiResponseBase<TResult>
         return this;
     }
 
+    public ApiResponseBase<TResult> Success(string message)
+    {
+        StatusCode = HttpStatusCode.OK;
+        Message = message;
+
+        return this;
+    }
+
     public ApiResponseBase<TResult> Unauthorized(string message, TResult? result = default)
     {
         StatusCode = HttpStatusCode.Unauthorized;
