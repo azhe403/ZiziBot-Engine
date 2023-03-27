@@ -1,7 +1,6 @@
 using System.Text;
 using AsyncAwaitBestPractices;
 using Serilog;
-using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Debugging;
 using Serilog.Events;
