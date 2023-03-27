@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ZiziBot.WebApi.Controllers;
 
@@ -39,6 +40,7 @@ public class UserController : ApiControllerBase
     }
 
     [HttpGet("list-group")]
+    [EnableRateLimiting(RateLimitingPolicy.API_LIST_RATE_LIMITING_KEY)]
     public async Task<IActionResult> GetListGroup([FromQuery] GetListGroupRequest request)
     {
         var result = await Mediator.Send(request);

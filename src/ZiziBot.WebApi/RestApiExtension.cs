@@ -99,6 +99,8 @@ public static class RestApiExtension
                 };
             });
 
+        services.ConfigureRateLimiter();
+
         return services;
     }
 
@@ -123,6 +125,8 @@ public static class RestApiExtension
 
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.ConfigureRateLimiter();
 
         return app;
     }
