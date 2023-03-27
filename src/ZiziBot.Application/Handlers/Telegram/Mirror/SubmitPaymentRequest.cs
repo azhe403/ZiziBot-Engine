@@ -31,12 +31,22 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
 
         if (request.ReplyToMessage != null)
         {
-            var messageId = request.ReplyToMessage.MessageId.ToString();
-            var fileId = request.ReplyToMessage.GetFileId();
+            var replyToMessage = request.ReplyToMessage;
+            var messageId = replyToMessage.MessageId.ToString();
+            var fileId = replyToMessage.GetFileId();
             transactionId = $"{messageId}-{fileId}";
 
             if (request.Payload.TryConvert(1, out cendolCount))
             {
+                if (replyToMessage.ForwardSenderName != null &&
+                    request.ForUserId == 0)
+                {
+                    htmlMessage.Text("Sepertinya Pengguna disembunyikan, spesifikan ID pengguna.").Br()
+                        .Bold("Contoh: ").Code($"/mp {cendolCount} (userId)");
+
+                    return await _telegramService.SendMessageText(htmlMessage.ToString());
+                }
+
                 var mirrorApproval = await _mirrorDbContext.MirrorApproval
                     .FirstOrDefaultAsync(x =>
                             x.TransactionId == transactionId &&
@@ -72,7 +82,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
                 userId = request.ForUserId;
             }
 
-            var forwardMessage = request.ReplyToMessage.ForwardFrom;
+            var forwardMessage = replyToMessage.ForwardFrom;
             if (forwardMessage != null)
             {
                 userId = forwardMessage.Id;
