@@ -10,7 +10,7 @@ using Newtonsoft.Json.Converters;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class SaveTelegramSessionRequestModel : IRequest<ApiResponseBase<SaveDashboardSessionIdResponseDto>>
+public class SaveTelegramSessionRequestModel : ApiRequestBase<SaveDashboardSessionIdResponseDto>
 {
     [JsonProperty("id")]
     public long TelegramUserId { get; set; }
@@ -131,12 +131,10 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
 
         await _userDbContext.SaveChangesAsync(cancellationToken);
 
-        apiResponse.Result = new SaveDashboardSessionIdResponseDto()
+        return apiResponse.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto()
         {
             IsSessionValid = true,
             BearerToken = stringToken
-        };
-
-        return apiResponse;
+        });
     }
 }
