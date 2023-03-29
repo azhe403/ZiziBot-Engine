@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 
@@ -25,5 +26,24 @@ public static class SerializationUtil
             .Trim();
 
         return yaml;
+    }
+
+
+    public static string GetTransactionId(this IHeaderDictionary headerDictionary)
+    {
+        var transactionId = headerDictionary[HeaderKey.TransactionId].ToString();
+        return transactionId;
+    }
+
+    public static long GetUserId(this IHeaderDictionary headerDictionary)
+    {
+        var userId = headerDictionary[HeaderKey.UserId].Convert<long>();
+        return userId;
+    }
+
+    public static List<long>? GetListChatId(this IHeaderDictionary headerDictionary)
+    {
+        var listChatId = headerDictionary[HeaderKey.ListChatId].ToString().ToObject<List<long>>();
+        return listChatId;
     }
 }

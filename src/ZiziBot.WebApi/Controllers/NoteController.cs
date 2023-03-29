@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using ZiziBot.Application.Handlers.RestApis.Note;
 
 namespace ZiziBot.WebApi.Controllers;
 
@@ -7,8 +6,9 @@ namespace ZiziBot.WebApi.Controllers;
 [Route("api/[controller]")]
 public class NoteController : ApiControllerBase
 {
-    [HttpGet("all")]
-    public async Task<IActionResult> GetAll([FromQuery] GetNoteRequestModel request)
+    [HttpGet()]
+    [AccessLevel(AccessLevelEnum.AdminOrPrivate)]
+    public async Task<IActionResult> GetNotes([FromQuery] GetNoteRequest request)
     {
         return await SendRequest(request);
     }
