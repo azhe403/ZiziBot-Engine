@@ -15,7 +15,7 @@
         <PackageReference Include="FirebaseDatabase.net" Version="4.2.0"/>
         <PackageReference Include="Flurl.Http" Version="3.2.4"/>
         <PackageReference Include="Google.Apis.Auth" Version="1.60.0"/>
-        <PackageReference Include="Google.Cloud.Firestore" Version="3.1.0"/>
+        <PackageReference Include="Google.Cloud.Firestore" Version="3.2.0"/>
         <PackageReference Include="JetBrains.Annotations" Version="2022.3.1"/>
         <PackageReference Include="MediatR" Version="12.0.1"/>
         <PackageReference Include="MediatR.Extensions.AttributedBehaviors" Version="3.0.0"/>
