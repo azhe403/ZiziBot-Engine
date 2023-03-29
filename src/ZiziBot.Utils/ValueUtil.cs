@@ -9,7 +9,7 @@ public static class ValueUtil
         var converter = TypeDescriptor.GetConverter(typeof(T));
         if (converter != null)
         {
-            return (T)converter.ConvertFrom(input);
+            return (T)converter.ConvertFromString(input.ToString());
         }
         return defaultVal;
     }
