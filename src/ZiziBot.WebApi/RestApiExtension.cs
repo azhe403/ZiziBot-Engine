@@ -99,6 +99,13 @@ public static class RestApiExtension
                 };
             });
 
+
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(options => {
+                // options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
+            }
+        );
+
         services.ConfigureRateLimiter();
 
         return services;
@@ -120,6 +127,7 @@ public static class RestApiExtension
 
     public static IApplicationBuilder UseAllMiddleware(this IApplicationBuilder app)
     {
+        app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseMiddleware<HeaderCheckMiddleware>();
         app.UseMiddleware<InjectHeaderMiddleware>();
 

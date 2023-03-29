@@ -13,14 +13,6 @@ builder.Services.ConfigureApi();
 builder.Services.ConfigureHangfire();
 builder.Services.ConfigureTelegramBot();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-    {
-        // options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
-    }
-);
-
-
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
