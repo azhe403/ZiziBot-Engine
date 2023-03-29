@@ -14,7 +14,7 @@ public class NoteController : ApiControllerBase
     }
 
     [HttpPost()]
-    public async Task<IActionResult> CreateNote([FromBody] CreateNoteRequestModel request)
+    public async Task<IActionResult> CreateNote(CreateNoteRequest request)
     {
         return await SendRequest(request);
     }
