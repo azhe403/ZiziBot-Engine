@@ -45,7 +45,7 @@ public class InjectHeaderMiddleware : IMiddleware
             return;
         }
 
-        context.Request.Headers.Add(HeaderKey.UserId, dashboardSession.TelegramUserId.ToString());
+        context.Request.Headers.TryAdd(HeaderKey.UserId, dashboardSession.TelegramUserId.ToString());
 
         #endregion
 
@@ -60,7 +60,7 @@ public class InjectHeaderMiddleware : IMiddleware
 
         var chatIds = chatAdmin.Select(y => y.ChatId).Distinct();
 
-        context.Request.Headers.Add(HeaderKey.ListChatId, chatIds.ToJson());
+        context.Request.Headers.TryAdd(HeaderKey.ListChatId, chatIds.ToJson());
 
         #endregion
 
@@ -78,7 +78,7 @@ public class InjectHeaderMiddleware : IMiddleware
             userRole = ApiRole.Sudo;
         }
 
-        context.Request.Headers.Add(HeaderKey.UserRole, userRole.ToString());
+        context.Request.Headers.TryAdd(HeaderKey.UserRole, userRole.ToString());
 
         #endregion
 
