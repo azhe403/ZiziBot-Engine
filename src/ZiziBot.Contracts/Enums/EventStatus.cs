@@ -6,5 +6,6 @@ public enum EventStatus
     InProgress = 1,
     Complete = 2,
     Locked = 3,
+    Inactive = 8,
     Rejected = 9
 }

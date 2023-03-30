@@ -3,6 +3,7 @@
 global using ZiziBot.Application.Core;
 global using ZiziBot.Application.Handlers.RestApis.DashboardSession;
 global using ZiziBot.Application.Handlers.RestApis.GlobalBan;
+global using ZiziBot.Application.Handlers.RestApis.Group;
 global using ZiziBot.Application.Handlers.RestApis.MirrorUser;
 global using ZiziBot.Application.Handlers.RestApis.Note;
 global using ZiziBot.Application.Handlers.RestApis.Rss;
