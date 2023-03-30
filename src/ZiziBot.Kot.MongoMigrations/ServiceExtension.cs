@@ -1,8 +1,8 @@
 using Kot.MongoDB.Migrations;
 using Kot.MongoDB.Migrations.DI;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
@@ -13,11 +13,18 @@ public static class ServiceExtension
     public static IServiceCollection AddKotMongoMigrations(this IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
-        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
         var connectionStr = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING);
         var url = new MongoUrl(connectionStr);
 
-        var options = new MigrationOptions(url.DatabaseName);
+        var options = new MigrationOptions(url.DatabaseName)
+        {
+            TransactionScope = TransactionScope.SingleMigration,
+            MigrationsCollectionName = "_kot_migrations"
+        };
+
+        if (environment.IsDevelopment())
+            options.ParallelRunsBehavior = ParallelRunsBehavior.Throw;
 
         services.AddMongoMigrations(connectionStr, options, config => config.LoadMigrationsFromCurrentDomain());
         return services;
