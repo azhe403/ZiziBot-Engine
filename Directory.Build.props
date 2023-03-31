@@ -1,10 +1,13 @@
 <Project>
-
     <Target Name="PostClean" AfterTargets="Clean">
         <!-- bin -->
         <RemoveDir Directories="$(BaseOutputPath)"/>
         <!-- obj -->
         <RemoveDir Directories="$(BaseIntermediateOutputPath)"/>
     </Target>
-
+    <ItemGroup Condition=" '$(Configuration)' == 'Release'">
+        <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 </Project>
