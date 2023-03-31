@@ -26,7 +26,7 @@ COPY ["src/ng-dashboard","src/ng-dashboard/"]
 RUN dotnet restore "src/ZiziBot.Engine/ZiziBot.Engine.csproj"
 COPY . .
 
-WORKDIR "/src"
+#WORKDIR "/src"
 RUN dotnet run --project "src/ZiziBot.Cli/ZiziBot.Cli.csproj"  --toolName=UpdateVersion --mode=DependsOnCondition
 
 WORKDIR "/src/src/ZiziBot.Engine"
