@@ -61,7 +61,7 @@
     <!--  SPA Config  -->
 
     <!-- Store Build Date -->
-    <ItemGroup Condition=" '$(Configuration)' == 'Release'">
+    <ItemGroup>
         <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildDateAttribute">
             <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
         </AssemblyAttribute>

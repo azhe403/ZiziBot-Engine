@@ -42,12 +42,7 @@ public static class VersionUtil
 
     public static DateTime GetBuildDate()
     {
-#if DEBUG
-        var buildDate = Assembly.GetExecutingAssembly().GetLinkerTime();
-#else
-            var buildDate = Assembly.GetExecutingAssembly().GetBuildDate();
-#endif
-
+        var buildDate = Assembly.GetEntryAssembly().GetBuildDate();
         return buildDate;
     }
 }
