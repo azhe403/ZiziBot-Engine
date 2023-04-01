@@ -51,7 +51,7 @@
         <Exec Command="npm run build-staging" WorkingDirectory="$(SpaRoot)"/>
         <ItemGroup>
             <DistFiles Include="$(SpaRoot)\dist\ng-dashboard\**"/>
-            <ResolvedFileToPublish Include="@(DistFiles-&gt;'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+            <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
                 <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
                 <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -59,5 +59,13 @@
         </ItemGroup>
     </Target>
     <!--  SPA Config  -->
+
+    <!-- Store Build Date -->
+    <ItemGroup Condition=" '$(Configuration)' == 'Release'">
+        <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+    <!-- Store Build Date -->
 
 </Project>
