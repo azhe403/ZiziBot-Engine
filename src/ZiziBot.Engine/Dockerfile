@@ -24,6 +24,10 @@ COPY ["src/ZiziBot.Kot.MongoMigrations/ZiziBot.Kot.MongoMigrations.csproj", "src
 COPY ["src/ZiziBot.WebApi/ZiziBot.WebApi.csproj", "src/ZiziBot.WebApi/"]
 RUN dotnet restore "src/ZiziBot.Engine/ZiziBot.Engine.csproj"
 COPY . .
+
+WORKDIR "/src"
+RUN dotnet run --project "src/ZiziBot.Cli/ZiziBot.Cli.csproj"  --toolName=UpdateVersion --mode=DependsOnCondition
+
 WORKDIR "/src/src/ZiziBot.Engine"
 RUN dotnet build "ZiziBot.Engine.csproj" -c Release -o /app/build
 
