@@ -26,4 +26,13 @@ public class ApiResponseBase<TResult>
 
         return this;
     }
+
+    public ApiResponseBase<TResult> BadRequest(string message, TResult? result = default)
+    {
+        StatusCode = HttpStatusCode.BadRequest;
+        Message = message;
+        Result = result;
+
+        return this;
+    }
 }

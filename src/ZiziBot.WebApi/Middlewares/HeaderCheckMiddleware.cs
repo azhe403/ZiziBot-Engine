@@ -15,7 +15,7 @@ public class HeaderCheckMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        _logger.LogDebug("Request Context: {Context}", context.Request.Path);
+        _logger.LogTrace("Request Context: {Context}", context.Request.Path);
 
         if (!(context.Request.Path.Value?.StartsWith("/api") ?? false))
         {
@@ -24,7 +24,7 @@ public class HeaderCheckMiddleware : IMiddleware
             return;
         }
 
-        if (!context.Request.Headers.ContainsKey("transactionId"))
+        if (!context.Request.Headers.ContainsKey(HeaderKey.TransactionId))
         {
             await ReturnBadRequest(context, "Please set 'transactionId' in Headers");
             return;

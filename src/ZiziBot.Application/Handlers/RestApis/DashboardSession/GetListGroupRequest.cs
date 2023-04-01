@@ -64,6 +64,8 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
                 ChatId = adminEntity.ChatId,
                 ChatTitle = settingEntity.ChatTitle
             })
+            .DistinctBy(entity => entity.ChatId)
+            .OrderBy(res => res.ChatTitle)
             .ToList();
 
         return response.Success("Get user permission successfully", listPermission);

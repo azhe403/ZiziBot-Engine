@@ -27,7 +27,7 @@ public class GetMirrorSubscriptionHandler : IRequestHandler<GetMirrorSubscriptio
         var mirrorSubscription = await _mirrorDbContext.MirrorUsers
             .FirstOrDefaultAsync(x =>
                     x.UserId == request.UserId &&
-                    x.Status == (int) EventStatus.Complete,
+                    x.Status == (int)EventStatus.Complete,
                 cancellationToken: cancellationToken);
 
         var replyMarkup = new InlineKeyboardMarkup(new[]
@@ -51,13 +51,12 @@ public class GetMirrorSubscriptionHandler : IRequestHandler<GetMirrorSubscriptio
             return await _telegramService.SendMessageText(text: htmlMessage.ToString(), replyMarkup: replyMarkup);
         }
 
-        var expireDate = mirrorSubscription.ExpireDate;
-
-        htmlMessage.BoldBr("🪞 Mirror Subscription")
-            .Bold("🏷 Name: ").CodeBr(request.UserFullName)
-            .Bold("🆔 User ID: ").CodeBr(mirrorSubscription.UserId.ToString())
-            .Bold("📅 Expire: ").CodeBr(mirrorSubscription.ExpireDate.ToString("yyyy-MM-dd HH:mm:ss zzz"))
-            .Bold("⏱ Since: ").CodeBr(mirrorSubscription.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss zzz"));
+        htmlMessage.BoldBr("🪞 Langganan Mirror")
+            .Bold("🏷 Nama: ").CodeBr(request.UserFullName)
+            .Bold("🆔 ID Pengguna: ").CodeBr(mirrorSubscription.UserId.ToString())
+            .Bold("📅 Kedaluarsa: ").CodeBr(mirrorSubscription.ExpireDate.ToString("yyyy-MM-dd HH:mm:ss"))
+            .Bold("⏱ Sejak: ").CodeBr(mirrorSubscription.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss"))
+            .Bold("⏳ Durasi: ").CodeBr(mirrorSubscription.Duration.ForHuman(4));
 
         return await _telegramService.SendMessageText(text: htmlMessage.ToString(), replyMarkup: replyMarkup);
     }

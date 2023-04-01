@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ZiziBot.WebApi.Controllers;
 
@@ -16,32 +17,29 @@ public class UserController : ApiControllerBase
     [HttpPost("session/telegram")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
-    public async Task<IActionResult> PostTelegramSession([FromBody] SaveTelegramSessionRequestModel requestModel)
+    public async Task<IActionResult> PostTelegramSession([FromBody] SaveTelegramSessionRequestModel request)
     {
-        var result = await Mediator.Send(requestModel);
-        return Ok(result);
+        return await SendRequest(request);
     }
 
     [HttpPost("session/telegram/validate")]
     [AllowAnonymous]
-    public async Task<IActionResult> CheckDashboardSession([FromBody] CheckDashboardSessionRequestDto requestDto)
+    public async Task<IActionResult> CheckDashboardSession([FromBody] CheckDashboardSessionRequestDto request)
     {
-        var result = await Mediator.Send(requestDto);
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 
     [HttpPost("session/validate")]
     [AllowAnonymous]
-    public async Task<IActionResult> CheckDashboardSessionId(CheckDashboardBearerSessionRequestDto requestDto)
+    public async Task<IActionResult> CheckDashboardSessionId(CheckDashboardBearerSessionRequestDto request)
     {
-        var result = await Mediator.Send(requestDto);
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 
     [HttpGet("list-group")]
+    [EnableRateLimiting(RateLimitingPolicy.API_LIST_RATE_LIMITING_KEY)]
     public async Task<IActionResult> GetListGroup([FromQuery] GetListGroupRequest request)
     {
-        var result = await Mediator.Send(request);
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 }

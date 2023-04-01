@@ -21,18 +21,23 @@ public static class StringUtil
 
     public static string GetNanoId(int size = 11)
     {
-        var id = Nanoid.Nanoid.Generate(size: size);
-        return id;
+        return Nanoid.Nanoid.Generate(size: size);
     }
 
     public static async Task<string> GetNanoIdAsync(int size = 11)
     {
-        var id = await Nanoid.Nanoid.GenerateAsync(size: size);
-        return id;
+        return await Nanoid.Nanoid.GenerateAsync(size: size);
     }
 
     public static bool IsNullOrEmpty(this string? str)
     {
         return string.IsNullOrEmpty(str);
+    }
+
+    public static TValue ToEnum<TValue>(this string value, TValue defaultValue) where TValue : struct
+    {
+        if (string.IsNullOrEmpty(value)) return defaultValue;
+
+        return Enum.TryParse<TValue>(value, true, out var result) ? result : defaultValue;
     }
 }

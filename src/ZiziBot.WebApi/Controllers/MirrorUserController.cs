@@ -9,30 +9,26 @@ public class MirrorUserController : ApiControllerBase
 {
     [HttpGet()]
     [Authorize(Roles = "Sudoer")]
-    public async Task<IActionResult> GetUsersAll()
+    public async Task<IActionResult> GetUsersAll(GetMirrorUsersRequestDto request)
     {
-        var mirrorUsers = await Mediator.Send(new GetMirrorUsersRequestDto());
-        return SwitchStatus(mirrorUsers);
+        return await SendRequest(request);
     }
 
     [HttpGet("find")]
-    public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto requestDto)
+    public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto request)
     {
-        var mirrorUser = await Mediator.Send(requestDto);
-        return SwitchStatus(mirrorUser);
+        return await SendRequest(request);
     }
 
     [HttpPost()]
-    public async Task<IActionResult> PostUserMirror([FromBody] PostMirrorUserRequestDto requestDto)
+    public async Task<IActionResult> PostUserMirror([FromBody] PostMirrorUserRequestDto request)
     {
-        var result = await Mediator.Send(requestDto);
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 
     [HttpDelete]
-    public async Task<IActionResult> DeleteMirrorUser([FromQuery] DeleteMirrorUserRequestDto requestDto)
+    public async Task<IActionResult> DeleteMirrorUser([FromQuery] DeleteMirrorUserRequestDto request)
     {
-        var result = await Mediator.Send(requestDto);
-        return Ok(result);
+        return await SendRequest(request);
     }
 }

@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
 
@@ -47,7 +46,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
 
     public async Task<ApiResponseBase<CheckDashboardBearerSessionResponseDto>> Handle(CheckDashboardBearerSessionRequestDto request, CancellationToken cancellationToken)
     {
-        ApiResponseBase<CheckDashboardBearerSessionResponseDto> responseDto = new();
+        ApiResponseBase<CheckDashboardBearerSessionResponseDto> response = new();
 
         #region Check Dashboard Session
 
@@ -60,10 +59,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
 
         if (dashboardSession == null)
         {
-            responseDto.StatusCode = HttpStatusCode.Unauthorized;
-            responseDto.Message = "Session not found";
-
-            return responseDto;
+            return response.Unauthorized("Session not found");
         }
 
         var userId = dashboardSession.TelegramUserId;
@@ -100,11 +96,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
 
         _logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", dashboardSession.SessionId, userId, dashboardSession);
 
-        responseDto.Message = "Session is valid";
-        responseDto.StatusCode = HttpStatusCode.OK;
-        responseDto.Result = result;
-
-        return responseDto;
+        return response.Success("Session is valid", result);
     }
 
     private List<UserFeature> GetFeatures(int roleId)

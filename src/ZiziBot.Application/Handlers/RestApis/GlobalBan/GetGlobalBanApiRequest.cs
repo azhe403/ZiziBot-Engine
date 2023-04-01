@@ -1,53 +1,48 @@
-using System.Net;
 using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 
-public class GetGlobalBanApiRequest : ApiRequestBase<List<GetGlobalBanApiDto>>
+public class GetGlobalBanApiRequest : ApiRequestBase<List<GetGlobalBanApiResponse>>
 {
 }
 
-public class GetGlobalBanApiDto
+public class GetGlobalBanApiResponse
 {
     public long UserId { get; set; }
     public long ChatId { get; set; }
     public string Reason { get; set; }
     public int Status { get; set; }
+    public string TransactionId { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
-    public DateTime DeletedDate { get; set; }
 }
 
-public class GetGlobalBanApiRequestHandler : IRequestHandler<GetGlobalBanApiRequest, ApiResponseBase<List<GetGlobalBanApiDto>>>
+public class GetGlobalBanApiHandler : IRequestHandler<GetGlobalBanApiRequest, ApiResponseBase<List<GetGlobalBanApiResponse>>>
 {
     private readonly AntiSpamDbContext _antiSpamDbContext;
 
-    public GetGlobalBanApiRequestHandler(AntiSpamDbContext antiSpamDbContext)
+    public GetGlobalBanApiHandler(AntiSpamDbContext antiSpamDbContext)
     {
         _antiSpamDbContext = antiSpamDbContext;
     }
 
-    public async Task<ApiResponseBase<List<GetGlobalBanApiDto>>> Handle(GetGlobalBanApiRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<List<GetGlobalBanApiResponse>>> Handle(GetGlobalBanApiRequest request, CancellationToken cancellationToken)
     {
-        var data = await _antiSpamDbContext.GlobalBan
-            .ToListAsync(cancellationToken: cancellationToken);
+        var response = new ApiResponseBase<List<GetGlobalBanApiResponse>>();
 
-        var globalBanList = data.Select(
-            x => new GetGlobalBanApiDto()
-            {
-                UserId = x.UserId,
-                ChatId = x.ChatId,
-                Reason = x.Reason,
-                Status = x.Status,
-                CreatedDate = x.CreatedDate,
-                UpdatedDate = x.UpdatedDate
-            }
-        ).ToList();
+        var globalBanEntities = await _antiSpamDbContext.GlobalBan.ToListAsync(cancellationToken: cancellationToken);
 
-        return new ApiResponseBase<List<GetGlobalBanApiDto>>()
+        var listGlobalBan = globalBanEntities.Select(entity => new GetGlobalBanApiResponse()
         {
-            Result = globalBanList,
-            StatusCode = HttpStatusCode.OK
-        };
+            UserId = entity.UserId,
+            ChatId = entity.ChatId,
+            Reason = entity.Reason,
+            Status = entity.Status,
+            TransactionId = entity.TransactionId,
+            CreatedDate = entity.CreatedDate,
+            UpdatedDate = entity.UpdatedDate
+        }).ToList();
+
+        return response.Success("Global ban list fetched successfully", listGlobalBan);
     }
 }

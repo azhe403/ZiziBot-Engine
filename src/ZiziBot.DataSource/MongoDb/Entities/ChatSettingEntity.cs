@@ -35,7 +35,4 @@ public class ChatSettingEntity : EntityBase
     public long EventLogChatId { get; set; }
 
     public string LanguageCode { get; set; }
-
-    public string WelcomeMessage { get; set; }
-    public string WelcomeMessageButton { get; set; }
 }

@@ -10,7 +10,6 @@ public class WebhookController : ApiControllerBase
     [HttpPost("{targetId}")]
     public async Task<IActionResult> ProcessingPayload(PostWebhookPayloadRequest request)
     {
-        var result = await Mediator.Send(request);
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 }

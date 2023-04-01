@@ -7,24 +7,21 @@ namespace ZiziBot.WebApi.Controllers;
 public class AntiSpamController : ApiControllerBase
 {
     [HttpPost("ess-ban")]
-    public async Task<IActionResult> PostEs2BanListAsync([FromBody] PostGlobalBanApiRequest request)
+    public async Task<IActionResult> PostEs2BanListAsync(PostGlobalBanApiRequest request)
     {
-        var result = await Mediator.Send(request);
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 
     [HttpDelete("ess-ban")]
     public async Task<IActionResult> DeleteEs2BanListAsync([FromBody] DeleteGlobalBanApiRequest request)
     {
-        var result = await Mediator.Send(request);
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 
     [HttpGet("ess-ban")]
-    public async Task<IActionResult> GetEs2BanListAsync()
+    public async Task<IActionResult> GetEs2BanListAsync(GetGlobalBanApiRequest request)
     {
-        var result = await Mediator.Send(new GetGlobalBanApiRequest());
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 
     [HttpGet("check-ban")]
@@ -37,7 +34,6 @@ public class AntiSpamController : ApiControllerBase
     [HttpPut("undelete-ban")]
     public async Task<IActionResult> UndeleteEs2BanByUserIdAsync([FromBody] UndeleteGlobalBanApiRequest request)
     {
-        var result = await Mediator.Send(request);
-        return SwitchStatus(result);
+        return await SendRequest(request);
     }
 }

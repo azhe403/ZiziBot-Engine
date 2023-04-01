@@ -1,4 +1,3 @@
-using System.Net;
 using FluentValidation;
 using MongoFramework.Linq;
 
@@ -17,37 +16,33 @@ public class UndeleteGlobalBanApiValidator : AbstractValidator<UndeleteGlobalBan
     }
 }
 
-public class UndeleteGlobalBanRequestHandler : IRequestHandler<UndeleteGlobalBanApiRequest, ApiResponseBase<bool>>
+public class UndeleteGlobalBanApiHandler : IRequestHandler<UndeleteGlobalBanApiRequest, ApiResponseBase<bool>>
 {
     private readonly AntiSpamDbContext _antiSpamDbContext;
 
-    public UndeleteGlobalBanRequestHandler(AntiSpamDbContext antiSpamDbContext)
+    public UndeleteGlobalBanApiHandler(AntiSpamDbContext antiSpamDbContext)
     {
         _antiSpamDbContext = antiSpamDbContext;
     }
 
     public async Task<ApiResponseBase<bool>> Handle(UndeleteGlobalBanApiRequest request, CancellationToken cancellationToken)
     {
-        var ban = await _antiSpamDbContext.GlobalBan
-            .FirstOrDefaultAsync(entity => entity.UserId == request.UserId, cancellationToken: cancellationToken);
+        var response = new ApiResponseBase<bool>();
 
-        if (ban == null)
+        var globalBan = await _antiSpamDbContext.GlobalBan
+            .FirstOrDefaultAsync(entity =>
+                    entity.UserId == request.UserId,
+                cancellationToken: cancellationToken);
+
+        if (globalBan == null)
         {
-            return new ApiResponseBase<bool>()
-            {
-                StatusCode = HttpStatusCode.NotModified,
-                Result = true
-            };
+            return response.BadRequest("Global ban not found.", false);
         }
 
-        ban.Status = (int) EventStatus.Complete;
+        globalBan.Status = (int)EventStatus.Complete;
 
         await _antiSpamDbContext.SaveChangesAsync(cancellationToken);
 
-        return new ApiResponseBase<bool>()
-        {
-            Result = true,
-            StatusCode = HttpStatusCode.OK
-        };
+        return response.Success("Global ban undeleted.", true);
     }
 }

@@ -1,6 +1,5 @@
 using System.Text;
 using AsyncAwaitBestPractices;
-using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Debugging;
@@ -81,8 +80,8 @@ public class TelegramSink : ILogEventSink
 
 public static class TelegramSinkExtension
 {
-    public static LoggerConfiguration Telegram(
-        this LoggerConfiguration loggerConfiguration,
+    public static LoggerSinkConfiguration Telegram(
+        this LoggerSinkConfiguration configuration,
         string? botToken,
         long chatId,
         LogEventLevel logEventLevel = LogEventLevel.Warning
@@ -90,15 +89,15 @@ public static class TelegramSinkExtension
     {
         if (botToken == null || chatId == 0)
         {
-            return loggerConfiguration;
+            return configuration;
         }
 
-        loggerConfiguration.WriteTo.Sink(logEventSink: new TelegramSink()
+        configuration.Sink(logEventSink: new TelegramSink()
         {
             BotToken = botToken,
             ChatId = chatId
         }, logEventLevel);
 
-        return loggerConfiguration;
+        return configuration;
     }
 }

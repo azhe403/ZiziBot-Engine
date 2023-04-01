@@ -1,3 +1,6 @@
+using System.Globalization;
+using Humanizer;
+using Humanizer.Localisation;
 using TimeSpanParserUtil;
 
 namespace ZiziBot.Utils;
@@ -15,6 +18,11 @@ public static class TimeUtil
     public static TimeSpan ParseDateTime(this string dateTime)
     {
         return TimeSpanParser.Parse(dateTime);
+    }
+
+    public static string ForHuman(this TimeSpan timeSpan, int precision = 10)
+    {
+        return timeSpan.Humanize(precision: precision, maxUnit: TimeUnit.Year, culture: CultureInfo.GetCultureInfo("id-Id"));
     }
 
     #region Cron

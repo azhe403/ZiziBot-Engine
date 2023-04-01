@@ -4,9 +4,10 @@ namespace ZiziBot.DataSource.MongoDb;
 
 public class AppSettingsDbContext : MongoDbContextBase
 {
-	public AppSettingsDbContext(string connectionStr) : base(connectionStr) {}
+    public AppSettingsDbContext(string connectionStr) : base(connectionStr) { }
 
-	public MongoDbSet<AppSettings> AppSettings { get; set; }
-	public MongoDbSet<BotSettings> BotSettings { get; set; }
-	public MongoDbSet<Sudoer> Sudoers { get; set; }
+    public MongoDbSet<AppSettings> AppSettings { get; set; }
+    public MongoDbSet<BotSettings> BotSettings { get; set; }
+    public MongoDbSet<BotCommandEntity> BotCommand { get; set; }
+    public MongoDbSet<Sudoer> Sudoers { get; set; }
 }

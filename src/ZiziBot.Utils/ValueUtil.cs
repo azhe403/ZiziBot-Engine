@@ -4,22 +4,22 @@ namespace ZiziBot.Utils;
 
 public static class ValueUtil
 {
-    public static T Convert<T>(this string input, T defaultVal)
+    public static T Convert<T>(this object? input, T defaultVal)
     {
         var converter = TypeDescriptor.GetConverter(typeof(T));
         if (converter != null)
         {
-            return (T) converter.ConvertFromString(input);
+            return (T)converter.ConvertFromString(input.ToString());
         }
         return defaultVal;
     }
 
-    public static T Convert<T>(this string input)
+    public static T Convert<T>(this object? input)
     {
         return Convert(input, default(T));
     }
 
-    public static bool TryConvert<T>(this string input, T defaultVal, out T result)
+    public static bool TryConvert<T>(this object? input, T defaultVal, out T result)
     {
         try
         {
@@ -29,7 +29,7 @@ public static class ValueUtil
         catch (Exception exception)
         {
             result = defaultVal;
-            return string.IsNullOrEmpty(input);
+            return input == null;
         }
     }
 }

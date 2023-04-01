@@ -10,7 +10,7 @@ using Newtonsoft.Json.Converters;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class SaveTelegramSessionRequestModel : IRequest<ApiResponseBase<SaveDashboardSessionIdResponseDto>>
+public class SaveTelegramSessionRequestModel : ApiRequestBase<SaveDashboardSessionIdResponseDto>
 {
     [JsonProperty("id")]
     public long TelegramUserId { get; set; }
@@ -80,7 +80,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             new Claim(ClaimTypes.NameIdentifier, request.Username),
             new Claim(ClaimTypes.Name, request.FirstName),
             new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer"),
-            new Claim("userId", request.TelegramUserId.ToString()),
+            new Claim(HeaderKey.UserId, request.TelegramUserId.ToString()),
             new Claim("photoUrl", request.PhotoUrl),
         };
         var token = new JwtSecurityToken(JwtConfig.Issuer, JwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
@@ -131,12 +131,10 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
 
         await _userDbContext.SaveChangesAsync(cancellationToken);
 
-        apiResponse.Result = new SaveDashboardSessionIdResponseDto()
+        return apiResponse.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto()
         {
             IsSessionValid = true,
             BearerToken = stringToken
-        };
-
-        return apiResponse;
+        });
     }
 }

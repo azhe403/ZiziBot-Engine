@@ -6,9 +6,9 @@ namespace ZiziBot.WebApi.Controllers;
 [Route("api")]
 public class RootController : ApiControllerBase
 {
-	[HttpGet]
-	public IActionResult Get()
-	{
-		return Ok("Welcome to Zizi 5 API");
-	}
+    [HttpGet]
+    public async Task<IActionResult> Get(GetWelcomeRequest request)
+    {
+        return await SendRequest(request);
+    }
 }

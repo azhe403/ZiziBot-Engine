@@ -1,5 +1,4 @@
 ﻿using CloudCraic.Hosting.BackgroundQueue.DependencyInjection;
-using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,8 +20,6 @@ public static class ServiceExtension
         services.AddCacheTower();
         services.AddAllService();
         services.AddAllMiddleware();
-
-        services.AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>();
 
         return services;
     }

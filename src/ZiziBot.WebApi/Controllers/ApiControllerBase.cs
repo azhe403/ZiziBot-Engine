@@ -12,7 +12,7 @@ public class ApiControllerBase : ControllerBase
 
     protected IActionResult SwitchStatus<T>(ApiResponseBase<T> responseBase)
     {
-        responseBase.transactionId = HttpContext.Request.Headers["transactionId"].ToString();
+        responseBase.transactionId = HttpContext.Request.Headers[HeaderKey.TransactionId].ToString();
 
         return responseBase.StatusCode switch
         {
@@ -22,5 +22,11 @@ public class ApiControllerBase : ControllerBase
             HttpStatusCode.NotFound => NotFound(responseBase),
             _ => BadRequest(responseBase)
         };
+    }
+
+    protected async Task<IActionResult> SendRequest<T>(ApiRequestBase<T> request)
+    {
+        var result = await Mediator.Send(request);
+        return SwitchStatus(result);
     }
 }

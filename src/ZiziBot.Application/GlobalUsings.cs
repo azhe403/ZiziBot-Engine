@@ -19,5 +19,6 @@ global using ZiziBot.Contracts.Types;
 global using ZiziBot.DataSource.MongoDb;
 global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.Exceptions;
+global using ZiziBot.Parsers;
 global using ZiziBot.Parsers.WebParser;
 global using ZiziBot.Utils;

@@ -1,10 +1,8 @@
 <Project>
-
-    <Target Name="PostClean" AfterTargets="Clean">
+    <Target Name="PostClean" AfterTargets="Clean" Condition=" '$(Configuration)' == 'Debug'">
         <!-- bin -->
         <RemoveDir Directories="$(BaseOutputPath)"/>
         <!-- obj -->
         <RemoveDir Directories="$(BaseIntermediateOutputPath)"/>
     </Target>
-
 </Project>
