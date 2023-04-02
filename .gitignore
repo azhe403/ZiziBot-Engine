@@ -267,6 +267,7 @@ __pycache__/
 **/Storage/AppSettings
 **/Storage/Temp*
 **/Storage/Cache*
+**/cert
 
 .env
 package-lock.json
