@@ -32,7 +32,7 @@
 
     <!--  SPA Config  -->
     <PropertyGroup>
-        <SpaRoot>..\ng-dashboard</SpaRoot>
+        <SpaRoot>..\..\frontend\ngx-console</SpaRoot>
         <SpaProxyServerUrl>https://127.0.0.1:7121</SpaProxyServerUrl>
         <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     </PropertyGroup>
