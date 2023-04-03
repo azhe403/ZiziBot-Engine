@@ -7,15 +7,19 @@ namespace ZiziBot.WebApi.Controllers;
 public class GroupController : ApiControllerBase
 {
     [HttpGet("welcome-message")]
-    [AccessLevel(AccessLevelEnum.AdminOrPrivate)]
     public async Task<IActionResult> GetWelcomeMessage(GetWelcomeMessageRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost("welcome-message")]
-    [AccessLevel(AccessLevelEnum.AdminOrPrivate)]
     public async Task<IActionResult> SaveWelcomeMessage(SaveWelcomeMessageRequest request)
+    {
+        return await SendRequest(request);
+    }
+
+    [HttpPost("select-welcome-message")]
+    public async Task<IActionResult> SelectWelcomeMessage(SelectWelcomeMessageRequest request)
     {
         return await SendRequest(request);
     }

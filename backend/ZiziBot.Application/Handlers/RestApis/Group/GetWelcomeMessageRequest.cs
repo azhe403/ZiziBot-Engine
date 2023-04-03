@@ -11,6 +11,7 @@ public class GetWelcomeMessageRequest : ApiRequestBase<List<GetWelcomeMessageRes
 
 public class GetWelcomeMessageResponse
 {
+    public string Id { get; set; }
     public long ChatId { get; set; }
     public string Text { get; set; }
     public string RawButton { get; set; }
@@ -36,11 +37,11 @@ public class GetWelcomeMessageHandler : IRequestHandler<GetWelcomeMessageRequest
             .AsNoTracking()
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         var data = query.Select(entity => new GetWelcomeMessageResponse
         {
+            Id = entity.Id.ToString(),
             ChatId = entity.ChatId,
             Text = entity.Text,
             RawButton = entity.RawButton,
