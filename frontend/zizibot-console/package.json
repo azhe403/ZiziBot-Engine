@@ -8,6 +8,8 @@
         "restore": "npm install",
         "start": "ng serve --port 7121 --ssl --host 0.0.0.0 --ssl-cert cert/sakai-ng.pem --ssl-key cert/sakai-ng.key",
         "build": "ng build",
+        "build-staging": "ng build --configuration staging",
+        "build-prod": "ng build --configuration production",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "lint": "ng lint"
