@@ -11,6 +11,7 @@ import {EventService} from './demo/service/event.service';
 import {IconService} from './demo/service/icon.service';
 import {NodeService} from './demo/service/node.service';
 import {PhotoService} from './demo/service/photo.service';
+import {HttpInterceptorsService} from "../../projects/zizibot-common/src/interceptor/http-interceptor-provider.service";
 
 @NgModule({
     declarations: [
@@ -27,7 +28,8 @@ import {PhotoService} from './demo/service/photo.service';
         IconService,
         NodeService,
         PhotoService,
-        ProductService
+        ProductService,
+        HttpInterceptorsService
     ],
     bootstrap: [AppComponent]
 })

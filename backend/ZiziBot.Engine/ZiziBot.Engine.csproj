@@ -32,7 +32,7 @@
 
     <!--  SPA Config  -->
     <PropertyGroup>
-        <SpaRoot>..\..\frontend\ngx-console</SpaRoot>
+        <SpaRoot>..\..\frontend\zizibot-console</SpaRoot>
         <SpaProxyServerUrl>https://127.0.0.1:7121</SpaProxyServerUrl>
         <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     </PropertyGroup>

@@ -8,6 +8,9 @@
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
         "paths": {
+            "zizibot-common": [
+                "dist/zizibot-common"
+            ],
             "zizibot-services": [
                 "dist/zizibot-services"
             ],

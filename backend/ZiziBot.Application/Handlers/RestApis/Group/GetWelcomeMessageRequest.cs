@@ -17,7 +17,9 @@ public class GetWelcomeMessageResponse
     public string RawButton { get; set; }
     public string Media { get; set; }
     public int DataType { get; set; }
+    public string DataTypeName { get; set; }
     public int Status { get; set; }
+    public string StatusName { get; set; }
 }
 
 public class GetWelcomeMessageHandler : IRequestHandler<GetWelcomeMessageRequest, ApiResponseBase<List<GetWelcomeMessageResponse>>>
@@ -47,7 +49,9 @@ public class GetWelcomeMessageHandler : IRequestHandler<GetWelcomeMessageRequest
             RawButton = entity.RawButton,
             Media = entity.Media,
             DataType = entity.DataType,
+            DataTypeName = ((CommonMediaType)entity.DataType).ToString(),
             Status = entity.Status,
+            StatusName = ((EventStatus)entity.Status).ToString()
         }).ToList();
 
         return response.Success("Get Welcome Message successfully", data);

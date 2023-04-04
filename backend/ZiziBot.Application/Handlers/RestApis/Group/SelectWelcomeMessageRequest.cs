@@ -52,6 +52,6 @@ public class SelectWelcomeMessageHandler : IRequestHandler<SelectWelcomeMessageR
 
         await _groupDbContext.SaveChangesAsync(cancellationToken);
 
-        return response.Success("Success", null);
+        return response.Success("Welcome Message activated successfully.", null);
     }
 }
