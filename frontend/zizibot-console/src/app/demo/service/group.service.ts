@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {ApiUrl} from "zizibot-contracts/src/constant/api-url";
-import {ApiResponse} from "zizibot-contracts/src/restapi/api-response";
-import {WelcomeMessage} from "zizibot-contracts/src/restapi/welcome-message";
+import {ApiUrl} from "../../../../projects/zizibot-types/src/constant/api-url";
+import {WelcomeMessage} from "../../../../projects/zizibot-types/src/restapi/welcome-message";
+import {ApiResponse} from "../../../../projects/zizibot-types/src/restapi/api-response";
 
 @Injectable({
     providedIn: 'root'
