@@ -25,8 +25,13 @@ public class InjectHeaderMiddleware : IMiddleware
             await next(context);
         }
 
-        #region Check Dashboard Session
+        if (!context.Request.Path.StartsWithSegments("/api"))
+        {
+            await next(context);
+            return;
+        }
 
+        #region Check Dashboard Session
         var dashboardSession = await _userDbContext.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == bearerToken &&
@@ -46,11 +51,9 @@ public class InjectHeaderMiddleware : IMiddleware
         }
 
         context.Request.Headers.TryAdd(HeaderKey.UserId, dashboardSession.TelegramUserId.ToString());
-
         #endregion
 
         #region Add List ChatId
-
         var chatAdmin = await _chatDbContext.ChatAdmin
             .Where(entity =>
                 entity.UserId == dashboardSession.TelegramUserId &&
@@ -61,11 +64,9 @@ public class InjectHeaderMiddleware : IMiddleware
         var chatIds = chatAdmin.Select(y => y.ChatId).Distinct();
 
         context.Request.Headers.TryAdd(HeaderKey.ListChatId, chatIds.ToJson());
-
         #endregion
 
         #region Add User Role
-
         var userRole = ApiRole.Guest;
 
         var checkSudo = await _appSettingsDbContext.Sudoers
@@ -79,7 +80,6 @@ public class InjectHeaderMiddleware : IMiddleware
         }
 
         context.Request.Headers.TryAdd(HeaderKey.UserRole, userRole.ToString());
-
         #endregion
 
         await next(context);
