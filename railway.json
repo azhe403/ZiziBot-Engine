@@ -8,7 +8,7 @@
         "c#"
       ]
     },
-    "dockerfilePath": "Dockerfile"
+    "dockerfilePath": "backend/ZiziBot.Engine/Dockerfile"
   },
   "deploy": {
     "restartPolicyType": "ON_FAILURE",

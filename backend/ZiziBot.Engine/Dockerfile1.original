@@ -6,7 +6,7 @@ EXPOSE 80
 EXPOSE 443
 
 FROM azhe403/dotnet-sdk-node:latest AS build
-WORKDIR /src
+WORKDIR /backend
 COPY ["Directory.Build.props", "."]
 COPY ["backend/ZiziBot.Engine/ZiziBot.Engine.csproj", "backend/ZiziBot.Engine/"]
 COPY ["backend/ZiziBot.Allowed.TelegramBot/ZiziBot.Allowed.TelegramBot.csproj", "backend/ZiziBot.Allowed.TelegramBot/"]
@@ -24,7 +24,11 @@ COPY ["backend/ZiziBot.Kot.MongoMigrations/ZiziBot.Kot.MongoMigrations.csproj", 
 COPY ["backend/ZiziBot.WebApi/ZiziBot.WebApi.csproj", "backend/ZiziBot.WebApi/"]
 RUN dotnet restore "backend/ZiziBot.Engine/ZiziBot.Engine.csproj"
 COPY . .
-WORKDIR "/src/backend/ZiziBot.Engine"
+
+WORKDIR "/backend"
+RUN dotnet run --project "backend/ZiziBot.Cli/ZiziBot.Cli.csproj"  --toolName=UpdateVersion --mode=DependsOnCondition
+
+WORKDIR "/backend/backend/ZiziBot.Engine"
 RUN dotnet build "ZiziBot.Engine.csproj" -c Release -o /app/build
 
 FROM build AS publish
