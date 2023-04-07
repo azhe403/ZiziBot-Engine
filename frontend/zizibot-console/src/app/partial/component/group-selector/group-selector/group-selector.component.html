@@ -1,0 +1,8 @@
+<div *ngIf="listGroup.length==0 else displaySelector">
+    <h6>Sedang mengambil daftar Grub anda..</h6>
+    <p-progressBar mode="indeterminate" [style]="{ height: '6px' }"></p-progressBar>
+</div>
+
+<ng-template #displaySelector>
+    <p-dropdown [options]="listGroup" [(ngModel)]="chatId" (selectionchange)="onSelectChange($event)" optionLabel="chatTitle"></p-dropdown>
+</ng-template>

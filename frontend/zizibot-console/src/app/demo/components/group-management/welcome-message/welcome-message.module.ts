@@ -13,11 +13,20 @@ import {SliderModule} from "primeng/slider";
 import {TableModule} from "primeng/table";
 import {ToastModule} from "primeng/toast";
 import {RippleModule} from "primeng/ripple";
+import {DetailWelcomeMessageComponent} from './detail-welcome-message/detail-welcome-message.component';
+import {ToolbarModule} from "primeng/toolbar";
+import {AutoCompleteModule} from "primeng/autocomplete";
+import {ReactiveFormsModule} from "@angular/forms";
+import {CheckboxModule} from "primeng/checkbox";
+import {InputTextareaModule} from "primeng/inputtextarea";
+import {EditorModule} from "primeng/editor";
+import {GroupSelectorModule} from "../../../../partial/component/group-selector/group-selector.module";
 
 
 @NgModule({
     declarations: [
-        WelcomeMessageComponent
+        WelcomeMessageComponent,
+        DetailWelcomeMessageComponent
     ],
     imports: [
         CommonModule,
@@ -31,7 +40,14 @@ import {RippleModule} from "primeng/ripple";
         SliderModule,
         TableModule,
         ToastModule,
-        RippleModule
+        RippleModule,
+        ToolbarModule,
+        AutoCompleteModule,
+        ReactiveFormsModule,
+        CheckboxModule,
+        InputTextareaModule,
+        EditorModule,
+        GroupSelectorModule
     ]
 })
 export class WelcomeMessageModule {

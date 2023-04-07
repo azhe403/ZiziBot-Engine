@@ -1,5 +1,4 @@
 import {NgModule} from '@angular/core';
-import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
 import {AppLayoutModule} from './layout/app.layout.module';
@@ -12,10 +11,12 @@ import {IconService} from './demo/service/icon.service';
 import {NodeService} from './demo/service/node.service';
 import {PhotoService} from './demo/service/photo.service';
 import {HttpInterceptorsService} from "../../projects/zizibot-common/src/interceptor/http-interceptor-provider.service";
+import {TelegramService} from "./partial/services/telegram.service";
 
 @NgModule({
     declarations: [
-        AppComponent, NotfoundComponent
+        AppComponent,
+        NotfoundComponent
     ],
     imports: [
         AppRoutingModule,
@@ -29,6 +30,7 @@ import {HttpInterceptorsService} from "../../projects/zizibot-common/src/interce
         NodeService,
         PhotoService,
         ProductService,
+        TelegramService,
         HttpInterceptorsService
     ],
     bootstrap: [AppComponent]

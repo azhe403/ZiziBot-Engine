@@ -2,6 +2,7 @@ import {AfterViewInit, Component} from '@angular/core';
 import {GroupService} from "../../../../service/group.service";
 import {MessageService} from "primeng/api";
 import {WelcomeMessage} from "zizibot-contracts/src/restapi/welcome-message";
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'app-welcome-message',
@@ -14,7 +15,7 @@ export class WelcomeMessageComponent implements AfterViewInit {
     listWelcomeMessage: WelcomeMessage[] = [];
     selectedWelcome: WelcomeMessage | undefined;
 
-    constructor(private messageService: MessageService, private groupService: GroupService) {
+    constructor(private router: Router, private messageService: MessageService, private groupService: GroupService) {
     }
 
     ngAfterViewInit(): void {
@@ -41,5 +42,6 @@ export class WelcomeMessageComponent implements AfterViewInit {
 
     onOpenEditor(welcome: any) {
         console.debug('onOpenEditor', welcome);
+        this.router.navigate(['/group/welcome-message', welcome.id]).then(r => console.debug('after navigate', r));
     }
 }

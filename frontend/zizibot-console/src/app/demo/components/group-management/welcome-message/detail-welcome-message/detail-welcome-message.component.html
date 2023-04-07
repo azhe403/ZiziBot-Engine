@@ -1,0 +1,42 @@
+<div class="grid p-fluid">
+    <div class="col-12 pb-1">
+        <p-toolbar>
+            <div class="p-toolbar-group-start">
+                <h2>{{pageTitle}}</h2>
+            </div>
+            <div class="p-toolbar-group-end">
+                <p-button icon="pi pi-arrow-left" class="mr-1" [routerLink]="['../']" styleClass="p-button-danger"></p-button>
+            </div>
+        </p-toolbar>
+    </div>
+
+    <div class="col-12 py-1">
+        <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+            <div class="card">
+
+                <h5>Chat Id</h5>
+                <app-group-selector formControlName="chatId"></app-group-selector>
+
+                <h5>Welcome Text</h5>
+                <textarea formControlName="text" rows="5" cols="30" placeholder="" pInputTextarea></textarea>
+
+                <h5>Welcome Button</h5>
+                <textarea rows="5" cols="30" placeholder="" pInputTextarea></textarea>
+
+                <h5>Welcome Media</h5>
+                <input placeholder="" pInputText/>
+
+                <h5>Media type</h5>
+                <p-dropdown [options]="mediaTypes" optionLabel="name"></p-dropdown>
+
+            </div>
+            <div class="card">
+                <div class="card flex gap-3 justify-content-center">
+                    <p-button label="Submit" type="submit"></p-button>
+                    <p-button label="Disable" type="submit" class="p-button-secondary"></p-button>
+                    <p-button label="Delete" type="submit" value="delete" class="p-button-danger"></p-button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
