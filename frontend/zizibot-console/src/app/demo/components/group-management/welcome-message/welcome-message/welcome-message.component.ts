@@ -14,16 +14,17 @@ export class WelcomeMessageComponent implements AfterViewInit {
     loading: boolean = true;
     listWelcomeMessage: WelcomeMessage[] = [];
     selectedWelcome: WelcomeMessage | undefined;
+    chatId: number = 0;
 
     constructor(private router: Router, private messageService: MessageService, private groupService: GroupService) {
     }
 
     ngAfterViewInit(): void {
-        this.loadWelcomeMessage();
+        // this.loadWelcomeMessage();
     }
 
     loadWelcomeMessage() {
-        this.groupService.getWelcomeMessage().subscribe((response) => {
+        this.groupService.getWelcomeMessage(this.chatId).subscribe((response) => {
             console.debug('welcome message', response);
 
             this.loading = false;
@@ -43,5 +44,11 @@ export class WelcomeMessageComponent implements AfterViewInit {
     onOpenEditor(welcome: any) {
         console.debug('onOpenEditor', welcome);
         this.router.navigate(['/group/welcome-message', welcome.id]).then(r => console.debug('after navigate', r));
+    }
+
+    onSelectChange($event: number) {
+        console.debug('onSelectChange', $event);
+        this.chatId = $event;
+        this.loadWelcomeMessage();
     }
 }

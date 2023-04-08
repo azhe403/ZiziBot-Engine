@@ -1,8 +1,9 @@
-import {Component, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {GroupService} from "../../../../demo/service/group.service";
 import {TelegramService} from "../../../services/telegram.service";
 import {TelegramGroup} from "../../../../../../projects/zizibot-types/src/restapi/telegram-group";
+import Enumerable from "linq";
 
 @Component({
     selector: 'app-group-selector',
@@ -22,12 +23,13 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
     listGroup: TelegramGroup[] = [];
     chatId = 0;
 
-    @Output() selectedChatId: number = 0;
+    @Output() selectedChatId = new EventEmitter<number>();
 
     constructor(private groupService: GroupService, private telegramService: TelegramService) {
     }
 
     onChange = (chatId: any) => {
+        this.selectedChatId.emit(chatId);
     };
 
     onTouched = () => {
@@ -72,8 +74,8 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
             console.debug('listTelegramGroup', data);
             this.listGroup = data.result;
 
-            if (!this.chatId)
-                this.chatId = this.listGroup[0].chatId;
+            if (this.chatId == 0)
+                this.onChange(Enumerable.from(this.listGroup).first().chatId);
         });
     }
 
@@ -89,6 +91,11 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
     }
 
     onSelectChange($event: Event) {
-        console.debug('onSelectChange', $event);
+        // @ts-ignore
+        console.debug('select group:', $event.value);
+        // @ts-ignore
+        this.chatId = $event.value.chatId;
+
+        this.onChange(this.chatId);
     }
 }

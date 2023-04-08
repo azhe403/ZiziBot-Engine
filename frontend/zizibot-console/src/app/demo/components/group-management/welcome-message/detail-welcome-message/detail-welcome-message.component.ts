@@ -45,12 +45,12 @@ export class DetailWelcomeMessageComponent implements OnInit {
 
     private initMediaTypes() {
         this.mediaTypes = [
-            {name: 'Text', value: 'text'},
-            {name: 'Image', value: 'image'},
-            {name: 'Video', value: 'video'},
-            {name: 'Audio', value: 'audio'},
-            {name: 'Document', value: 'document'},
-            {name: 'Sticker', value: 'sticker'},
+            {name: 'Text', value: 1},
+            {name: 'Image', value: 2},
+            {name: 'Audio', value: 3},
+            {name: 'Video', value: 4},
+            {name: 'Document', value: 6},
+            {name: 'Sticker', value: 7},
         ];
     }
 
@@ -71,7 +71,7 @@ export class DetailWelcomeMessageComponent implements OnInit {
 
     private initForm() {
         this.formGroup.addControl('welcomeId', new FormControl('', [Validators.required]))
-        this.formGroup.addControl('chatId', new FormControl('', [Validators.required]));
+        this.formGroup.addControl('chatId', new FormControl(0, [Validators.required]));
         this.formGroup.addControl('text', new FormControl('', [Validators.required]));
         this.formGroup.addControl('media', new FormControl(''));
         this.formGroup.addControl('dataType', new FormControl(''));
@@ -81,6 +81,27 @@ export class DetailWelcomeMessageComponent implements OnInit {
     onSubmit() {
         console.debug('formGroup', this.formGroup);
 
-        this.router.navigate(['/group/welcome-message']).then(r => console.debug('after submit', r));
+        this.groupService.saveWelcomeMessage({
+            id: this.welcomeId,
+            chatId: this.formGroup.value.chatId,
+            text: this.formGroup.value.text,
+            rawButton: this.formGroup.value.rawButton,
+            media: this.formGroup.value.media,
+            dataType: this.formGroup.value.dataType.value,
+        }).subscribe({
+            next: (response) => {
+                console.debug('welcome message', response);
+
+                this.router.navigate(['/group/welcome-message']).then(r => console.debug('after submit', r));
+            },
+            error: (err) => {
+                console.error('detail welcome message', err);
+                this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.result.error});
+            },
+            complete: () => {
+                console.info('get welcome message complete');
+            }
+        });
+
     }
 }

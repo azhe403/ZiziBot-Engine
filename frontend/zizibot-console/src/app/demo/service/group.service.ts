@@ -13,12 +13,20 @@ export class GroupService {
     constructor(private http: HttpClient) {
     }
 
-    public getWelcomeMessage(): Observable<ApiResponse<WelcomeMessage[]>> {
-        return this.http.get<ApiResponse<WelcomeMessage[]>>(ApiUrl.API_WELCOME_MESSAGE);
+    public getWelcomeMessage(chatId: number): Observable<ApiResponse<WelcomeMessage[]>> {
+        return this.http.get<ApiResponse<WelcomeMessage[]>>(ApiUrl.API_WELCOME_MESSAGE, {
+            params: {
+                chatId: chatId
+            }
+        });
     }
 
     public getWelcomeMessageById(welcomeId: string | null | undefined): Observable<ApiResponse<WelcomeMessage>> {
         return this.http.get<ApiResponse<WelcomeMessage>>(ApiUrl.API_WELCOME_MESSAGE + '/' + welcomeId);
+    }
+
+    public saveWelcomeMessage(data: any): Observable<ApiResponse<WelcomeMessage>> {
+        return this.http.post<ApiResponse<WelcomeMessage>>(ApiUrl.API_WELCOME_MESSAGE, data);
     }
 
     public selectWelcomeMessage(welcomeMessageId: string) {

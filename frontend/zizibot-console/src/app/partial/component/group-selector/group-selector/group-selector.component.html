@@ -4,5 +4,5 @@
 </div>
 
 <ng-template #displaySelector>
-    <p-dropdown [options]="listGroup" [(ngModel)]="chatId" (selectionchange)="onSelectChange($event)" optionLabel="chatTitle"></p-dropdown>
+    <p-dropdown [options]="listGroup" (onChange)="onSelectChange($event)" optionLabel="chatTitle"></p-dropdown>
 </ng-template>
