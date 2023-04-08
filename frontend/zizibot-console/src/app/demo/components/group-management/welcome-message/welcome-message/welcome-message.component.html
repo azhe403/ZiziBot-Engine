@@ -37,7 +37,7 @@
                         <tr pSelectableRow="welcome">
                             <td pFrozenColumn hidden="hidden">{{welcome.id}}</td>
                             <!--                            <td>{{welcome.chatId}}</td>-->
-                            <td>{{welcome.text}}</td>
+                            <td [innerHTML]="welcome.text"></td>
                             <td>{{welcome.dataTypeName}}</td>
                             <td>{{welcome.updatedDate | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
                             <td>{{welcome.statusName}}</td>

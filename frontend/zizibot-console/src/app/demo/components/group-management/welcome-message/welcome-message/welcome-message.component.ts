@@ -34,7 +34,10 @@ export class WelcomeMessageComponent implements AfterViewInit {
 
     onSelectWelcome(welcome: any) {
         console.debug('onSelectWelcome', welcome);
-        this.groupService.selectWelcomeMessage(welcome.id).subscribe((response) => {
+        this.groupService.selectWelcomeMessage({
+            chatId: this.chatId,
+            welcomeId: welcome.id,
+        }).subscribe((response) => {
             this.messageService.add({severity: 'success', summary: 'Success', detail: response.message});
 
             this.loadWelcomeMessage();

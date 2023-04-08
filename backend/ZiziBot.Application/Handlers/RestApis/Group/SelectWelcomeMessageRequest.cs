@@ -29,6 +29,7 @@ public class SelectWelcomeMessageHandler : IRequestHandler<SelectWelcomeMessageR
         var response = new ApiResponseBase<object>();
 
         var listWelcomeMessage = await _groupDbContext.WelcomeMessage
+            .Where(entity => entity.ChatId == request.Model.ChatId)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
@@ -52,6 +53,6 @@ public class SelectWelcomeMessageHandler : IRequestHandler<SelectWelcomeMessageR
 
         await _groupDbContext.SaveChangesAsync(cancellationToken);
 
-        return response.Success("Welcome Message activated successfully.", null);
+        return response.Success("Welcome Message activated successfully.", true);
     }
 }

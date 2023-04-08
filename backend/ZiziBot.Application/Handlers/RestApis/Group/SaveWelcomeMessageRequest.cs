@@ -17,7 +17,7 @@ public class SaveWelcomeMessageValidation : AbstractValidator<SaveWelcomeMessage
     public SaveWelcomeMessageValidation()
     {
         RuleFor(x => x.Model.ChatId).NotEqual(0);
-        RuleFor(x => x.Model.Text).NotEmpty();
+        RuleFor(x => x.Model.Text).NotEmpty().WithMessage("Text is required");
     }
 }
 

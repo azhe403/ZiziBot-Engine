@@ -29,9 +29,7 @@ export class GroupService {
         return this.http.post<ApiResponse<WelcomeMessage>>(ApiUrl.API_WELCOME_MESSAGE, data);
     }
 
-    public selectWelcomeMessage(welcomeMessageId: string) {
-        return this.http.post<ApiResponse<object[]>>(ApiUrl.API_WELCOME_MESSAGE_SELECT, {
-            welcomeId: welcomeMessageId
-        });
+    public selectWelcomeMessage(data: any) {
+        return this.http.post<ApiResponse<object[]>>(ApiUrl.API_WELCOME_MESSAGE_SELECT, data);
     }
 }
