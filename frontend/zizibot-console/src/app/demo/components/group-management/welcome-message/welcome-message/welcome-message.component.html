@@ -1,6 +1,6 @@
 <div class="grid p-fluid">
 
-    <div class="col-12 pb-1">
+    <div class="col-12 pb-1 pt-0">
         <p-toast></p-toast>
 
         <p-toolbar>
@@ -8,7 +8,8 @@
                 <h1>Welcome Message</h1>
             </div>
             <div class="p-toolbar-group-end">
-                <p-button icon="pi pi-plus" [routerLink]="['add']" styleClass="p-button-danger"></p-button>
+                <p-button icon="pi pi-refresh" (click)="loadWelcomeMessage()" pTooltip="Segarkan" tooltipPosition="top"></p-button>
+                <p-button icon="pi pi-plus" class="mx-1" [routerLink]="['add']" styleClass="p-button-danger" pTooltip="Tambah" tooltipPosition="top"></p-button>
             </div>
         </p-toolbar>
     </div>
@@ -21,23 +22,25 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th class="w-0" pFrozenColumn hidden="hidden">Welcome Id</th>
+                        <th style="width: 5rem">Group</th>
                         <th style="min-width: 20rem">Text/Caption</th>
-                        <th style="min-width: 5rem">Media Type</th>
-                        <th style="min-width: 5rem">Updated Date</th>
-                        <th style="min-width: 5rem">Status</th>
-                        <th style="min-width: 8rem" pFrozenColumn [frozen]="true" alignFrozen="right">Actions</th>
+                        <th style="width: 7rem">Media Type</th>
+                        <th style="width: 8rem">Updated Date</th>
+                        <th style="width: 5rem">Status</th>
+                        <th style="width: 10rem" pFrozenColumn [frozen]="true" alignFrozen="right">Actions</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-welcome>
                     <tr pSelectableRow="welcome">
                         <td pFrozenColumn hidden="hidden">{{welcome.id}}</td>
+                        <td>{{welcome.chatId}}</td>
                         <td>{{welcome.text}}</td>
                         <td>{{welcome.dataTypeName}}</td>
                         <td>{{welcome.date | date: 'MM/dd/yyyy'}}</td>
                         <td>{{welcome.statusName}}</td>
                         <td class="text-center" pFrozenColumn [frozen]="true" alignFrozen="right">
-                            <button type="button" class="m-1" pButton pRipple icon="pi pi-pencil" (click)="onOpenEditor(welcome)"></button>
-                            <button type="button" class="m-1" pButton pRipple icon="pi pi-check" (click)="onSelectWelcome(welcome)"></button>
+                            <button type="button" class="m-1" pButton pRipple icon="pi pi-pencil" pTooltip="Edit" tooltipPosition="top" (click)="onOpenEditor(welcome)"></button>
+                            <button type="button" class="m-1" pButton pRipple icon="pi pi-check" pTooltip="Aktifkan" tooltipPosition="top" (click)="onSelectWelcome(welcome)"></button>
                         </td>
                     </tr>
                 </ng-template>

@@ -21,6 +21,7 @@ import {CheckboxModule} from "primeng/checkbox";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {EditorModule} from "primeng/editor";
 import {GroupSelectorModule} from "../../../../partial/component/group-selector/group-selector.module";
+import {TooltipModule} from "primeng/tooltip";
 
 
 @NgModule({
@@ -47,7 +48,8 @@ import {GroupSelectorModule} from "../../../../partial/component/group-selector/
         CheckboxModule,
         InputTextareaModule,
         EditorModule,
-        GroupSelectorModule
+        GroupSelectorModule,
+        TooltipModule
     ]
 })
 export class WelcomeMessageModule {

@@ -1,11 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {GroupService} from 'src/app/demo/service/group.service';
+import {MessageService} from "primeng/api";
 
 @Component({
     selector: 'app-detail-welcome-message',
     templateUrl: './detail-welcome-message.component.html',
-    styleUrls: ['./detail-welcome-message.component.scss']
+    styleUrls: ['./detail-welcome-message.component.scss'],
+    providers: [MessageService]
 })
 export class DetailWelcomeMessageComponent implements OnInit {
 
@@ -14,13 +17,30 @@ export class DetailWelcomeMessageComponent implements OnInit {
     formGroup: FormGroup = new FormGroup({});
     mediaTypes: any;
 
-    constructor(private route: ActivatedRoute, private router: Router) {
+    constructor(private route: ActivatedRoute, private router: Router, private messageService: MessageService, private groupService: GroupService) {
     }
 
     ngOnInit(): void {
         this.getParam();
         this.initForm();
         this.initMediaTypes();
+    }
+
+    private loadWelcomeMessage() {
+        this.groupService.getWelcomeMessageById(this.welcomeId)
+            .subscribe({
+                next: (response) => {
+                    console.debug('welcome message', response);
+
+                    if (response.result)
+                        this.formGroup.patchValue(response.result);
+                },
+                error: (err) => {
+                    console.error('detail welcome message', err);
+                    this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.message});
+                },
+                complete: () => console.info('get welcome message complete')
+            });
     }
 
     private initMediaTypes() {
@@ -43,7 +63,9 @@ export class DetailWelcomeMessageComponent implements OnInit {
 
             if (this.welcomeId) {
                 this.pageTitle = 'Edit Welcome Message';
+                this.loadWelcomeMessage();
             }
+
         });
     }
 
@@ -51,8 +73,8 @@ export class DetailWelcomeMessageComponent implements OnInit {
         this.formGroup.addControl('welcomeId', new FormControl('', [Validators.required]))
         this.formGroup.addControl('chatId', new FormControl('', [Validators.required]));
         this.formGroup.addControl('text', new FormControl('', [Validators.required]));
-        this.formGroup.addControl('mediaId', new FormControl(''));
-        this.formGroup.addControl('mediaType', new FormControl(''));
+        this.formGroup.addControl('media', new FormControl(''));
+        this.formGroup.addControl('dataType', new FormControl(''));
         this.formGroup.addControl('rawButton', new FormControl(''));
     }
 

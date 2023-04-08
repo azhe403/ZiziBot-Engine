@@ -1,28 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
-public class GetWelcomeMessageRequest : ApiRequestBase<List<GetWelcomeMessageResponse>>
+public class GetWelcomeMessageRequest : ApiRequestBase<WelcomeMessageResponse>
 {
-    [FromQuery]
-    public long ChatId { get; set; }
+    [FromRoute]
+    public string WelcomeId { get; set; }
 }
 
-public class GetWelcomeMessageResponse
-{
-    public string Id { get; set; }
-    public long ChatId { get; set; }
-    public string Text { get; set; }
-    public string RawButton { get; set; }
-    public string Media { get; set; }
-    public int DataType { get; set; }
-    public string DataTypeName { get; set; }
-    public int Status { get; set; }
-    public string StatusName { get; set; }
-}
-
-public class GetWelcomeMessageHandler : IRequestHandler<GetWelcomeMessageRequest, ApiResponseBase<List<GetWelcomeMessageResponse>>>
+public class GetWelcomeMessageHandler : IRequestHandler<GetWelcomeMessageRequest, ApiResponseBase<WelcomeMessageResponse>>
 {
     private readonly GroupDbContext _groupDbContext;
 
@@ -31,28 +19,33 @@ public class GetWelcomeMessageHandler : IRequestHandler<GetWelcomeMessageRequest
         _groupDbContext = groupDbContext;
     }
 
-    public async Task<ApiResponseBase<List<GetWelcomeMessageResponse>>> Handle(GetWelcomeMessageRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<WelcomeMessageResponse>> Handle(GetWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
-        var response = new ApiResponseBase<List<GetWelcomeMessageResponse>>();
+        var response = new ApiResponseBase<WelcomeMessageResponse>();
 
         var query = await _groupDbContext.WelcomeMessage
             .AsNoTracking()
-            .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
+            .Where(entity => entity.Id == new ObjectId(request.WelcomeId))
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
-            .ToListAsync(cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        var data = query.Select(entity => new GetWelcomeMessageResponse
+        if (query == null)
         {
-            Id = entity.Id.ToString(),
-            ChatId = entity.ChatId,
-            Text = entity.Text,
-            RawButton = entity.RawButton,
-            Media = entity.Media,
-            DataType = entity.DataType,
-            DataTypeName = ((CommonMediaType)entity.DataType).ToString(),
-            Status = entity.Status,
-            StatusName = ((EventStatus)entity.Status).ToString()
-        }).ToList();
+            return response.BadRequest("Welcome Message not found");
+        }
+
+        var data = new WelcomeMessageResponse
+        {
+            Id = query.Id.ToString(),
+            ChatId = query.ChatId,
+            Text = query.Text,
+            RawButton = query.RawButton,
+            Media = query.Media,
+            DataType = query.DataType,
+            DataTypeName = ((CommonMediaType)query.DataType).ToString(),
+            Status = query.Status,
+            StatusName = ((EventStatus)query.Status).ToString()
+        };
 
         return response.Success("Get Welcome Message successfully", data);
     }

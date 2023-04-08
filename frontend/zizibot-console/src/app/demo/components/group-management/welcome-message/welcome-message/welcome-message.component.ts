@@ -22,7 +22,7 @@ export class WelcomeMessageComponent implements AfterViewInit {
         this.loadWelcomeMessage();
     }
 
-    private loadWelcomeMessage() {
+    loadWelcomeMessage() {
         this.groupService.getWelcomeMessage().subscribe((response) => {
             console.debug('welcome message', response);
 
