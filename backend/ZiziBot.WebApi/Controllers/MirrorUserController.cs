@@ -31,4 +31,10 @@ public class MirrorUserController : ApiControllerBase
     {
         return await SendRequest(request);
     }
+
+    [HttpPost("submit-payment-url")]
+    public async Task<IActionResult> SubmitPaymentUrl(SubmitPaymentUrlRequest request)
+    {
+        return await SendRequest(request);
+    }
 }
