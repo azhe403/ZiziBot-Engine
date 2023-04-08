@@ -9,7 +9,7 @@ public class ApiResponseBase<TResult>
     public string Message { get; set; }
     public TResult? Result { get; set; }
 
-    public ApiResponseBase<TResult> Success(string message, TResult? result)
+    public ApiResponseBase<TResult> Success(string message, TResult? result = default)
     {
         StatusCode = HttpStatusCode.OK;
         Message = message;
