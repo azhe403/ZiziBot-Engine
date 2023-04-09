@@ -9,6 +9,11 @@ public static class StringUtil
         return string.IsNullOrEmpty(param) ? default : param.Split(separator, StringSplitOptions.TrimEntries).GetCommandParamAt<T>(index);
     }
 
+    public static bool IsCommand(this string? text, string command)
+    {
+        return text.GetCommandParamAt<string>(0)?.ToLower().Equals(command.ToLower()) ?? false;
+    }
+
     public static string HtmlEncode(this string html)
     {
         return HttpUtility.HtmlEncode(html);

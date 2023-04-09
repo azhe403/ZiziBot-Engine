@@ -65,4 +65,22 @@ public class DebugController : CommandController
             }
         });
     }
+
+    [Command("promote")]
+    [Command("demote")]
+    public async Task PromoteMember(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new PromoteMemberRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            Promote = data.Message.Text.IsCommand("/promote"),
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
 }

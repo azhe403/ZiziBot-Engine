@@ -103,7 +103,6 @@ public class TelegramService
 
 
     #region Response
-
     public async Task<ResponseBase> SendMessageText(string text, IReplyMarkup? replyMarkup = null)
     {
         text += "\n\n" + GetExecStamp();
@@ -271,12 +270,10 @@ public class TelegramService
         await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, results);
         return Complete();
     }
-
     #endregion
 
 
     #region Command
-
     public string? GetCommand(bool withoutSlash = false, bool withoutUsername = true)
     {
         var cmd = string.Empty;
@@ -297,17 +294,48 @@ public class TelegramService
     {
         return GetCommand() == command;
     }
-
     #endregion
 
     #region Role
+    public async Task PromoteMember(long userId)
+    {
+        _logger.LogInformation("Promoting user {UserId} in chat {ChatId}", userId, ChatId);
+
+        await Bot.PromoteChatMemberAsync(
+            ChatId, _request.UserId,
+            canPostMessages: true,
+            canEditMessages: true,
+            canDeleteMessages: true,
+            canInviteUsers: true,
+            canRestrictMembers: true,
+            canPromoteMembers: true,
+            canManageVideoChats: true,
+            canPinMessages: true
+        );
+    }
+
+    public async Task DemoteMember(long userId)
+    {
+        _logger.LogInformation("Demoting user {UserId} in chat {ChatId}", userId, ChatId);
+
+        await Bot.PromoteChatMemberAsync(
+            ChatId, _request.UserId,
+            canPostMessages: false,
+            canEditMessages: false,
+            canDeleteMessages: false,
+            canInviteUsers: false,
+            canRestrictMembers: false,
+            canPromoteMembers: false,
+            canManageVideoChats: false,
+            canPinMessages: false
+        );
+    }
 
     public async Task<ChatMember[]> GetChatAdministrator()
     {
         var cacheValue = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.LIST_CHAT_ADMIN + ChatId,
-            action: async () =>
-            {
+            action: async () => {
                 var chatAdmins = await Bot.GetChatAdministratorsAsync(ChatId);
                 return chatAdmins;
             }
@@ -339,6 +367,6 @@ public class TelegramService
         );
         return isAdmin;
     }
-
     #endregion
+
 }
