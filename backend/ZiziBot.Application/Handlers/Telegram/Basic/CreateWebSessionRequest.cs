@@ -60,7 +60,7 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
         }
 
         var htmlMessage = HtmlMessage.Empty
-            .TextBr("Session berhasil dibuat!")
+            .BoldBr("🎛 ZiziBot Console")
             .TextBr("Silakan klik tombol dibawah ini untuk membuka.")
             .Br();
 
@@ -72,7 +72,7 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
         var replyMarkup = InlineKeyboardMarkup.Empty();
         if (!webUrl.Contains("localhost"))
         {
-            replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithLoginUrl("Open Web", new LoginUrl()
+            replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithLoginUrl("Buka Console", new LoginUrl()
             {
                 Url = webUrl
             }));

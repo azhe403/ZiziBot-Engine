@@ -50,8 +50,8 @@ public class DebugController : CommandController
         });
     }
 
-    [Command("weblogin")]
-    public async Task WebLogin(MessageData data)
+    [Command("console")]
+    public async Task OpenConsole(MessageData data)
     {
         await _mediatorService.EnqueueAsync(new CreateWebSessionRequestModel()
         {
