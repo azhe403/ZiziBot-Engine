@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.LoadSettings();
 
-builder.Host.InitSerilogBootstrapper();
+builder.Host.ConfigureSerilog(true);
 
 builder.WebHost.ConfigureCustomListenPort();
 
