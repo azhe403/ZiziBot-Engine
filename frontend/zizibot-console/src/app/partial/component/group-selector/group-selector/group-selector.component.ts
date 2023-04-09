@@ -2,8 +2,10 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {GroupService} from "../../../../demo/service/group.service";
 import {TelegramService} from "../../../services/telegram.service";
-import {TelegramGroup} from "../../../../../../projects/zizibot-types/src/restapi/telegram-group";
+import {TelegramGroup} from "projects/zizibot-types/src/restapi/telegram-group";
 import Enumerable from "linq";
+import {MessageService} from "primeng/api";
+import {ConditionState} from "projects/zizibot-types/src/constant/state";
 
 @Component({
     selector: 'app-group-selector',
@@ -19,13 +21,15 @@ import Enumerable from "linq";
 })
 export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
 
+    ConditionState = ConditionState;
+    selectorState = -1;
     mediaTypes: any;
     listGroup: TelegramGroup[] = [];
     chatId = 0;
 
     @Output() selectedChatId = new EventEmitter<number>();
 
-    constructor(private groupService: GroupService, private telegramService: TelegramService) {
+    constructor(private groupService: GroupService, private telegramService: TelegramService, private messageService: MessageService) {
     }
 
     onChange = (chatId: any) => {
@@ -72,9 +76,16 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
     loadListGroup() {
         this.telegramService.listTelegramGroup().subscribe((data) => {
             console.debug('listTelegramGroup', data);
+
+            if (!data.result) {
+                this.selectorState = 0
+                return this.messageService.add({severity: 'warn', summary: 'Warning', detail: 'Sepertinya Anda belum memiliki grub'});
+            }
+
+            this.selectorState = 2;
             this.listGroup = data.result;
 
-            if (this.chatId == 0)
+            if (this.chatId == 0 && this.listGroup.length > 0)
                 this.onChange(Enumerable.from(this.listGroup).first().chatId);
         });
     }
@@ -98,4 +109,5 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
 
         this.onChange(this.chatId);
     }
+
 }

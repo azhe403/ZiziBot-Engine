@@ -28,7 +28,6 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
         ApiResponseBase<List<GetListGroupResponse>?> response = new();
 
         #region Check Dashboard Session
-
         var dashboardSession = await _userDbContext.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == request.BearerToken &&
@@ -42,7 +41,6 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
         }
 
         var userId = dashboardSession.TelegramUserId;
-
         #endregion
 
         var chatAdmin = await _chatDbContext.ChatAdmin
@@ -51,6 +49,11 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
                 entity.Status == (int)EventStatus.Complete
             )
             .ToListAsync(cancellationToken: cancellationToken);
+
+        if (chatAdmin.Count == 0)
+        {
+            return response.Success("Get user permission successfully", null);
+        }
 
         var chatIds = chatAdmin.Select(y => y.ChatId);
 
