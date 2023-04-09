@@ -4,5 +4,12 @@
 </div>
 
 <ng-template #displaySelector>
-    <p-dropdown [options]="listGroup" (onChange)="onSelectChange($event)" optionLabel="chatTitle"></p-dropdown>
+    <div class="grid">
+        <div class="col">
+            <p-dropdown [options]="listGroup" class="w-full" (onChange)="onSelectChange($event)" [disabled]="disabled" optionLabel="chatTitle"></p-dropdown>
+        </div>
+        <div class="col-fixed">
+            <p-button icon="pi pi-refresh" (click)="loadListGroup()" pTooltip="Segarkan" tooltipPosition="top"></p-button>
+        </div>
+    </div>
 </ng-template>

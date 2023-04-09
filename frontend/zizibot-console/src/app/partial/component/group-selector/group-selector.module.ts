@@ -4,6 +4,8 @@ import {GroupSelectorComponent} from './group-selector/group-selector.component'
 import {DropdownModule} from "primeng/dropdown";
 import {FormsModule} from "@angular/forms";
 import {ProgressBarModule} from "primeng/progressbar";
+import {ButtonModule} from "primeng/button";
+import {TooltipModule} from "primeng/tooltip";
 
 
 @NgModule({
@@ -17,7 +19,9 @@ import {ProgressBarModule} from "primeng/progressbar";
         CommonModule,
         DropdownModule,
         FormsModule,
-        ProgressBarModule
+        ProgressBarModule,
+        ButtonModule,
+        TooltipModule
     ]
 })
 export class GroupSelectorModule {

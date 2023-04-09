@@ -8,7 +8,7 @@
                 <h1>Welcome Message</h1>
             </div>
             <div class="p-toolbar-group-end">
-                <p-button icon="pi pi-refresh" (click)="loadWelcomeMessage()" pTooltip="Segarkan" tooltipPosition="top"></p-button>
+                <!--                <p-button icon="pi pi-refresh" (click)="loadWelcomeMessage()" pTooltip="Segarkan" tooltipPosition="top"></p-button>-->
                 <p-button icon="pi pi-plus" class="mx-1" [routerLink]="['add']" styleClass="p-button-danger" pTooltip="Tambah" tooltipPosition="top"></p-button>
             </div>
         </p-toolbar>
@@ -17,7 +17,7 @@
     <div class="col-12 py-1">
 
         <div class="card">
-            <div class="mb-2">
+            <div class="mb-1">
                 <app-group-selector (selectedChatId)="onSelectChange($event)"></app-group-selector>
             </div>
             <div>
