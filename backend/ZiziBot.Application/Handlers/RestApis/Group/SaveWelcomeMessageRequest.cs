@@ -47,6 +47,11 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
     {
         var response = new ApiResponseBase<object>();
 
+        if (!request.AdminChatId.Contains(request.Model.ChatId))
+        {
+            return response.BadRequest("You are not admin of this group");
+        }
+
         var findWelcome = await _groupDbContext.WelcomeMessage
             .FirstOrDefaultAsync(x => x.Id == request.Model.ObjectId, cancellationToken);
 
