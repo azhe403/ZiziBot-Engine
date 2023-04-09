@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -21,6 +22,14 @@ public class GlobalExceptionMiddleware : IMiddleware
         catch (Exception exception)
         {
             _logger.LogError(exception, "Unhandled exception");
+
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>()
+            {
+                StatusCode = HttpStatusCode.InternalServerError,
+                transactionId = context.Request.Headers.GetTransactionId(),
+                Message = "Internal Server Error. Please contact administrator.",
+            });
         }
     }
 }
