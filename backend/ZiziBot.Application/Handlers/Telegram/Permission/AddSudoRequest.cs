@@ -2,6 +2,7 @@ namespace ZiziBot.Application.Handlers.Telegram.Permission;
 
 public class AddSudoRequestModel : RequestBase
 {
+    public long CustomUserId { get; set; }
 }
 
 [UsedImplicitly]
@@ -22,15 +23,13 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, Respon
 
         await _telegramService.SendMessageText("Adding sudo user...");
 
-        var serviceResult = await _sudoService.SaveSudo(
-            new Sudoer()
-            {
-                UserId = request.UserId,
-                PromotedBy = request.UserId,
-                PromotedFrom = request.ChatId.Identifier!.Value,
-                Status = (int) EventStatus.Complete
-            }
-        );
+        var serviceResult = await _sudoService.SaveSudo(new Sudoer()
+        {
+            UserId = request.CustomUserId == 0 ? request.UserId : request.CustomUserId,
+            PromotedBy = request.UserId,
+            PromotedFrom = request.ChatIdentifier,
+            Status = (int)EventStatus.Complete
+        });
 
         await _telegramService.EditMessageText(serviceResult.Message);
 
