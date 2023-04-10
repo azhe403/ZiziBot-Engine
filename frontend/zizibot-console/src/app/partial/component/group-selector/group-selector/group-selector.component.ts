@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {GroupService} from "../../../../demo/service/group.service";
 import {TelegramService} from "../../../services/telegram.service";
@@ -26,7 +26,10 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
     mediaTypes: any;
     listGroup: TelegramGroup[] = [];
     chatId = 0;
+    touched = false;
 
+    @Input() disabled = false;
+    @Input() disableSelector: boolean = false;
     @Output() selectedChatId = new EventEmitter<number>();
 
     constructor(private groupService: GroupService, private telegramService: TelegramService, private messageService: MessageService) {
@@ -39,8 +42,6 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
     onTouched = () => {
     };
 
-    touched = false;
-    disabled = false;
 
     ngOnInit(): void {
         this.initMediaTypes();

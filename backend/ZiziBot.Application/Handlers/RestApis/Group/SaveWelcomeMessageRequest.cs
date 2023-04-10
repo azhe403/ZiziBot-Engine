@@ -16,7 +16,7 @@ public class SaveWelcomeMessageValidation : AbstractValidator<SaveWelcomeMessage
 {
     public SaveWelcomeMessageValidation()
     {
-        RuleFor(x => x.Model.ChatId).NotEqual(0);
+        RuleFor(x => x.Model.ChatId).NotEqual(0).WithMessage("ChatId is required");
         RuleFor(x => x.Model.Text).NotEmpty().WithMessage("Text is required");
     }
 }
@@ -49,7 +49,7 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
 
         if (!request.AdminChatId.Contains(request.Model.ChatId))
         {
-            return response.BadRequest("You are not admin of this group");
+            return response.BadRequest("You don't have access to this Group");
         }
 
         var findWelcome = await _groupDbContext.WelcomeMessage
@@ -57,7 +57,6 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
 
         if (findWelcome == null)
         {
-
             var welcomeMessage = await _groupDbContext.WelcomeMessage
                 .FirstOrDefaultAsync(x => x.ChatId == request.Model.ChatId, cancellationToken);
 
