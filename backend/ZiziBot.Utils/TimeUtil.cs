@@ -25,8 +25,26 @@ public static class TimeUtil
         return timeSpan.Humanize(precision: precision, maxUnit: TimeUnit.Year, culture: CultureInfo.GetCultureInfo("id-Id"));
     }
 
-    #region Cron
+    public static string GetTimeGreet()
+    {
+        var greet = "dini hari";
+        var hour = DateTime.Now.Hour;
 
+        greet = hour switch
+        {
+            <= 3 => "dini hari",
+            <= 10 => "pagi",
+            <= 14 => "siang",
+            <= 17 => "sore",
+            <= 18 => "petang",
+            <= 24 => "malam",
+            _ => greet
+        };
+
+        return greet;
+    }
+
+    #region Cron
     /// <summary>
     /// Returns cron expression that fires every &lt;<paramref name="interval"></paramref>&gt; minutes.
     /// </summary>
@@ -50,7 +68,6 @@ public static class TimeUtil
     /// </summary>
     /// <param name="interval">The number of months to wait between every activation.</param>
     public static string MonthInterval(int interval) => $"0 0 1 */{interval} *";
-
     #endregion
 
 }

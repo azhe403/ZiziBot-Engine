@@ -296,6 +296,14 @@ public class TelegramService
     }
     #endregion
 
+    #region Member
+    public async Task<int> GetMemberCount()
+    {
+        var memberCount = await Bot.GetChatMemberCountAsync(ChatId);
+        return memberCount;
+    }
+    #endregion
+
     #region Role
     public async Task PromoteMember(long userId)
     {
