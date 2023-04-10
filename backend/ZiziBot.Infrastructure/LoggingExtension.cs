@@ -9,8 +9,10 @@ namespace ZiziBot.Infrastructure;
 
 public static class LoggingExtension
 {
+    // ReSharper disable InconsistentNaming
     private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
+    // ReSharper restore InconsistentNaming
 
     public static IHostBuilder ConfigureSerilog(this IHostBuilder hostBuilder, bool fullMode = false)
     {
@@ -28,9 +30,10 @@ public static class LoggingExtension
             var appDbContext = provider.GetRequiredService<AppSettingsDbContext>();
 
             var chatId = appDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
+            var threadId = appDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ThreadId")?.Value;
             var botToken = appDbContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main")?.Token;
 
-            config.WriteTo.Async(configuration => configuration.Telegram(botToken, chatId.ToInt64()));
+            config.WriteTo.Async(configuration => configuration.Telegram(botToken, chatId.ToInt64(), threadId.ToInt64()));
         });
 
         return hostBuilder;
@@ -42,7 +45,7 @@ public static class LoggingExtension
             settings => {
                 settings.BeforeCall = flurlCall => {
                     var request = flurlCall.Request;
-                    Log.Information("FlurlHttp: {Method} {url}", request.Verb, request.Url);
+                    Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
                 };
 
                 settings.AfterCall = flurlCall => {

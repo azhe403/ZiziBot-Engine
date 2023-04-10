@@ -11,6 +11,7 @@ public class TelegramSink : ILogEventSink
 {
     public string? BotToken { get; init; }
     public long? ChatId { get; init; }
+    public long ThreadId { get; set; }
 
     private string ApiUrl => $"https://api.telegram.org/bot{BotToken}/sendMessage";
 
@@ -53,8 +54,10 @@ public class TelegramSink : ILogEventSink
                 .Bold("File: ").CodeBr(stackFrame.GetFileName()!)
                 .Bold("Coordinate: ").CodeBr($"{stackFrame.GetFileLineNumber()}:{stackFrame.GetFileColumnNumber()}")
                 .Bold("Namespace: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Namespace!)
-                .Bold("Assembly: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Name ?? string.Empty)
-                .Bold("Assembly Version: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Version!.ToString())
+                .Bold("Assembly: ")
+                .CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Name ?? string.Empty)
+                .Bold("Assembly Version: ")
+                .CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Version!.ToString())
                 .Bold("Assembly Location: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
         }
 
@@ -67,6 +70,7 @@ public class TelegramSink : ILogEventSink
         var payload = new
         {
             chat_id = ChatId,
+            message_thread_id = ThreadId,
             text = message,
             parse_mode = "HTML",
         };
@@ -84,6 +88,7 @@ public static class TelegramSinkExtension
         this LoggerSinkConfiguration configuration,
         string? botToken,
         long chatId,
+        long threadId,
         LogEventLevel logEventLevel = LogEventLevel.Warning
     )
     {
@@ -95,7 +100,8 @@ public static class TelegramSinkExtension
         configuration.Sink(logEventSink: new TelegramSink()
         {
             BotToken = botToken,
-            ChatId = chatId
+            ChatId = chatId,
+            ThreadId = threadId
         }, logEventLevel);
 
         return configuration;
