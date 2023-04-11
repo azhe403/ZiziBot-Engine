@@ -1,11 +1,12 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {GroupService} from "../../../../demo/service/group.service";
-import {TelegramService} from "../../../services/telegram.service";
-import {TelegramGroup} from "projects/zizibot-types/src/restapi/telegram-group";
 import Enumerable from "linq";
 import {MessageService} from "primeng/api";
 import {ConditionState} from "projects/zizibot-types/src/constant/state";
+import {StorageKey} from "projects/zizibot-types/src/constant/storage-key";
+import {TelegramGroup} from "projects/zizibot-types/src/restapi/telegram-group";
+import {GroupService} from "../../../../demo/service/group.service";
+import {TelegramService} from "../../../services/telegram.service";
 
 @Component({
     selector: 'app-group-selector',
@@ -23,30 +24,37 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
 
     ConditionState = ConditionState;
     selectorState = -1;
-    mediaTypes: any;
     listGroup: TelegramGroup[] = [];
+    selectedGroup: TelegramGroup | undefined;
     chatId = 0;
     touched = false;
 
     @Input() disabled = false;
     @Input() disableSelector: boolean = false;
     @Output() selectedChatId = new EventEmitter<number>();
+    @Output() selectedChat = new EventEmitter<TelegramGroup>();
 
-    constructor(private groupService: GroupService, private telegramService: TelegramService, private messageService: MessageService) {
+    constructor(
+        private groupService: GroupService,
+        private telegramService: TelegramService,
+        private messageService: MessageService
+    ) {
+    }
+
+    ngOnInit(): void {
+        this.loadListGroup();
     }
 
     onChange = (chatId: any) => {
+        localStorage.setItem(StorageKey.SELECTED_CHAT_ID, chatId.toString());
+        this.selectedGroup = Enumerable.from(this.listGroup).firstOrDefault(x => x.chatId == chatId);
+
         this.selectedChatId.emit(chatId);
     };
 
     onTouched = () => {
+        console.debug('onTouched');
     };
-
-
-    ngOnInit(): void {
-        this.initMediaTypes();
-        this.loadListGroup();
-    }
 
     writeValue(chatId: number) {
         console.debug('writeValue', chatId);
@@ -86,29 +94,26 @@ export class GroupSelectorComponent implements OnInit, ControlValueAccessor {
             this.selectorState = 2;
             this.listGroup = data.result;
 
-            if (this.chatId == 0 && this.listGroup.length > 0)
-                this.onChange(Enumerable.from(this.listGroup).first().chatId);
+            const selectedChatId = localStorage.getItem(StorageKey.SELECTED_CHAT_ID);
+            console.debug('selectedChatId', selectedChatId);
+
+            if (this.listGroup.length > 0) {
+                if (selectedChatId != null) {
+                    console.debug('update selected from local storage', selectedChatId);
+                    this.onChange(selectedChatId);
+                } else {
+                    console.debug('update selected from first group');
+                    this.onChange(Enumerable.from(this.listGroup).first().chatId);
+                }
+            }
         });
     }
 
-    private initMediaTypes() {
-        this.mediaTypes = [
-            {name: 'Text', value: '1'},
-            {name: 'Image', value: '2'},
-            {name: 'Video', value: '3'},
-            {name: 'Audio', value: '4'},
-            {name: 'Document', value: '5'},
-            {name: 'Sticker', value: '6'},
-        ];
-    }
-
     onSelectChange($event: Event) {
-        // @ts-ignore
-        console.debug('select group:', $event.value);
-        // @ts-ignore
-        this.chatId = $event.value.chatId;
+        console.debug('onSelectChange', $event);
 
-        this.onChange(this.chatId);
+        console.debug('onSelectChange', this.selectedGroup);
+        this.selectedChat.emit(this.selectedGroup);
+        this.onChange(this.selectedGroup?.chatId);
     }
-
 }

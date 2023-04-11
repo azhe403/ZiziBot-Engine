@@ -10,7 +10,8 @@
         </div>
 
         <ng-template [ngIf]="selectorState==ConditionState.COMPLETE">
-            <p-dropdown [options]="listGroup" class="w-full" (onChange)="onSelectChange($event)" [disabled]="disableSelector" optionLabel="chatTitle"></p-dropdown>
+            <p-dropdown [options]="listGroup" class="w-full" [(ngModel)]="selectedGroup" (onChange)="onSelectChange($event)" [disabled]="disableSelector"
+                        optionLabel="chatTitle"></p-dropdown>
         </ng-template>
     </div>
     <div class="col-fixed" style="width:130px;">
