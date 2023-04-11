@@ -1,13 +1,14 @@
-import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {firstValueFrom, map} from "rxjs";
-import {UserSession} from 'projects/zizibot-types/src/restapi/user-session';
+import {Injectable} from '@angular/core';
+import {CookieService} from "ngx-cookie-service";
+import {StorageService} from "projects/zizibot-services/src/storage.service";
 import {ApiUrl} from 'projects/zizibot-types/src/constant/api-url';
+import {StorageKey} from "projects/zizibot-types/src/constant/storage-key";
 import {ApiResponse} from 'projects/zizibot-types/src/restapi/api-response';
 import {DashboardSession} from 'projects/zizibot-types/src/restapi/dashboard-session';
 import {TelegramUserLogin} from 'projects/zizibot-types/src/restapi/user-login';
-import {CookieService} from "ngx-cookie-service";
-import {StorageService} from "../../../../projects/zizibot-services/src/storage.service";
+import {UserSession} from 'projects/zizibot-types/src/restapi/user-session';
+import {firstValueFrom, map} from "rxjs";
 
 @Injectable({providedIn: 'root'})
 export class DashboardService {
@@ -68,8 +69,8 @@ export class DashboardService {
         const session = await firstValueFrom(dashboardSessionObservable);
         console.debug('session saved', session);
 
-        localStorage.setItem('bearer_token', session.bearerToken);
-        this.cookieService.set(`bearer_token`, session.bearerToken, {
+        localStorage.setItem(StorageKey.BEARER_TOKEN, session.bearerToken);
+        this.cookieService.set(StorageKey.BEARER_TOKEN, session.bearerToken, {
             path: '/hangfire-jobs',
         });
 

@@ -1,8 +1,9 @@
 import {AfterViewInit, Component} from '@angular/core';
-import {map, timer} from "rxjs";
 import {ActivatedRoute, Router} from "@angular/router";
+import {StorageKey} from "projects/zizibot-types/src/constant/storage-key";
+import {TelegramUserLogin} from "projects/zizibot-types/src/restapi/user-login";
+import {map, timer} from "rxjs";
 import {DashboardService} from "../../../services/dashboard.service";
-import {TelegramUserLogin} from "../../../../../../projects/zizibot-types/src/restapi/user-login";
 
 @Component({
     selector: 'app-verify',
@@ -25,6 +26,7 @@ export class VerifyComponent implements AfterViewInit {
 
     private verifySession() {
         this.authMessage.push('Sedang masuk..');
+        localStorage.removeItem(StorageKey.BEARER_TOKEN);
 
         this.route.queryParams
             .pipe(map(x => x as TelegramUserLogin))
