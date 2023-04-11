@@ -1,9 +1,9 @@
-import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {ApiUrl} from "../../../../projects/zizibot-types/src/constant/api-url";
-import {WelcomeMessage} from "../../../../projects/zizibot-types/src/restapi/welcome-message";
-import {ApiResponse} from "../../../../projects/zizibot-types/src/restapi/api-response";
+import {Injectable} from '@angular/core';
 import {Observable} from "rxjs";
+import {ApiUrl} from "../../../../projects/zizibot-types/src/constant/api-url";
+import {ApiResponse} from "../../../../projects/zizibot-types/src/restapi/api-response";
+import {WelcomeMessage} from "../../../../projects/zizibot-types/src/restapi/welcome-message";
 
 @Injectable({
     providedIn: 'root'
@@ -31,5 +31,11 @@ export class GroupService {
 
     public selectWelcomeMessage(data: any) {
         return this.http.post<ApiResponse<object[]>>(ApiUrl.API_WELCOME_MESSAGE_SELECT, data);
+    }
+
+    public deleteWelcomeMessage(data: any) {
+        return this.http.delete<ApiResponse<WelcomeMessage>>(ApiUrl.API_WELCOME_MESSAGE, {
+            body: data
+        });
     }
 }

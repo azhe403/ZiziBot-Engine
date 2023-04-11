@@ -24,6 +24,12 @@ public class GroupController : ApiControllerBase
         return await SendRequest(request);
     }
 
+    [HttpDelete("welcome-message")]
+    public async Task<IActionResult> DeleteWelcomeMessage(DeleteWelcomeMessageRequest request)
+    {
+        return await SendRequest(request);
+    }
+
     [HttpPost("select-welcome-message")]
     public async Task<IActionResult> SelectWelcomeMessage(SelectWelcomeMessageRequest request)
     {

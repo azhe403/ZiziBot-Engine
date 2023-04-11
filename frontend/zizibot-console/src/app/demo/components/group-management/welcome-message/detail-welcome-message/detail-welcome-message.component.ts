@@ -1,14 +1,14 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {ActivatedRoute, Router} from "@angular/router";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {GroupService} from 'src/app/demo/service/group.service';
-import {MessageService} from "primeng/api";
 
 @Component({
     selector: 'app-detail-welcome-message',
     templateUrl: './detail-welcome-message.component.html',
     styleUrls: ['./detail-welcome-message.component.scss'],
-    providers: [MessageService]
+    providers: [MessageService, ConfirmationService]
 })
 export class DetailWelcomeMessageComponent implements OnInit {
 
@@ -17,7 +17,13 @@ export class DetailWelcomeMessageComponent implements OnInit {
     formGroup: FormGroup = new FormGroup({});
     mediaTypes: any;
 
-    constructor(private route: ActivatedRoute, private router: Router, private messageService: MessageService, private groupService: GroupService) {
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private messageService: MessageService,
+        private confirmationService: ConfirmationService,
+        private groupService: GroupService
+    ) {
     }
 
     ngOnInit(): void {
@@ -103,5 +109,37 @@ export class DetailWelcomeMessageComponent implements OnInit {
             }
         });
 
+    }
+
+    onDelete() {
+        console.debug('delete welcome message', this.welcomeId);
+
+        this.confirmationService.confirm({
+            message: 'Apakah kamu yakin akan menghapus Welcome Message ini?',
+            header: 'Konfirmasi Hapus',
+            icon: 'pi pi-info-circle',
+            accept: () => {
+                console.debug('accept to delete welcome message', this.welcomeId);
+                this.groupService.deleteWelcomeMessage({
+                    id: this.welcomeId,
+                    chatId: this.formGroup.value.chatId,
+                }).subscribe({
+                    next: (response) => {
+                        console.debug('welcome message', response);
+                    },
+                    error: (err) => {
+                        console.error('delete welcome message', err);
+                        this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.result.error});
+                    },
+                    complete: () => {
+                        console.info('delete welcome message complete');
+                        this.router.navigate(['/group/welcome-message']).then(r => console.debug('after submit', r));
+                    }
+                })
+            },
+            reject: (type: any) => {
+                console.debug('user reject delete welcome message', type);
+            }
+        });
     }
 }
