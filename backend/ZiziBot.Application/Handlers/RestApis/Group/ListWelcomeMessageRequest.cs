@@ -39,6 +39,7 @@ public class ListWelcomeMessageHandler : IRequestHandler<ListWelcomeMessageReque
         var query = await _groupDbContext.WelcomeMessage
             .AsNoTracking()
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
+            .Where(entity => entity.Status != (int)EventStatus.Deleted)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
