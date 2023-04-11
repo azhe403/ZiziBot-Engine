@@ -74,7 +74,7 @@ export class DetailWelcomeMessageComponent implements OnInit {
         this.formGroup.addControl('chatId', new FormControl(0, [Validators.required]));
         this.formGroup.addControl('text', new FormControl('', [Validators.required]));
         this.formGroup.addControl('media', new FormControl(''));
-        this.formGroup.addControl('dataType', new FormControl(''));
+        this.formGroup.addControl('dataType', new FormControl(1));
         this.formGroup.addControl('rawButton', new FormControl(''));
     }
 
@@ -87,7 +87,7 @@ export class DetailWelcomeMessageComponent implements OnInit {
             text: this.formGroup.value.text,
             rawButton: this.formGroup.value.rawButton,
             media: this.formGroup.value.media,
-            dataType: this.formGroup.value.dataType.value,
+            dataType: this.formGroup.value.dataType,
         }).subscribe({
             next: (response) => {
                 console.debug('welcome message', response);
