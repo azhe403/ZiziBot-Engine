@@ -21,7 +21,7 @@ public class SudoService
                 return await _appSettingsDbContext.Sudoers.AnyAsync(
                     x =>
                         x.UserId == userId &&
-                        x.Status == (int) EventStatus.Complete
+                        x.Status == (int)EventStatus.Complete
                 );
             }
         );
@@ -29,19 +29,19 @@ public class SudoService
         return cache;
     }
 
-    public async Task<ServiceResult> SaveSudo(Sudoer sudoer)
+    public async Task<ServiceResult> SaveSudo(SudoerEntity entity)
     {
         ServiceResult serviceResult = new();
 
         var findSudo = await _appSettingsDbContext.Sudoers
-            .FirstOrDefaultAsync(x => x.UserId == sudoer.UserId);
+            .FirstOrDefaultAsync(x => x.UserId == entity.UserId);
 
         if (findSudo != null)
         {
             return serviceResult.Complete("This user is already a sudoer.");
         }
 
-        _appSettingsDbContext.Sudoers.Add(sudoer);
+        _appSettingsDbContext.Sudoers.Add(entity);
         await _appSettingsDbContext.SaveChangesAsync();
 
         return serviceResult.Complete("Sudoer added successfully.");

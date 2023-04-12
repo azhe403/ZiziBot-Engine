@@ -46,15 +46,13 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
         }
         else
         {
-            _userDbContext.DashboardSessions.Add(
-                new DashboardSession()
-                {
-                    FirstName = request.UserFullName,
-                    TelegramUserId = request.UserId,
-                    SessionId = sessionId,
-                    Status = (int)EventStatus.Complete
-                }
-            );
+            _userDbContext.DashboardSessions.Add(new DashboardSessionEntity()
+            {
+                FirstName = request.UserFullName,
+                TelegramUserId = request.UserId,
+                SessionId = sessionId,
+                Status = (int)EventStatus.Complete
+            });
 
             await _userDbContext.SaveChangesAsync(cancellationToken);
         }

@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.DataSource.MongoDb.Entities;

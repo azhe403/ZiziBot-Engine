@@ -8,6 +8,6 @@ public class UserDbContext : MongoDbContextBase
     {
     }
 
-    public MongoDbSet<DashboardSession> DashboardSessions { get; set; }
+    public MongoDbSet<DashboardSessionEntity> DashboardSessions { get; set; }
     public MongoDbSet<ApiKeyEntity> ApiKey { get; set; }
 }

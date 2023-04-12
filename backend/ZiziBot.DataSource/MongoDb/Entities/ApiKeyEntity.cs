@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace ZiziBot.DataSource.MongoDb.Entities;
 
 [Table("ApiKey")]

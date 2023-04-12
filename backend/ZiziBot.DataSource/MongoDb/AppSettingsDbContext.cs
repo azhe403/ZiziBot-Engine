@@ -6,8 +6,8 @@ public class AppSettingsDbContext : MongoDbContextBase
 {
     public AppSettingsDbContext(string connectionStr) : base(connectionStr) { }
 
-    public MongoDbSet<AppSettings> AppSettings { get; set; }
-    public MongoDbSet<BotSettings> BotSettings { get; set; }
+    public MongoDbSet<AppSettingsEntity> AppSettings { get; set; }
+    public MongoDbSet<BotSettingsEntity> BotSettings { get; set; }
     public MongoDbSet<BotCommandEntity> BotCommand { get; set; }
-    public MongoDbSet<Sudoer> Sudoers { get; set; }
+    public MongoDbSet<SudoerEntity> Sudoers { get; set; }
 }

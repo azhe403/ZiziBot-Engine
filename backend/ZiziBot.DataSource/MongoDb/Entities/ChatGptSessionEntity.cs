@@ -1,5 +1,6 @@
 namespace ZiziBot.DataSource.MongoDb.Entities;
 
+[Table("ChatGptSession")]
 public class ChatGptSessionEntity : EntityBase
 {
     public long ChatId { get; set; }

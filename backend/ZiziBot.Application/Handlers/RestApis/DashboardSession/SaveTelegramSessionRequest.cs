@@ -92,7 +92,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         var token = new JwtSecurityToken(JwtConfig.Issuer, JwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        _userDbContext.DashboardSessions.Add(new DataSource.MongoDb.Entities.DashboardSession()
+        _userDbContext.DashboardSessions.Add(new DashboardSessionEntity()
         {
             TelegramUserId = request.Model.TelegramUserId,
             FirstName = request.Model.FirstName,

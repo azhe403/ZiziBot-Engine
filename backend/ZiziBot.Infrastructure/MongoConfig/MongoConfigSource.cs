@@ -94,8 +94,7 @@ public class MongoConfigSource : IConfigurationSource
         };
 
         listAppSettings.ForEach(
-            dto =>
-            {
+            dto => {
                 foreach (var config in dto.KeyPair)
                 {
                     var prefix = dto.Root;
@@ -105,17 +104,15 @@ public class MongoConfigSource : IConfigurationSource
 
                     if (appSetting != null) continue;
 
-                    _dbContext.AppSettings.Add(
-                        new AppSettings()
-                        {
-                            Name = field,
-                            Field = field,
-                            Value = $"{config.Value}",
-                            DefaultValue = $"{config.Value}",
-                            TransactionId = Guid.NewGuid().ToString(),
-                            Status = (int)EventStatus.Complete
-                        }
-                    );
+                    _dbContext.AppSettings.Add(new AppSettingsEntity()
+                    {
+                        Name = field,
+                        Field = field,
+                        Value = $"{config.Value}",
+                        DefaultValue = $"{config.Value}",
+                        TransactionId = Guid.NewGuid().ToString(),
+                        Status = (int)EventStatus.Complete
+                    });
                 }
             }
         );

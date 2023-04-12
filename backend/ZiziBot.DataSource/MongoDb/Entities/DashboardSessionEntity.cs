@@ -1,6 +1,7 @@
 namespace ZiziBot.DataSource.MongoDb.Entities;
 
-public class DashboardSession : EntityBase
+[Table("DashboardSession")]
+public class DashboardSessionEntity : EntityBase
 {
     public long TelegramUserId { get; set; }
     public string FirstName { get; set; }

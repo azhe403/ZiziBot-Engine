@@ -36,14 +36,12 @@ public static class TelegramExtension
 
         if (!listBotOptions.Any())
         {
-            appSettingsDbContext.BotSettings.Add(
-                new BotSettings()
-                {
-                    Name = "BOT_NAME",
-                    Token = "BOT_TOKEN",
-                    Status = (int) EventStatus.InProgress
-                }
-            );
+            appSettingsDbContext.BotSettings.Add(new BotSettingsEntity()
+            {
+                Name = "BOT_NAME",
+                Token = "BOT_TOKEN",
+                Status = (int)EventStatus.InProgress
+            });
 
             appSettingsDbContext.SaveChanges();
 

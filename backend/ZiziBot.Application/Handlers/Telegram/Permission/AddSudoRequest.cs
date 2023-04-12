@@ -23,7 +23,7 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, Respon
 
         await _telegramService.SendMessageText("Adding sudo user...");
 
-        var serviceResult = await _sudoService.SaveSudo(new Sudoer()
+        var serviceResult = await _sudoService.SaveSudo(new SudoerEntity()
         {
             UserId = request.CustomUserId == 0 ? request.UserId : request.CustomUserId,
             PromotedBy = request.UserId,
