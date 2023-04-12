@@ -17,7 +17,7 @@ public class UserController : ApiControllerBase
     [HttpPost("session/telegram")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
-    public async Task<IActionResult> PostTelegramSession([FromBody] SaveTelegramSessionRequestModel request)
+    public async Task<IActionResult> PostTelegramSession(SaveTelegramSessionRequest request)
     {
         return await SendRequest(request);
     }

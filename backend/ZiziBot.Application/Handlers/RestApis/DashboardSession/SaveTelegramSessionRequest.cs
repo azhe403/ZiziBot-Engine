@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -10,7 +11,13 @@ using Newtonsoft.Json.Converters;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class SaveTelegramSessionRequestModel : ApiRequestBase<SaveDashboardSessionIdResponseDto>
+public class SaveTelegramSessionRequest : ApiRequestBase<SaveDashboardSessionIdResponseDto>
+{
+    [FromBody]
+    public SaveTelegramSessionRequestModel Model { get; set; }
+}
+
+public class SaveTelegramSessionRequestModel
 {
     [JsonProperty("id")]
     public long TelegramUserId { get; set; }
@@ -40,7 +47,7 @@ public class SaveDashboardSessionIdResponseDto
     public string BearerToken { get; set; }
 }
 
-public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequestModel, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
+public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequest, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     private readonly ILogger<SaveTelegramSessionRequestHandler> _logger;
     private readonly IOptions<JwtConfig> _jwtConfigOption;
@@ -62,76 +69,45 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         _userDbContext = userDbContext;
     }
 
-    public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(SaveTelegramSessionRequestModel request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(SaveTelegramSessionRequest request, CancellationToken cancellationToken)
     {
-        ApiResponseBase<SaveDashboardSessionIdResponseDto> apiResponse = new();
+        ApiResponseBase<SaveDashboardSessionIdResponseDto> response = new();
 
         var checkSudo = await _appSettingsDbContext.Sudoers
-            .FirstOrDefaultAsync(sudoer =>
-                    sudoer.UserId == request.TelegramUserId &&
-                    sudoer.Status == (int)EventStatus.Complete,
-                cancellationToken: cancellationToken
-            );
+            .Where(entity => entity.UserId == request.Model.TelegramUserId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtConfig.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, request.Username),
-            new Claim(ClaimTypes.Name, request.FirstName),
+            new Claim(ClaimTypes.NameIdentifier, request.Model.Username),
+            new Claim(ClaimTypes.Name, request.Model.FirstName),
             new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer"),
-            new Claim(HeaderKey.UserId, request.TelegramUserId.ToString()),
-            new Claim("photoUrl", request.PhotoUrl),
+            new Claim(HeaderKey.UserId, request.Model.TelegramUserId.ToString()),
+            new Claim("photoUrl", request.Model.PhotoUrl),
         };
+
         var token = new JwtSecurityToken(JwtConfig.Issuer, JwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
-
-
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        var dashboardSession = await _userDbContext.DashboardSessions
-            .FirstOrDefaultAsync(
-                session =>
-                    session.TelegramUserId == request.TelegramUserId &&
-                    session.Status == (int)EventStatus.Complete,
-                cancellationToken: cancellationToken
-            );
-
-        if (dashboardSession == null)
+        _userDbContext.DashboardSessions.Add(new DataSource.MongoDb.Entities.DashboardSession()
         {
-            _logger.LogDebug("New dashboard session created for user {UserId}", request.TelegramUserId);
-
-            _userDbContext.DashboardSessions.Add(
-                new DataSource.MongoDb.Entities.DashboardSession()
-                {
-                    TelegramUserId = request.TelegramUserId,
-                    FirstName = request.FirstName,
-                    PhotoUrl = request.PhotoUrl,
-                    Username = request.Username,
-                    AuthDate = request.AuthDate,
-                    Hash = request.Hash,
-                    SessionId = request.SessionId,
-                    BearerToken = stringToken,
-                    Status = (int)EventStatus.Complete
-                }
-            );
-        }
-        else
-        {
-            _logger.LogDebug("Dashboard session updated for user {UserId}", request.TelegramUserId);
-
-            dashboardSession.FirstName = request.FirstName;
-            dashboardSession.PhotoUrl = request.PhotoUrl;
-            dashboardSession.Username = request.Username;
-            dashboardSession.AuthDate = request.AuthDate;
-            dashboardSession.Hash = request.Hash;
-            dashboardSession.SessionId = request.SessionId;
-            dashboardSession.BearerToken = stringToken;
-            dashboardSession.Status = (int)EventStatus.Complete;
-        }
+            TelegramUserId = request.Model.TelegramUserId,
+            FirstName = request.Model.FirstName,
+            PhotoUrl = request.Model.PhotoUrl,
+            Username = request.Model.Username,
+            AuthDate = request.Model.AuthDate,
+            Hash = request.Model.Hash,
+            SessionId = request.Model.SessionId,
+            BearerToken = stringToken,
+            Status = (int)EventStatus.Complete
+        });
 
         await _userDbContext.SaveChangesAsync(cancellationToken);
 
-        return apiResponse.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto()
+        return response.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto()
         {
             IsSessionValid = true,
             BearerToken = stringToken
