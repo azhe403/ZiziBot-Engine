@@ -58,6 +58,11 @@ internal class NewChatMembersRequestHandler : IRequestHandler<NewChatMembersRequ
             ("MemberCount", memberCount.ToString())
         });
 
+        if (welcomeMessage?.DataType != (int)CommonMediaType.Text)
+        {
+            return await _telegramService.SendMediaAsync(welcomeMessage.Media, (CommonMediaType)welcomeMessage.DataType, messageText);
+        }
+
         return await _telegramService.SendMessageText(messageText);
     }
 }
