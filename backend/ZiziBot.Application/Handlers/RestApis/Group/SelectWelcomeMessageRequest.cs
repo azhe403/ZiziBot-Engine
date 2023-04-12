@@ -30,6 +30,7 @@ public class SelectWelcomeMessageHandler : IRequestHandler<SelectWelcomeMessageR
 
         var listWelcomeMessage = await _groupDbContext.WelcomeMessage
             .Where(entity => entity.ChatId == request.Model.ChatId)
+            .Where(entity => entity.Status != (int)EventStatus.Deleted)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
