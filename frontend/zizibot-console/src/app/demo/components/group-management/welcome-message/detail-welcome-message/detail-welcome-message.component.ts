@@ -1,7 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
+import Enumerable from "linq";
 import {ConfirmationService, MessageService} from "primeng/api";
+import {MediaType} from "projects/zizibot-types/src/restapi/media-type";
 import {GroupService} from 'src/app/demo/service/group.service';
 
 @Component({
@@ -15,7 +17,7 @@ export class DetailWelcomeMessageComponent implements OnInit {
     welcomeId: string | null | undefined;
     pageTitle = 'Add Welcome Message';
     formGroup: FormGroup = new FormGroup({});
-    mediaTypes: any;
+    mediaTypes: MediaType[] = [];
 
     constructor(
         private route: ActivatedRoute,
@@ -27,19 +29,25 @@ export class DetailWelcomeMessageComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.getParam();
-        this.initForm();
         this.initMediaTypes();
+        this.initForm();
+        this.getParam();
     }
 
     private loadWelcomeMessage() {
         this.groupService.getWelcomeMessageById(this.welcomeId)
             .subscribe({
                 next: (response) => {
-                    console.debug('welcome message', response);
+                    console.debug('welcome message', response.result);
 
-                    if (response.result)
-                        this.formGroup.patchValue(response.result);
+                    if (response.result) {
+                        console.debug('patch form for edit');
+                        const welcome = response.result;
+                        this.formGroup.patchValue(welcome);
+                        this.formGroup.patchValue({
+                            dataType: Enumerable.from(this.mediaTypes).firstOrDefault(x => x.value == welcome.dataType),
+                        });
+                    }
                 },
                 error: (err) => {
                     console.error('detail welcome message', err);
@@ -51,12 +59,12 @@ export class DetailWelcomeMessageComponent implements OnInit {
 
     private initMediaTypes() {
         this.mediaTypes = [
-            {name: 'Text', value: 1},
-            {name: 'Image', value: 2},
+            {name: 'Teks', value: 1},
+            {name: 'Foto', value: 2},
             {name: 'Audio', value: 3},
             {name: 'Video', value: 4},
-            {name: 'Document', value: 6},
-            {name: 'Sticker', value: 7},
+            {name: 'Dokumen', value: 6},
+            {name: 'Stiker', value: 7},
         ];
     }
 
@@ -80,7 +88,7 @@ export class DetailWelcomeMessageComponent implements OnInit {
         this.formGroup.addControl('chatId', new FormControl(0, [Validators.required]));
         this.formGroup.addControl('text', new FormControl('', [Validators.required]));
         this.formGroup.addControl('media', new FormControl(''));
-        this.formGroup.addControl('dataType', new FormControl(1));
+        this.formGroup.addControl('dataType', new FormControl<MediaType | null>(Enumerable.from(this.mediaTypes).first()));
         this.formGroup.addControl('rawButton', new FormControl(''));
     }
 
@@ -93,7 +101,7 @@ export class DetailWelcomeMessageComponent implements OnInit {
             text: this.formGroup.value.text,
             rawButton: this.formGroup.value.rawButton,
             media: this.formGroup.value.media,
-            dataType: this.formGroup.value.dataType,
+            dataType: this.formGroup.value.dataType.value,
         }).subscribe({
             next: (response) => {
                 console.debug('welcome message', response);
