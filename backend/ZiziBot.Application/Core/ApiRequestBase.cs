@@ -19,6 +19,6 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
 
     public ApiRole? SessionUserRole => HttpContextAccessor?.HttpContext?.Request.Headers[HeaderKey.UserRole].ToString().ToEnum(ApiRole.Guest);
     public List<long> AdminChatId => HttpContextAccessor?.HttpContext?.Request.Headers[HeaderKey.ListChatId].ToString().ToObject<List<long>>() ?? new List<long>();
-    public List<long> ListChatId => AdminChatId.Append(SessionUserId).ToList();
+    public List<long> ListChatId => AdminChatId.Append(SessionUserId).Where(x => x != 0).ToList();
     public string? BearerToken => Authorization?.Replace("Bearer ", string.Empty);
 }
