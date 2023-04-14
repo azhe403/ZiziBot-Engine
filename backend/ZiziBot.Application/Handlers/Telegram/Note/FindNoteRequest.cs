@@ -34,7 +34,7 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
         var words = request.MessageTexts?.Where(x => x.StartsWith('#')).ToList();
         if (words?.Any() ?? false)
         {
-            //find note single word (invoked by #note)
+            //find note single word - invoked by hashtag (#)
             foreach (var notes in words
                          .Select(word => word.Replace("#", ""))
                          .Select(tag => listNote.FirstOrDefault(x => x.Query == tag))
@@ -46,8 +46,8 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
         }
         else
         {
-            //find note by text (invoked by entire message text)
-            var note = listNote.FirstOrDefault(x => x.Query == request.MessageText);
+            //find note by text - invoked by entire/partial message text
+            var note = listNote.FirstOrDefault(x => request.MessageText?.Contains(x.Query, StringComparison.CurrentCultureIgnoreCase) ?? false);
             await SendNoteAsync(note);
 
         }
@@ -61,9 +61,9 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
             return;
         }
 
-        var dataType = (CommonMediaType) notes.DataType;
+        var dataType = (CommonMediaType)notes.DataType;
 
-        _logger.LogInformation("Sending note {noteId} with data type {dataType}", notes.Id, dataType);
+        _logger.LogInformation("Sending note {NoteId} with data type {DataType}", notes.Id, dataType);
 
         var replyMarkup = notes.RawButton.ToButtonMarkup();
 
@@ -73,7 +73,7 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
             await _telegramService.SendMediaAsync(
                 fileId: notes.FileId,
                 caption: notes.Content,
-                mediaType: (CommonMediaType) notes.DataType,
+                mediaType: (CommonMediaType)notes.DataType,
                 replyMarkup: replyMarkup
             );
     }
