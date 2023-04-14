@@ -160,7 +160,7 @@ public class TelegramService
     }
 
     public async Task<ResponseBase> SendMediaAsync(
-        string? fileId,
+        string fileId,
         CommonMediaType mediaType,
         string? caption = "",
         IReplyMarkup? replyMarkup = null,
@@ -218,6 +218,17 @@ public class TelegramService
                 SentMessage = await Bot.SendPhotoAsync(
                     chatId: targetChatId,
                     photo: fileId,
+                    caption: caption,
+                    parseMode: ParseMode.Html,
+                    replyMarkup: replyMarkup,
+                    replyToMessageId: _request.ReplyToMessageId
+                );
+                break;
+
+            case CommonMediaType.Audio:
+                SentMessage = await Bot.SendAudioAsync(
+                    chatId: targetChatId,
+                    audio: fileId,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
