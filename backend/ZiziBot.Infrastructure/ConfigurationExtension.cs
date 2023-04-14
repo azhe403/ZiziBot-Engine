@@ -22,6 +22,7 @@ public static class ConfigurationExtension
     public static IServiceCollection ConfigureSettings(this IServiceCollection services)
     {
         services.AddDataSource();
+        services.AddDataRepository();
 
         var provider = services.BuildServiceProvider();
 
@@ -35,8 +36,7 @@ public static class ConfigurationExtension
         services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
 
         services.Configure<List<SimpleTelegramBotClientOptions>>(
-            list =>
-            {
+            list => {
                 var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
                 var listBotData = appSettingDbContext.BotSettings
                     .Where(settings => settings.Status == (int)EventStatus.Complete)
