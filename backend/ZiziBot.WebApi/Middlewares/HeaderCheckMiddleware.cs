@@ -24,6 +24,18 @@ public class HeaderCheckMiddleware : IMiddleware
             return;
         }
 
+        var ignorePaths = new[]
+        {
+            "/api/webhook"
+        };
+
+        if (ignorePaths.Any(s => context.Request.Path.Value.StartsWith(s)))
+        {
+            _logger.LogDebug("Url path is ignored from Header verification. Url: {Url}", context.Request.Path.Value);
+            await next(context);
+            return;
+        }
+
         if (!context.Request.Headers.ContainsKey(HeaderKey.TransactionId))
         {
             await ReturnBadRequest(context, "Please set 'transactionId' in Headers");
