@@ -11,7 +11,7 @@ public class TelegramSink : ILogEventSink
 {
     public string? BotToken { get; init; }
     public long? ChatId { get; init; }
-    public long ThreadId { get; set; }
+    public long? ThreadId { get; set; }
 
     private string ApiUrl => $"https://api.telegram.org/bot{BotToken}/sendMessage";
 
@@ -87,8 +87,8 @@ public static class TelegramSinkExtension
     public static LoggerSinkConfiguration Telegram(
         this LoggerSinkConfiguration configuration,
         string? botToken,
-        long chatId,
-        long threadId,
+        long? chatId,
+        long? threadId,
         LogEventLevel logEventLevel = LogEventLevel.Warning
     )
     {

@@ -1,5 +1,4 @@
 using Flurl.Http;
-using HelpMate.Core.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,13 +26,10 @@ public static class LoggingExtension
             if (!fullMode)
                 return;
 
-            var appDbContext = provider.GetRequiredService<AppSettingsDbContext>();
+            var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+            var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
 
-            var chatId = appDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
-            var threadId = appDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ThreadId")?.Value;
-            var botToken = appDbContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main")?.Token;
-
-            config.WriteTo.Async(configuration => configuration.Telegram(botToken, chatId.ToInt64(), threadId.ToInt64()));
+            config.WriteTo.Async(configuration => configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
         });
 
         return hostBuilder;
