@@ -59,6 +59,7 @@ export class DashboardService {
             first_name: userLogin.first_name,
             username: userLogin.username,
             photo_url: userLogin.photo_url,
+            auth_date: userLogin.auth_date,
             hash: userLogin.hash,
             session_id: sessionId
         })

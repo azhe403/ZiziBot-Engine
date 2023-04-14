@@ -1,4 +1,3 @@
-using MongoFramework.Linq;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -23,14 +22,6 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
     {
         _telegramService.SetupResponse(request);
 
-        var dashboardSession = await _userDbContext.DashboardSessions
-            .Where(
-                session =>
-                    session.TelegramUserId == request.UserId &&
-                    session.Status == (int)EventStatus.Complete
-            )
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
-
         var sessionId = Guid.NewGuid().ToString();
         var webUrlBase = Env.WEB_VERIFY_SESSION_URL + "?sessionId=";
         var webUrl = webUrlBase + sessionId;
@@ -38,23 +29,6 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
         if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))
         {
             await _telegramService.SendMessageText("Maaf fitur ini belum dipersiapkan");
-        }
-
-        if (dashboardSession != null)
-        {
-            webUrl = webUrlBase + dashboardSession.SessionId;
-        }
-        else
-        {
-            _userDbContext.DashboardSessions.Add(new DashboardSessionEntity()
-            {
-                FirstName = request.UserFullName,
-                TelegramUserId = request.UserId,
-                SessionId = sessionId,
-                Status = (int)EventStatus.Complete
-            });
-
-            await _userDbContext.SaveChangesAsync(cancellationToken);
         }
 
         var htmlMessage = HtmlMessage.Empty
@@ -70,10 +44,16 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRe
         var replyMarkup = InlineKeyboardMarkup.Empty();
         if (!webUrl.Contains("localhost"))
         {
-            replyMarkup = new InlineKeyboardMarkup(InlineKeyboardButton.WithLoginUrl("Buka Console", new LoginUrl()
+            replyMarkup = new[]
             {
-                Url = webUrl
-            }));
+                new[]
+                {
+                    InlineKeyboardButton.WithLoginUrl("Buka Console", new LoginUrl()
+                    {
+                        Url = webUrl
+                    })
+                }
+            }.ToButtonMarkup();
         }
 
         return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);

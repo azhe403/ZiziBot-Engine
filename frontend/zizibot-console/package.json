@@ -6,13 +6,18 @@
         "ng": "ng",
         "ng-update": "ng update @angular/cdk @angular/cli @angular/core --allow-dirty",
         "restore": "npm install",
-        "start": "ng serve --port 7121 --ssl --host 0.0.0.0 --ssl-cert cert/sakai-ng.pem --ssl-key cert/sakai-ng.key",
+        "start": "ng serve --port 7121 --host 0.0.0.0 --disable-host-check",
+        "start-https": "ng serve --port 443 --ssl --host 0.0.0.0 --disable-host-check --ssl-cert cert/sakai-ng.pem --ssl-key cert/sakai-ng.key",
         "build": "ng build",
         "build-staging": "ng build --configuration staging",
         "build-prod": "ng build --configuration production",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
-        "lint": "ng lint"
+        "lint": "ng lint",
+        "clear:.angular": "rimraf .angular",
+        "clear:node_modules": "rimraf node_modules",
+        "clear:dist": "rimraf dist",
+        "clear:all": "npm run clear:.angular && npm run clear:node_modules && npm run clear:dist"
     },
     "private": true,
     "dependencies": {

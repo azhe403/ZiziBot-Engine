@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Humanizer;
 
 namespace ZiziBot.Utils;
 
@@ -31,5 +32,23 @@ public static class ValueUtil
             result = defaultVal;
             return input == null;
         }
+    }
+
+    public static Dictionary<string, string> ToDictionary(this object? values)
+    {
+        var symbols = new Dictionary<string, string>();
+
+        if (values != null)
+        {
+            var properties = values.GetType().GetProperties();
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(values, null) ?? string.Empty;
+                symbols.Add(property.Name.Underscore(), value.ToString() ?? string.Empty);
+            }
+        }
+
+        return symbols;
     }
 }

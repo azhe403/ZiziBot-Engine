@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 
 namespace ZiziBot.Utils;
@@ -50,5 +52,34 @@ public static class StringUtil
     {
         return placeHolders.Aggregate(input, (current, ph) =>
             current.Replace($"{{{ph.placeholder}}}", ph.value, StringComparison.CurrentCultureIgnoreCase));
+    }
+
+    public static string Sha256Hash(string value)
+    {
+        using SHA256 hash = SHA256.Create();
+        return hash.ComputeHash(Encoding.UTF8.GetBytes(value)).Select(i => i.ToString("x2")).Aggregate((a, b) => a + b);
+    }
+
+    public static byte[] ShaHash(String value)
+    {
+        using var hasher = SHA256.Create();
+        return hasher.ComputeHash(Encoding.UTF8.GetBytes(value));
+    }
+
+    public static byte[] HashHmac(byte[] key, byte[] message)
+    {
+        var hash = new HMACSHA256(key);
+        return hash.ComputeHash(message);
+    }
+
+    public static string HashHmac(string key, string message)
+    {
+        var secretKey = ShaHash(key);
+
+        var hashHmac = HashHmac(secretKey, Encoding.UTF8.GetBytes(message))
+            .Select(i => i.ToString("x2"))
+            .Aggregate((a, b) => a + b);
+
+        return hashHmac;
     }
 }

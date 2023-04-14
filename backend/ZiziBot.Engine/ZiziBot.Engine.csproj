@@ -33,8 +33,9 @@
     <!--  SPA Config  -->
     <PropertyGroup>
         <SpaRoot>..\..\frontend\zizibot-console</SpaRoot>
-        <SpaProxyServerUrl>https://127.0.0.1:7121</SpaProxyServerUrl>
-        <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
+        <!--        <SpaProxyServerUrl>https://console-zizibot-dev-v5.azhe.my.id</SpaProxyServerUrl>-->
+        <SpaProxyServerUrl>https://127.0.0.1</SpaProxyServerUrl>
+        <SpaProxyLaunchCommand>npm run start-https</SpaProxyLaunchCommand>
     </PropertyGroup>
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(FrontEndRoot)\node_modules') ">
         <!-- Ensure Node.js is installed -->

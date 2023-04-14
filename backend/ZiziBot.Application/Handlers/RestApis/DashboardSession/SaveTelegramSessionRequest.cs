@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoFramework.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
@@ -20,7 +19,7 @@ public class SaveTelegramSessionRequest : ApiRequestBase<SaveDashboardSessionIdR
 public class SaveTelegramSessionRequestModel
 {
     [JsonProperty("id")]
-    public long TelegramUserId { get; set; }
+    public long Id { get; set; }
 
     [JsonProperty("first_name")]
     public string FirstName { get; set; }
@@ -31,7 +30,7 @@ public class SaveTelegramSessionRequestModel
     [JsonProperty("photo_url")]
     public string PhotoUrl { get; set; }
 
-    [JsonConverter(typeof(UnixDateTimeConverter))]
+    [JsonProperty("auth_date")]
     public long AuthDate { get; set; }
 
     [JsonProperty("hash")]
@@ -73,8 +72,29 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
     {
         ApiResponseBase<SaveDashboardSessionIdResponseDto> response = new();
 
+        var botSetting = await _appSettingsDbContext.BotSettings
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Name == "Main")
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (botSetting == null)
+        {
+            return response.BadRequest("Suatu kesalahan terjadi, silahkan hubungi admin");
+        }
+
+        LoginWidget loginWidget = new(botSetting.Token);
+
+        var sessionData = request.Model.ToDictionary()
+            .Where(pair => pair.Key != "session_id");
+
+        var checkAuthorization = loginWidget.CheckAuthorization(sessionData);
+        if (checkAuthorization != WebAuthorization.Valid)
+        {
+            return response.Unauthorized($"Sesi tidak valid, silakan kirim ulang perintah '/console' di Bot untuk membuat sesi baru.");
+        }
+
         var checkSudo = await _appSettingsDbContext.Sudoers
-            .Where(entity => entity.UserId == request.Model.TelegramUserId)
+            .Where(entity => entity.UserId == request.Model.Id)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -85,7 +105,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             new Claim(ClaimTypes.NameIdentifier, request.Model.Username),
             new Claim(ClaimTypes.Name, request.Model.FirstName),
             new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer"),
-            new Claim(HeaderKey.UserId, request.Model.TelegramUserId.ToString()),
+            new Claim(HeaderKey.UserId, request.Model.Id.ToString()),
             new Claim("photoUrl", request.Model.PhotoUrl),
         };
 
@@ -94,7 +114,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
 
         _userDbContext.DashboardSessions.Add(new DashboardSessionEntity()
         {
-            TelegramUserId = request.Model.TelegramUserId,
+            TelegramUserId = request.Model.Id,
             FirstName = request.Model.FirstName,
             PhotoUrl = request.Model.PhotoUrl,
             Username = request.Model.Username,

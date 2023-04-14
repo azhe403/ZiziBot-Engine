@@ -1,8 +1,8 @@
-import {AfterViewInit, Component} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {StorageKey} from "projects/zizibot-types/src/constant/storage-key";
 import {TelegramUserLogin} from "projects/zizibot-types/src/restapi/user-login";
-import {map, timer} from "rxjs";
+import {map, Subscription, timer} from "rxjs";
 import {DashboardService} from "../../../services/dashboard.service";
 
 @Component({
@@ -10,14 +10,19 @@ import {DashboardService} from "../../../services/dashboard.service";
     templateUrl: './verify.component.html',
     styleUrls: ['./verify.component.scss']
 })
-export class VerifyComponent implements AfterViewInit {
+export class VerifyComponent implements AfterViewInit, OnDestroy {
     authMessage: string[] = [];
+    routeSubs: Subscription | undefined;
 
     constructor(
         private route: ActivatedRoute,
         private dashboardService: DashboardService,
         private router: Router
     ) {
+    }
+
+    ngOnDestroy(): void {
+        this.routeSubs?.unsubscribe();
     }
 
     ngAfterViewInit(): void {
@@ -28,19 +33,34 @@ export class VerifyComponent implements AfterViewInit {
         this.authMessage.push('Sedang masuk..');
         localStorage.removeItem(StorageKey.BEARER_TOKEN);
 
-        this.route.queryParams
+        this.routeSubs = this.route.queryParams
             .pipe(map(x => x as TelegramUserLogin))
-            .subscribe(async value => {
-                console.debug('queryParams:', value);
-                await this.dashboardService.saveSession(value);
+            .subscribe({
+                next: async value => {
+                    console.debug('queryParams:', value);
 
-                this.authMessage.push('Anda berhasil masuk..');
-                timer(3000).subscribe(x => {
-                    this.authMessage.push('Sedang mengalihkan..');
-                    this.router.navigate(['/']).then(r => {
-                        console.debug('after verify session', r);
-                    });
-                });
+                    try {
+                        await this.dashboardService.saveSession(value);
+
+                        this.authMessage.push('Anda berhasil masuk..');
+                        timer(3000).subscribe(x => {
+                            this.authMessage.push('Sedang mengalihkan..');
+                            this.router.navigate(['/']).then(r => {
+                                console.debug('after verify session', r);
+                            });
+                        });
+                    } catch (err: any) {
+                        console.debug('create session error', err);
+                        this.authMessage.push(err.error.message)
+                    }
+                },
+                error: err => {
+                    console.debug('create session error', err);
+                    this.authMessage.push(err.toString())
+                },
+                complete: () => {
+                    console.debug('create session complete');
+                }
             });
     }
 
