@@ -86,10 +86,13 @@ export class DetailWelcomeMessageComponent implements OnInit {
     private initForm() {
         this.formGroup.addControl('welcomeId', new FormControl('', [Validators.required]))
         this.formGroup.addControl('chatId', new FormControl(0, [Validators.required]));
+        this.formGroup.addControl('chatTitle', new FormControl('', [Validators.required]));
         this.formGroup.addControl('text', new FormControl('', [Validators.required]));
         this.formGroup.addControl('media', new FormControl(''));
         this.formGroup.addControl('dataType', new FormControl<MediaType | null>(Enumerable.from(this.mediaTypes).first()));
         this.formGroup.addControl('rawButton', new FormControl(''));
+
+        this.formGroup.controls['chatTitle'].disable();
     }
 
     onSubmit() {
