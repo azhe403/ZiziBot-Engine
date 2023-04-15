@@ -26,7 +26,7 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         var repository = pushEvent.Repository;
 
         var htmlMessage = HtmlMessage.Empty
-            .Url(pushEvent.HeadCommit.Url, $"🏗 {commitCount} commit").Bold($" to ").Url(repository.HtmlUrl, repository.FullName).Br().Br();
+            .Url(pushEvent.Compare, $"🏗 {commitCount} commit").Bold($" to ").Url(repository.HtmlUrl, repository.FullName).Br().Br();
 
         commits.ForEach(commit => {
             htmlMessage.Url(commit.Url.ToString(), commit.Id[..7])
