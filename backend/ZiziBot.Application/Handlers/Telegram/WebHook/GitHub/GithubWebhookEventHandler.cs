@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Octokit.Webhooks;
 using Octokit.Webhooks.Events;
+using Octokit.Webhooks.Events.PullRequest;
+using Octokit.Webhooks.Events.Star;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -33,6 +35,34 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         });
 
         await SendMessage(htmlMessage.ToString());
+    }
+
+    protected override Task ProcessPullRequestWebhookAsync(WebhookHeaders headers, PullRequestEvent pullRequestEvent, PullRequestAction action)
+    {
+        var htmlMessage = HtmlMessage.Empty;
+        var repository = pullRequestEvent.Repository;
+        var pullRequest = pullRequestEvent.PullRequest;
+
+        htmlMessage.Bold(action == PullRequestAction.Opened ? "📝 Opened " : "📝 Updated ")
+            .Url(pullRequest.HtmlUrl, $"PR #{pullRequest.Number}").Text(": ")
+            .Text(pullRequest.Title).Br()
+            .Bold("From: ").Url(pullRequest.Head.Repo.HtmlUrl, pullRequest.Head.Repo.FullName).Br()
+            .Bold("To: ").Url(pullRequest.Base.Repo.HtmlUrl, pullRequest.Base.Repo.FullName).Br();
+
+        return SendMessage(htmlMessage.ToString());
+    }
+
+    protected override Task ProcessStarWebhookAsync(WebhookHeaders headers, StarEvent starEvent, StarAction action)
+    {
+        var htmlMessage = HtmlMessage.Empty;
+        var repository = starEvent.Repository;
+        var watcherCount = repository.WatchersCount;
+
+        htmlMessage.Bold(action == StarAction.Created ? "⭐️ Starred " : "🌟 Unstarred ")
+            .Url(repository.HtmlUrl, repository.FullName).Br()
+            .Bold("Total: ").Code(watcherCount.ToString()).Br();
+
+        return SendMessage(htmlMessage.ToString());
     }
 
     private async Task SendMessage(string message)
