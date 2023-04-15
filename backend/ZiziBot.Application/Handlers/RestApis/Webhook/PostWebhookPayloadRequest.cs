@@ -1,7 +1,5 @@
-using System.Net;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MongoFramework.Linq;
-using Telegram.Bot;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
@@ -21,46 +19,65 @@ public class PostWebhookPayloadRequest : ApiRequestBase<PostWebhookPayloadRespon
 
 public class PostWebhookPayloadResponseDto
 {
+    public TimeSpan Duration { get; set; }
 }
 
 public class PostWebhookPayloadHandler : IRequestHandler<PostWebhookPayloadRequest, ApiResponseBase<PostWebhookPayloadResponseDto>>
 {
-    private readonly AppSettingsDbContext _appSettingsDbContext;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly AppSettingRepository _appSettingRepository;
+    private readonly ChatSettingRepository _chatSettingRepository;
+    private readonly GithubWebhookEventProcessor _githubWebhookEventProcessor;
 
-    public PostWebhookPayloadHandler(AppSettingsDbContext appSettingsDbContext, ChatDbContext chatDbContext)
+    public PostWebhookPayloadHandler(AppSettingRepository appSettingRepository, ChatSettingRepository chatSettingRepository, GithubWebhookEventProcessor githubWebhookEventProcessor)
     {
-        _appSettingsDbContext = appSettingsDbContext;
-        _chatDbContext = chatDbContext;
+        _appSettingRepository = appSettingRepository;
+        _chatSettingRepository = chatSettingRepository;
+        _githubWebhookEventProcessor = githubWebhookEventProcessor;
     }
 
     public async Task<ApiResponseBase<PostWebhookPayloadResponseDto>> Handle(PostWebhookPayloadRequest request, CancellationToken cancellationToken)
     {
-        var botSetting = await _appSettingsDbContext.BotSettings
-            .FirstOrDefaultAsync(settings => settings.Name == "Main", cancellationToken: cancellationToken);
+        var stopwatch = Stopwatch.StartNew();
+        var response = new ApiResponseBase<PostWebhookPayloadResponseDto>()
+        {
+            transactionId = request.HttpContextAccessor?.HttpContext?.TraceIdentifier ?? string.Empty
+        };
 
-        var webhookChat = await _chatDbContext.WebhookChat
-            .FirstOrDefaultAsync(entity =>
-                    entity.RouteId == request.targetId &&
-                    entity.Status == (int)EventStatus.Complete,
-                cancellationToken: cancellationToken);
+        if (request.Content.ToString() == null)
+        {
+            return response.BadRequest("Webhook payload is empty");
+        }
+
+        var botSetting = await _appSettingRepository.GetBotMain();
+
+        var webhookChat = await _chatSettingRepository.GetWebhookRouteById(request.targetId);
 
         if (webhookChat == null)
         {
-            return new ApiResponseBase<PostWebhookPayloadResponseDto>
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                Message = "Webhook route not found",
-            };
+            return response.BadRequest("Webhook route not found");
         }
 
-        var botClient = new TelegramBotClient(botSetting.Token);
-        await botClient.SendTextMessageAsync(webhookChat.ChatId, "Ini mesej webhuk", cancellationToken: cancellationToken);
-
-        return new ApiResponseBase<PostWebhookPayloadResponseDto>
+        switch (request.WebhookSource)
         {
-            StatusCode = HttpStatusCode.OK,
-            Message = "Webhook sent",
+            case WebhookSource.GitHub:
+                _githubWebhookEventProcessor.ChatId = webhookChat.ChatId;
+                _githubWebhookEventProcessor.RouteId = webhookChat.RouteId;
+                _githubWebhookEventProcessor.Token = botSetting.Token;
+
+                await _githubWebhookEventProcessor.ProcessWebhookAsync(request.Headers, request.Content.ToString() ?? string.Empty);
+                break;
+            default:
+                response.BadRequest("Webhook source is unknown");
+                break;
+        }
+
+        response.Result = new PostWebhookPayloadResponseDto()
+        {
+            Duration = stopwatch.Elapsed
         };
+
+        stopwatch.Stop();
+
+        return response.Success("Webhook payload processed");
     }
 }

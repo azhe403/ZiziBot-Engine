@@ -47,6 +47,13 @@ public static class ServiceExtension
                 .WithTransientLifetime()
         );
 
+        services.Scan(selector =>
+            selector.FromAssembliesOf(typeof(GithubWebhookEventHandler))
+                .AddClasses(filter => filter.InNamespaceOf<GithubWebhookEventHandler>())
+                .As<GithubWebhookEventProcessor>()
+                .WithTransientLifetime()
+        );
+
         return services;
     }
 

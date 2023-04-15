@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.DataSource.Repository;
+﻿using MongoFramework.Linq;
+
+namespace ZiziBot.DataSource.Repository;
 
 public class AppSettingRepository
 {
@@ -21,5 +23,15 @@ public class AppSettingRepository
             ChatId = chatId.Convert<long>(),
             ThreadId = threadId.Convert<long>()
         };
+    }
+
+    public async Task<BotSettingsEntity> GetBotMain()
+    {
+        var botSetting = await _appSettingsDbContext.BotSettings
+            .Where(entity => entity.Name == "Main")
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
+
+        return botSetting;
     }
 }
