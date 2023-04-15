@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {environment} from 'src/environments/environment';
+import {AboutService} from "./service/about.service";
 import {LayoutService} from './service/app.layout.service';
 
 @Component({
@@ -185,15 +186,20 @@ export class AppMenuComponent implements OnInit {
         }
     ];
 
-    constructor(public layoutService: LayoutService) {
+    constructor(public layoutService: LayoutService, public aboutService: AboutService) {
     }
 
     ngOnInit() {
-        if (this.env.production) {
-            this.model = this.mainMenu;
-        } else {
-            this.model = [...this.mainMenu, ...this.developmentMenu]
-        }
-    }
+        this.aboutService.getAbout()
+            .subscribe((response) => {
+                console.debug('about-api', response);
+                const {result} = response;
 
+                if (result.environment.toLowerCase() == 'production') {
+                    this.model = this.mainMenu;
+                } else {
+                    this.model = [...this.mainMenu, ...this.developmentMenu]
+                }
+            });
+    }
 }
