@@ -1,0 +1,13 @@
+{
+    "name": "zizibot-services",
+    "version": "0.0.1",
+    "peerDependencies": {
+        "@angular/common": "^15.2.0",
+        "@angular/core": "^15.2.0"
+    },
+    "dependencies": {
+        "ngx-cookie-service": "^15.0.0",
+        "tslib": "^2.3.0"
+    },
+    "sideEffects": false
+}

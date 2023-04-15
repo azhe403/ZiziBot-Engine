@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "ES2022",
+    "target": "ES2022",
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "composite": true,
+    "sourceMap": true,
+    "incremental": true
+  },
+  "exclude": [
+    "./dist",
+    "node_modules"
+  ]
+}
