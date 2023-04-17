@@ -47,7 +47,7 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
         else
         {
             //find note by text - invoked by entire/partial message text
-            var note = listNote.FirstOrDefault(x => request.MessageText?.Contains(x.Query, StringComparison.CurrentCultureIgnoreCase) ?? false);
+            var note = listNote.FirstOrDefault(x => request.MessageText?.Equals(x.Query, StringComparison.CurrentCultureIgnoreCase) ?? false);
             await SendNoteAsync(note);
 
         }
