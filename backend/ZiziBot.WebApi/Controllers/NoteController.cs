@@ -7,8 +7,7 @@ namespace ZiziBot.WebApi.Controllers;
 public class NoteController : ApiControllerBase
 {
     [HttpGet()]
-    [AccessLevel(AccessLevelEnum.AdminOrPrivate)]
-    public async Task<IActionResult> GetNotes([FromQuery] GetNoteRequest request)
+    public async Task<IActionResult> GetNotes([FromQuery] ListNoteRequest request)
     {
         return await SendRequest(request);
     }
