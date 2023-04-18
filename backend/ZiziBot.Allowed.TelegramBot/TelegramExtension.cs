@@ -27,7 +27,7 @@ public static class TelegramExtension
         return services;
     }
 
-    public static IApplicationBuilder RunTelegramBot(this IApplicationBuilder app)
+    public static async Task<IApplicationBuilder> RunTelegramBot(this IApplicationBuilder app)
     {
         var provider = app.ApplicationServices;
         var appSettingsDbContext = provider.GetRequiredService<AppSettingsDbContext>();
@@ -58,7 +58,7 @@ public static class TelegramExtension
         }
 
         var telegramManager = provider.GetRequiredService<ITelegramManager>();
-        telegramManager.Start(validBot.Select(options => TelegramBotClientFactory.CreateClient(options)));
+        await telegramManager.Start(validBot.Select(options => TelegramBotClientFactory.CreateClient(options)));
 
         return app;
     }

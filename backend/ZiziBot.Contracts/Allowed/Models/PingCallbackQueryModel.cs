@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Allowed.Telegram.Bot.Models;
 
-namespace ZiziBot.Allowed.TelegramBot.Models;
+namespace ZiziBot.Contracts.Allowed.Models;
 
 public class PingCallbackQueryModel : CallbackQueryModel
 {

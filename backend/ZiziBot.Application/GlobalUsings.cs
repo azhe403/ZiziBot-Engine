@@ -2,7 +2,6 @@
 
 global using JetBrains.Annotations;
 global using MediatR;
-global using ZiziBot.Allowed.TelegramBot.Models;
 global using ZiziBot.Application.Core;
 global using ZiziBot.Application.Handlers.Telegram.Core;
 global using ZiziBot.Application.Handlers.Telegram.Rss;
@@ -11,6 +10,7 @@ global using ZiziBot.Application.Handlers.Telegram.WebHook.GitHub;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Application.Utils;
 global using ZiziBot.Contracts;
+global using ZiziBot.Contracts.Allowed.Models;
 global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Constants;
 global using ZiziBot.Contracts.Dtos;
