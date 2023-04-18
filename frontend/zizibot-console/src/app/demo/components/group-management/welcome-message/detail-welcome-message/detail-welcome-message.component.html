@@ -17,8 +17,9 @@
         <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
             <div class="card">
 
-                <h5>Chat Id</h5>
-                <app-group-selector formControlName="chatId" [disableSelector]="welcomeId!=null"></app-group-selector>
+                <h5>Group</h5>
+                <app-group-selector *ngIf="!welcomeId" formControlName="chatId" [disableSelector]="welcomeId!=null"></app-group-selector>
+                <input type="text" *ngIf="welcomeId" formControlName="chatTitle" pInputText placeholder="" [disabled]="true"/>
 
                 <h5>Welcome Text</h5>
                 <textarea formControlName="text" rows="5" cols="30" placeholder="" pInputTextarea></textarea>

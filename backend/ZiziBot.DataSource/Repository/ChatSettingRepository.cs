@@ -20,4 +20,31 @@ public class ChatSettingRepository
 
         return webhookChat;
     }
+
+    public async Task<List<NoteDto>> GetListNote(long chatId)
+    {
+        var listNoteEntity = await _chatDbContext.Note
+            .AsNoTracking()
+            .Where(entity => entity.ChatId == chatId)
+            .Join(_chatDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto()
+            {
+                Id = note.Id.ToString(),
+                ChatId = note.ChatId,
+                ChatTitle = chat.ChatTitle,
+                Query = note.Query,
+                Text = note.Content,
+                RawButton = note.RawButton,
+                Media = note.FileId,
+                DataType = note.DataType,
+                Status = note.Status,
+                TransactionId = note.TransactionId,
+                CreatedDate = chat.CreatedDate,
+                UpdatedDate = chat.UpdatedDate
+            })
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .OrderBy(entity => entity.Query)
+            .ToListAsync();
+
+        return listNoteEntity;
+    }
 }

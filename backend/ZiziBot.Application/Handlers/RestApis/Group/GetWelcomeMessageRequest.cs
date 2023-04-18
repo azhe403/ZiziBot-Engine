@@ -1,52 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
-public class GetWelcomeMessageRequest : ApiRequestBase<WelcomeMessageResponse>
+public class GetWelcomeMessageRequest : ApiRequestBase<WelcomeMessageDto>
 {
     [FromRoute]
     public string WelcomeId { get; set; }
 }
 
-public class GetWelcomeMessageHandler : IRequestHandler<GetWelcomeMessageRequest, ApiResponseBase<WelcomeMessageResponse>>
+public class GetWelcomeMessageHandler : IRequestHandler<GetWelcomeMessageRequest, ApiResponseBase<WelcomeMessageDto>>
 {
-    private readonly GroupDbContext _groupDbContext;
+    private readonly GroupRepository _groupRepository;
 
-    public GetWelcomeMessageHandler(GroupDbContext groupDbContext)
+    public GetWelcomeMessageHandler(GroupRepository groupRepository)
     {
-        _groupDbContext = groupDbContext;
+        _groupRepository = groupRepository;
     }
 
-    public async Task<ApiResponseBase<WelcomeMessageResponse>> Handle(GetWelcomeMessageRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<WelcomeMessageDto>> Handle(GetWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
-        var response = new ApiResponseBase<WelcomeMessageResponse>();
+        var response = new ApiResponseBase<WelcomeMessageDto>();
 
-        var query = await _groupDbContext.WelcomeMessage
-            .AsNoTracking()
-            .Where(entity => entity.Id == new ObjectId(request.WelcomeId))
-            .Where(entity => request.ListChatId.Contains(entity.ChatId))
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        var data = await _groupRepository.GetWelcomeMessageById(request.WelcomeId);
 
-        if (query == null)
-        {
-            return response.BadRequest("Welcome Message not found");
-        }
+        return data == null ? response.BadRequest("Welcome Message not found") : response.Success("Get Welcome Message successfully", data);
 
-        var data = new WelcomeMessageResponse
-        {
-            Id = query.Id.ToString(),
-            ChatId = query.ChatId,
-            Text = query.Text,
-            RawButton = query.RawButton,
-            Media = query.Media,
-            DataType = query.DataType,
-            DataTypeName = ((CommonMediaType)query.DataType).ToString(),
-            Status = query.Status,
-            StatusName = ((EventStatus)query.Status).ToString()
-        };
-
-        return response.Success("Get Welcome Message successfully", data);
     }
 }
