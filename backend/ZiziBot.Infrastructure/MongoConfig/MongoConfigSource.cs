@@ -37,6 +37,11 @@ public class MongoConfigSource : IConfigurationSource
                 Root = "Engine",
                 KeyPair = new Dictionary<string, object>()
                 {
+                    { "ProductName", "ZiziBot" },
+                    { "Description", "ZiziBot is a Telegram bot that can help you manage your group." },
+                    { "Vendor", "WinTenDev" },
+                    { "Website", "https://winten.my.id" },
+                    { "Support", "https://t.me/WinTenDevSupport" },
                     { "TelegramEngineMode", "Auto" }
                 }
             },

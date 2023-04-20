@@ -1,4 +1,6 @@
-﻿using MongoFramework.Linq;
+﻿using System.ComponentModel;
+using System.Reflection;
+using MongoFramework.Linq;
 
 namespace ZiziBot.DataSource.Repository;
 
@@ -23,6 +25,26 @@ public class AppSettingRepository
             ChatId = chatId.Convert<long>(),
             ThreadId = threadId.Convert<long>()
         };
+    }
+
+    public async Task<T?> GetConfigSection<T>() where T : new()
+    {
+        var attribute = typeof(T).GetCustomAttribute<DisplayNameAttribute>();
+        if (attribute == null)
+        {
+            throw new ArgumentException("T must have DisplayName Attribute");
+        }
+
+        var sectionName = attribute.DisplayName;
+
+        var appSettings = await _appSettingsDbContext.AppSettings
+            .Where(entity => entity.Name.StartsWith(sectionName))
+            .Select(x => new { x.Name, x.Value })
+            .ToListAsync();
+
+        var data = appSettings.ToDictionary(x => x.Name.Remove(0, sectionName.Length + 1), x => x.Value).ToJson().ToObject<T>();
+
+        return data;
     }
 
     public async Task<BotSettingsEntity> GetBotMain()

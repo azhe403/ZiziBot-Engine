@@ -15,6 +15,22 @@ public class DebugController : CommandController
         _mediatorService = mediatorService;
     }
 
+    [Command("about")]
+    public async Task GetAbout(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new GetAboutRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
+
     [Command("id")]
     public async Task GetId(MessageData data)
     {

@@ -51,4 +51,16 @@ public static class ValueUtil
 
         return symbols;
     }
+
+    public static TDestination FromDictionary<TDestination>(this IDictionary<string, string> dictionary) where TDestination : new()
+    {
+        var obj = new TDestination();
+
+        foreach (var propertyInfo in typeof(TDestination).GetProperties())
+        {
+            propertyInfo.SetValue(obj, dictionary[propertyInfo.Name]);
+        }
+
+        return obj;
+    }
 }
