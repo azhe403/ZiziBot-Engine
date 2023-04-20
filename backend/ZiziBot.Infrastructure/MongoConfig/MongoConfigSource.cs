@@ -34,6 +34,14 @@ public class MongoConfigSource : IConfigurationSource
         {
             new()
             {
+                Root = "Engine",
+                KeyPair = new Dictionary<string, object>()
+                {
+                    { "TelegramEngineMode", "Auto" }
+                }
+            },
+            new()
+            {
                 Root = "Jwt",
                 KeyPair = new Dictionary<string, object>
                 {

@@ -16,13 +16,25 @@ public static class TelegramExtension
     {
         var provider = services.BuildServiceProvider();
         var environment = provider.GetRequiredService<IWebHostEnvironment>();
+        var config = provider.GetRequiredService<IOptions<EngineConfig>>().Value;
 
         services.AddTelegramControllers();
 
-        if (environment.IsDevelopment())
-            services.AddTelegramManager();
-        else
-            services.AddTelegramWebHookManager();
+        switch (config.TelegramEngineMode)
+        {
+            case BotEngineMode.Webhook:
+                services.AddTelegramWebHookManager();
+                break;
+            case BotEngineMode.Polling:
+                services.AddTelegramManager();
+                break;
+            default: // or EngineMode.Auto
+                if (environment.IsDevelopment())
+                    services.AddTelegramManager();
+                else
+                    services.AddTelegramWebHookManager();
+                break;
+        }
 
         return services;
     }
@@ -43,7 +55,7 @@ public static class TelegramExtension
                 Status = (int)EventStatus.InProgress
             });
 
-            appSettingsDbContext.SaveChanges();
+            await appSettingsDbContext.SaveChangesAsync();
 
             throw new ApplicationException("No bot data found. Please ensure config for 'BotSettings'");
         }

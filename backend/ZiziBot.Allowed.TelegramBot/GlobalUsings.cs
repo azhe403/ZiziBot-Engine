@@ -11,6 +11,7 @@ global using ZiziBot.Application.Handlers.Telegram.Permission;
 global using ZiziBot.Application.Handlers.Telegram.Text;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Contracts.Allowed.Models;
+global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Constants;
 global using ZiziBot.Contracts.Enums;
 global using ZiziBot.DataSource.MongoDb;
