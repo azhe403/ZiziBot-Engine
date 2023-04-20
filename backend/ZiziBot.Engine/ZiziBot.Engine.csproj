@@ -62,7 +62,7 @@
 
     <!-- Store Build Date -->
     <ItemGroup>
-        <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildDateAttribute">
+        <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildStampAttribute">
             <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 namespace ZiziBot.Parsers;
 
@@ -22,27 +22,15 @@ public static class VersionUtil
 
     public static string GetVersion(bool pretty = false)
     {
-        var currentAssembly = Assembly.GetCallingAssembly().GetName();
-        var version = currentAssembly.Version;
+        var currentAssembly = Assembly.GetEntryAssembly()?.GetCustomAttribute<BuildStampAttribute>();
+        var version = currentAssembly?.Version ?? new Version(1, 0, 0, 0);
 
         return pretty ? $"{version.Major}.{version.Minor} Build {version.Build}" : version.ToString();
-
-    }
-
-    public static DateTime GetBuildDate(this Assembly assembly)
-    {
-        var attribute = assembly.GetCustomAttribute<BuildDateAttribute>();
-        return attribute != null ? attribute.BuildDate : default(DateTime);
-    }
-
-    public static DateTime GetLinkerTime(this Assembly assembly)
-    {
-        return File.GetLastWriteTime(assembly.Location);
     }
 
     public static DateTime GetBuildDate()
     {
-        var buildDate = Assembly.GetEntryAssembly().GetBuildDate();
-        return buildDate;
+        var attribute = Assembly.GetEntryAssembly()?.GetCustomAttribute<BuildStampAttribute>();
+        return attribute?.BuildDate ?? default(DateTime);
     }
 }
