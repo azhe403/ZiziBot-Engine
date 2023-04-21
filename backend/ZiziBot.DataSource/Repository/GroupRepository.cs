@@ -47,4 +47,14 @@ public class GroupRepository
 
         return data;
     }
+
+    public async Task<List<ChatAdminEntity>> GetChatAdminByUserId(long userId)
+    {
+        var listChatAdmin = await _chatDbContext.ChatAdmin
+            .Where(entity => entity.UserId == userId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .ToListAsync();
+
+        return listChatAdmin;
+    }
 }

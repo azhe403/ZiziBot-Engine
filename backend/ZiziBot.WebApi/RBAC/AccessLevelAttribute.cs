@@ -6,11 +6,11 @@ namespace ZiziBot.WebApi.RBAC;
 public class AccessLevelAttribute : TypeFilterAttribute
 {
 
-    public AccessLevelAttribute(AccessLevelEnum accessLevelEnum) : base(typeof(AccessLevelAuthorizationFilter))
+    public AccessLevelAttribute(ApiRoleLevel apiRoleLevel) : base(typeof(AccessLevelAuthorizationFilter))
     {
         Arguments = new object[]
         {
-            accessLevelEnum
+            apiRoleLevel
         };
     }
 }

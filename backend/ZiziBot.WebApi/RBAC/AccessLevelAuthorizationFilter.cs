@@ -3,19 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 
 namespace ZiziBot.WebApi.RBAC;
 
 public class AccessLevelAuthorizationFilter : IAsyncAuthorizationFilter
 {
     private ILogger<AccessLevelAuthorizationFilter> _logger;
-    private readonly AccessLevelEnum _accessLevelEnum;
-    private ChatDbContext _chatDbContext;
+    private readonly ApiRoleLevel _apiRoleLevel;
+    private GroupRepository _groupRepository;
 
-    public AccessLevelAuthorizationFilter(AccessLevelEnum accessLevelEnum)
+    public AccessLevelAuthorizationFilter(ApiRoleLevel apiRoleLevel)
     {
-        _accessLevelEnum = accessLevelEnum;
+        _apiRoleLevel = apiRoleLevel;
     }
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -25,29 +24,27 @@ public class AccessLevelAuthorizationFilter : IAsyncAuthorizationFilter
             transactionId = context.HttpContext.Request.Headers.GetTransactionId()
         };
 
-        var listChatId = context.HttpContext.Request.Headers.GetListChatId();
         var userId = context.HttpContext.Request.Headers.GetUserId();
 
-        _chatDbContext = context.HttpContext.RequestServices.GetRequiredService<ChatDbContext>();
+        context.HttpContext.RequestServices.GetRequiredService<ChatDbContext>();
+        _groupRepository = context.HttpContext.RequestServices.GetRequiredService<GroupRepository>();
         _logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<AccessLevelAuthorizationFilter>>();
 
-        switch (_accessLevelEnum)
+        switch (_apiRoleLevel)
         {
-            case AccessLevelEnum.AdminOrPrivate:
-                if (!await GetListChatId(userId))
+            case ApiRoleLevel.AdminOrPrivate:
+                if (!await CheckListChatId(userId))
                 {
                     response.StatusCode = HttpStatusCode.Forbidden;
                     response.Message = "You are not authorized to access this resource.";
                 }
                 break;
-            case AccessLevelEnum.User:
+            case ApiRoleLevel.User:
                 break;
-            case AccessLevelEnum.Admin:
+            case ApiRoleLevel.Admin:
                 break;
-            case AccessLevelEnum.Root:
+            case ApiRoleLevel.Root:
                 break;
-            default:
-                throw new ArgumentOutOfRangeException();
         }
 
         if (response.StatusCode == 0) return;
@@ -58,14 +55,9 @@ public class AccessLevelAuthorizationFilter : IAsyncAuthorizationFilter
         };
     }
 
-    private async Task<bool> GetListChatId(long userId)
+    private async Task<bool> CheckListChatId(long userId)
     {
-        var chatAdmin = await _chatDbContext.ChatAdmin
-            .Where(entity =>
-                entity.UserId == userId &&
-                entity.Status == (int)EventStatus.Complete
-            )
-            .ToListAsync();
+        var chatAdmin = await _groupRepository.GetChatAdminByUserId(userId);
 
         return chatAdmin.Any();
     }
