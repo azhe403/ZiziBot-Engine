@@ -38,7 +38,24 @@ public class DebugController : CommandController
         {
             BotToken = data.Options.Token,
             Message = data.Message,
-            ReplyToMessageId = data.Message.MessageId,
+            ReplyMessage = true,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+
+    }
+
+    [Command("fid")]
+    public async Task GetFileId(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new GetFileIdRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
             CleanupTargets = new[]
             {
                 CleanupTarget.FromBot,
