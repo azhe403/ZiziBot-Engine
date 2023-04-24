@@ -1,4 +1,5 @@
 import {AfterViewInit, Component} from '@angular/core';
+import {Router} from "@angular/router";
 import {MessageService} from "primeng/api";
 import {Note} from "projects/zizibot-types/src/restapi/note";
 import {ChatService} from "../../../../service/chat.service";
@@ -14,7 +15,7 @@ export class NotesManagementComponent implements AfterViewInit {
     loading: any;
     listWelcomeMessage: Note[] = [];
 
-    constructor(private chatService: ChatService) {
+    constructor(private router: Router, private chatService: ChatService) {
     }
 
 
@@ -37,12 +38,10 @@ export class NotesManagementComponent implements AfterViewInit {
         this.loadNote();
     }
 
-    onOpenEditor(welcome: any) {
+    onOpenEditor(note: any) {
+        console.debug('Open Note editor', note);
 
-    }
-
-    onSelectWelcome(welcome: any) {
-
+        this.router.navigate(['/chat/notes/', note.id]).then(r => console.debug('navigate to Note editor', r));
     }
 
 }

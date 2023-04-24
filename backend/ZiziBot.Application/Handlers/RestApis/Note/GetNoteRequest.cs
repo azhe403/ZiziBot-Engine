@@ -1,33 +1,29 @@
-using MongoFramework.Linq;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 
 public class GetNoteRequest : ApiRequestBase<object>
 {
-    public long ChatId { get; set; }
+    [FromRoute]
+    public string NoteId { get; set; }
 }
 
 public class GetNoteHandler : IRequestHandler<GetNoteRequest, ApiResponseBase<object>>
 {
+    private readonly ChatSettingRepository _chatSettingRepository;
     private readonly ChatDbContext _chatDbContext;
 
-    public GetNoteHandler(ChatDbContext chatDbContext)
+    public GetNoteHandler(ChatSettingRepository chatSettingRepository)
     {
-        _chatDbContext = chatDbContext;
+        _chatSettingRepository = chatSettingRepository;
     }
 
     public async Task<ApiResponseBase<object>> Handle(GetNoteRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<object>();
 
-        var notes = await _chatDbContext.Note
-            .AsNoTracking()
-            .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
-            .Where(entity => request.ListChatId.Contains(entity.ChatId))
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .OrderBy(entity => entity.Query)
-            .ToListAsync(cancellationToken: cancellationToken);
+        var notes = await _chatSettingRepository.GetNote(request.NoteId);
 
-        return response.Success("Success", notes);
+        return response.Success("Get detail Note successfully", notes);
     }
 }

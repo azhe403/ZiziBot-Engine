@@ -1,35 +1,41 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using MongoDB.Bson;
 
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 
-public class CreateNoteRequest : ApiRequestBase<bool>
+public class SaveNoteRequest : ApiRequestBase<bool>
 {
     [FromBody]
-    public CreateNoteRequestModel Model { get; set; }
+    public SaveNoteRequestModel Model { get; set; }
 }
 
-public class CreateNoteRequestModel
+public class SaveNoteRequestModel
 {
+    public string? Id { get; set; }
     public long ChatId { get; set; }
-    public string Slug { get; set; }
+    public string Query { get; set; }
     public string Content { get; set; }
     public string? FileId { get; set; }
     public string? RawButton { get; set; }
     public int DataType { get; set; } = -1;
+
+    [BindNever]
+    public ObjectId ObjectId => Id != null ? new ObjectId(Id) : ObjectId.Empty;
 }
 
-public class CreateNoteValidator : AbstractValidator<CreateNoteRequest>
+public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
 {
-    public CreateNoteValidator()
+    public SaveNoteValidator()
     {
         RuleFor(x => x.Model.ChatId).NotEqual(0).WithMessage("ChatId is required");
-        RuleFor(x => x.Model.Slug).NotNull().WithMessage("Slug is required");
+        RuleFor(x => x.Model.Query).NotNull().WithMessage("Slug is required");
     }
 }
 
-public class CreateNoteHandler : IRequestHandler<CreateNoteRequest, ApiResponseBase<bool>>
+public class CreateNoteHandler : IRequestHandler<SaveNoteRequest, ApiResponseBase<bool>>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly NoteService _noteService;
@@ -40,7 +46,7 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteRequest, ApiResponseB
         _noteService = noteService;
     }
 
-    public async Task<ApiResponseBase<bool>> Handle(CreateNoteRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<bool>> Handle(SaveNoteRequest request, CancellationToken cancellationToken)
     {
         ApiResponseBase<bool> response = new();
 
@@ -49,10 +55,11 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteRequest, ApiResponseB
             return response.BadRequest("You don't have permission to create note for this Chat");
         }
 
-        await _noteService.Save(new NoteEntity()
+        var save = await _noteService.Save(new NoteEntity()
         {
+            Id = request.Model.ObjectId,
             ChatId = request.Model.ChatId,
-            Query = request.Model.Slug,
+            Query = request.Model.Query,
             Content = request.Model.Content,
             FileId = request.Model.FileId,
             RawButton = request.Model.RawButton,
@@ -62,6 +69,6 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteRequest, ApiResponseB
             TransactionId = _httpContextAccessor.GetTransactionId()
         });
 
-        return response.Success("Create note success", true);
+        return response.Success(save.Message, true);
     }
 }

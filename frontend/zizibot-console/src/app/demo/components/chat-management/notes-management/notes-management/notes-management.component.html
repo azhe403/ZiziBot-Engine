@@ -25,29 +25,30 @@
                     <ng-template pTemplate="header">
 
                     </ng-template>
-                    <ng-template let-product pTemplate="listItem">
+                    <ng-template let-note pTemplate="listItem">
                         <div class="col-12">
                             <div class="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
                                 <div class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                                     <div class="flex flex-column align-items-center sm:align-items-start gap-1 w-full">
-                                        <div class="text-2xl font-bold text-900">{{ '# ' + product.query }}</div>
+                                        <div class="text-2xl font-bold text-900">{{ '# ' + note.query }}</div>
                                         <div class="flex align-items-center gap-3">
                                             <span class="flex align-items-center gap-1">
-                                                <span class="font-semibold">{{ product.category }}</span>
+                                                <span class="font-semibold">{{ note.category }}</span>
                                             </span>
                                         </div>
                                         <p-fieldset legend="Text/Caption" class="w-full">
-                                            <p>{{product.text}}</p>
+                                            <p>{{note.text}}</p>
                                         </p-fieldset>
-                                        <p-fieldset legend="Media: {{product.dataTypeName}}" class="w-full">
-                                            <p>{{product.media}}</p>
+                                        <p-fieldset legend="Media: {{note.dataTypeName}}" class="w-full">
+                                            <p>{{note.media}}</p>
                                         </p-fieldset>
                                         <p-fieldset legend="Raw Button" class="w-full">
-                                            {{product.rawButton}}
+                                            {{note.rawButton}}
                                         </p-fieldset>
                                     </div>
                                     <div class="flex sm:flex-column align-items-center sm:align-items-end gap-1">
-                                        <button pButton icon="pi pi-pencil" class="md:align-self-end mb-2 p-button-rounded" pTooltip="Edit"></button>
+                                        <button pButton icon="pi pi-pencil" (click)="onOpenEditor(note)" class="md:align-self-end mb-2 p-button-rounded"
+                                                pTooltip="Edit"></button>
                                     </div>
                                 </div>
                             </div>

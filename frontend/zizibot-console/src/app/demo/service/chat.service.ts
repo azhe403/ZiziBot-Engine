@@ -12,11 +12,25 @@ export class ChatService {
     constructor(private http: HttpClient) {
     }
 
+    public saveNote(data: any) {
+        return this.http.post<ApiResponse<Note>>(ApiUrl.NOTE, data);
+    }
+
     public getNote(chatId: number) {
         return this.http.get<ApiResponse<Note[]>>(ApiUrl.NOTE, {
             params: {
                 chatId: chatId
             }
+        });
+    }
+
+    public getNoteById(noteId: string | null | undefined) {
+        return this.http.get<ApiResponse<Note>>(ApiUrl.NOTE + '/' + noteId);
+    }
+
+    public deleteNote(data: any) {
+        return this.http.delete<ApiResponse<Note>>(ApiUrl.NOTE, {
+            body: data
         });
     }
 }
