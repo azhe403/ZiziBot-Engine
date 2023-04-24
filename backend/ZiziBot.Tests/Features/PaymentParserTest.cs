@@ -32,4 +32,18 @@ public class MirrorUserParserTest
         var requiredNodes = await url.ParseTrakteerWeb();
         requiredNodes.RawText.Should().BeNullOrEmpty();
     }
+
+    [Theory]
+    [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
+    public async Task TrakteerApiTest(string url)
+    {
+        var trakteerApi = await url.GetTrakteerApi();
+
+        trakteerApi.OrderId.Should().NotBeNullOrEmpty();
+        trakteerApi.CendolCount.Should().BeGreaterThan(0);
+        trakteerApi.AdminFees.Should().BeGreaterThan(0);
+        trakteerApi.Total.Should().BeGreaterThan(0);
+        trakteerApi.OrderDate.Should().BeMoreThan(default);
+        trakteerApi.PaymentMethod.Should().NotBeNullOrEmpty();
+    }
 }

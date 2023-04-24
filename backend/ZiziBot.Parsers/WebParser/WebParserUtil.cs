@@ -1,4 +1,6 @@
 using System.Globalization;
+using Flurl;
+using Flurl.Http;
 
 namespace ZiziBot.Parsers.WebParser;
 
@@ -62,5 +64,16 @@ public static class WebParserUtil
         Log.Information("Parsed trakteer url: {Url}", url);
 
         return trakteerParsedDto;
+    }
+
+    public static async Task<TrakteerApiDto> GetTrakteerApi(this string url)
+    {
+        var data = await UrlConst.API_TRAKTEER_PARSER.SetQueryParam("url", url)
+            .GetJsonAsync<TrakteerApiDto>();
+
+        data.IsValid = true;
+        data.PaymentUrl = url;
+
+        return data;
     }
 }
