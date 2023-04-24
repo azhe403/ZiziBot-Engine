@@ -30,7 +30,7 @@ public class PingCallbackRequestHandler : IRequestHandler<PingCallbackRequestMod
 
         var htmlMessage = HtmlMessage.Empty;
 
-        if (webhookInfo.Url != null)
+        if (!webhookInfo.Url.IsNullOrEmpty())
         {
             htmlMessage.Text("URL: ").TextBr(webhookInfo.Url);
         }
@@ -39,6 +39,6 @@ public class PingCallbackRequestHandler : IRequestHandler<PingCallbackRequestMod
             htmlMessage.Text("Engine mode bukan Webhook");
         }
 
-        return await _telegramService.AnswerCallbackAsync(webhookInfo.Url, showAlert: true);
+        return await _telegramService.AnswerCallbackAsync(htmlMessage.ToString(), showAlert: true);
     }
 }
