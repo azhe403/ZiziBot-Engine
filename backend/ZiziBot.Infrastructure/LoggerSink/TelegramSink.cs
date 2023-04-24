@@ -61,7 +61,7 @@ public class TelegramSink : ILogEventSink
                 .Bold("Assembly Location: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
         }
 
-        SendMessageText(htmlMessage.ToString()).SafeFireAndForget();
+        SendMessageText(htmlMessage.ToString()).SafeFireAndForget(ex => SelfLog.WriteLine("Error when sending Telegram message: {ex}", ex));
     }
 
     private async Task SendMessageText(string message)
