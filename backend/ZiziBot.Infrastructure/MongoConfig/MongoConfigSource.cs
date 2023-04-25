@@ -62,7 +62,10 @@ public class MongoConfigSource : IConfigurationSource
                 KeyPair = new Dictionary<string, object>
                 {
                     { "ChatId", 12345 },
-                    { "ThreadId", 34567 }
+                    { "ThreadId", 34567 },
+                    { "BackupDB", "0" },
+                    { "Exception", 0 },
+                    { "EventLog", 0 }
                 }
             },
             new()

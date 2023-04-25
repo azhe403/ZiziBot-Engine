@@ -27,6 +27,7 @@ public class AppSettingRepository
         };
     }
 
+
     public async Task<T?> GetConfigSection<T>() where T : new()
     {
         var attribute = typeof(T).GetCustomAttribute<DisplayNameAttribute>();
@@ -42,7 +43,9 @@ public class AppSettingRepository
             .Select(x => new { x.Name, x.Value })
             .ToListAsync();
 
-        var data = appSettings.ToDictionary(x => x.Name.Remove(0, sectionName.Length + 1), x => x.Value).ToJson().ToObject<T>();
+        var data = appSettings
+            .DistinctBy(d => d.Name)
+            .ToDictionary(x => x.Name.Remove(0, sectionName.Length + 1), x => x.Value).ToJson().ToObject<T>();
 
         return data;
     }
