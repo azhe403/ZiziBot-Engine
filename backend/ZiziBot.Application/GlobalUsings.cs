@@ -4,6 +4,7 @@ global using JetBrains.Annotations;
 global using MediatR;
 global using ZiziBot.Application.Core;
 global using ZiziBot.Application.Handlers.Telegram.Core;
+global using ZiziBot.Application.Handlers.Telegram.Data;
 global using ZiziBot.Application.Handlers.Telegram.Rss;
 global using ZiziBot.Application.Handlers.Telegram.Security;
 global using ZiziBot.Application.Handlers.Telegram.WebHook.GitHub;
