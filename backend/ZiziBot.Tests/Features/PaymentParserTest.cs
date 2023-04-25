@@ -18,8 +18,8 @@ public class MirrorUserParserTest
 
         requiredNodes.RawText.Should().Contain("Pembayaran Berhasil");
         requiredNodes.Cendols.Should().NotBeNullOrEmpty();
-        requiredNodes.AdminFees.Should().NotBeNullOrEmpty();
-        requiredNodes.Subtotal.Should().NotBeNullOrEmpty();
+        requiredNodes.AdminFees.Should().BeGreaterThan(0);
+        requiredNodes.Subtotal.Should().BeGreaterThan(0);
         requiredNodes.OrderDate.Should().BeMoreThan(default);
         requiredNodes.OrderId.Should().NotBeNullOrEmpty();
         requiredNodes.PaymentMethod.Should().NotBeNullOrEmpty();

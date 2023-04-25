@@ -1,6 +1,5 @@
 using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
-using Allowed.Telegram.Bot.Enums;
 using Allowed.Telegram.Bot.Models;
 
 namespace ZiziBot.Allowed.TelegramBot.Controllers;
@@ -17,9 +16,9 @@ public class MirrorController : CommandController
     }
 
     [Command("mp")]
-    public async Task SubmitMirrorPayment(MessageData data)
+    public async Task SaveMirrorPayment(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new VerifyPaymentRequestModel()
+        await _mediatorService.EnqueueAsync(new SavePaymentRequestModel()
         {
             BotToken = data.Options.Token,
             ReplyMessage = true,
@@ -27,6 +26,24 @@ public class MirrorController : CommandController
             Payload = data.Params.GetCommandParamAt<string>(0),
             ForUserId = data.Params.GetCommandParamAt<long>(1),
             MinimumRole = RoleLevel.Sudo,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
+
+    [Command("sp")]
+    public async Task SubmitMirrorPayment(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new SubmitPaymentRequestModel()
+        {
+            BotToken = data.Options.Token,
+            ReplyMessage = true,
+            Message = data.Message,
+            Payload = data.Params.GetCommandParamAt<string>(0),
+            ForUserId = data.Params.GetCommandParamAt<long>(1),
             CleanupTargets = new[]
             {
                 CleanupTarget.FromBot,

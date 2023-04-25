@@ -1,25 +1,28 @@
+using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
-public class VerifyPaymentRequestModel : RequestBase
+public class SubmitPaymentRequestModel : RequestBase
 {
     public string? Payload { get; set; }
     public long ForUserId { get; set; }
 }
 
-public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestModel, ResponseBase>
+public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestModel, ResponseBase>
 {
+    private readonly ILogger<SubmitPaymentRequestHandler> _logger;
     private readonly TelegramService _telegramService;
     private readonly MirrorDbContext _mirrorDbContext;
 
-    public SubmitPaymentRequestHandler(TelegramService telegramService, MirrorDbContext mirrorDbContext)
+    public SubmitPaymentRequestHandler(ILogger<SubmitPaymentRequestHandler> logger, TelegramService telegramService, MirrorDbContext mirrorDbContext)
     {
+        _logger = logger;
         _telegramService = telegramService;
         _mirrorDbContext = mirrorDbContext;
     }
 
-    public async Task<ResponseBase> Handle(VerifyPaymentRequestModel request, CancellationToken cancellationToken)
+    public async Task<ResponseBase> Handle(SubmitPaymentRequestModel request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);
@@ -29,123 +32,62 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
         var userId = request.UserId;
         var expireDate = DateTime.UtcNow;
 
-        if (request.ReplyToMessage != null)
+        if (string.IsNullOrEmpty(request.Payload))
         {
-            var replyToMessage = request.ReplyToMessage;
-            var messageId = replyToMessage.MessageId.ToString();
-            var fileId = replyToMessage.GetFileId();
-            transactionId = $"{messageId}-{fileId}";
+            htmlMessage.Text("Sertakan tautan dari Trakteer.id untuk diverifikasi.").Br()
+                .Bold("Contoh: ").CodeBr("/sp https://trakteer.id/payment-status/xxxx");
 
-            if (request.Payload.TryConvert(1, out cendolCount))
-            {
-                if (replyToMessage.ForwardSenderName != null &&
-                    request.ForUserId == 0)
-                {
-                    htmlMessage.Text("Sepertinya Pengguna disembunyikan, spesifikan ID pengguna.").Br()
-                        .Bold("Contoh: ").Code($"/mp {cendolCount} (userId)");
-
-                    return await _telegramService.SendMessageText(htmlMessage.ToString());
-                }
-
-                var mirrorApproval = await _mirrorDbContext.MirrorApproval
-                    .FirstOrDefaultAsync(x =>
-                            x.TransactionId == transactionId &&
-                            x.Status == (int)EventStatus.Complete,
-                        cancellationToken: cancellationToken);
-
-                if (mirrorApproval != null)
-                {
-                    return await _telegramService.SendMessageText("Sepertinya tiket ini sudah diklaim");
-                }
-
-                await _telegramService.SendMessageText("Sedang menambahkan pengguna...");
-                _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
-                {
-                    UserId = request.UserId,
-                    RawText = request.ReplyToMessage.Text,
-                    OrderId = messageId,
-                    FileId = request.ReplyToMessage.GetFileId(),
-                    Status = (int)EventStatus.Complete,
-                    TransactionId = transactionId
-                });
-            }
-            else
-            {
-                htmlMessage.Text("Sertakan durasi berlangganan dengan benar.").Br()
-                    .Bold("Contoh: ").Code("/mp (duration) [userId]");
-
-                return await _telegramService.SendMessageText(htmlMessage.ToString());
-            }
-
-            if (request.ForUserId != 0)
-            {
-                userId = request.ForUserId;
-            }
-
-            var forwardMessage = replyToMessage.ForwardFrom;
-            if (forwardMessage != null)
-            {
-                userId = forwardMessage.Id;
-            }
+            return await _telegramService.SendMessageText(htmlMessage.ToString());
         }
-        else
+
+        var mirrorApproval = await _mirrorDbContext.MirrorApproval
+            .Where(entity => entity.PaymentUrl == request.Payload)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (mirrorApproval != null)
         {
-            if (string.IsNullOrEmpty(request.Payload))
-            {
-                return await _telegramService.SendMessageText("Sertakan tautan dari Trakteer.id untuk diverifikasi. Atau balas sebuah pesan untuk menambahkan pengguna.");
-            }
-
-            var mirrorApproval = await _mirrorDbContext.MirrorApproval
-                .FirstOrDefaultAsync(x =>
-                        x.PaymentUrl == request.Payload &&
-                        x.Status == (int)EventStatus.Complete,
-                    cancellationToken);
-
-            if (mirrorApproval != null)
-            {
-                return await _telegramService.SendMessageText("Pembayaran sudah terverifikasi.");
-            }
-
-            await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
-            var trakteerParsedDto = await request.Payload.ParseTrakteerWeb();
-
-            if (!trakteerParsedDto.IsValid)
-            {
-                htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
-                    .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
-                return await _telegramService.EditMessageText(htmlMessage.ToString());
-            }
-
-            _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
-            {
-                UserId = request.UserId,
-                PaymentUrl = trakteerParsedDto.PaymentUrl,
-                RawText = trakteerParsedDto.RawText,
-                CendolCount = trakteerParsedDto.CendolCount,
-                Cendols = trakteerParsedDto.Cendols,
-                AdminFees = trakteerParsedDto.AdminFees,
-                Subtotal = trakteerParsedDto.Subtotal,
-                OrderDate = trakteerParsedDto.OrderDate,
-                PaymentMethod = trakteerParsedDto.PaymentMethod,
-                OrderId = trakteerParsedDto.OrderId,
-                Status = (int)EventStatus.Complete,
-                TransactionId = transactionId
-            });
-
-            cendolCount = trakteerParsedDto.CendolCount;
+            return await _telegramService.SendMessageText("Pembayaran sudah terverifikasi.");
         }
+
+        await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
+        var trakteerParsedDto = await request.Payload.GetTrakteerApi();
+
+        if (!trakteerParsedDto.IsValid)
+        {
+            htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
+                .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
+            return await _telegramService.EditMessageText(htmlMessage.ToString());
+        }
+
+        _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
+        {
+            UserId = request.UserId,
+            PaymentUrl = trakteerParsedDto.PaymentUrl,
+            RawText = trakteerParsedDto.RawText,
+            CendolCount = trakteerParsedDto.CendolCount,
+            AdminFees = trakteerParsedDto.AdminFees,
+            Subtotal = trakteerParsedDto.Total,
+            OrderDate = trakteerParsedDto.OrderDate,
+            PaymentMethod = trakteerParsedDto.PaymentMethod,
+            OrderId = trakteerParsedDto.OrderId,
+            Status = (int)EventStatus.Complete,
+            TransactionId = transactionId
+        });
+
+        cendolCount = trakteerParsedDto.CendolCount;
 
         var mirrorUser = await _mirrorDbContext.MirrorUsers
-            .FirstOrDefaultAsync(x =>
-                    x.UserId == userId &&
-                    x.Status == (int)EventStatus.Complete,
-                cancellationToken: cancellationToken
-            );
+            .Where(entity => entity.UserId == userId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         expireDate = DateTime.Now.AddMonths(cendolCount);
 
         if (mirrorUser == null)
         {
+            _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
+
             _mirrorDbContext.MirrorUsers.Add(new MirrorUserEntity()
             {
                 UserId = userId,
@@ -156,6 +98,8 @@ public class SubmitPaymentRequestHandler : IRequestHandler<VerifyPaymentRequestM
         }
         else
         {
+            _logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
+
             expireDate = mirrorUser.ExpireDate < DateTime.Now
                 ? expireDate // If expired, will be started from now
                 : mirrorUser.ExpireDate.AddMonths(cendolCount); // If not expired, will be extended from expire date

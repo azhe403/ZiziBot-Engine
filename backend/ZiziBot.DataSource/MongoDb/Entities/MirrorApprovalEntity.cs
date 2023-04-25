@@ -8,8 +8,8 @@ public class MirrorApprovalEntity : EntityBase
     public string? RawText { get; set; }
     public int CendolCount { get; set; }
     public string? Cendols { get; set; }
-    public string? AdminFees { get; set; }
-    public string? Subtotal { get; set; }
+    public int AdminFees { get; set; }
+    public int Subtotal { get; set; }
     public DateTime OrderDate { get; set; }
     public string? PaymentMethod { get; set; }
     public string? OrderId { get; set; }
