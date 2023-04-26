@@ -13,14 +13,19 @@ public class RequestBase : IRequest<ResponseBase>
     public Message? Message { get; set; }
     public Message? ReplyToMessage => Message?.ReplyToMessage;
 
+    public ForumTopicCreated? ForumTopicCreated => Message?.ForumTopicCreated;
+    public ForumTopicEdited? ForumTopicEdited => Message?.ForumTopicEdited;
+
     public CallbackQuery? CallbackQuery { get; set; }
     public InlineQuery? InlineQuery { get; set; }
 
+    public string? CurrentTopicName => ForumTopicEdited?.Name ?? ForumTopicCreated?.Name;
     public string? MessageText => Message?.Text;
     public string[]? MessageTexts => Message?.Text?.Split(" ");
     public string[]? RepliedMessageTexts => ReplyToMessage?.Text?.Split(" ");
 
     public ChatId ChatId => Message?.Chat.Id ?? default;
+    public int MessageThreadId => Message?.MessageThreadId ?? default;
     public long ChatIdentifier => ChatId.Identifier ?? default;
     public ChatType ChatType => Message?.Chat.Type ?? default;
     public string ChatTitle => Message?.Chat.Title ?? Message?.From?.FirstName ?? Message?.From?.Username ?? Message?.From?.LastName ?? "Unknown";

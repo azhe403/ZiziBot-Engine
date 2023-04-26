@@ -1,6 +1,7 @@
 using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
 using Allowed.Telegram.Bot.Models;
+using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Allowed.TelegramBot.Controllers;
 
@@ -115,5 +116,23 @@ public class DebugController : CommandController
                 CleanupTarget.FromSender
             }
         });
+    }
+
+    [TypedCommand(MessageType.ForumTopicCreated)]
+    [TypedCommand(MessageType.ForumTopicEdited)]
+    public async Task OnTopicChange(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new ThreadUpdateRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+
     }
 }

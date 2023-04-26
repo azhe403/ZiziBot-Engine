@@ -9,5 +9,7 @@ public class GroupDbContext : MongoDbContextBase
     {
     }
 
+    public MongoDbSet<ChatAdminEntity> GroupAdmin { get; set; }
+    public MongoDbSet<GroupTopicEntity> GroupTopic { get; set; }
     public MongoDbSet<WelcomeMessageEntity> WelcomeMessage { get; set; }
 }
