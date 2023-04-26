@@ -36,15 +36,18 @@ public class NotesController : CommandController
     [Command("renote")]
     public async Task CreateNote(MessageData data)
     {
+        var query = data.Params.GetCommandParamAt<string>(0, separator: "\n");
+        var rawButton = data.Params.Replace(query, "").Trim();
+
         await _mediatorService.EnqueueAsync(new CreateNoteRequestModel()
         {
             BotToken = data.Options.Token,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
             Message = data.Message,
             ReplyMessage = true,
-            Query = data.Params.GetCommandParamAt<string>(0, separator: "\n"),
+            Query = query,
             Content = data.Message.ReplyToMessage?.Text,
-            RawButton = data.Params.GetCommandParamAt<string>(1, separator: "\n"),
+            RawButton = rawButton,
             FileId = data.Message.ReplyToMessage?.GetFileId(),
             DataType = data.Message.ReplyToMessage != null ? (int)data.Message.ReplyToMessage.Type : -1,
             RefreshNote = data.Message.Text?.StartsWith("/renote"),
