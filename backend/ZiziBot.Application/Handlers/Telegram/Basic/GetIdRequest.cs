@@ -24,11 +24,18 @@ public class GetIdRequestHandler : IRequestHandler<GetIdRequestModel, ResponseBa
         if (request.ChatType != ChatType.Private)
         {
             htmlMessage.BoldBr($"👥 {request.ChatTitle}")
-                .Bold("Chat ID: ").CodeBr(request.ChatId.ToString())
-                .Br();
+                .Bold("Chat ID: ").CodeBr(request.ChatId.ToString());
         }
 
-        htmlMessage.BoldBr($"👤 {request.UserFullName}")
+        if (request.Message?.IsTopicMessage.HasValue ?? false)
+        {
+            htmlMessage.Br()
+                .Bold("🧵 ").BoldBr(request.ReplyToMessage?.ForumTopicCreated?.Name)
+                .Bold("Topic ID: ").CodeBr(request.ReplyToMessage?.MessageThreadId.ToString());
+        }
+
+        htmlMessage.Br()
+            .BoldBr($"👤 {request.UserFullName}")
             .Bold("User ID: ").CodeBr(request.UserId.ToString());
 
         return await _telegramService.SendMessageText(htmlMessage.ToString());
