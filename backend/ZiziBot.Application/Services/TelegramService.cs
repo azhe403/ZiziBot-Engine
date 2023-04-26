@@ -104,6 +104,9 @@ public class TelegramService
     #region Response
     public async Task<ResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null)
     {
+        if (text.IsNullOrEmpty())
+            return Complete();
+
         text += "\n\n" + GetExecStamp();
 
         _logger.LogInformation("Sending message to chat {ChatId}", ChatId);
