@@ -1,6 +1,7 @@
 using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
 using Allowed.Telegram.Bot.Models;
+using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Allowed.TelegramBot.Controllers;
 
@@ -15,6 +16,22 @@ public class DebugController : CommandController
         _mediatorService = mediatorService;
     }
 
+    [Command("about")]
+    public async Task GetAbout(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new GetAboutRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
+
     [Command("id")]
     public async Task GetId(MessageData data)
     {
@@ -22,7 +39,24 @@ public class DebugController : CommandController
         {
             BotToken = data.Options.Token,
             Message = data.Message,
-            ReplyToMessageId = data.Message.MessageId,
+            ReplyMessage = true,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+
+    }
+
+    [Command("fid")]
+    public async Task GetFileId(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new GetFileIdRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
             CleanupTargets = new[]
             {
                 CleanupTarget.FromBot,
@@ -82,5 +116,23 @@ public class DebugController : CommandController
                 CleanupTarget.FromSender
             }
         });
+    }
+
+    [TypedCommand(MessageType.ForumTopicCreated)]
+    [TypedCommand(MessageType.ForumTopicEdited)]
+    public async Task OnTopicChange(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new ThreadUpdateRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+
     }
 }

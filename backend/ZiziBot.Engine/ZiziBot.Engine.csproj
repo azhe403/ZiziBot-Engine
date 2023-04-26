@@ -7,9 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Allowed.Telegram.Bot" Version="4.3.0"/>
         <PackageReference Include="JetBrains.Annotations" Version="2022.3.1"/>
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.4"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.5"/>
         <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.4.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
@@ -63,7 +62,7 @@
 
     <!-- Store Build Date -->
     <ItemGroup>
-        <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildDateAttribute">
+        <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildStampAttribute">
             <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>

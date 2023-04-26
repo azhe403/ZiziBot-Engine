@@ -30,6 +30,7 @@ public static class ConfigurationExtension
         var appSettingDbContext = provider.GetRequiredService<AppSettingsDbContext>();
 
         services.Configure<CacheConfig>(config.GetSection("Cache"));
+        services.Configure<EngineConfig>(config.GetSection("Engine"));
         services.Configure<EventLogConfig>(config.GetSection("EventLog"));
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
         services.Configure<JwtConfig>(config.GetSection("Jwt"));

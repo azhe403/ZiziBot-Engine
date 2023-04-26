@@ -34,6 +34,19 @@ public class MongoConfigSource : IConfigurationSource
         {
             new()
             {
+                Root = "Engine",
+                KeyPair = new Dictionary<string, object>()
+                {
+                    { "ProductName", "ZiziBot" },
+                    { "Description", "ZiziBot is a Telegram bot that can help you manage your group." },
+                    { "Vendor", "WinTenDev" },
+                    { "Website", "https://winten.my.id" },
+                    { "Support", "https://t.me/WinTenDevSupport" },
+                    { "TelegramEngineMode", "Auto" }
+                }
+            },
+            new()
+            {
                 Root = "Jwt",
                 KeyPair = new Dictionary<string, object>
                 {
@@ -49,7 +62,10 @@ public class MongoConfigSource : IConfigurationSource
                 KeyPair = new Dictionary<string, object>
                 {
                     { "ChatId", 12345 },
-                    { "ThreadId", 34567 }
+                    { "ThreadId", 34567 },
+                    { "BackupDB", "0" },
+                    { "Exception", 0 },
+                    { "EventLog", 0 }
                 }
             },
             new()

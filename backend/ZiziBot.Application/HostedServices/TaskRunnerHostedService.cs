@@ -18,6 +18,12 @@ public class TaskRunnerHostedService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (EnvUtil.GetEnv("ASPNETCORE_ENVIRONMENT") == "UnitTest")
+        {
+            _logger.LogWarning("Skip executing startup tasks in unit test environment");
+            return;
+        }
+
         var services = _serviceProvider.GetServices<IStartupTask>().ToList();
 
         foreach (var service in services)

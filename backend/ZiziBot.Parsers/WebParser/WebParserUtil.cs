@@ -1,4 +1,6 @@
 using System.Globalization;
+using Flurl;
+using Flurl.Http;
 
 namespace ZiziBot.Parsers.WebParser;
 
@@ -51,9 +53,9 @@ public static class WebParserUtil
         trakteerParsedDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
         trakteerParsedDto.PaymentUrl = url;
         trakteerParsedDto.Cendols = cendolCount;
-        trakteerParsedDto.CendolCount = int.Parse(cendolCount.Replace("Cendol", string.Empty).Trim(), CultureInfo.InvariantCulture);
-        trakteerParsedDto.AdminFees = adminFees;
-        trakteerParsedDto.Subtotal = subtotal;
+        trakteerParsedDto.CendolCount = cendolCount.Replace("Cendol", string.Empty).Trim().Convert<int>();
+        trakteerParsedDto.AdminFees = adminFees.Replace("Rp", "").Trim().Convert<int>();
+        trakteerParsedDto.Subtotal = subtotal.Replace("Rp", "").Trim().Convert<int>();
         trakteerParsedDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
         trakteerParsedDto.PaymentMethod = paymentMethod;
         trakteerParsedDto.OrderId = orderId;
@@ -62,5 +64,16 @@ public static class WebParserUtil
         Log.Information("Parsed trakteer url: {Url}", url);
 
         return trakteerParsedDto;
+    }
+
+    public static async Task<TrakteerApiDto> GetTrakteerApi(this string url)
+    {
+        var data = await UrlConst.API_TRAKTEER_PARSER.SetQueryParam("url", url)
+            .GetJsonAsync<TrakteerApiDto>();
+
+        data.IsValid = data.OrderId != null;
+        data.PaymentUrl = url;
+
+        return data;
     }
 }

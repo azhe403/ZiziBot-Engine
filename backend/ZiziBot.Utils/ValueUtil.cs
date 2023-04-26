@@ -20,6 +20,12 @@ public static class ValueUtil
         return Convert(input, default(T));
     }
 
+
+    public static TNumber Convert<TNumber>(this string? src)
+    {
+        return Convert<TNumber>((object?)src?.Replace(".", ""));
+    }
+
     public static bool TryConvert<T>(this object? input, T defaultVal, out T result)
     {
         try
@@ -50,5 +56,17 @@ public static class ValueUtil
         }
 
         return symbols;
+    }
+
+    public static TDestination FromDictionary<TDestination>(this IDictionary<string, string> dictionary) where TDestination : new()
+    {
+        var obj = new TDestination();
+
+        foreach (var propertyInfo in typeof(TDestination).GetProperties())
+        {
+            propertyInfo.SetValue(obj, dictionary[propertyInfo.Name]);
+        }
+
+        return obj;
     }
 }

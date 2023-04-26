@@ -7,6 +7,20 @@ namespace ZiziBot.Utils;
 
 public static class TimeUtil
 {
+    public static string GenerateVersion(this DateTime dateTime)
+    {
+        var timeToday = dateTime.ToString("h:mm:ss");
+        var jan2000 = new DateTime(2000, 1, 1);
+
+        var majorNumber = dateTime.Year.ToString().Replace("0", "");
+        var minorNumber = dateTime.Month;
+        var buildNumber = (dateTime - jan2000).Days;
+        var revNumber = TimeSpan.Parse(timeToday).TotalSeconds;
+        var projectVersion = $"{majorNumber}.{minorNumber}.{buildNumber}.{revNumber}";
+
+        return projectVersion;
+    }
+
     public static string GetDelay(this DateTime dateTime)
     {
         var dateNow = DateTime.UtcNow;
@@ -68,6 +82,6 @@ public static class TimeUtil
     /// </summary>
     /// <param name="interval">The number of months to wait between every activation.</param>
     public static string MonthInterval(int interval) => $"0 0 1 */{interval} *";
-    #endregion
+    #endregion Cron
 
 }

@@ -16,18 +16,30 @@ public static class TelegramExtension
     {
         var provider = services.BuildServiceProvider();
         var environment = provider.GetRequiredService<IWebHostEnvironment>();
+        var config = provider.GetRequiredService<IOptions<EngineConfig>>().Value;
 
         services.AddTelegramControllers();
 
-        if (environment.IsDevelopment())
-            services.AddTelegramManager();
-        else
-            services.AddTelegramWebHookManager();
+        switch (config.TelegramEngineMode)
+        {
+            case BotEngineMode.Webhook:
+                services.AddTelegramWebHookManager();
+                break;
+            case BotEngineMode.Polling:
+                services.AddTelegramManager();
+                break;
+            default: // or EngineMode.Auto
+                if (environment.IsDevelopment())
+                    services.AddTelegramManager();
+                else
+                    services.AddTelegramWebHookManager();
+                break;
+        }
 
         return services;
     }
 
-    public static IApplicationBuilder RunTelegramBot(this IApplicationBuilder app)
+    public static async Task<IApplicationBuilder> RunTelegramBot(this IApplicationBuilder app)
     {
         var provider = app.ApplicationServices;
         var appSettingsDbContext = provider.GetRequiredService<AppSettingsDbContext>();
@@ -43,7 +55,7 @@ public static class TelegramExtension
                 Status = (int)EventStatus.InProgress
             });
 
-            appSettingsDbContext.SaveChanges();
+            await appSettingsDbContext.SaveChangesAsync();
 
             throw new ApplicationException("No bot data found. Please ensure config for 'BotSettings'");
         }
@@ -58,7 +70,7 @@ public static class TelegramExtension
         }
 
         var telegramManager = provider.GetRequiredService<ITelegramManager>();
-        telegramManager.Start(validBot.Select(options => TelegramBotClientFactory.CreateClient(options)));
+        await telegramManager.Start(validBot.Select(options => TelegramBotClientFactory.CreateClient(options)));
 
         return app;
     }

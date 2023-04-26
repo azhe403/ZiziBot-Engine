@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Flurl;
+using Microsoft.Extensions.Logging;
 using Octokit.Webhooks;
 using Octokit.Webhooks.Events;
 using Octokit.Webhooks.Events.PullRequest;
@@ -24,9 +25,12 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         var commits = pushEvent.Commits.ToList();
         var commitCount = commits.Count;
         var repository = pushEvent.Repository;
+        var branchName = pushEvent.Ref.Split('/').Last();
+        var treeUrl = repository.HtmlUrl.AppendPathSegment($"tree/{branchName}");
 
         var htmlMessage = HtmlMessage.Empty
-            .Url(pushEvent.Compare, $"🏗 {commitCount} commit").Bold($" to ").Url(repository.HtmlUrl, repository.FullName).Br().Br();
+            .Url(pushEvent.Compare, $"🏗 {commitCount} commit").Bold($" to ").Url(treeUrl, $"{repository.FullName}:{branchName}")
+            .Br().Br();
 
         commits.ForEach(commit => {
             htmlMessage.Url(commit.Url.ToString(), commit.Id[..7])
@@ -42,12 +46,14 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         var htmlMessage = HtmlMessage.Empty;
         var repository = pullRequestEvent.Repository;
         var pullRequest = pullRequestEvent.PullRequest;
+        var headUrl = pullRequest.Head.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Head.Ref}");
+        var baseUrl = pullRequest.Base.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Base.Ref}");
 
-        htmlMessage.Bold(action == PullRequestAction.Opened ? "📝 Opened " : "📝 Updated ")
+        htmlMessage.Bold(action == PullRequestAction.Opened ? "🔌 Opened " : "🔌 Updated ")
             .Url(pullRequest.HtmlUrl, $"PR #{pullRequest.Number}").Text(": ")
             .Text(pullRequest.Title).Br()
-            .Bold("From: ").Url(pullRequest.Head.Repo.HtmlUrl, pullRequest.Head.Repo.FullName).Br()
-            .Bold("To: ").Url(pullRequest.Base.Repo.HtmlUrl, pullRequest.Base.Repo.FullName).Br();
+            .Bold("From: ").Url(headUrl, pullRequest.Head.Repo.FullName + ":" + pullRequest.Head.Ref).Br()
+            .Bold("To: ").Url(baseUrl, pullRequest.Base.Repo.FullName + ":" + pullRequest.Base.Ref).Br();
 
         return SendMessage(htmlMessage.ToString());
     }

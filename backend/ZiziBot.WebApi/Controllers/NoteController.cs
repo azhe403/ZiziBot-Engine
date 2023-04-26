@@ -12,8 +12,14 @@ public class NoteController : ApiControllerBase
         return await SendRequest(request);
     }
 
+    [HttpGet("{NoteId}")]
+    public async Task<IActionResult> GetNote(GetNoteRequest request)
+    {
+        return await SendRequest(request);
+    }
+
     [HttpPost()]
-    public async Task<IActionResult> CreateNote(CreateNoteRequest request)
+    public async Task<IActionResult> CreateNote(SaveNoteRequest request)
     {
         return await SendRequest(request);
     }

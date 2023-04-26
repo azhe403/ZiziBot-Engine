@@ -1,5 +1,7 @@
+using System.Reflection;
 using MongoFramework;
 using MongoFramework.Infrastructure;
+using MongoFramework.Linq;
 
 namespace ZiziBot.DataSource.MongoDb;
 
@@ -19,6 +21,18 @@ public class MongoDbContextBase : MongoDbContext
     {
         EnsureTimestamp();
         return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<string> ExportAllAsync<T>() where T : class, new()
+    {
+        var data = await Query<T>().ToListAsync();
+        var entityName = typeof(T).GetCustomAttribute<TableAttribute>()?.Name!;
+
+        var path = Path.Combine(PathConst.MONGODB_BACKUP, entityName + ".csv").EnsureDirectory();
+
+        data.WriteToCsvFile(path);
+
+        return path;
     }
 
     private void EnsureTimestamp()

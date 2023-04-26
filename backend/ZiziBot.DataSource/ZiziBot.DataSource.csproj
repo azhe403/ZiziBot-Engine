@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj" />
+        <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj" />
     </ItemGroup>
 
 </Project>

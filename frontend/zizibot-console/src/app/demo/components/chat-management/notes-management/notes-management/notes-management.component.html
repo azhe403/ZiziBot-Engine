@@ -1,1 +1,61 @@
-<p>notes-management works!</p>
+<div class="grid p-fluid">
+
+    <div class="col-12 pb-1 pt-0">
+        <p-toast></p-toast>
+
+        <p-toolbar>
+            <div class="p-toolbar-group-start">
+                <h1 class="text-xl sm:text-2xl md:text-4xl xl:text-6xl">Notes</h1>
+            </div>
+            <div class="p-toolbar-group-end">
+                <!--                <p-button icon="pi pi-refresh" (click)="loadWelcomeMessage()" pTooltip="Segarkan" tooltipPosition="top"></p-button>-->
+                <p-button icon="pi pi-plus" class="mx-1" [routerLink]="['add']" styleClass="p-button-danger" pTooltip="Tambah" tooltipPosition="top"></p-button>
+            </div>
+        </p-toolbar>
+    </div>
+
+    <div class="col-12 py-1">
+
+        <div class="card">
+            <div class="mb-1">
+                <app-group-selector (selectedChatId)="onSelectChange($event)"></app-group-selector>
+            </div>
+            <div>
+                <p-dataView #dv [value]="listWelcomeMessage" [rows]="10" [paginator]="true">
+                    <ng-template pTemplate="header">
+
+                    </ng-template>
+                    <ng-template let-note pTemplate="listItem">
+                        <div class="col-12">
+                            <div class="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
+                                <div class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+                                    <div class="flex flex-column align-items-center sm:align-items-start gap-1 w-full">
+                                        <div class="text-2xl font-bold text-900">{{ '# ' + note.query }}</div>
+                                        <div class="flex align-items-center gap-3">
+                                            <span class="flex align-items-center gap-1">
+                                                <span class="font-semibold">{{ note.category }}</span>
+                                            </span>
+                                        </div>
+                                        <p-fieldset legend="Text/Caption" class="w-full">
+                                            <p>{{note.text}}</p>
+                                        </p-fieldset>
+                                        <p-fieldset legend="Media: {{note.dataTypeName}}" class="w-full">
+                                            <p>{{note.media}}</p>
+                                        </p-fieldset>
+                                        <p-fieldset legend="Raw Button" class="w-full">
+                                            {{note.rawButton}}
+                                        </p-fieldset>
+                                    </div>
+                                    <div class="flex sm:flex-column align-items-center sm:align-items-end gap-1">
+                                        <button pButton icon="pi pi-pencil" (click)="onOpenEditor(note)" class="md:align-self-end mb-2 p-button-rounded"
+                                                pTooltip="Edit"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-dataView>
+            </div>
+        </div>
+    </div>
+</div>
