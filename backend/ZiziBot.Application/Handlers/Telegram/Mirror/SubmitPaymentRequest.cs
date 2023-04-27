@@ -40,16 +40,6 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
             return await _telegramService.SendMessageText(htmlMessage.ToString());
         }
 
-        var mirrorApproval = await _mirrorDbContext.MirrorApproval
-            .Where(entity => entity.PaymentUrl == request.Payload)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (mirrorApproval != null)
-        {
-            return await _telegramService.SendMessageText("Pembayaran sudah terverifikasi.");
-        }
-
         await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
         var trakteerParsedDto = await request.Payload.GetTrakteerApi();
 
@@ -57,7 +47,18 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
         {
             htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
                 .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
+
             return await _telegramService.EditMessageText(htmlMessage.ToString());
+        }
+
+        var mirrorApproval = await _mirrorDbContext.MirrorApproval
+            .Where(entity => entity.OrderId == trakteerParsedDto.OrderId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (mirrorApproval != null)
+        {
+            return await _telegramService.EditMessageText("Pembayaran sudah terverifikasi.");
         }
 
         _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()

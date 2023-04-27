@@ -34,6 +34,7 @@ public class MirrorUserParserTest
     }
 
     [Theory]
+    [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     public async Task TrakteerApiTest(string url)
     {

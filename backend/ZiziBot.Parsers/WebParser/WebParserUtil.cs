@@ -68,6 +68,11 @@ public static class WebParserUtil
 
     public static async Task<TrakteerApiDto> GetTrakteerApi(this string url)
     {
+        if (!url.StartsWith("https://trakteer.id/payment-status"))
+        {
+            url = Url.Combine("https://trakteer.id/payment-status", url);
+        }
+
         var data = await UrlConst.API_TRAKTEER_PARSER.SetQueryParam("url", url)
             .GetJsonAsync<TrakteerApiDto>();
 
