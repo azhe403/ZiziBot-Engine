@@ -14,11 +14,18 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
     private readonly ILogger<SubmitPaymentRequestHandler> _logger;
     private readonly TelegramService _telegramService;
     private readonly MirrorDbContext _mirrorDbContext;
+    private readonly AppSettingRepository _appSettingRepository;
 
-    public SubmitPaymentRequestHandler(ILogger<SubmitPaymentRequestHandler> logger, TelegramService telegramService, MirrorDbContext mirrorDbContext)
+    public SubmitPaymentRequestHandler(
+        ILogger<SubmitPaymentRequestHandler> logger,
+        TelegramService telegramService,
+        AppSettingRepository appSettingRepository,
+        MirrorDbContext mirrorDbContext
+    )
     {
         _logger = logger;
         _telegramService = telegramService;
+        _appSettingRepository = appSettingRepository;
         _mirrorDbContext = mirrorDbContext;
     }
 
@@ -49,6 +56,13 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
                 .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
 
             return await _telegramService.EditMessageText(htmlMessage.ToString());
+        }
+
+        var mirrorConfig = await _appSettingRepository.GetConfigSection<MirrorConfig>();
+
+        if (trakteerParsedDto.OrderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
+        {
+            return await _telegramService.EditMessageText("Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
         }
 
         var mirrorApproval = await _mirrorDbContext.MirrorApproval
