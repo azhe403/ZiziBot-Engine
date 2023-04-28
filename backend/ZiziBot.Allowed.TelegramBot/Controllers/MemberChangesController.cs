@@ -19,7 +19,7 @@ public class MemberChangesController : CommandController
     [TypedCommand(MessageType.ChatMembersAdded)]
     public async Task NewChatMembers(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new NewChatMembersRequestModel()
+        await _mediatorService.EnqueueAsync(new NewChatMembersRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,

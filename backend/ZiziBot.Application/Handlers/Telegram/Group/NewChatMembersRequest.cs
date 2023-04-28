@@ -4,26 +4,26 @@ using Telegram.Bot.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
-public class NewChatMembersRequestModel : RequestBase
+public class NewChatMembersRequest : RequestBase
 {
-    public User[] NewUser { get; set; }
+    public User[] NewUser { get; set; } = null!;
 }
 
 [UsedImplicitly]
-internal class NewChatMembersRequestHandler : IRequestHandler<NewChatMembersRequestModel, ResponseBase>
+public class NewChatMembersHandler : IRequestHandler<NewChatMembersRequest, ResponseBase>
 {
-    private readonly ILogger<NewChatMembersRequestHandler> _logger;
+    private readonly ILogger<NewChatMembersHandler> _logger;
     private readonly GroupDbContext _groupDbContext;
     private readonly TelegramService _telegramService;
 
-    public NewChatMembersRequestHandler(ILogger<NewChatMembersRequestHandler> logger, GroupDbContext groupDbContext, TelegramService telegramService)
+    public NewChatMembersHandler(ILogger<NewChatMembersHandler> logger, GroupDbContext groupDbContext, TelegramService telegramService)
     {
         _logger = logger;
         _groupDbContext = groupDbContext;
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(NewChatMembersRequestModel request, CancellationToken cancellationToken)
+    public async Task<ResponseBase> Handle(NewChatMembersRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
         _logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.ChatId);
@@ -58,7 +58,7 @@ internal class NewChatMembersRequestHandler : IRequestHandler<NewChatMembersRequ
             ("MemberCount", memberCount.ToString())
         });
 
-        if (welcomeMessage?.DataType != (int)CommonMediaType.Text)
+        if (welcomeMessage?.DataType > (int)CommonMediaType.Text)
         {
             return await _telegramService.SendMediaAsync(welcomeMessage.Media, (CommonMediaType)welcomeMessage.DataType, messageText);
         }
