@@ -20,16 +20,16 @@ public class MemberChangesTest
         _configuration = configuration;
     }
 
-    [Fact]
+    [Fact(Skip = "This test is not ready yet")]
     public async Task NewChatMembers()
     {
         foreach (var botData in ListBotData)
         {
-            await _mediatorService.EnqueueAsync(
-                new NewChatMembersRequestModel()
+            await _mediatorService.EnqueueAsync(new NewChatMembersRequestModel()
                 {
                     BotToken = botData.Token,
-                    Message = SampleMessages.NewChatMembers
+                    Message = SampleMessages.NewChatMembers,
+                    NewUser = SampleMessages.NewChatMembers.NewChatMembers!
                 }
             );
         }

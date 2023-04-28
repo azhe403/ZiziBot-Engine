@@ -19,7 +19,6 @@ public class FirebaseTests
             Name = "Fulan"
         };
 
-
         await _firebaseService.PostAsync("test/post/" + Guid.NewGuid(), row);
 
         Assert.True(true);
