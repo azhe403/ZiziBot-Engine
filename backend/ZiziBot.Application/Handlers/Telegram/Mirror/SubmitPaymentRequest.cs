@@ -131,6 +131,8 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
             .Bold("Langganan sampai: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss zzz")).Br();
 
-        return await _telegramService.EditMessageText(htmlMessage.ToString());
+        await _telegramService.EditMessageText(htmlMessage.ToString());
+
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId);
     }
 }
