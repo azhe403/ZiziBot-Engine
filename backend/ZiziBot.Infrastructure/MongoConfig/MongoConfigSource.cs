@@ -92,6 +92,16 @@ public class MongoConfigSource : IConfigurationSource
             },
             new()
             {
+                Root = "Mirror",
+                KeyPair = new Dictionary<string, object>()
+                {
+                    { "ApprovalChannelId", "-969706112" },
+                    { "TrakteerVerificationApi", "" },
+                    { "PaymentExpirationDays", 3 }
+                }
+            },
+            new()
+            {
                 Root = "Gcp",
                 KeyPair = new Dictionary<string, object>
                 {

@@ -4,23 +4,23 @@ namespace ZiziBot.Tests.Services;
 
 public class FirebaseTests
 {
-	private readonly FirebaseService _firebaseService;
+    private readonly FirebaseService _firebaseService;
 
-	public FirebaseTests(FirebaseService firebaseService)
-	{
-		_firebaseService = firebaseService;
-	}
+    public FirebaseTests(FirebaseService firebaseService)
+    {
+        _firebaseService = firebaseService;
+    }
 
-	[Fact]
-	public void Save()
-	{
-		var row = new
-		{
-			Name = "Fulan"
-		};
+    [Fact]
+    public async Task FirebasePostTest()
+    {
+        var row = new
+        {
+            Name = "Fulan"
+        };
 
-		var json = row;
+        await _firebaseService.PostAsync("test/post/" + Guid.NewGuid(), row);
 
-		_firebaseService.SendAsync(Guid.NewGuid().ToString(), json).Wait();
-	}
+        Assert.True(true);
+    }
 }

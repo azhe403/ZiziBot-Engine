@@ -14,11 +14,18 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
     private readonly ILogger<SubmitPaymentRequestHandler> _logger;
     private readonly TelegramService _telegramService;
     private readonly MirrorDbContext _mirrorDbContext;
+    private readonly AppSettingRepository _appSettingRepository;
 
-    public SubmitPaymentRequestHandler(ILogger<SubmitPaymentRequestHandler> logger, TelegramService telegramService, MirrorDbContext mirrorDbContext)
+    public SubmitPaymentRequestHandler(
+        ILogger<SubmitPaymentRequestHandler> logger,
+        TelegramService telegramService,
+        AppSettingRepository appSettingRepository,
+        MirrorDbContext mirrorDbContext
+    )
     {
         _logger = logger;
         _telegramService = telegramService;
+        _appSettingRepository = appSettingRepository;
         _mirrorDbContext = mirrorDbContext;
     }
 
@@ -40,16 +47,6 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
             return await _telegramService.SendMessageText(htmlMessage.ToString());
         }
 
-        var mirrorApproval = await _mirrorDbContext.MirrorApproval
-            .Where(entity => entity.PaymentUrl == request.Payload)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (mirrorApproval != null)
-        {
-            return await _telegramService.SendMessageText("Pembayaran sudah terverifikasi.");
-        }
-
         await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
         var trakteerParsedDto = await request.Payload.GetTrakteerApi();
 
@@ -57,7 +54,25 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
         {
             htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
                 .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
+
             return await _telegramService.EditMessageText(htmlMessage.ToString());
+        }
+
+        var mirrorConfig = await _appSettingRepository.GetConfigSection<MirrorConfig>();
+
+        if (trakteerParsedDto.OrderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
+        {
+            return await _telegramService.EditMessageText("Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
+        }
+
+        var mirrorApproval = await _mirrorDbContext.MirrorApproval
+            .Where(entity => entity.OrderId == trakteerParsedDto.OrderId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (mirrorApproval != null)
+        {
+            return await _telegramService.EditMessageText("Pembayaran sudah terverifikasi.");
         }
 
         _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
@@ -116,6 +131,8 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
             .Bold("Langganan sampai: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss zzz")).Br();
 
-        return await _telegramService.EditMessageText(htmlMessage.ToString());
+        await _telegramService.EditMessageText(htmlMessage.ToString());
+
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId);
     }
 }

@@ -25,13 +25,12 @@ public class MemberChangesTest
     {
         foreach (var botData in ListBotData)
         {
-            await _mediatorService.EnqueueAsync(
-                new NewChatMembersRequestModel()
-                {
-                    BotToken = botData.Token,
-                    Message = SampleMessages.NewChatMembers
-                }
-            );
+            await _mediatorService.EnqueueAsync(new NewChatMembersRequest()
+            {
+                BotToken = botData.Token,
+                Message = SampleMessages.NewChatMembers,
+                NewUser = SampleMessages.NewChatMembers.NewChatMembers!
+            });
         }
 
         Assert.True(true);

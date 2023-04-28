@@ -22,13 +22,11 @@ public class PingTest
     {
         foreach (var botData in ListBotData)
         {
-            await _mediatorService.EnqueueAsync(
-                new PingRequestModel
-                {
-                    BotToken = botData.Token,
-                    Message = SampleMessages.CommonMessage
-                }
-            );
+            await _mediatorService.EnqueueAsync(new PingRequestModel
+            {
+                BotToken = botData.Token,
+                Message = SampleMessages.CommonMessage
+            });
         }
 
         Assert.True(true);

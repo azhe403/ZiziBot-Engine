@@ -102,12 +102,15 @@ public class TelegramService
 
 
     #region Response
-    public async Task<ResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null)
+    public async Task<ResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1)
     {
         if (text.IsNullOrEmpty())
             return Complete();
 
         text += "\n\n" + GetExecStamp();
+
+        if (chatId != -1)
+            ChatId = chatId;
 
         _logger.LogInformation("Sending message to chat {ChatId}", ChatId);
         SentMessage = await Bot.SendTextMessageAsync(
@@ -273,7 +276,18 @@ public class TelegramService
 
     public async Task DeleteMessageAsync()
     {
-        await Bot.DeleteMessageAsync(ChatId, _request.MessageId);
+        try
+        {
+            await Bot.DeleteMessageAsync(ChatId, _request.MessageId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error deleting message {MessageId}", _request.MessageId);
+            if (e.Message.CanBeIgnored())
+                return;
+
+            throw;
+        }
     }
 
     public async Task<ResponseBase> AnswerCallbackAsync(string message, bool showAlert = false)

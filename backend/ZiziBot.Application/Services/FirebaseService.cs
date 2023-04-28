@@ -6,43 +6,42 @@ namespace ZiziBot.Application.Services;
 
 public class FirebaseService
 {
-	private readonly string _baseUrl;
+    private readonly AppSettingRepository _appSettingRepository;
+    private GcpConfig? _gcpConfig;
 
-	public FirebaseService()
-	{
-		_baseUrl = "";
-	}
+    public FirebaseService(AppSettingRepository appSettingRepository)
+    {
+        _appSettingRepository = appSettingRepository;
+    }
 
-	public async Task SendAsync<T>(string resourceName, T data)
-	{
-		using var client = new FirebaseClient(
-			_baseUrl,
-			new FirebaseOptions
-			{
-				AuthTokenAsyncFactory = GetAccessToken,
-				AsAccessToken = true
-			}
-		);
+    public async Task PostAsync<T>(string resourceName, T data)
+    {
+        _gcpConfig = await _appSettingRepository.GetConfigSection<GcpConfig>();
 
-		await client
-			.Child(resourceName)
-			.PostAsync(data);
-	}
+        if (_gcpConfig == null) return;
 
-	private async Task<string> GetAccessToken()
-	{
+        using var client = new FirebaseClient(
+            _gcpConfig.FirebaseProjectUrl,
+            new FirebaseOptions
+            {
+                AuthTokenAsyncFactory = GetAccessToken,
+                AsAccessToken = true
+            }
+        );
 
-		var credential = GoogleCredential.FromFile(@"")
-			.CreateScoped(
-				new[]
-				{
-					"https://www.googleapis.com/auth/firebase.database",
-					"https://www.googleapis.com/auth/userinfo.email"
-				}
-			);
+        await client
+            .Child(resourceName)
+            .PostAsync(data);
 
-		var accessToken = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+    }
 
-		return accessToken;
-	}
+    private async Task<string> GetAccessToken()
+    {
+        var credential = GoogleCredential.FromJson(_gcpConfig?.FirebaseServiceAccountJson)
+            .CreateScoped("https://www.googleapis.com/auth/firebase.database", "https://www.googleapis.com/auth/userinfo.email");
+
+        var accessToken = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+
+        return accessToken;
+    }
 }
