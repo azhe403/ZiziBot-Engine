@@ -128,10 +128,14 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
 
         htmlMessage.Bold("Pengguna berhasil disimpan").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
+            .Bold("Pengguna: ").UserMention(request.User).Br()
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
             .Bold("Langganan sampai: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss zzz")).Br();
 
         await _telegramService.EditMessageText(htmlMessage.ToString());
+
+        htmlMessage.Bold("OrderID: ").CodeBr(trakteerParsedDto.OrderId)
+            .Bold("Url: ").Text(trakteerParsedDto.PaymentUrl);
 
         return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId);
     }
