@@ -50,6 +50,18 @@ public class AppSettingRepository
         return data;
     }
 
+    public async Task UpdateAppSetting(string name, string value)
+    {
+        var appSettings = await _appSettingsDbContext.AppSettings
+            .Where(entity => entity.Name == name)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
+
+        appSettings.Value = value;
+
+        await _appSettingsDbContext.SaveChangesAsync();
+    }
+
     public async Task<BotSettingsEntity> GetBotMain()
     {
         var botSetting = await _appSettingsDbContext.BotSettings
