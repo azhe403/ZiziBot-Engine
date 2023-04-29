@@ -2,7 +2,7 @@ using Telegram.Bot.Types;
 
 namespace ZiziBot.Tests.SampleData;
 
-public class SampleMessages
+public static class SampleMessages
 {
     public static Message CommonMessage => new Message
     {
@@ -14,7 +14,7 @@ public class SampleMessages
         },
         From = new User
         {
-            Id = 10254243212,
+            Id = 1025424321,
             FirstName = "Sandal",
             LastName = "Jepit"
         }
@@ -36,12 +36,12 @@ public class SampleMessages
         },
         NewChatMembers = new[]
         {
-            // new User()
-            // {
-            //     Id = 1025424321,
-            //     FirstName = "Sandal",
-            //     LastName = "Jepit"
-            // },
+            new User()
+            {
+                Id = 1025424321,
+                FirstName = "Sandal",
+                LastName = "Jepit"
+            },
             new User()
             {
                 Id = 1025424321,
