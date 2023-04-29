@@ -52,26 +52,7 @@ public class HtmlMessage
 
     public HtmlMessage UserMention(User user)
     {
-        // var name = string.Empty;
-        // var appended = false;
-        //
-        // if (user.FirstName?.Length > 0)
-        // {
-        //     name = user.FirstName;
-        //     appended = true;
-        // }
-        //
-        // if (user.LastName?.Length > 0)
-        // {
-        //     if (appended)
-        //     {
-        //         name += " ";
-        //     }
-        //
-        //     name += user.LastName;
-        // }
-
-        var fullName = (user.FirstName + " " + user.LanguageCode).Trim();
+        var fullName = (user.FirstName + " " + user.LastName).Trim();
         var name = fullName.Length > 0 ? fullName : user.Username;
         return User(user.Id, name ?? string.Empty);
     }
