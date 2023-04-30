@@ -45,6 +45,35 @@ public class MirrorUserTest
     }
 
     [Theory]
+    [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd", 12345)]
+    public async Task SubmitTrakteerPaymentForUserIdTest(string url, long userId)
+    {
+        // Arrange
+        var bot = await _appSettingRepository.GetBotMain();
+        var payment = await _mirrorDbContext.MirrorApproval
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync(entity => entity.PaymentUrl == url);
+
+        if (payment != null)
+        {
+            payment.Status = (int)EventStatus.Deleted;
+
+            await _mirrorDbContext.SaveChangesAsync();
+        }
+
+        // Assert
+        Assert.NotNull(bot);
+
+        await _mediatorService.Send(new SubmitPaymentRequestModel()
+        {
+            BotToken = bot.Token,
+            Message = SampleMessages.CommonMessage,
+            Payload = url,
+            ForUserId = userId
+        });
+    }
+
+    [Theory]
     [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     public async Task SubmitTrakteerPaymentConfirmationExpiredTest(string url)
     {

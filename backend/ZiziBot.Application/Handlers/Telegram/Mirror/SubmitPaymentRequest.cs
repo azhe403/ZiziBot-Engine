@@ -47,6 +47,11 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
             return await _telegramService.SendMessageText(htmlMessage.ToString());
         }
 
+        if (request.ForUserId != 0)
+        {
+            userId = request.ForUserId;
+        }
+
         await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
         var trakteerParsedDto = await request.Payload.GetTrakteerApi();
 
