@@ -82,4 +82,15 @@ public static class StringUtil
 
         return hashHmac;
     }
+
+    public static string ForCacheKey(this string url)
+    {
+        var key = url
+            .Replace("https://", "")
+            .Replace("http://", "")
+            .Replace(".", "-")
+            .TrimEnd('_');
+
+        return key;
+    }
 }
