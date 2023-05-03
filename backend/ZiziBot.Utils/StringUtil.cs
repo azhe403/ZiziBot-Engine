@@ -41,6 +41,11 @@ public static class StringUtil
         return string.IsNullOrEmpty(str);
     }
 
+    public static bool IsNotNullOrEmpty(this string? str)
+    {
+        return !string.IsNullOrEmpty(str);
+    }
+
     public static TValue ToEnum<TValue>(this string value, TValue defaultValue) where TValue : struct
     {
         if (string.IsNullOrEmpty(value)) return defaultValue;

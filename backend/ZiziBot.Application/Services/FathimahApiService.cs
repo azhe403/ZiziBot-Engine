@@ -39,7 +39,7 @@ public class FathimahApiService
     public async Task<ShalatTimeResponse> GetShalatTime(DateOnly dateTime, long cityId)
     {
         var dateStr = dateTime.ToString("yyyy-MM-dd");
-        var  path = $"sholat/format/json/jadwal/kota/{cityId}/tanggal/{dateStr}";
+        var path = $"sholat/format/json/jadwal/kota/{cityId}/tanggal/{dateStr}";
 
         _logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateStr);
 

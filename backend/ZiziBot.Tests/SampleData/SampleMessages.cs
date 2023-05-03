@@ -6,7 +6,7 @@ public static class SampleMessages
 {
     public static Message CommonMessage => new Message
     {
-        MessageId = 12345,
+        MessageId = 282464,
         Chat = new Chat
         {
             Id = -1001404591750,

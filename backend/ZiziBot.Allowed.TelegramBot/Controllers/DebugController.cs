@@ -46,7 +46,6 @@ public class DebugController : CommandController
                 CleanupTarget.FromSender
             }
         });
-
     }
 
     [Command("fid")]
@@ -133,6 +132,5 @@ public class DebugController : CommandController
                 CleanupTarget.FromSender
             }
         });
-
     }
 }

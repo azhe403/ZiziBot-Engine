@@ -11,15 +11,15 @@ public class CityResponse
     public Query Query { get; set; }
 
     [JsonProperty("kota")]
-    public List<Kota> Kota { get; set; }
+    public List<City> Cities { get; set; }
 }
 
-public class Kota
+public class City
 {
     [JsonProperty("id")]
-    [JsonConverter(typeof(ParseStringConverter))]
-    public long Id { get; set; }
+    [JsonConverter(typeof(StringToIntConverter))]
+    public int Id { get; set; }
 
     [JsonProperty("nama")]
-    public string Nama { get; set; }
+    public string Name { get; set; }
 }

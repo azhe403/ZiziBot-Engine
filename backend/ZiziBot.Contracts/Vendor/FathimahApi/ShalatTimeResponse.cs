@@ -20,10 +20,10 @@ public class Jadwal
     public string Status { get; set; }
 
     [JsonProperty("data")]
-    public Data Data { get; set; }
+    public Shalat Shalat { get; set; }
 }
 
-public class Data
+public class Shalat
 {
     [JsonProperty("ashar")]
     public string Ashar { get; set; }
@@ -59,9 +59,9 @@ public class Query
     public string Format { get; set; }
 
     [JsonProperty("kota")]
-    [JsonConverter(typeof(ParseStringConverter))]
-    public long Kota { get; set; }
+    [JsonConverter(typeof(StringToIntConverter))]
+    public int City { get; set; }
 
     [JsonProperty("tanggal")]
-    public DateTimeOffset Tanggal { get; set; }
+    public DateTimeOffset Date { get; set; }
 }

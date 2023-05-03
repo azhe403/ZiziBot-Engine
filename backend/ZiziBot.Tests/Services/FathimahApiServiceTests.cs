@@ -9,8 +9,8 @@ public class FathimahApiServiceTests
 
     public static readonly object[][] ShalatCity =
     {
-        new object[] { DateOnly.FromDateTime(DateTime.Now), 712},
-        new object[] { new DateOnly(2017,3,1), 712},
+        new object[] { DateOnly.FromDateTime(DateTime.Now), 712 },
+        new object[] { new DateOnly(2017, 3, 1), 712 },
     };
 
     public FathimahApiServiceTests(FathimahApiService fathimahApiService)
@@ -24,7 +24,7 @@ public class FathimahApiServiceTests
         var allCity = await _fathimahApiService.GetAllCityAsync();
 
         allCity.Status.Should().Be("ok");
-        allCity.Kota.Should().NotBeEmpty();
+        allCity.Cities.Should().NotBeEmpty();
     }
 
     [Theory, MemberData(nameof(ShalatCity))]

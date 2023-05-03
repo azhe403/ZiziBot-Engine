@@ -2,6 +2,7 @@
 
 global using ZiziBot.Application;
 global using ZiziBot.Application.Handlers.Telegram.Basic;
+global using ZiziBot.Application.Handlers.Telegram.Chat;
 global using ZiziBot.Application.Handlers.Telegram.Data;
 global using ZiziBot.Application.Handlers.Telegram.Group;
 global using ZiziBot.Application.Handlers.Telegram.Mirror;
@@ -14,3 +15,4 @@ global using ZiziBot.Infrastructure;
 global using ZiziBot.Parsers.WebParser;
 global using ZiziBot.Tests.SampleData;
 global using ZiziBot.Tests.SampleData;
+global using ZiziBot.Utils;
