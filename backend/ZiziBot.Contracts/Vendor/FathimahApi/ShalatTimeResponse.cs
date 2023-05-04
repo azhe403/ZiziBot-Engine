@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Humanizer;
+using Newtonsoft.Json;
 
 namespace ZiziBot.Contracts.Vendor.FathimahApi;
 
@@ -11,16 +12,19 @@ public class ShalatTimeResponse
     public Query Query { get; set; }
 
     [JsonProperty("jadwal")]
-    public Jadwal Jadwal { get; set; }
+    public Schedule Schedule { get; set; }
 }
 
-public class Jadwal
+public class Schedule
 {
     [JsonProperty("status")]
     public string Status { get; set; }
 
     [JsonProperty("data")]
     public Shalat Shalat { get; set; }
+
+    [JsonIgnore]
+    public Dictionary<string, string> ShalatDict => Shalat.ToDictionary(letterCasing: LetterCasing.Title);
 }
 
 public class Shalat

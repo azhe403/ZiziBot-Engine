@@ -83,4 +83,14 @@ public class CityTest
             CityName = cityName
         });
     }
+
+    [Theory]
+    [InlineData(-1001404591750)]
+    public async Task ShalatTimeTest(long chatId)
+    {
+        await _mediatorService.Send(new SendShalatTimeRequest()
+        {
+            ChatId = chatId
+        });
+    }
 }
