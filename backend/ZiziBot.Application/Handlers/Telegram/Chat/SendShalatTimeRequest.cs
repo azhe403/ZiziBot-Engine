@@ -43,7 +43,7 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
 
         foreach (var cityEntity in cityList)
         {
-            var currentTime = DateTime.Now.ToString("HH:mm");
+            var currentTime = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm");
             var shalatTime = await _fathimahApiService.GetShalatTime(DateOnly.FromDateTime(DateTime.Now), cityEntity.CityId);
             var currentShalat = shalatTime.Schedule.ShalatDict.FirstOrDefault(pair => pair.Value == currentTime);
 
