@@ -30,7 +30,7 @@ public class RegisterShalatTimeTask : IStartupTask
                     mediatorService.Send(new SendShalatTimeRequest()
                     {
                         ChatId = city,
-                    }), cronExpression: TimeUtil.DayInterval(1),
+                    }), cronExpression: TimeUtil.MinuteInterval(1),
                 queue: "shalat-time");
         }
     }
