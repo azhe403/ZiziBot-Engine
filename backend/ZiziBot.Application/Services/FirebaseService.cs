@@ -16,7 +16,7 @@ public class FirebaseService
 
     public async Task PostAsync<T>(string resourceName, T data)
     {
-        _gcpConfig = await _appSettingRepository.GetConfigSection<GcpConfig>();
+        _gcpConfig = await _appSettingRepository.GetConfigSectionAsync<GcpConfig>();
 
         if (_gcpConfig == null) return;
 

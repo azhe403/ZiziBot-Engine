@@ -28,7 +28,7 @@ public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
     {
         var botMain = await _appSettingRepository.GetBotMain();
 
-        var config = await _appSettingRepository.GetConfigSection<EventLogConfig>();
+        var config = await _appSettingRepository.GetConfigSectionAsync<EventLogConfig>();
 
         if (config == null)
         {

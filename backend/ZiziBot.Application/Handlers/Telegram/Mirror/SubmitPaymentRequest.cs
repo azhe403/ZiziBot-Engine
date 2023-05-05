@@ -63,7 +63,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
             return await _telegramService.EditMessageText(htmlMessage.ToString());
         }
 
-        var mirrorConfig = await _appSettingRepository.GetConfigSection<MirrorConfig>();
+        var mirrorConfig = await _appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
 
         if (trakteerParsedDto.OrderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
         {
