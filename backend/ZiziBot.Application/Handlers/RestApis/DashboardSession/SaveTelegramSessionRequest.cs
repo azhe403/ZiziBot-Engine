@@ -85,6 +85,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         LoginWidget loginWidget = new(botSetting.Token);
 
         var sessionData = request.Model.ToDictionary()
+            .Select(pair => new KeyValuePair<string, string>(pair.Key.Replace(" ", "_"), pair.Value))
             .Where(pair => pair.Key != "session_id");
 
         var checkAuthorization = loginWidget.CheckAuthorization(sessionData);
