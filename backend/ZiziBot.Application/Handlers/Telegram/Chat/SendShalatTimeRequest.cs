@@ -30,6 +30,8 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
         var botMain = await _appSettingRepository.GetBotMain();
         var botClient = new TelegramBotClient(botMain.Token);
 
+        var defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
+
         var cityList = await _chatDbContext.City
             .Where(entity => entity.ChatId == request.ChatId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -56,10 +58,14 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
                 continue;
             }
 
-            var htmlMessage = HtmlMessage.Empty;
-            htmlMessage.Text($"Telah masuk waktu ").Bold(currentShalat.Key).Text(" untuk wilayah ").Bold(cityEntity.CityName).Text(" dan sekitarnya.").Br();
+            var message = defaultMessage.ResolveVariable(new List<(string placeholder, string value)>
+            {
+                ("Shalat", currentShalat.Key),
+                ("Date", DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss")),
+                ("City", cityEntity.CityName)
+            });
 
-            await botClient.SendTextMessageAsync(request.ChatId, htmlMessage.ToString(), parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+            await botClient.SendTextMessageAsync(request.ChatId, message, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
         }
 
         return true;
