@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -35,6 +35,9 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.CityName)
             .ToListAsync(cancellationToken: cancellationToken);
+
+        _logger.LogDebug("Found about {Count} city(es)", cityList.Count);
+
         if (!cityList.Any())
         {
             _logger.LogInformation("City list is empty");
@@ -50,7 +53,7 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
             if (currentShalat.IsNull())
             {
                 _logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'", cityEntity.CityName, currentTime);
-                return true;
+                continue;
             }
 
             var htmlMessage = HtmlMessage.Empty;
