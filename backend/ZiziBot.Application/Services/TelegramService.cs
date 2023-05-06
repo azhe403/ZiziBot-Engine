@@ -298,7 +298,13 @@ public class TelegramService
 
     public async Task<ResponseBase> AnswerInlineQueryAsync(IEnumerable<InlineQueryResult> results)
     {
-        await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, results);
+        if (_request.InlineQuery == null)
+        {
+            return Complete();
+        }
+
+        var reducedResults = results.Take(50);
+        await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, reducedResults, cacheTime: 60);
         return Complete();
     }
     #endregion

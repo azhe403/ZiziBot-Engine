@@ -20,6 +20,7 @@ global using ZiziBot.Contracts.Enums;
 global using ZiziBot.Contracts.Interfaces;
 global using ZiziBot.Contracts.Types;
 global using ZiziBot.Contracts.Vendor.FathimahApi;
+global using ZiziBot.Contracts.Vendor.UupDump;
 global using ZiziBot.DataSource.MongoDb;
 global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.DataSource.Repository;

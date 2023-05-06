@@ -8,7 +8,7 @@ namespace ZiziBot.Application.Handlers.Telegram.Inline;
 
 public class AnswerInlineQueryApiDocRequestModel : RequestBase
 {
-    public string Query { get; set; }
+    public string? Query { get; set; }
 }
 
 public class AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlineQueryApiDocRequestModel, ResponseBase>
