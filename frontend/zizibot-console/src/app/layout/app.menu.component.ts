@@ -22,19 +22,18 @@ export class AppMenuComponent implements OnInit {
         {
             label: "Chat Management",
             items: [
-                {
-                    label: 'Notes Management',
-                    routerLink: '/chat/notes'
-                }
+                {label: 'Notes Management', routerLink: '/chat/notes'}
             ]
         },
         {
             label: "Group Management",
             items: [
-                {
-                    label: 'Welcome Message',
-                    routerLink: '/group/welcome-message'
-                }
+                {label: 'Welcome Message', routerLink: '/group/welcome-message'}
+            ]
+        }, {
+            label: "Administrator",
+            items: [
+                {label: 'Hangfire', url: ['/hangfire-jobs'], target: '_blank'}
             ]
         }];
 
@@ -57,7 +56,12 @@ export class AppMenuComponent implements OnInit {
                     label: 'Menu',
                     icon: 'pi pi-fw pi-bars',
                     routerLink: ['/uikit/menu'],
-                    routerLinkActiveOptions: {paths: 'subset', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored'}
+                    routerLinkActiveOptions: {
+                        paths: 'subset',
+                        queryParams: 'ignored',
+                        matrixParams: 'ignored',
+                        fragment: 'ignored'
+                    }
                 },
                 {label: 'Message', icon: 'pi pi-fw pi-comment', routerLink: ['/uikit/message']},
                 {label: 'File', icon: 'pi pi-fw pi-file', routerLink: ['/uikit/file']},
@@ -69,14 +73,24 @@ export class AppMenuComponent implements OnInit {
             label: 'Prime Blocks',
             items: [
                 {label: 'Free Blocks', icon: 'pi pi-fw pi-eye', routerLink: ['/blocks'], badge: 'NEW'},
-                {label: 'All Blocks', icon: 'pi pi-fw pi-globe', url: ['https://www.primefaces.org/primeblocks-ng'], target: '_blank'},
+                {
+                    label: 'All Blocks',
+                    icon: 'pi pi-fw pi-globe',
+                    url: ['https://www.primefaces.org/primeblocks-ng'],
+                    target: '_blank'
+                },
             ]
         },
         {
             label: 'Utilities',
             items: [
                 {label: 'PrimeIcons', icon: 'pi pi-fw pi-prime', routerLink: ['/utilities/icons']},
-                {label: 'PrimeFlex', icon: 'pi pi-fw pi-desktop', url: ['https://www.primefaces.org/primeflex/'], target: '_blank'},
+                {
+                    label: 'PrimeFlex',
+                    icon: 'pi pi-fw pi-desktop',
+                    url: ['https://www.primefaces.org/primeflex/'],
+                    target: '_blank'
+                },
             ]
         },
         {
@@ -180,7 +194,10 @@ export class AppMenuComponent implements OnInit {
                     label: 'Documentation', icon: 'pi pi-fw pi-question', routerLink: ['/documentation']
                 },
                 {
-                    label: 'View Source', icon: 'pi pi-fw pi-search', url: ['https://github.com/primefaces/sakai-ng'], target: '_blank'
+                    label: 'View Source',
+                    icon: 'pi pi-fw pi-search',
+                    url: ['https://github.com/primefaces/sakai-ng'],
+                    target: '_blank'
                 }
             ]
         }
