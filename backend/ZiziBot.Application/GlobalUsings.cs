@@ -3,6 +3,7 @@
 global using JetBrains.Annotations;
 global using MediatR;
 global using ZiziBot.Application.Core;
+global using ZiziBot.Application.Handlers.Telegram.Chat;
 global using ZiziBot.Application.Handlers.Telegram.Core;
 global using ZiziBot.Application.Handlers.Telegram.Data;
 global using ZiziBot.Application.Handlers.Telegram.Rss;
@@ -18,6 +19,8 @@ global using ZiziBot.Contracts.Dtos;
 global using ZiziBot.Contracts.Enums;
 global using ZiziBot.Contracts.Interfaces;
 global using ZiziBot.Contracts.Types;
+global using ZiziBot.Contracts.Vendor.FathimahApi;
+global using ZiziBot.Contracts.Vendor.UupDump;
 global using ZiziBot.DataSource.MongoDb;
 global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.DataSource.Repository;

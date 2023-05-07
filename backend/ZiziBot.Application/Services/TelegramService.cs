@@ -86,7 +86,6 @@ public class TelegramService
         return filePath;
     }
 
-
     public ResponseBase Complete()
     {
         _stopwatch.Stop();
@@ -100,8 +99,12 @@ public class TelegramService
         };
     }
 
-
     #region Response
+    public async Task<ResponseBase> SendMessageText(HtmlMessage text, IReplyMarkup? replyMarkup = null, long chatId = -1)
+    {
+        return await SendMessageText(text.ToString(), replyMarkup, chatId);
+    }
+
     public async Task<ResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1)
     {
         if (text.IsNullOrEmpty())
@@ -298,7 +301,13 @@ public class TelegramService
 
     public async Task<ResponseBase> AnswerInlineQueryAsync(IEnumerable<InlineQueryResult> results)
     {
-        await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, results);
+        if (_request.InlineQuery == null)
+        {
+            return Complete();
+        }
+
+        var reducedResults = results.Take(50);
+        await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, reducedResults, cacheTime: 60);
         return Complete();
     }
     #endregion

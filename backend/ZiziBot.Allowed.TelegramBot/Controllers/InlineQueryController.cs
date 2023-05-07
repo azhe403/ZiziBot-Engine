@@ -28,6 +28,12 @@ public class InlineQueryController : CommandController
                 InlineQuery = data.InlineQuery,
                 Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
             }),
+            "uup" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryUupRequestModel()
+            {
+                BotToken = data.Options.Token,
+                InlineQuery = data.InlineQuery,
+                Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
+            }),
             _ => await _mediatorService.EnqueueAsync(new AnswerInlineQueryGuideRequestModel()
             {
                 BotToken = data.Options.Token,

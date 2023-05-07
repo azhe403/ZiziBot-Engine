@@ -6,7 +6,8 @@ public static class SampleMessages
 {
     public static Message CommonMessage => new Message
     {
-        MessageId = 12345,
+        MessageId = 282464,
+        MessageThreadId = 297986,
         Chat = new Chat
         {
             Id = -1001404591750,
@@ -23,6 +24,7 @@ public static class SampleMessages
     public static Message NewChatMembers => new()
     {
         MessageId = 12345,
+        MessageThreadId = 297986,
         Chat = new Chat()
         {
             Id = -1001404591750,

@@ -15,7 +15,7 @@ public class AppSettingTest
     [Fact]
     public async Task GetAppSetting()
     {
-        var config = await _appSettingRepository.GetConfigSection<EngineConfig>();
+        var config = await _appSettingRepository.GetConfigSectionAsync<EngineConfig>();
 
         true.Should().Be(true);
     }

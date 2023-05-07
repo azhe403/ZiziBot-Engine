@@ -23,7 +23,7 @@ public class GetAboutHandler : IRequestHandler<GetAboutRequest, ResponseBase>
         _telegramService.SetupResponse(request);
 
         var me = await _telegramService.Bot.GetMeAsync(cancellationToken: cancellationToken);
-        var config = await _appSettingRepository.GetConfigSection<EngineConfig>();
+        var config = await _appSettingRepository.GetConfigSectionAsync<EngineConfig>();
 
         if (config != null)
         {

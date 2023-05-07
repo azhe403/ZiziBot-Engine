@@ -37,9 +37,9 @@ public class NotesController : CommandController
     public async Task CreateNote(MessageData data)
     {
         var query = data.Params.GetCommandParamAt<string>(0, separator: "\n");
-        var rawButton = data.Params.Replace(query, "").Trim();
+        var rawButton = data.Params.Replace(query ?? "p", "").Trim();
 
-        await _mediatorService.EnqueueAsync(new CreateNoteRequestModel()
+        await _mediatorService.EnqueueAsync(new CreateNoteRequest()
         {
             BotToken = data.Options.Token,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,

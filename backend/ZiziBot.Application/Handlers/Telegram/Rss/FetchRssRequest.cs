@@ -87,11 +87,12 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             var ignoreErrorMsg = new[]
             {
+                "bot was blocked",
                 "chat not found",
                 "connection could not be established",
+                "name or service not known",
                 "no such host is known",
                 "not match",
-                "name or service not known",
                 "unexpected token",
             };
 

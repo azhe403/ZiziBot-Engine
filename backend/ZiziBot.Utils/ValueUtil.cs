@@ -40,7 +40,7 @@ public static class ValueUtil
         }
     }
 
-    public static Dictionary<string, string> ToDictionary(this object? values)
+    public static Dictionary<string, string> ToDictionary(this object? values, LetterCasing letterCasing = LetterCasing.LowerCase)
     {
         var symbols = new Dictionary<string, string>();
 
@@ -51,11 +51,16 @@ public static class ValueUtil
             foreach (var property in properties)
             {
                 var value = property.GetValue(values, null) ?? string.Empty;
-                symbols.Add(property.Name.Underscore(), value.ToString() ?? string.Empty);
+                symbols.Add(property.Name.Underscore().Humanize(letterCasing), value.ToString() ?? string.Empty);
             }
         }
 
         return symbols;
+    }
+
+    public static bool IsNull<T, TU>(this KeyValuePair<T, TU> pair)
+    {
+        return pair.Equals(new KeyValuePair<T, TU>());
     }
 
     public static TDestination FromDictionary<TDestination>(this IDictionary<string, string> dictionary) where TDestination : new()

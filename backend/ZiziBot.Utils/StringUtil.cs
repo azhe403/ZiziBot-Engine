@@ -41,6 +41,11 @@ public static class StringUtil
         return string.IsNullOrEmpty(str);
     }
 
+    public static bool IsNotNullOrEmpty(this string? str)
+    {
+        return !string.IsNullOrEmpty(str);
+    }
+
     public static TValue ToEnum<TValue>(this string value, TValue defaultValue) where TValue : struct
     {
         if (string.IsNullOrEmpty(value)) return defaultValue;
@@ -81,5 +86,16 @@ public static class StringUtil
             .Aggregate((a, b) => a + b);
 
         return hashHmac;
+    }
+
+    public static string ForCacheKey(this string url)
+    {
+        var key = url
+            .Replace("https://", "")
+            .Replace("http://", "")
+            .Replace(".", "-")
+            .TrimEnd('_');
+
+        return key;
     }
 }

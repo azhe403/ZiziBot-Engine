@@ -53,7 +53,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
         var obj = data.FirstOrDefault(o => o.Object.CacheKey == cacheKey);
 
         if (obj?.Object != null)
-            return new CacheEntry<T>((T) obj.Object.Value, obj.Object.Expiry);
+            return new CacheEntry<T>((T)obj.Object.Value, obj.Object.Expiry);
 
         return cacheEntry;
     }

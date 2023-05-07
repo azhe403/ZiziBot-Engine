@@ -47,6 +47,11 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
             return await _telegramService.SendMessageText(htmlMessage.ToString());
         }
 
+        if (request.ForUserId != 0)
+        {
+            userId = request.ForUserId;
+        }
+
         await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
         var trakteerParsedDto = await request.Payload.GetTrakteerApi();
 
@@ -58,7 +63,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentRequestM
             return await _telegramService.EditMessageText(htmlMessage.ToString());
         }
 
-        var mirrorConfig = await _appSettingRepository.GetConfigSection<MirrorConfig>();
+        var mirrorConfig = await _appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
 
         if (trakteerParsedDto.OrderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
         {

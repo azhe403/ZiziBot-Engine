@@ -18,17 +18,18 @@ public class AppSettingRepository
         var chatId = _appSettingsDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
         var threadId = _appSettingsDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ThreadId")?.Value;
         var botToken = _appSettingsDbContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main")?.Token;
+        var eventLogConfig = GetConfigSection<EventLogConfig>();
 
         return new TelegramSinkConfigDto()
         {
             BotToken = botToken,
             ChatId = chatId.Convert<long>(),
-            ThreadId = threadId.Convert<long>()
+            ThreadId = eventLogConfig?.EventLog
         };
     }
 
 
-    public async Task<T?> GetConfigSection<T>() where T : new()
+    public async Task<T?> GetConfigSectionAsync<T>() where T : new()
     {
         var attribute = typeof(T).GetCustomAttribute<DisplayNameAttribute>();
         if (attribute == null)
@@ -42,6 +43,28 @@ public class AppSettingRepository
             .Where(entity => entity.Name.StartsWith(sectionName))
             .Select(x => new { x.Name, x.Value })
             .ToListAsync();
+
+        var data = appSettings
+            .DistinctBy(d => d.Name)
+            .ToDictionary(x => x.Name.Remove(0, sectionName.Length + 1), x => x.Value).ToJson().ToObject<T>();
+
+        return data;
+    }
+
+    public T? GetConfigSection<T>() where T : new()
+    {
+        var attribute = typeof(T).GetCustomAttribute<DisplayNameAttribute>();
+        if (attribute == null)
+        {
+            throw new ArgumentException("T must have DisplayName Attribute");
+        }
+
+        var sectionName = attribute.DisplayName;
+
+        var appSettings = _appSettingsDbContext.AppSettings
+            .Where(entity => entity.Name.StartsWith(sectionName))
+            .Select(x => new { x.Name, x.Value })
+            .ToList();
 
         var data = appSettings
             .DistinctBy(d => d.Name)

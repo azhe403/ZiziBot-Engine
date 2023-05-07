@@ -19,7 +19,6 @@ public class MediatorService
     }
 
     #region Execution
-
     public async Task<ResponseBase> EnqueueAsync(RequestBase request)
     {
         ResponseBase response = new();
@@ -52,25 +51,22 @@ public class MediatorService
         BackgroundJob.Schedule<MediatorService>(x => x.Send(request), request.DeleteAfter);
         return response.Complete();
     }
-
     #endregion
 
     #region Bridge
-
     [DisplayName("{0}")]
     [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
-    public async Task<object?> Send(IBaseRequest command)
+    public async Task<TResponse?> Send<TResponse>(IRequest<TResponse> request)
     {
-        return await _mediator.Send(command);
+        return await _mediator.Send(request);
     }
 
     [DisplayName("{0}")]
     [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
-    public async Task<object?> Send(string jobName, IBaseRequest command)
+    public async Task<TResponse?> Send<TResponse>(string jobName, IRequest<TResponse> request)
     {
-        return await _mediator.Send(command);
+        return await _mediator.Send(request);
     }
-
     #endregion
 
 }
