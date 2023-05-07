@@ -3,7 +3,7 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
-public class CreateNoteRequestModel : RequestBase
+public class CreateNoteRequest : RequestBase
 {
     public string Query { get; set; }
     public string? Content { get; set; }
@@ -13,37 +13,44 @@ public class CreateNoteRequestModel : RequestBase
     public bool? RefreshNote { get; set; }
 }
 
-public class CreateNoteValidator : AbstractValidator<CreateNoteRequestModel>
+public class CreateNoteValidator : AbstractValidator<CreateNoteRequest>
 {
     public CreateNoteValidator()
     {
-        RuleFor(model => model.Query).NotNull().MinimumLength(1).WithMessage("Query minimal 3 karakter");
+        RuleFor(x => x.Query).NotNull().When(x => x.Content != null).WithMessage("Masukkan Query untuk Note nya");
+        RuleFor(x => x.Query).MinimumLength(2).WithMessage("Panjang Query minimal 2 karakter");
+        RuleFor(x => x.Content).NotNull().When(x => x.FileId == null).WithMessage("Balas sebuah pesan yang mengandung Teks");
     }
 }
 
-public class CreateNoteRequestHandler : IRequestHandler<CreateNoteRequestModel, ResponseBase>
+public class CreateNoteHandler : IRequestHandler<CreateNoteRequest, ResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly ChatDbContext _chatDbContext;
 
-    public CreateNoteRequestHandler(TelegramService telegramService, ChatDbContext chatDbContext)
+    public CreateNoteHandler(TelegramService telegramService, ChatDbContext chatDbContext)
     {
         _telegramService = telegramService;
         _chatDbContext = chatDbContext;
     }
 
-    public async Task<ResponseBase> Handle(CreateNoteRequestModel request, CancellationToken cancellationToken)
+    public async Task<ResponseBase> Handle(CreateNoteRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty;
 
-        var validationResult = await request.ValidateAsync<CreateNoteValidator, CreateNoteRequestModel>();
+        var validationResult = await request.ValidateAsync<CreateNoteValidator, CreateNoteRequest>();
 
         if (!validationResult.IsValid)
         {
             htmlMessage.Text(validationResult.Errors.Select(x => x.ErrorMessage).Aggregate((x, y) => $"{x})\n{y}"));
             return await _telegramService.SendMessageText(htmlMessage.ToString());
+        }
+
+        if (request.ReplyToMessage == null)
+        {
+            await _telegramService.SendMessageText("Balas sebuah pesan yang akan disimpan");
         }
 
         var note = await _chatDbContext.Note
