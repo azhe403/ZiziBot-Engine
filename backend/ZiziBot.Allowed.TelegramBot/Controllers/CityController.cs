@@ -50,4 +50,22 @@ public class CityController : CommandController
             }
         });
     }
+
+    [Command("salat")]
+    [Command("shalat")]
+    [Command("sholat")]
+    public async Task GetShalatTime(MessageData data)
+    {
+        await _mediator.EnqueueAsync(new GetShalatTimeRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
 }

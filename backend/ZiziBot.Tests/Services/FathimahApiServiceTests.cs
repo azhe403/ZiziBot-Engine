@@ -9,8 +9,8 @@ public class FathimahApiServiceTests
 
     public static readonly object[][] ShalatCity =
     {
-        new object[] { DateOnly.FromDateTime(DateTime.Now), 712 },
-        new object[] { new DateOnly(2017, 3, 1), 712 },
+        new object[] { DateTime.Now, 712 },
+        new object[] { new DateTime(2017, 3, 1), 712 },
     };
 
     public FathimahApiServiceTests(FathimahApiService fathimahApiService)
@@ -28,7 +28,7 @@ public class FathimahApiServiceTests
     }
 
     [Theory, MemberData(nameof(ShalatCity))]
-    public async Task GetShalatTimeTest(DateOnly dateTime, int cityId)
+    public async Task GetShalatTimeTest(DateTime dateTime, int cityId)
     {
         var shalatTime = await _fathimahApiService.GetShalatTime(dateTime, cityId);
 

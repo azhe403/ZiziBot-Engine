@@ -24,7 +24,10 @@ public class Schedule
     public Shalat Shalat { get; set; }
 
     [JsonIgnore]
-    public Dictionary<string, string> ShalatDict => Shalat.ToDictionary(letterCasing: LetterCasing.Title);
+    public Dictionary<string, string> ShalatDict => Shalat
+        .ToDictionary(letterCasing: LetterCasing.Title)
+        .Where(pair => pair.Key != "Tanggal")
+        .ToDictionary(pair => pair.Key, pair => pair.Value);
 }
 
 public class Shalat

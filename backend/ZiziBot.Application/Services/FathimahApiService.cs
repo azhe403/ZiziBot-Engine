@@ -36,7 +36,12 @@ public class FathimahApiService
         return apis;
     }
 
-    public async Task<ShalatTimeResponse> GetShalatTime(DateOnly dateTime, long cityId)
+    public async Task<ShalatTimeResponse> GetShalatTime(long cityId)
+    {
+        return await GetShalatTime(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE), cityId);
+    }
+
+    public async Task<ShalatTimeResponse> GetShalatTime(DateTime dateTime, long cityId)
     {
         var dateStr = dateTime.ToString("yyyy-MM-dd");
         var path = $"sholat/format/json/jadwal/kota/{cityId}/tanggal/{dateStr}";

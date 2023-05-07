@@ -86,7 +86,6 @@ public class TelegramService
         return filePath;
     }
 
-
     public ResponseBase Complete()
     {
         _stopwatch.Stop();
@@ -100,8 +99,12 @@ public class TelegramService
         };
     }
 
-
     #region Response
+    public async Task<ResponseBase> SendMessageText(HtmlMessage text, IReplyMarkup? replyMarkup = null, long chatId = -1)
+    {
+        return await SendMessageText(text.ToString(), replyMarkup, chatId);
+    }
+
     public async Task<ResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1)
     {
         if (text.IsNullOrEmpty())
