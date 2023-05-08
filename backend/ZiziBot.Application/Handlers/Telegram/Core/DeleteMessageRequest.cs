@@ -38,7 +38,7 @@ public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestM
         }
         catch (Exception exception)
         {
-            if (exception.Message.CanBeIgnored())
+            if (exception.Message.IsIgnorable())
             {
                 _logger.LogWarning("Message {MessageId} could not be deleted from chat {ChatId}", request.MessageId, chatId);
             }

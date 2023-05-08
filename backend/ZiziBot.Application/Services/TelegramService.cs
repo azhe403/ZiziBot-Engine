@@ -286,7 +286,7 @@ public class TelegramService
         catch (Exception e)
         {
             _logger.LogError(e, "Error deleting message {MessageId}", _request.MessageId);
-            if (e.Message.CanBeIgnored())
+            if (e.Message.IsIgnorable())
                 return;
 
             throw;
