@@ -2,7 +2,7 @@ import {AfterViewInit, Component} from '@angular/core';
 import {Router} from "@angular/router";
 import {MessageService} from "primeng/api";
 import {WelcomeMessage} from "projects/zizibot-types/src/restapi/welcome-message";
-import {GroupService} from "../../../../service/group.service";
+import {GroupService} from "../../../../../demo/service/group.service";
 
 @Component({
     selector: 'app-welcome-message',

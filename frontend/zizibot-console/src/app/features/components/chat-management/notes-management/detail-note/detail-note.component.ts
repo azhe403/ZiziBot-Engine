@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import Enumerable from "linq";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {MediaType} from "projects/zizibot-types/src/restapi/media-type";
-import {ChatService} from "../../../../service/chat.service";
+import {ChatService} from "../../../../../demo/service/chat.service";
 
 @Component({
     selector: 'app-detail-note',

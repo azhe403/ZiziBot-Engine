@@ -2,7 +2,7 @@ import {AfterViewInit, Component} from '@angular/core';
 import {Router} from "@angular/router";
 import {MessageService} from "primeng/api";
 import {Note} from "projects/zizibot-types/src/restapi/note";
-import {ChatService} from "../../../../service/chat.service";
+import {ChatService} from "../../../../../demo/service/chat.service";
 
 @Component({
     selector: 'app-notes-management',
