@@ -38,6 +38,7 @@ public class GetListRssHandler : IRequestHandler<GetListRssRequest, ApiResponseB
 
         var listRss = await _chatDbContext.RssSetting
             .WhereIf(request.ChatId > 0, entity => entity.ChatId == request.ChatId)
+            .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
