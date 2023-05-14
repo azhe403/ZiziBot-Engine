@@ -60,7 +60,7 @@ public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
         htmlMessage.Bold("Date: ").CodeBr(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss zzz"));
 
         await using var fileStream = File.OpenRead(path: zipFile);
-        var inputOnlineFile = new InputFile(content: fileStream, fileName: zipFile.GetFileName());
+        var inputOnlineFile = InputFile.FromStream(stream: fileStream, fileName: zipFile.GetFileName());
 
         await bot.SendDocumentAsync(
             chatId: config.ChatId,
