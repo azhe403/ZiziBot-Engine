@@ -31,7 +31,12 @@
                             "src/assets"
                         ],
                         "styles": [
-                            "src/styles.scss"
+                            "src/styles.scss",
+                            "node_modules/quill/dist/quill.core.css",
+                            "node_modules/quill/dist/quill.snow.css"
+                        ],
+                        "scripts": [
+                            "node_modules/quill/dist/quill.js"
                         ],
                         "allowedCommonJsDependencies": [
                             "quill"
@@ -269,7 +274,6 @@
             }
         }
     },
-    "defaultProject": "sakai-ng",
     "cli": {
         "analytics": false,
         "schematicCollections": [
