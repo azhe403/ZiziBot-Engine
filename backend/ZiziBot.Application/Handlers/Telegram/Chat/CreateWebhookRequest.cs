@@ -27,11 +27,10 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookRequest, Respon
         await _telegramService.SendMessageText("Sedang membuat webhook..");
 
         var webhookChat = await _chatDbContext.WebhookChat
-            .FirstOrDefaultAsync(entity =>
-                    entity.ChatId == request.ChatIdentifier &&
-                    entity.Status == (int)EventStatus.Complete,
-                cancellationToken: cancellationToken);
-
+            .Where(entity => entity.ChatId == request.ChatIdentifier)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.MessageThreadId == request.MessageThreadId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var routeId = await StringUtil.GetNanoIdAsync();
         var webhookUrl = UrlConst.WEBHOOK_URL + routeId;
@@ -43,6 +42,7 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookRequest, Respon
             _chatDbContext.WebhookChat.Add(new WebhookChatEntity()
             {
                 ChatId = request.ChatIdentifier,
+                MessageThreadId = request.MessageThreadId,
                 RouteId = routeId,
                 Status = (int)EventStatus.Complete,
             });
