@@ -60,8 +60,9 @@ public class PostWebhookPayloadHandler : IRequestHandler<PostWebhookPayloadReque
         switch (request.WebhookSource)
         {
             case WebhookSource.GitHub:
-                _githubWebhookEventProcessor.ChatId = webhookChat.ChatId;
                 _githubWebhookEventProcessor.RouteId = webhookChat.RouteId;
+                _githubWebhookEventProcessor.ChatId = webhookChat.ChatId;
+                _githubWebhookEventProcessor.ThreadId = webhookChat.MessageThreadId;
                 _githubWebhookEventProcessor.Token = botSetting.Token;
 
                 await _githubWebhookEventProcessor.ProcessWebhookAsync(request.Headers, request.Content.ToString() ?? string.Empty);

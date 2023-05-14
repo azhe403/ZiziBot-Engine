@@ -74,6 +74,12 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
     private async Task SendMessage(string message)
     {
         var botClient = new TelegramBotClient(Token);
-        await botClient.SendTextMessageAsync(ChatId, message, parseMode: ParseMode.Html, disableWebPagePreview: true);
+        await botClient.SendTextMessageAsync(
+            chatId: ChatId,
+            text: message,
+            messageThreadId: ThreadId,
+            parseMode: ParseMode.Html,
+            disableWebPagePreview: true
+        );
     }
 }
