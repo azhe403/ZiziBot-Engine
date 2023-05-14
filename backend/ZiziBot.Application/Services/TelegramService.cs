@@ -179,7 +179,7 @@ public class TelegramService
         var targetChatId = customChatId == -1 ? ChatId : customChatId;
 
         _logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId, targetChatId);
-        IInputFile inputFile = new InputFileId(fileId);
+        InputFile inputFile = InputFile.FromFileId(fileId);
 
         switch (mediaType)
         {
@@ -190,7 +190,7 @@ public class TelegramService
                     _logger.LogInformation("Converting URL: '{Url}' to stream", fileId);
                     var stream = await fileId.GetStreamAsync();
 
-                    inputFile = new InputFile(stream, customFileName);
+                    inputFile = InputFile.FromStream(stream, customFileName);
                 }
 
                 SentMessage = await Bot.SendDocumentAsync(
@@ -208,7 +208,7 @@ public class TelegramService
 
                 await using (var fileStream = File.OpenRead(path: fileId))
                 {
-                    var inputOnlineFile = new InputFile(content: fileStream, fileName: fileName);
+                    var inputOnlineFile = InputFile.FromStream(stream: fileStream, fileName: fileName);
 
                     SentMessage = await Bot.SendDocumentAsync(
                         chatId: targetChatId,
