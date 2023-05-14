@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import Enumerable from "linq";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {MediaType} from "projects/zizibot-types/src/restapi/media-type";
-import {GroupService} from 'src/app/demo/service/group.service';
+import {GroupService} from "../../../../services/group.service";
 
 @Component({
     selector: 'app-detail-welcome-message',
@@ -140,7 +140,11 @@ export class DetailWelcomeMessageComponent implements OnInit {
                     },
                     error: (err) => {
                         console.error('delete welcome message', err);
-                        this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.result.error});
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: err.statusText,
+                            detail: err.error.result.error
+                        });
                     },
                     complete: () => {
                         console.info('delete welcome message complete');

@@ -22,7 +22,8 @@ export class AppMenuComponent implements OnInit {
         {
             label: "Chat Management",
             items: [
-                {label: 'Notes Management', routerLink: '/chat/notes'}
+                {label: 'Notes Management', routerLink: '/chat/notes'},
+                {label: 'RSS Management', routerLink: '/chat/rss'}
             ]
         },
         {
@@ -207,6 +208,8 @@ export class AppMenuComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.model = [...this.mainMenu, ...this.developmentMenu]
+
         this.aboutService.getAbout()
             .subscribe((response) => {
                 console.debug('about-api', response);
@@ -214,9 +217,10 @@ export class AppMenuComponent implements OnInit {
 
                 if (result.environment.toLowerCase() == 'production') {
                     this.model = this.mainMenu;
-                } else {
-                    this.model = [...this.mainMenu, ...this.developmentMenu]
                 }
+                // else {
+                //     this.model = [...this.mainMenu, ...this.developmentMenu]
+                // }
             });
     }
 }

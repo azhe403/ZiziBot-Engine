@@ -2,7 +2,7 @@ import {AfterViewInit, Component} from '@angular/core';
 import {Router} from "@angular/router";
 import {MessageService} from "primeng/api";
 import {Note} from "projects/zizibot-types/src/restapi/note";
-import {ChatService} from "../../../../../demo/service/chat.service";
+import {ChatService} from "../../../../services/chat.service";
 
 @Component({
     selector: 'app-notes-management',
@@ -18,9 +18,8 @@ export class NotesManagementComponent implements AfterViewInit {
     constructor(private router: Router, private chatService: ChatService) {
     }
 
-
     ngAfterViewInit(): void {
-
+        console.debug('ngAfterViewInit');
     }
 
     loadNote() {

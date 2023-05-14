@@ -5,6 +5,10 @@ const routes: Routes = [
     {
         path: 'notes',
         loadChildren: () => import('./notes-management/notes-management.module').then(m => m.NotesManagementModule)
+    },
+    {
+        path: 'rss',
+        loadChildren: () => import('./rss-management/rss-management.module').then(m => m.RssManagementModule)
     }
 ];
 

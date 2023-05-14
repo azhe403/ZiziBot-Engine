@@ -5,14 +5,15 @@ import {MessageService} from "primeng/api";
 import {ConditionState} from "projects/zizibot-types/src/constant/state";
 import {StorageKey} from "projects/zizibot-types/src/constant/storage-key";
 import {TelegramGroup} from "projects/zizibot-types/src/restapi/telegram-group";
-import {GroupService} from "../../../../demo/service/group.service";
 import {TelegramService} from "../../../services/telegram.service";
+import {GroupService} from "../../../../features/services/group.service";
 
 @Component({
     selector: 'app-group-selector',
     templateUrl: './group-selector.component.html',
     styleUrls: ['./group-selector.component.scss'],
     providers: [
+        MessageService,
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: GroupSelectorComponent,

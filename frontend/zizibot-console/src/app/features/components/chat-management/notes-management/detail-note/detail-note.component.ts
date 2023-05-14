@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import Enumerable from "linq";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {MediaType} from "projects/zizibot-types/src/restapi/media-type";
-import {ChatService} from "../../../../../demo/service/chat.service";
+import {ChatService} from "../../../../services/chat.service";
 
 @Component({
     selector: 'app-detail-note',
@@ -34,6 +34,7 @@ export class DetailNoteComponent implements AfterViewInit, OnInit {
     }
 
     ngAfterViewInit(): void {
+        console.debug('ngAfterViewInit');
     }
 
     private getParam() {
@@ -144,7 +145,11 @@ export class DetailNoteComponent implements AfterViewInit, OnInit {
                     },
                     error: (err) => {
                         console.error('delete note', err);
-                        this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.result.error});
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: err.statusText,
+                            detail: err.error.result.error
+                        });
                     },
                     complete: () => {
                         console.info('delete note complete');
