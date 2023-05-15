@@ -46,7 +46,7 @@ public class NotesController : CommandController
             Message = data.Message,
             ReplyMessage = true,
             Query = query,
-            Content = data.Message.ReplyToMessage?.Text,
+            Content = data.Message.ReplyToMessage?.GetHtmlTextMarkup(),
             RawButton = rawButton,
             FileId = data.Message.ReplyToMessage?.GetFileId(),
             DataType = data.Message.ReplyToMessage != null ? (int)data.Message.ReplyToMessage.Type : -1,

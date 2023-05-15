@@ -1,3 +1,4 @@
+using MoreLinq;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -70,5 +71,37 @@ public static class TelegramUtil
         };
 
         return date ?? default;
+    }
+
+    public static string GetHtmlTextMarkup(this Message message)
+    {
+        var htmlText = message.Text ?? message.Caption;
+        var entities = message.Entities ?? message.CaptionEntities;
+        var entityValues = message.EntityValues ?? message.CaptionEntityValues;
+
+        if (htmlText == null) return string.Empty;
+        if (entities is null || entityValues is null) return htmlText;
+
+        entities.ForEach((entity, idx) => {
+            var oldValue = entityValues.ElementAt(idx);
+            var newValue = entity.Type switch
+            {
+                MessageEntityType.Bold => "<b>" + oldValue + "</b>",
+                MessageEntityType.Code => "<code>" + oldValue + "</code>",
+                MessageEntityType.CustomEmoji => "<tg-emoji emoji-id=\"" + entity.CustomEmojiId + "\">" + oldValue + "</tg-emoji>",
+                MessageEntityType.Italic => "<i>" + oldValue + "</i>",
+                MessageEntityType.Pre => "<pre>" + oldValue + "</pre>",
+                MessageEntityType.Strikethrough => "<s>" + oldValue + "</s>",
+                MessageEntityType.Spoiler => "<tg-spoiler>" + oldValue + "</tg-spoiler>",
+                MessageEntityType.TextLink => "<a href=\"" + entity.Url + "\">" + oldValue + "</a>",
+                MessageEntityType.TextMention => entity.User?.GetFullMention(),
+                MessageEntityType.Underline => "<u>" + oldValue + "</u>",
+                _ => oldValue
+            };
+
+            htmlText = htmlText.Replace(oldValue, newValue);
+        });
+
+        return htmlText;
     }
 }
