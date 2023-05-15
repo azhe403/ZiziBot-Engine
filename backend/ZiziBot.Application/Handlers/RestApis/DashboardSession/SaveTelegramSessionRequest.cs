@@ -91,6 +91,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         var checkAuthorization = loginWidget.CheckAuthorization(sessionData);
         if (checkAuthorization != WebAuthorization.Valid)
         {
+            _logger.LogDebug("Session is not valid for SessionId: {SessionId}. Result: {Result}", request.SessionUserId, checkAuthorization);
             return response.Unauthorized($"Sesi tidak valid, silakan kirim ulang perintah '/console' di Bot untuk membuat sesi baru.");
         }
 
