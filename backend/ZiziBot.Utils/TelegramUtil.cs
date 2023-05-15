@@ -94,7 +94,7 @@ public static class TelegramUtil
                 MessageEntityType.Strikethrough => "<s>" + oldValue + "</s>",
                 MessageEntityType.Spoiler => "<tg-spoiler>" + oldValue + "</tg-spoiler>",
                 MessageEntityType.TextLink => "<a href=\"" + entity.Url + "\">" + oldValue + "</a>",
-                MessageEntityType.TextMention => entity.User?.GetFullMention(),
+                MessageEntityType.TextMention => "<a href=\"tg://user?id=" + entity.User?.Id + "\">" + oldValue + "</a>",
                 MessageEntityType.Underline => "<u>" + oldValue + "</u>",
                 _ => oldValue
             };
