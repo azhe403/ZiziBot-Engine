@@ -7,6 +7,9 @@ public static class MarkdownUtil
     public static string MdToHtml(this string markdown)
     {
         var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-        return Markdown.ToHtml(markdown, pipeline);
+        var html = Markdown.ToHtml(markdown, pipeline)
+            .Replace("<p>", "").Replace("</p>", "");
+
+        return html;
     }
 }
