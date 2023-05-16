@@ -61,7 +61,14 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
             .Where(x => chatIds.Contains(x.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
-        var listPermission = chatAdmin
+        List<GetListGroupResponse> listPermission = new();
+        listPermission.Add(new GetListGroupResponse()
+        {
+            ChatId = request.SessionUserId,
+            ChatTitle = "Saya"
+        });
+
+        var listGroup = chatAdmin
             .Join(listChatSetting, adminEntity => adminEntity.ChatId, settingEntity => settingEntity.ChatId, (adminEntity, settingEntity) => new GetListGroupResponse()
             {
                 ChatId = adminEntity.ChatId,
@@ -70,6 +77,8 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
             .DistinctBy(entity => entity.ChatId)
             .OrderBy(res => res.ChatTitle)
             .ToList();
+
+        listPermission.AddRange(listGroup);
 
         return response.Success("Get user permission successfully", listPermission);
     }
