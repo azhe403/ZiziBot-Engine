@@ -3,8 +3,8 @@ using MediatR.Pipeline;
 namespace ZiziBot.Application.Behaviours;
 
 public class TgBotPostProcessorBehavior<TRequest, TResponse> : IRequestPostProcessor<TRequest, TResponse>
-    where TRequest : RequestBase, IRequest<TResponse>
-    where TResponse : ResponseBase
+    where TRequest : BotRequestBase, IRequest<TResponse>
+    where TResponse : BotResponseBase
 {
     private readonly IMediator _mediator;
     private readonly TelegramService _telegramService;

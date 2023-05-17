@@ -19,7 +19,7 @@ public class DebugController : CommandController
     [Command("about")]
     public async Task GetAbout(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetAboutRequest()
+        await _mediatorService.EnqueueAsync(new GetAboutBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -35,7 +35,7 @@ public class DebugController : CommandController
     [Command("id")]
     public async Task GetId(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetIdRequestModel()
+        await _mediatorService.EnqueueAsync(new GetIdBotRequestModel()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -51,7 +51,7 @@ public class DebugController : CommandController
     [Command("fid")]
     public async Task GetFileId(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetFileIdRequest()
+        await _mediatorService.EnqueueAsync(new GetFileIdBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -69,7 +69,7 @@ public class DebugController : CommandController
     [Command("json")]
     public async Task GetDebug(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetDebugRequestModel()
+        await _mediatorService.EnqueueAsync(new GetDebugBotRequestModel()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -86,7 +86,7 @@ public class DebugController : CommandController
     [Command("console")]
     public async Task OpenConsole(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new CreateWebSessionRequestModel()
+        await _mediatorService.EnqueueAsync(new CreateWebSessionBotRequestModel()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -103,7 +103,7 @@ public class DebugController : CommandController
     [Command("demote")]
     public async Task PromoteMember(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new PromoteMemberRequest()
+        await _mediatorService.EnqueueAsync(new PromoteMemberBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -121,7 +121,7 @@ public class DebugController : CommandController
     [TypedCommand(MessageType.ForumTopicEdited)]
     public async Task OnTopicChange(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new ThreadUpdateRequest()
+        await _mediatorService.EnqueueAsync(new ThreadUpdateBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,

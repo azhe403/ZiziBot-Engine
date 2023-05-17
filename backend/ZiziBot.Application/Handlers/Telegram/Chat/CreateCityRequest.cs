@@ -2,13 +2,13 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
-public class AddCityRequest : RequestBase
+public class AddCityBotRequest : BotRequestBase
 {
     public int CityId { get; set; }
     public string? CityName { get; set; }
 }
 
-internal class AddCityHandler : IRequestHandler<AddCityRequest, ResponseBase>
+internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly ChatDbContext _chatDbContext;
@@ -21,7 +21,7 @@ internal class AddCityHandler : IRequestHandler<AddCityRequest, ResponseBase>
         _fathimahApiService = fathimahApiService;
     }
 
-    public async Task<ResponseBase> Handle(AddCityRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(AddCityBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);

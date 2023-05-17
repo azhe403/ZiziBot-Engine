@@ -1,12 +1,12 @@
 namespace ZiziBot.Application.Handlers.Telegram.Permission;
 
-public class AddSudoRequestModel : RequestBase
+public class AddSudoBotRequestModel : BotRequestBase
 {
     public long CustomUserId { get; set; }
 }
 
 [UsedImplicitly]
-public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, ResponseBase>
+public class AddSudoRequestHandler : IRequestHandler<AddSudoBotRequestModel, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly SudoService _sudoService;
@@ -17,7 +17,7 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoRequestModel, Respon
         _sudoService = sudoService;
     }
 
-    public async Task<ResponseBase> Handle(AddSudoRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(AddSudoBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

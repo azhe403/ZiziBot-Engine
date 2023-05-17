@@ -2,12 +2,12 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
-public class SetAfkRequest : RequestBase
+public class SetAfkBotRequest : BotRequestBase
 {
     public string? Reason { get; set; }
 }
 
-public class SetAfkRequestHandler : IRequestHandler<SetAfkRequest, ResponseBase>
+public class SetAfkRequestHandler : IRequestHandler<SetAfkBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly ChatDbContext _chatDbContext;
@@ -18,7 +18,7 @@ public class SetAfkRequestHandler : IRequestHandler<SetAfkRequest, ResponseBase>
         _chatDbContext = chatDbContext;
     }
 
-    public async Task<ResponseBase> Handle(SetAfkRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(SetAfkBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

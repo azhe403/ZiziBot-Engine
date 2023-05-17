@@ -2,11 +2,11 @@ using Telegram.Bot;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
-public class GetAboutRequest : RequestBase
+public class GetAboutBotRequest : BotRequestBase
 {
 }
 
-public class GetAboutHandler : IRequestHandler<GetAboutRequest, ResponseBase>
+public class GetAboutHandler : IRequestHandler<GetAboutBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly AppSettingRepository _appSettingRepository;
@@ -17,7 +17,7 @@ public class GetAboutHandler : IRequestHandler<GetAboutRequest, ResponseBase>
         _appSettingRepository = appSettingRepository;
     }
 
-    public async Task<ResponseBase> Handle(GetAboutRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(GetAboutBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);

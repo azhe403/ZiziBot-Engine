@@ -19,7 +19,7 @@ public class PingController : CommandController
     public async Task Ping(MessageData data)
     {
         await _mediatorService.EnqueueAsync(
-            new PingRequestModel()
+            new PingBotRequestModel()
             {
                 BotToken = data.Options.Token,
                 Message = data.Message,
@@ -38,7 +38,7 @@ public class PingController : CommandController
     public async Task PingCallback(CallbackQueryData data, PingCallbackQueryModel model)
     {
         await _mediatorService.EnqueueAsync(
-            new PingCallbackRequestModel()
+            new PingCallbackBotRequestModel()
             {
                 BotToken = data.Options.Token,
                 CallbackQuery = data.CallbackQuery,
@@ -52,7 +52,7 @@ public class PingController : CommandController
     public async Task Default(MessageData data)
     {
         await _mediatorService.EnqueueAsync(
-            new DefaultRequestModel()
+            new DefaultBotRequestModel()
             {
                 BotToken = data.Options.Token,
                 Message = data.Message

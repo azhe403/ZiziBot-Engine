@@ -3,11 +3,11 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
-public class GetCityListRequest : RequestBase
+public class GetCityListBotRequest : BotRequestBase
 {
 }
 
-public class GetCityListHandler : IRequestHandler<GetCityListRequest, ResponseBase>
+public class GetCityListHandler : IRequestHandler<GetCityListBotRequest, BotResponseBase>
 {
     private readonly ILogger<GetCityListHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -20,7 +20,7 @@ public class GetCityListHandler : IRequestHandler<GetCityListRequest, ResponseBa
         _chatDbContext = chatDbContext;
     }
 
-    public async Task<ResponseBase> Handle(GetCityListRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(GetCityListBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);

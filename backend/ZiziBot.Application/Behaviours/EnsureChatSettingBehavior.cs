@@ -5,8 +5,8 @@ using MongoFramework.Linq;
 namespace ZiziBot.Application.Behaviours;
 
 public class EnsureChatSettingBehavior<TRequest, TResponse> : IRequestPostProcessor<TRequest, TResponse>
-    where TRequest : RequestBase, IRequest<TResponse>
-    where TResponse : ResponseBase
+    where TRequest : BotRequestBase, IRequest<TResponse>
+    where TResponse : BotResponseBase
 {
     private readonly ILogger<EnsureChatSettingBehavior<TRequest, TResponse>> _logger;
     private readonly ChatDbContext _chatDbContext;

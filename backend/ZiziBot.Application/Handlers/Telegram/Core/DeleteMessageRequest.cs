@@ -3,13 +3,13 @@ using Telegram.Bot;
 
 namespace ZiziBot.Application.Handlers.Telegram.Core;
 
-public class DeleteMessageRequestModel : RequestBase
+public class DeleteMessageBotRequestModel : BotRequestBase
 {
     public int MessageId { get; set; }
 }
 
 [UsedImplicitly]
-public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestModel, ResponseBase>
+public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageBotRequestModel, BotResponseBase>
 {
     private readonly ILogger<DeleteMessageRequestHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -20,7 +20,7 @@ public class DeleteMessageRequestHandler : IRequestHandler<DeleteMessageRequestM
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(DeleteMessageRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(DeleteMessageBotRequestModel request, CancellationToken cancellationToken)
     {
         var chatId = request.ChatIdentifier;
 

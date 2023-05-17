@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using ZiziBot.Application.Handlers.RestApis.Webhook;
 
 namespace ZiziBot.WebApi.Controllers;
 

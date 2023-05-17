@@ -25,7 +25,7 @@ public class CityTest
         var botMain = await _appSettingRepository.GetBotMain();
 
         // Arrange
-        await _mediatorService.Send(new AddCityRequest()
+        await _mediatorService.Send(new AddCityBotRequest()
         {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
@@ -59,7 +59,7 @@ public class CityTest
         }
 
         // Arrange
-        await _mediatorService.Send(new AddCityRequest()
+        await _mediatorService.Send(new AddCityBotRequest()
         {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
@@ -75,7 +75,7 @@ public class CityTest
         var botMain = await _appSettingRepository.GetBotMain();
 
         // Arrange
-        await _mediatorService.Send(new AddCityRequest()
+        await _mediatorService.Send(new AddCityBotRequest()
         {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,

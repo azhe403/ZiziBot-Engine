@@ -2,11 +2,11 @@ using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
-public class GetFileIdRequest : RequestBase
+public class GetFileIdBotRequest : BotRequestBase
 {
 }
 
-public class GetFileIdHandler : IRequestHandler<GetFileIdRequest, ResponseBase>
+public class GetFileIdHandler : IRequestHandler<GetFileIdBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
 
@@ -15,7 +15,7 @@ public class GetFileIdHandler : IRequestHandler<GetFileIdRequest, ResponseBase>
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(GetFileIdRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(GetFileIdBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

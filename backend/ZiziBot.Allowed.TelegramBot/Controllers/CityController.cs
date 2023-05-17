@@ -20,7 +20,7 @@ public class CityController : CommandController
     [Command("add_city")]
     public async Task AddCity(MessageData data)
     {
-        await _mediator.EnqueueAsync(new AddCityRequest()
+        await _mediator.EnqueueAsync(new AddCityBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -38,7 +38,7 @@ public class CityController : CommandController
     [Command("lc")]
     public async Task GetCity(MessageData data)
     {
-        await _mediator.EnqueueAsync(new GetCityListRequest()
+        await _mediator.EnqueueAsync(new GetCityListBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -56,7 +56,7 @@ public class CityController : CommandController
     [Command("sholat")]
     public async Task GetShalatTime(MessageData data)
     {
-        await _mediator.EnqueueAsync(new GetShalatTimeRequest()
+        await _mediator.EnqueueAsync(new GetShalatTimeBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,

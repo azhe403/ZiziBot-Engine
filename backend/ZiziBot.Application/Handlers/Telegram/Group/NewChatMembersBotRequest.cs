@@ -4,13 +4,13 @@ using Telegram.Bot.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
-public class NewChatMembersRequest : RequestBase
+public class NewChatMembersBotRequest : BotRequestBase
 {
     public User[] NewUser { get; set; } = null!;
 }
 
 [UsedImplicitly]
-public class NewChatMembersHandler : IRequestHandler<NewChatMembersRequest, ResponseBase>
+public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, BotResponseBase>
 {
     private readonly ILogger<NewChatMembersHandler> _logger;
     private readonly GroupDbContext _groupDbContext;
@@ -23,7 +23,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersRequest, Resp
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(NewChatMembersRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(NewChatMembersBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
         _logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.ChatId);

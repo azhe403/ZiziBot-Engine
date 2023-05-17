@@ -3,12 +3,12 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
-public class GetSettingPanelRequestModel : RequestBase
+public class GetSettingPanelBotRequestModel : BotRequestBase
 {
 
 }
 
-public class GetSettingPanelRequestHandler : IRequestHandler<GetSettingPanelRequestModel, ResponseBase>
+public class GetSettingPanelRequestHandler : IRequestHandler<GetSettingPanelBotRequestModel, BotResponseBase>
 {
     private readonly ILogger<GetSettingPanelRequestHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -21,7 +21,7 @@ public class GetSettingPanelRequestHandler : IRequestHandler<GetSettingPanelRequ
         _chatDbContext = chatDbContext;
     }
 
-    public async Task<ResponseBase> Handle(GetSettingPanelRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(GetSettingPanelBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

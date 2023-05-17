@@ -1,11 +1,11 @@
 ﻿namespace ZiziBot.Application.Handlers.Telegram.Group;
 
-public class PromoteMemberRequest : RequestBase
+public class PromoteMemberBotRequest : BotRequestBase
 {
     public bool Promote { get; set; }
 }
 
-public class PromoteMemberHandler : IRequestHandler<PromoteMemberRequest, ResponseBase>
+public class PromoteMemberHandler : IRequestHandler<PromoteMemberBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
 
@@ -14,7 +14,7 @@ public class PromoteMemberHandler : IRequestHandler<PromoteMemberRequest, Respon
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(PromoteMemberRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(PromoteMemberBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

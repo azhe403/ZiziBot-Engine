@@ -22,19 +22,19 @@ public class InlineQueryController : CommandController
 
         var result = inlineCmd switch
         {
-            "api-doc" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryApiDocRequestModel()
+            "api-doc" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryApiDocBotRequestModel()
             {
                 BotToken = data.Options.Token,
                 InlineQuery = data.InlineQuery,
                 Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
             }),
-            "uup" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryUupRequestModel()
+            "uup" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryUupBotRequestModel()
             {
                 BotToken = data.Options.Token,
                 InlineQuery = data.InlineQuery,
                 Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
             }),
-            _ => await _mediatorService.EnqueueAsync(new AnswerInlineQueryGuideRequestModel()
+            _ => await _mediatorService.EnqueueAsync(new AnswerInlineQueryGuideBotRequestModel()
             {
                 BotToken = data.Options.Token,
                 InlineQuery = data.InlineQuery

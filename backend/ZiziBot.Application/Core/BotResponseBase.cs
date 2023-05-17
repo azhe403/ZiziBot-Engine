@@ -4,9 +4,9 @@ using Telegram.Bot.Types;
 
 namespace ZiziBot.Application.Core;
 
-public class ResponseBase
+public class BotResponseBase
 {
-    private readonly RequestBase _request = new();
+    private readonly BotRequestBase _request = new();
 
     private Stopwatch Stopwatch => Stopwatch.StartNew();
     public ITelegramBotClient Bot { get; }
@@ -23,11 +23,11 @@ public class ResponseBase
     public Message SentMessage { get; set; }
     public ResponseSource ResponseSource { get; set; } = ResponseSource.Unknown;
 
-    public ResponseBase()
+    public BotResponseBase()
     {
     }
 
-    public ResponseBase Complete()
+    public BotResponseBase Complete()
     {
         Stopwatch.Stop();
 

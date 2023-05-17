@@ -3,11 +3,11 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
-public class CreateWebhookRequest : RequestBase
+public class CreateWebhookBotRequest : BotRequestBase
 {
 }
 
-public class CreateWebhookHandler : IRequestHandler<CreateWebhookRequest, ResponseBase>
+public class CreateWebhookHandler : IRequestHandler<CreateWebhookBotRequest, BotResponseBase>
 {
     private readonly ILogger<CreateWebhookHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -20,7 +20,7 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookRequest, Respon
         _chatDbContext = chatDbContext;
     }
 
-    public async Task<ResponseBase> Handle(CreateWebhookRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(CreateWebhookBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

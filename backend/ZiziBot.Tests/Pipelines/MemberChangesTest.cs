@@ -25,7 +25,7 @@ public class MemberChangesTest
     {
         foreach (var botData in ListBotData)
         {
-            await _mediatorService.EnqueueAsync(new NewChatMembersRequest()
+            await _mediatorService.EnqueueAsync(new NewChatMembersBotRequest()
             {
                 BotToken = botData.Token,
                 Message = SampleMessages.NewChatMembers,

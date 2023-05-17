@@ -18,7 +18,7 @@ public class NotesController : CommandController
     [Command("notes")]
     public async Task GetNotes(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetNoteRequestModel()
+        await _mediatorService.EnqueueAsync(new GetNoteBotRequestModel()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -39,7 +39,7 @@ public class NotesController : CommandController
         var query = data.Params.GetCommandParamAt<string>(0, separator: "\n");
         var rawButton = data.Params.Replace(query ?? "p", "").Trim();
 
-        await _mediatorService.EnqueueAsync(new CreateNoteRequest()
+        await _mediatorService.EnqueueAsync(new CreateNoteBotRequest()
         {
             BotToken = data.Options.Token,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,

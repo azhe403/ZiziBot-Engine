@@ -3,7 +3,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Application.Core;
 
-public class RequestBase : IRequest<ResponseBase>
+public class BotRequestBase : IRequest<BotResponseBase>
 {
     public RoleLevel MinimumRole { get; set; }
 

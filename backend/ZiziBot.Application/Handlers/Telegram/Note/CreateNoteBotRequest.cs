@@ -3,7 +3,7 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
-public class CreateNoteRequest : RequestBase
+public class CreateNoteBotRequest : BotRequestBase
 {
     public string Query { get; set; }
     public string? Content { get; set; }
@@ -13,7 +13,7 @@ public class CreateNoteRequest : RequestBase
     public bool? RefreshNote { get; set; }
 }
 
-public class CreateNoteValidator : AbstractValidator<CreateNoteRequest>
+public class CreateNoteValidator : AbstractValidator<CreateNoteBotRequest>
 {
     public CreateNoteValidator()
     {
@@ -23,7 +23,7 @@ public class CreateNoteValidator : AbstractValidator<CreateNoteRequest>
     }
 }
 
-public class CreateNoteHandler : IRequestHandler<CreateNoteRequest, ResponseBase>
+public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly ChatDbContext _chatDbContext;
@@ -34,13 +34,13 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteRequest, ResponseBase
         _chatDbContext = chatDbContext;
     }
 
-    public async Task<ResponseBase> Handle(CreateNoteRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(CreateNoteBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty;
 
-        var validationResult = await request.ValidateAsync<CreateNoteValidator, CreateNoteRequest>();
+        var validationResult = await request.ValidateAsync<CreateNoteValidator, CreateNoteBotRequest>();
 
         if (!validationResult.IsValid)
         {

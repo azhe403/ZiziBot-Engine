@@ -3,13 +3,13 @@ using Telegram.Bot;
 
 namespace ZiziBot.Application.Handlers.Telegram.Core;
 
-public class SendMessageTextRequestModel : RequestBase
+public class SendMessageTextBotRequestModel : BotRequestBase
 {
 }
 
 [UsedImplicitly]
 [Obsolete("Send Message via ResponseBase")]
-public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequestModel, ResponseBase>
+public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextBotRequestModel, BotResponseBase>
 {
     private readonly ILogger<SendMessageTextRequestHandler> _logger;
     private readonly MediatorService _mediatorService;
@@ -22,7 +22,7 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(SendMessageTextRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(SendMessageTextBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
@@ -41,7 +41,7 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextRequ
 
         _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
         _mediatorService.Schedule(
-            new DeleteMessageRequestModel()
+            new DeleteMessageBotRequestModel()
             {
                 BotToken = request.BotToken,
                 Message = request.Message,

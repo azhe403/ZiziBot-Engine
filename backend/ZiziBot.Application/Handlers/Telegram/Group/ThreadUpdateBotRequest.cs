@@ -2,11 +2,11 @@
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
-public class ThreadUpdateRequest : RequestBase
+public class ThreadUpdateBotRequest : BotRequestBase
 {
 }
 
-public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateRequest, ResponseBase>
+public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateBotRequest, BotResponseBase>
 {
     private readonly GroupDbContext _groupDbContext;
     private readonly TelegramService _telegramService;
@@ -17,7 +17,7 @@ public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateRequest, Response
         _groupDbContext = groupDbContext;
     }
 
-    public async Task<ResponseBase> Handle(ThreadUpdateRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(ThreadUpdateBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

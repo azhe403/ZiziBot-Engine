@@ -18,7 +18,7 @@ public class MirrorController : CommandController
     [Command("mp")]
     public async Task SaveMirrorPayment(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new SavePaymentRequestModel()
+        await _mediatorService.EnqueueAsync(new SavePaymentBotRequestModel()
         {
             BotToken = data.Options.Token,
             ReplyMessage = true,
@@ -37,7 +37,7 @@ public class MirrorController : CommandController
     [Command("sp")]
     public async Task SubmitMirrorPayment(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new SubmitPaymentRequestModel()
+        await _mediatorService.EnqueueAsync(new SubmitPaymentBotRequestModel()
         {
             BotToken = data.Options.Token,
             ReplyMessage = true,
@@ -55,7 +55,7 @@ public class MirrorController : CommandController
     [Command("ms")]
     public async Task MirrorSubscription(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetMirrorSubscriptionRequest()
+        await _mediatorService.EnqueueAsync(new GetMirrorSubscriptionBotRequest()
         {
             BotToken = data.Options.Token,
             ReplyMessage = true,

@@ -1,10 +1,10 @@
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
-public class DefaultRequestModel : RequestBase
+public class DefaultBotRequestModel : BotRequestBase
 {
 }
 
-public class DefaultRequestHandler : IRequestHandler<DefaultRequestModel, ResponseBase>
+public class DefaultRequestHandler : IRequestHandler<DefaultBotRequestModel, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
 
@@ -13,7 +13,7 @@ public class DefaultRequestHandler : IRequestHandler<DefaultRequestModel, Respon
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(DefaultRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(DefaultBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

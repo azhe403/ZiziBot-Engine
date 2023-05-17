@@ -5,12 +5,12 @@ using MoreLinq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
-public class GetShalatTimeRequest : RequestBase
+public class GetShalatTimeBotRequest : BotRequestBase
 {
 
 }
 
-public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeRequest, ResponseBase>
+public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, BotResponseBase>
 {
     private readonly ILogger<GetShalatTimeHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -26,7 +26,7 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeRequest, Respon
 
     }
 
-    public async Task<ResponseBase> Handle(GetShalatTimeRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(GetShalatTimeBotRequest request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Get Shalat Time list for ChatId: {ChatId}", request.ChatId);
         _telegramService.SetupResponse(request);

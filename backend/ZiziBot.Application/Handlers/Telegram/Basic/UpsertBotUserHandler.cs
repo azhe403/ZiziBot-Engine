@@ -5,8 +5,8 @@ using MongoFramework.Linq;
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
 public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<TRequest, TResponse>
-    where TRequest : RequestBase, IRequest<TResponse>
-    where TResponse : ResponseBase
+    where TRequest : BotRequestBase, IRequest<TResponse>
+    where TResponse : BotResponseBase
 {
     private readonly ILogger<UpsertBotUserHandler<TRequest, TResponse>> _logger;
     private readonly UserDbContext _userDbContext;
