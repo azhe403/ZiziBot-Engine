@@ -18,7 +18,7 @@ public class SettingsController : CommandController
     [Command("settings")]
     public async Task GetSettingPanel(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetSettingPanelRequestModel()
+        await _mediatorService.EnqueueAsync(new GetSettingPanelBotRequestModel()
         {
             BotToken = data.Options.Token,
             Message = data.Message,

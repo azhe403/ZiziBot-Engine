@@ -19,7 +19,7 @@ public class TelegramService
     private readonly MediatorService _mediatorService;
 
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-    private RequestBase _request = new();
+    private BotRequestBase _request = new();
     private string _timeInit;
 
     public ITelegramBotClient Bot { get; set; }
@@ -46,7 +46,7 @@ public class TelegramService
         _mediatorService = mediatorService;
     }
 
-    public void SetupResponse(RequestBase request)
+    public void SetupResponse(BotRequestBase request)
     {
         _request = request ?? throw new ArgumentNullException(nameof(request));
 
@@ -86,11 +86,11 @@ public class TelegramService
         return filePath;
     }
 
-    public ResponseBase Complete()
+    public BotResponseBase Complete()
     {
         _stopwatch.Stop();
 
-        return new ResponseBase
+        return new BotResponseBase
         {
             ChatId = _request.ChatId,
             SentMessage = SentMessage,
@@ -100,12 +100,12 @@ public class TelegramService
     }
 
     #region Response
-    public async Task<ResponseBase> SendMessageText(HtmlMessage text, IReplyMarkup? replyMarkup = null, long chatId = -1)
+    public async Task<BotResponseBase> SendMessageText(HtmlMessage text, IReplyMarkup? replyMarkup = null, long chatId = -1)
     {
         return await SendMessageText(text.ToString(), replyMarkup, chatId);
     }
 
-    public async Task<ResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1)
+    public async Task<BotResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1)
     {
         if (text.IsNullOrEmpty())
             return Complete();
@@ -132,7 +132,7 @@ public class TelegramService
             return Complete();
 
         _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
-        _mediatorService.Schedule(new DeleteMessageRequestModel
+        _mediatorService.Schedule(new DeleteMessageBotRequestModel
             {
                 BotToken = _request.BotToken,
                 Message = _request.Message,
@@ -143,7 +143,7 @@ public class TelegramService
 
         if (_request.CleanupTargets.Contains(CleanupTarget.FromSender))
         {
-            _mediatorService.Schedule(new DeleteMessageRequestModel
+            _mediatorService.Schedule(new DeleteMessageBotRequestModel
                 {
                     BotToken = _request.BotToken,
                     Message = _request.Message,
@@ -158,7 +158,7 @@ public class TelegramService
         return Complete();
     }
 
-    public async Task<ResponseBase> EditMessageText(string text)
+    public async Task<BotResponseBase> EditMessageText(string text)
     {
         text += "\n\n" + GetExecStamp();
 
@@ -167,7 +167,7 @@ public class TelegramService
         return Complete();
     }
 
-    public async Task<ResponseBase> SendMediaAsync(
+    public async Task<BotResponseBase> SendMediaAsync(
         string fileId,
         CommonMediaType mediaType,
         string? caption = "",
@@ -179,7 +179,7 @@ public class TelegramService
         var targetChatId = customChatId == -1 ? ChatId : customChatId;
 
         _logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId, targetChatId);
-        IInputFile inputFile = new InputFileId(fileId);
+        InputFile inputFile = InputFile.FromFileId(fileId);
 
         switch (mediaType)
         {
@@ -190,7 +190,7 @@ public class TelegramService
                     _logger.LogInformation("Converting URL: '{Url}' to stream", fileId);
                     var stream = await fileId.GetStreamAsync();
 
-                    inputFile = new InputFile(stream, customFileName);
+                    inputFile = InputFile.FromStream(stream, customFileName);
                 }
 
                 SentMessage = await Bot.SendDocumentAsync(
@@ -208,7 +208,7 @@ public class TelegramService
 
                 await using (var fileStream = File.OpenRead(path: fileId))
                 {
-                    var inputOnlineFile = new InputFile(content: fileStream, fileName: fileName);
+                    var inputOnlineFile = InputFile.FromStream(stream: fileStream, fileName: fileName);
 
                     SentMessage = await Bot.SendDocumentAsync(
                         chatId: targetChatId,
@@ -286,20 +286,20 @@ public class TelegramService
         catch (Exception e)
         {
             _logger.LogError(e, "Error deleting message {MessageId}", _request.MessageId);
-            if (e.Message.CanBeIgnored())
+            if (e.Message.IsIgnorable())
                 return;
 
             throw;
         }
     }
 
-    public async Task<ResponseBase> AnswerCallbackAsync(string message, bool showAlert = false)
+    public async Task<BotResponseBase> AnswerCallbackAsync(string message, bool showAlert = false)
     {
         await Bot.AnswerCallbackQueryAsync(CallbackQueryId, message, showAlert);
         return Complete();
     }
 
-    public async Task<ResponseBase> AnswerInlineQueryAsync(IEnumerable<InlineQueryResult> results)
+    public async Task<BotResponseBase> AnswerInlineQueryAsync(IEnumerable<InlineQueryResult> results)
     {
         if (_request.InlineQuery == null)
         {

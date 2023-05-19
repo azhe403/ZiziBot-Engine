@@ -54,10 +54,8 @@ public class TelegramSink : ILogEventSink
                 .Bold("File: ").CodeBr(stackFrame.GetFileName()!)
                 .Bold("Coordinate: ").CodeBr($"{stackFrame.GetFileLineNumber()}:{stackFrame.GetFileColumnNumber()}")
                 .Bold("Namespace: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Namespace!)
-                .Bold("Assembly: ")
-                .CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Name ?? string.Empty)
-                .Bold("Assembly Version: ")
-                .CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Version!.ToString())
+                .Bold("Assembly: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Name ?? string.Empty)
+                .Bold("Assembly Version: ").CodeBr(VersionUtil.GetVersion())
                 .Bold("Assembly Location: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
         }
 

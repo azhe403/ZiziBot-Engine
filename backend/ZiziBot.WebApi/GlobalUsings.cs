@@ -8,6 +8,7 @@ global using ZiziBot.Application.Handlers.RestApis.Group;
 global using ZiziBot.Application.Handlers.RestApis.MirrorUser;
 global using ZiziBot.Application.Handlers.RestApis.Note;
 global using ZiziBot.Application.Handlers.RestApis.Rss;
+global using ZiziBot.Application.Handlers.RestApis.Webhook;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Constants;

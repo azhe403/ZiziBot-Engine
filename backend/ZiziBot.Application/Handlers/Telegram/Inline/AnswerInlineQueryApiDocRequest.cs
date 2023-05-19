@@ -6,12 +6,12 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Inline;
 
-public class AnswerInlineQueryApiDocRequestModel : RequestBase
+public class AnswerInlineQueryApiDocBotRequestModel : BotRequestBase
 {
     public string? Query { get; set; }
 }
 
-public class AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlineQueryApiDocRequestModel, ResponseBase>
+public class AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlineQueryApiDocBotRequestModel, BotResponseBase>
 {
     private readonly ILogger<AnswerInlineQueryApiDocRequestHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -24,7 +24,7 @@ public class AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlin
         _cacheService = cacheService;
     }
 
-    public async Task<ResponseBase> Handle(AnswerInlineQueryApiDocRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(AnswerInlineQueryApiDocBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

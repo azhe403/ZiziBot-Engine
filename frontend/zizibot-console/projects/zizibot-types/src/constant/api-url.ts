@@ -16,4 +16,5 @@ export class ApiUrl {
     public static API_WELCOME_MESSAGE_SELECT = '/api/group/select-welcome-message';
 
     public static NOTE = '/api/note';
+    public static RSS = '/api/rss';
 }

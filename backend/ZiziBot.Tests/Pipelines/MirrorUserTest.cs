@@ -36,7 +36,7 @@ public class MirrorUserTest
         // Assert
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
@@ -64,7 +64,7 @@ public class MirrorUserTest
         // Assert
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
@@ -83,7 +83,7 @@ public class MirrorUserTest
 
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
@@ -102,7 +102,7 @@ public class MirrorUserTest
 
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Handlers.Telegram.Permission;
 
-public class CheckRoleHandler<TRequest> : IRequestPreProcessor<TRequest> where TRequest : RequestBase
+public class CheckRoleHandler<TRequest> : IRequestPreProcessor<TRequest> where TRequest : BotRequestBase
 {
     private readonly ILogger<CheckRoleHandler<TRequest>> _logger;
     private readonly TelegramService _telegramService;

@@ -6,5 +6,6 @@ public abstract class GithubWebhookEventProcessor : WebhookEventProcessor
 {
     public string RouteId { get; set; }
     public long ChatId { get; set; }
+    public int ThreadId { get; set; }
     public string Token { get; set; }
 }

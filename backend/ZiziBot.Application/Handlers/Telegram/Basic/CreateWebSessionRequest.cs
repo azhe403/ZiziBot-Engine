@@ -3,27 +3,25 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
-public class CreateWebSessionRequestModel : RequestBase
+public class CreateWebSessionBotRequestModel : BotRequestBase
 {
 }
 
-public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionRequestModel, ResponseBase>
+public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionBotRequestModel, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
-    private readonly UserDbContext _userDbContext;
 
-    public CreateWebSessionRequestHandler(TelegramService telegramService, UserDbContext userDbContext)
+    public CreateWebSessionRequestHandler(TelegramService telegramService)
     {
         _telegramService = telegramService;
-        _userDbContext = userDbContext;
     }
 
-    public async Task<ResponseBase> Handle(CreateWebSessionRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(CreateWebSessionBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
         var sessionId = Guid.NewGuid().ToString();
-        var webUrlBase = Env.WEB_VERIFY_SESSION_URL + "?sessionId=";
+        var webUrlBase = Env.WEB_VERIFY_SESSION_URL + "?session_id=";
         var webUrl = webUrlBase + sessionId;
 
         if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))

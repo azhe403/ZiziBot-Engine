@@ -1,10 +1,10 @@
 namespace ZiziBot.Application.Handlers.Telegram.Text;
 
-public class OcrRequestModel : RequestBase
+public class OcrBotRequestModel : BotRequestBase
 {
 }
 
-public class OcrRequestHandler : IRequestHandler<OcrRequestModel, ResponseBase>
+public class OcrRequestHandler : IRequestHandler<OcrBotRequestModel, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly OptiicDevService _optiicDevService;
@@ -15,7 +15,7 @@ public class OcrRequestHandler : IRequestHandler<OcrRequestModel, ResponseBase>
         _optiicDevService = optiicDevService;
     }
 
-    public async Task<ResponseBase> Handle(OcrRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(OcrBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

@@ -19,15 +19,15 @@ public class MediatorService
     }
 
     #region Execution
-    public async Task<ResponseBase> EnqueueAsync(RequestBase request)
+    public async Task<BotResponseBase> EnqueueAsync(BotRequestBase request)
     {
-        ResponseBase response = new();
+        BotResponseBase botResponse = new();
         _logger.LogDebug("Enqueueing request {request} in {Mode}", request, request.ExecutionStrategy);
 
         if (request.ExecutionStrategy == ExecutionStrategy.Instant)
         {
             await _mediator.Send(request);
-            return response.Complete();
+            return botResponse.Complete();
         }
 
         switch (request.ExecutionStrategy)
@@ -42,14 +42,14 @@ public class MediatorService
                 throw new ArgumentOutOfRangeException(nameof(request.ExecutionStrategy), request.ExecutionStrategy, null);
         }
 
-        return response.Complete();
+        return botResponse.Complete();
     }
 
-    public ResponseBase Schedule(RequestBase request)
+    public BotResponseBase Schedule(BotRequestBase request)
     {
-        ResponseBase response = new();
+        BotResponseBase botResponse = new();
         BackgroundJob.Schedule<MediatorService>(x => x.Send(request), request.DeleteAfter);
-        return response.Complete();
+        return botResponse.Complete();
     }
     #endregion
 

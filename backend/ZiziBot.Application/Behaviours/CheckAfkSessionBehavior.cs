@@ -5,8 +5,8 @@ using MongoFramework.Linq;
 namespace ZiziBot.Application.Behaviours;
 
 public class CheckAfkSessionBehavior<TRequest, TResponse> : IRequestPostProcessor<TRequest, TResponse>
-    where TRequest : RequestBase, IRequest<TResponse>
-    where TResponse : ResponseBase
+    where TRequest : BotRequestBase, IRequest<TResponse>
+    where TResponse : BotResponseBase
 {
     private readonly ChatDbContext _chatDbContext;
     private readonly ILogger<CheckAfkSessionBehavior<TRequest, TResponse>> _logger;
@@ -25,7 +25,7 @@ public class CheckAfkSessionBehavior<TRequest, TResponse> : IRequestPostProcesso
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
-        if (request.GetType() == typeof(DeleteMessageRequestModel))
+        if (request.GetType() == typeof(DeleteMessageBotRequestModel))
             return;
 
         request.ReplyMessage = true;

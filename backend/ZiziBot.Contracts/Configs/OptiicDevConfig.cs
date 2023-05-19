@@ -1,5 +1,8 @@
+using System.ComponentModel;
+
 namespace ZiziBot.Contracts.Configs;
 
+[DisplayName("OptiicDev")]
 public class OptiicDevConfig
 {
     public string ApiKey { get; set; }

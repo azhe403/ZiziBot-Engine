@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoFramework.Linq;
 using Newtonsoft.Json;
@@ -22,13 +21,16 @@ public class SaveTelegramSessionRequestModel
     public long Id { get; set; }
 
     [JsonProperty("first_name")]
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
+
+    [JsonProperty("last_name")]
+    public string? LastName { get; set; }
 
     [JsonProperty("username")]
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     [JsonProperty("photo_url")]
-    public string PhotoUrl { get; set; }
+    public string? PhotoUrl { get; set; }
 
     [JsonProperty("auth_date")]
     public long AuthDate { get; set; }
@@ -49,23 +51,21 @@ public class SaveDashboardSessionIdResponseDto
 public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequest, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     private readonly ILogger<SaveTelegramSessionRequestHandler> _logger;
-    private readonly IOptions<JwtConfig> _jwtConfigOption;
     private readonly AppSettingsDbContext _appSettingsDbContext;
     private readonly UserDbContext _userDbContext;
-
-    private JwtConfig JwtConfig => _jwtConfigOption.Value;
+    private readonly AppSettingRepository _appSettingRepository;
 
     public SaveTelegramSessionRequestHandler(
         ILogger<SaveTelegramSessionRequestHandler> logger,
-        IOptions<JwtConfig> jwtConfigOption,
         AppSettingsDbContext appSettingsDbContext,
-        UserDbContext userDbContext
+        UserDbContext userDbContext,
+        AppSettingRepository appSettingRepository
     )
     {
         _logger = logger;
-        _jwtConfigOption = jwtConfigOption;
         _appSettingsDbContext = appSettingsDbContext;
         _userDbContext = userDbContext;
+        _appSettingRepository = appSettingRepository;
     }
 
     public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(SaveTelegramSessionRequest request, CancellationToken cancellationToken)
@@ -91,7 +91,15 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         var checkAuthorization = loginWidget.CheckAuthorization(sessionData);
         if (checkAuthorization != WebAuthorization.Valid)
         {
+            _logger.LogDebug("Session is not valid for SessionId: {SessionId}. Result: {Result}", request.Model.SessionId, checkAuthorization);
             return response.Unauthorized($"Sesi tidak valid, silakan kirim ulang perintah '/console' di Bot untuk membuat sesi baru.");
+        }
+
+        var jwtConfig = await _appSettingRepository.GetConfigSectionAsync<JwtConfig>();
+
+        if (jwtConfig == null)
+        {
+            return response.BadRequest("Authentication is not yet configured");
         }
 
         var checkSudo = await _appSettingsDbContext.Sudoers
@@ -99,7 +107,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtConfig.Key));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
@@ -110,13 +118,14 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             new Claim("photoUrl", request.Model.PhotoUrl),
         };
 
-        var token = new JwtSecurityToken(JwtConfig.Issuer, JwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
+        var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
         _userDbContext.DashboardSessions.Add(new DashboardSessionEntity()
         {
             TelegramUserId = request.Model.Id,
             FirstName = request.Model.FirstName,
+            LastName = request.Model.LastName,
             PhotoUrl = request.Model.PhotoUrl,
             Username = request.Model.Username,
             AuthDate = request.Model.AuthDate,

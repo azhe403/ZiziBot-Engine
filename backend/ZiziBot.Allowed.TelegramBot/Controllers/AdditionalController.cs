@@ -18,7 +18,7 @@ public class AdditionalController : CommandController
     [Command("afk")]
     public async Task Afk(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new SetAfkRequest()
+        await _mediatorService.EnqueueAsync(new SetAfkBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -35,7 +35,7 @@ public class AdditionalController : CommandController
     [Command("webhook")]
     public async Task CreateWebhook(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new CreateWebhookRequest()
+        await _mediatorService.EnqueueAsync(new CreateWebhookBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,

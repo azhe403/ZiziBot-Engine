@@ -1,6 +1,6 @@
 namespace ZiziBot.Application.Behaviours;
 
-public class CheckChatAdminBehavior : IPipelineBehavior<RequestBase, ResponseBase>
+public class CheckChatAdminBehavior : IPipelineBehavior<BotRequestBase, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
 
@@ -9,7 +9,7 @@ public class CheckChatAdminBehavior : IPipelineBehavior<RequestBase, ResponseBas
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(RequestBase request, RequestHandlerDelegate<ResponseBase> next, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(BotRequestBase request, RequestHandlerDelegate<BotResponseBase> next, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

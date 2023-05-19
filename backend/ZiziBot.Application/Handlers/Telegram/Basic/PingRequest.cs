@@ -2,11 +2,11 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
-public class PingRequestModel : RequestBase
+public class PingBotRequestModel : BotRequestBase
 {
 }
 
-public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase>
+public class PingRequestHandler : IRequestHandler<PingBotRequestModel, BotResponseBase>
 {
     private readonly SudoService _sudoService;
     private readonly TelegramService _telegramService;
@@ -17,7 +17,7 @@ public class PingRequestHandler : IRequestHandler<PingRequestModel, ResponseBase
         _telegramService = telegramService;
     }
 
-    public async Task<ResponseBase> Handle(PingRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(PingBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 

@@ -3,13 +3,13 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
-public class SavePaymentRequestModel : RequestBase
+public class SavePaymentBotRequestModel : BotRequestBase
 {
     public string? Payload { get; set; }
     public long ForUserId { get; set; }
 }
 
-public class SavePaymentRequestHandler : IRequestHandler<SavePaymentRequestModel, ResponseBase>
+public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestModel, BotResponseBase>
 {
     private readonly ILogger<SavePaymentRequestHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -22,7 +22,7 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentRequestModel
         _mirrorDbContext = mirrorDbContext;
     }
 
-    public async Task<ResponseBase> Handle(SavePaymentRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(SavePaymentBotRequestModel request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);

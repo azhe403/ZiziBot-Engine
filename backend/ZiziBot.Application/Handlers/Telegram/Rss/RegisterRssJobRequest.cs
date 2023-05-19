@@ -30,10 +30,7 @@ public class RegisterRssJobHandler : IRequestHandler<RegisterRssJobRequest, bool
             var rssSettingsAll = await _chatDbContext.RssSetting.ToListAsync(cancellationToken: cancellationToken);
             rssSettingsAll.ForEach(entity => entity.Status = (int)EventStatus.Complete);
             await _chatDbContext.SaveChangesAsync(cancellationToken);
-
         }
-
-        // _recurringJobManager.AddOrUpdate<MediatorService>("Rss:ResetEvent", x => x.Send(new RegisterRssJobRequest()), cronExpression: TimeUtil.DayInterval(1));
 
         var rssSettings = await _chatDbContext.RssSetting
             .Where(entity => entity.Status == (int)EventStatus.Complete)

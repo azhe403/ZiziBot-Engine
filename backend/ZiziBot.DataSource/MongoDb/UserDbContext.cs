@@ -10,4 +10,5 @@ public class UserDbContext : MongoDbContextBase
 
     public MongoDbSet<DashboardSessionEntity> DashboardSessions { get; set; }
     public MongoDbSet<ApiKeyEntity> ApiKey { get; set; }
+    public MongoDbSet<BotUserEntity> BotUser { get; set; }
 }

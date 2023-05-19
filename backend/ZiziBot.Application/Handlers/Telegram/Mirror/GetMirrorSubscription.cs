@@ -3,12 +3,12 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
-public class GetMirrorSubscriptionRequest : RequestBase
+public class GetMirrorSubscriptionBotRequest : BotRequestBase
 {
 
 }
 
-public class GetMirrorSubscriptionHandler : IRequestHandler<GetMirrorSubscriptionRequest, ResponseBase>
+public class GetMirrorSubscriptionHandler : IRequestHandler<GetMirrorSubscriptionBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly MirrorDbContext _mirrorDbContext;
@@ -19,7 +19,7 @@ public class GetMirrorSubscriptionHandler : IRequestHandler<GetMirrorSubscriptio
         _mirrorDbContext = mirrorDbContext;
     }
 
-    public async Task<ResponseBase> Handle(GetMirrorSubscriptionRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(GetMirrorSubscriptionBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);

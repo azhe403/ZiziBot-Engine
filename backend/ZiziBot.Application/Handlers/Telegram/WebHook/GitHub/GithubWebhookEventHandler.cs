@@ -1,4 +1,5 @@
 ﻿using Flurl;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using Octokit.Webhooks;
 using Octokit.Webhooks.Events;
@@ -29,7 +30,7 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         var treeUrl = repository.HtmlUrl.AppendPathSegment($"tree/{branchName}");
 
         var htmlMessage = HtmlMessage.Empty
-            .Url(pushEvent.Compare, $"🏗 {commitCount} commit").Bold($" to ").Url(treeUrl, $"{repository.FullName}:{branchName}")
+            .Url(pushEvent.Compare, $"🏗 commit".ToQuantity(commitCount)).Bold($" to ").Url(treeUrl, $"{repository.FullName}:{branchName}")
             .Br().Br();
 
         commits.ForEach(commit => {
@@ -74,6 +75,12 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
     private async Task SendMessage(string message)
     {
         var botClient = new TelegramBotClient(Token);
-        await botClient.SendTextMessageAsync(ChatId, message, parseMode: ParseMode.Html, disableWebPagePreview: true);
+        await botClient.SendTextMessageAsync(
+            chatId: ChatId,
+            text: message.MdToHtml(),
+            messageThreadId: ThreadId,
+            parseMode: ParseMode.Html,
+            disableWebPagePreview: true
+        );
     }
 }

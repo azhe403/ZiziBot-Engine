@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Handlers.Core;
 
-public class BotMiddlewarePipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : RequestBase, IRequest<TResponse>
+public class BotMiddlewarePipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : BotRequestBase, IRequest<TResponse>
 {
     private readonly ILogger<BotMiddlewarePipelineBehaviour<TRequest, TResponse>> _logger;
     private readonly TelegramService _telegramService;

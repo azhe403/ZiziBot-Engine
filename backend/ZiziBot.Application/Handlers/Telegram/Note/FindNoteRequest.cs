@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
 public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor<TRequest, TResponse>
-    where TRequest : RequestBase, IRequest<TResponse>
-    where TResponse : ResponseBase
+    where TRequest : BotRequestBase, IRequest<TResponse>
+    where TResponse : BotResponseBase
 {
     private readonly ILogger<FindNoteRequestHandler<TRequest, TResponse>> _logger;
     private readonly TelegramService _telegramService;

@@ -85,18 +85,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
         {
             _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", request.ChatId, request.RssUrl);
 
-            var ignoreErrorMsg = new[]
-            {
-                "bot was blocked",
-                "chat not found",
-                "connection could not be established",
-                "name or service not known",
-                "no such host is known",
-                "not match",
-                "unexpected token",
-            };
-
-            if (exception.Message.Contains(ignoreErrorMsg))
+            if (exception.Message.IsIgnorable())
             {
                 _logger.LogWarning("Disabling and remove RSS Url: {Url} for ChatId: {ChatId}", request.RssUrl, request.ChatId);
 

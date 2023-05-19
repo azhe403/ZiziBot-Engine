@@ -6,7 +6,7 @@ namespace ZiziBot.WebApi.Controllers;
 [Route("api/[controller]")]
 public class RssController : ApiControllerBase
 {
-    [HttpGet("list")]
+    [HttpGet()]
     public async Task<IActionResult> Index(GetListRssRequest request)
     {
         return await SendRequest(request);

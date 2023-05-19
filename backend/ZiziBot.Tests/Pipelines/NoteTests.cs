@@ -21,7 +21,7 @@ public class NoteTests
     {
         var botMain = await _appSettingRepository.GetBotMain();
 
-        var result = await _mediatorService.EnqueueAsync(new CreateNoteRequest()
+        var result = await _mediatorService.EnqueueAsync(new CreateNoteBotRequest()
         {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,

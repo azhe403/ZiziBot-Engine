@@ -13,7 +13,7 @@ public class GetListRssRequest : ApiRequestBase<List<GetListRssResponse>>
 public class GetListRssResponse
 {
     public ObjectId Id { get; set; }
-    public string RssUrl { get; set; }
+    public string Url { get; set; }
     public long ChatId { get; set; }
     public string LastErrorMessage { get; set; }
     public string CronJobId { get; set; }
@@ -37,14 +37,15 @@ public class GetListRssHandler : IRequestHandler<GetListRssRequest, ApiResponseB
         ApiResponseBase<List<GetListRssResponse>> response = new();
 
         var listRss = await _chatDbContext.RssSetting
-            .WhereIf(request.ChatId > 0, entity => entity.ChatId == request.ChatId)
+            .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
+            .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         var result = listRss.Select(x => new GetListRssResponse
         {
             Id = x.Id,
-            RssUrl = x.RssUrl,
+            Url = x.RssUrl,
             ChatId = x.ChatId,
             LastErrorMessage = x.LastErrorMessage,
             CronJobId = x.CronJobId,
