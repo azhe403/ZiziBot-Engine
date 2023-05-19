@@ -10,12 +10,10 @@ public class CreateWebSessionBotRequestModel : BotRequestBase
 public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionBotRequestModel, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
-    private readonly UserDbContext _userDbContext;
 
-    public CreateWebSessionRequestHandler(TelegramService telegramService, UserDbContext userDbContext)
+    public CreateWebSessionRequestHandler(TelegramService telegramService)
     {
         _telegramService = telegramService;
-        _userDbContext = userDbContext;
     }
 
     public async Task<BotResponseBase> Handle(CreateWebSessionBotRequestModel request, CancellationToken cancellationToken)
@@ -23,7 +21,7 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionBo
         _telegramService.SetupResponse(request);
 
         var sessionId = Guid.NewGuid().ToString();
-        var webUrlBase = Env.WEB_VERIFY_SESSION_URL + "?sessionId=";
+        var webUrlBase = Env.WEB_VERIFY_SESSION_URL + "?session_id=";
         var webUrl = webUrlBase + sessionId;
 
         if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))

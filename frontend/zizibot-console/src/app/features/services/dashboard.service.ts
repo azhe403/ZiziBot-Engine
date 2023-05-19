@@ -52,17 +52,8 @@ export class DashboardService {
 
     public async saveSession(userLogin: TelegramUserLogin): Promise<DashboardSession> {
         console.debug('sending user session');
-        const sessionId = userLogin.sessionId;
 
-        const dashboardSessionObservable = this.httpClient.post<ApiResponse<DashboardSession>>(ApiUrl.SESSION_SAVE, {
-            id: userLogin.id,
-            first_name: userLogin.first_name,
-            username: userLogin.username,
-            photo_url: userLogin.photo_url,
-            auth_date: userLogin.auth_date,
-            hash: userLogin.hash,
-            session_id: sessionId
-        })
+        const dashboardSessionObservable = this.httpClient.post<ApiResponse<DashboardSession>>(ApiUrl.SESSION_SAVE, userLogin)
             .pipe(map(x => {
                 return x.result;
             }));

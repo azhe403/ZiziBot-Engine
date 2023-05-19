@@ -22,13 +22,16 @@ public class SaveTelegramSessionRequestModel
     public long Id { get; set; }
 
     [JsonProperty("first_name")]
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
+
+    [JsonProperty("last_name")]
+    public string? LastName { get; set; }
 
     [JsonProperty("username")]
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     [JsonProperty("photo_url")]
-    public string PhotoUrl { get; set; }
+    public string? PhotoUrl { get; set; }
 
     [JsonProperty("auth_date")]
     public long AuthDate { get; set; }
@@ -118,6 +121,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         {
             TelegramUserId = request.Model.Id,
             FirstName = request.Model.FirstName,
+            LastName = request.Model.LastName,
             PhotoUrl = request.Model.PhotoUrl,
             Username = request.Model.Username,
             AuthDate = request.Model.AuthDate,

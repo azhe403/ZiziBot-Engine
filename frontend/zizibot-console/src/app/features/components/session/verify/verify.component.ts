@@ -1,9 +1,9 @@
 import {AfterViewInit, Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {StorageKey} from "projects/zizibot-types/src/constant/storage-key";
-import {TelegramUserLogin} from "projects/zizibot-types/src/restapi/user-login";
 import {map, Subscription, timer} from "rxjs";
 import {DashboardService} from "../../../services/dashboard.service";
+import {TelegramUserLogin} from "zizibot-contracts/src/restapi/user-login";
 
 @Component({
     selector: 'app-verify',
