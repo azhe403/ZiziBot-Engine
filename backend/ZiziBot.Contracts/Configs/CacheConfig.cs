@@ -1,5 +1,8 @@
+using System.ComponentModel;
+
 namespace ZiziBot.Contracts.Configs;
 
+[DisplayName("Cache")]
 public class CacheConfig
 {
     public bool UseRedis { get; set; }
