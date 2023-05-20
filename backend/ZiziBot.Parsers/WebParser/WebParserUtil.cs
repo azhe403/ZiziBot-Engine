@@ -94,7 +94,7 @@ public static class WebParserUtil
         return ctx.Select(x => new WebSearch()
         {
             Title = x.Description,
-            Url = x.Url
+            Url = x.Url.UrlDecode()
         });
     }
 }

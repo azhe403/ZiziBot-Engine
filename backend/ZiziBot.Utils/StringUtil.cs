@@ -26,6 +26,16 @@ public static class StringUtil
         return HttpUtility.HtmlDecode(html);
     }
 
+    public static string UrlEncode(this string url)
+    {
+        return HttpUtility.UrlEncode(url);
+    }
+
+    public static string UrlDecode(this string url)
+    {
+        return HttpUtility.UrlDecode(url);
+    }
+
     public static string GetNanoId(int size = 11)
     {
         return Nanoid.Nanoid.Generate(size: size);
