@@ -22,6 +22,24 @@ public class AnswerInlineQueryWebSearchRequestHandler : IRequestHandler<AnswerIn
     {
         _telegramService.SetupResponse(request);
 
+        if (request.Query.IsNullOrEmpty())
+        {
+            return await _telegramService.AnswerInlineQueryAsync(new List<InlineQueryResult>()
+            {
+                new InlineQueryResultArticle(
+                    id: "guide-1",
+                    title: "Ketikkan sebuah kueri untuk memulai pencaharian..",
+                    inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText)
+                    {
+                        DisableWebPagePreview = true
+                    }
+                )
+                {
+                    ReplyMarkup = InlineDefaults.DefaultButtonMarkup
+                },
+            });
+        }
+
         var search = await WebParserUtil.WebSearchText(request.Query);
 
         var inlineResult = search.Select(x => {
