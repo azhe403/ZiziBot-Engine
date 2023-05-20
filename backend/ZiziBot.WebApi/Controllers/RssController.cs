@@ -11,4 +11,10 @@ public class RssController : ApiControllerBase
     {
         return await SendRequest(request);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Save(SaveRssRequest request)
+    {
+        return await SendRequest(request);
+    }
 }
