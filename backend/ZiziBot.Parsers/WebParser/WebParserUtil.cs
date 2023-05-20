@@ -1,6 +1,7 @@
 using System.Globalization;
 using Flurl;
 using Flurl.Http;
+using PickAll;
 
 namespace ZiziBot.Parsers.WebParser;
 
@@ -80,5 +81,20 @@ public static class WebParserUtil
         data.PaymentUrl = url;
 
         return data;
+    }
+
+    public static async Task<IEnumerable<WebSearch>> WebSearchText(string search)
+    {
+        var ctx = await new SearchContext()
+            .WithEvents()
+            .With<Google>()
+            .With<Uniqueness>()
+            .SearchAsync(search);
+
+        return ctx.Select(x => new WebSearch()
+        {
+            Title = x.Description,
+            Url = x.Url
+        });
     }
 }

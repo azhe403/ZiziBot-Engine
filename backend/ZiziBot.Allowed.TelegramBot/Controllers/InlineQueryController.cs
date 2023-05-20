@@ -1,6 +1,7 @@
 using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
 using Allowed.Telegram.Bot.Models;
+using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Allowed.TelegramBot.Controllers;
 
@@ -8,10 +9,12 @@ namespace ZiziBot.Allowed.TelegramBot.Controllers;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class InlineQueryController : CommandController
 {
+    private readonly ILogger<InlineQueryController> _logger;
     private readonly MediatorService _mediatorService;
 
-    public InlineQueryController(MediatorService mediatorService)
+    public InlineQueryController(ILogger<InlineQueryController> logger,MediatorService mediatorService)
     {
+        _logger = logger;
         _mediatorService = mediatorService;
     }
 
@@ -34,6 +37,12 @@ public class InlineQueryController : CommandController
                 InlineQuery = data.InlineQuery,
                 Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
             }),
+            "search" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryWebSearchBotRequestModel()
+            {
+                BotToken = data.Options.Token,
+                InlineQuery = data.InlineQuery,
+                Query = data.InlineQuery.Query.Replace(inlineCmd, "").Trim()
+            }),
             _ => await _mediatorService.EnqueueAsync(new AnswerInlineQueryGuideBotRequestModel()
             {
                 BotToken = data.Options.Token,
@@ -41,6 +50,6 @@ public class InlineQueryController : CommandController
             })
         };
 
-
+        _logger.LogInformation("InlineSearchBotApi: {@Result}", result);
     }
 }
