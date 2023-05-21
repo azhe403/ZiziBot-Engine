@@ -28,7 +28,7 @@ public class AnswerInlineQueryWebSearchRequestHandler : IRequestHandler<AnswerIn
             {
                 new InlineQueryResultArticle(
                     id: "guide-1",
-                    title: "Ketikkan sebuah kueri untuk memulai pencaharian..",
+                    title: "Ketikkan sebuah kueri untuk memulai pencarian..",
                     inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText)
                     {
                         DisableWebPagePreview = true
