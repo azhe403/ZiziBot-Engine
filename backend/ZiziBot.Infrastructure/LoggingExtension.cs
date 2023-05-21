@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.AspNetCore.SignalR.Extensions;
+using Serilog.Sinks.AspNetCore.SignalR.Interfaces;
 
 namespace ZiziBot.Infrastructure;
 
@@ -22,7 +25,9 @@ public static class LoggingExtension
                 .MinimumLevel.Debug()
                 .Enrich.WithDemystifiedStackTraces();
 
-            config.WriteTo.Async(configuration => configuration.Console(outputTemplate: OUTPUT_TEMPLATE));
+            config.WriteTo.Async(cfg => cfg.Console(outputTemplate: OUTPUT_TEMPLATE));
+
+            config.WriteTo.Async(cfg => cfg.SignalRSink<LogHub, IHub>(LogEventLevel.Debug, provider));
 
             if (!fullMode)
                 return;

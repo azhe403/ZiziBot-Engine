@@ -31,6 +31,18 @@ public class InjectHeaderMiddleware : IMiddleware
             return;
         }
 
+        var ignorePaths = new[]
+        {
+            "/api/webhook",
+            "/api/logging"
+        };
+
+        if (ignorePaths.Any(s => context.Request.Path.Value.StartsWith(s)))
+        {
+            await next(context);
+            return;
+        }
+
         #region Check Dashboard Session
         var dashboardSession = await _userDbContext.DashboardSessions
             .Where(entity =>

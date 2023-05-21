@@ -12,6 +12,7 @@ builder.Services.ConfigureServices();
 builder.Services.ConfigureApi();
 builder.Services.ConfigureHangfire();
 builder.Services.ConfigureTelegramBot();
+builder.Services.AddAllMiddleware();
 
 var app = builder.Build();
 
@@ -36,10 +37,7 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}"
 );
 
-app.UseAllMiddleware();
-
-if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
-    app.UseAzureAppConfiguration();
+app.ConfigureApi();
 
 app.UseHangfire();
 await app.RunTelegramBot();

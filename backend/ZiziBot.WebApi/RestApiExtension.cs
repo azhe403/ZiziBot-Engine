@@ -21,6 +21,7 @@ public static class RestApiExtension
         var serviceProvider = services.BuildServiceProvider();
         var jwtConfig = serviceProvider.GetRequiredService<IOptions<JwtConfig>>().Value;
 
+        services.AddSignalR();
         services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters()
             .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>(ServiceLifetime.Transient);
@@ -99,6 +100,7 @@ public static class RestApiExtension
                 };
             });
 
+        services.AddCorsConfiguration();
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options => {
@@ -107,6 +109,19 @@ public static class RestApiExtension
         );
 
         services.ConfigureRateLimiter();
+
+        return services;
+    }
+
+    private static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
+    {
+        services.AddCors(options => {
+            options.AddPolicy("CorsPolicy", builder => builder
+                // .WithOrigins("http://localhost:4200")
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+        });
 
         return services;
     }
@@ -125,12 +140,14 @@ public static class RestApiExtension
         return services;
     }
 
-    public static IApplicationBuilder UseAllMiddleware(this IApplicationBuilder app)
+    public static WebApplication ConfigureApi(this WebApplication app)
     {
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseMiddleware<HeaderCheckMiddleware>();
         app.UseMiddleware<InjectHeaderMiddleware>();
+        app.MapHub<LogHub>("/api/logging");
 
+        app.UseCors("CorsPolicy");
         app.UseAuthentication();
         app.UseAuthorization();
 

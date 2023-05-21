@@ -21,6 +21,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
+        <ProjectReference Include="..\ZiziBot.Caching\ZiziBot.Caching.csproj" />
         <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
+        <ProjectReference Include="..\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj" />
+        <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj" />
     </ItemGroup>
 </Project>

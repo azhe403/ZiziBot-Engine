@@ -34,6 +34,7 @@ export class AppMenuComponent implements OnInit {
         }, {
             label: "Administrator",
             items: [
+                {label: 'Log Viewer', routerLink: '/administrator/log-viewer'},
                 {label: 'Hangfire', url: ['/hangfire-jobs'], target: '_blank'}
             ]
         }];
