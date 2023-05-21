@@ -10,9 +10,15 @@ public class ApiControllerBase : ControllerBase
     protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();
     protected MediatorService MediatorService => HttpContext.RequestServices.GetRequiredService<MediatorService>();
 
+    protected async Task<IActionResult> SendRequest<T>(ApiRequestBase<T> request)
+    {
+        var result = await Mediator.Send(request);
+        return SwitchStatus(result);
+    }
+
     protected IActionResult SwitchStatus<T>(ApiResponseBase<T> responseBase)
     {
-        responseBase.transactionId = HttpContext.Request.Headers[HeaderKey.TransactionId].ToString();
+        responseBase.TransactionId = HttpContext.Request.Headers.GetTransactionId();
 
         return responseBase.StatusCode switch
         {
@@ -24,9 +30,4 @@ public class ApiControllerBase : ControllerBase
         };
     }
 
-    protected async Task<IActionResult> SendRequest<T>(ApiRequestBase<T> request)
-    {
-        var result = await Mediator.Send(request);
-        return SwitchStatus(result);
-    }
 }

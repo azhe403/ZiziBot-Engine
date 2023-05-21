@@ -27,7 +27,7 @@ public class GlobalExceptionMiddleware : IMiddleware
             await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>()
             {
                 StatusCode = HttpStatusCode.InternalServerError,
-                transactionId = context.Request.Headers.GetTransactionId(),
+                TransactionId = context.Request.Headers.GetTransactionId(),
                 Message = "Internal Server Error. Please contact administrator.",
             });
         }

@@ -29,16 +29,14 @@ public static class SerializationUtil
     }
 
 
-    public static string GetTransactionId(this IHeaderDictionary headerDictionary)
+    public static string? GetTransactionId(this IHeaderDictionary headerDictionary)
     {
-        var transactionId = headerDictionary[HeaderKey.TransactionId].ToString();
-        return transactionId;
+        return headerDictionary.TryGetValue(HeaderKey.TransactionId, out var transactionId) ? transactionId.ToString() : default;
     }
 
     public static long GetUserId(this IHeaderDictionary headerDictionary)
     {
-        var userId = headerDictionary[HeaderKey.UserId].Convert<long>();
-        return userId;
+        return long.TryParse(headerDictionary[HeaderKey.UserId], out var userId) ? userId : default;
     }
 
     public static List<long>? GetListChatId(this IHeaderDictionary headerDictionary)

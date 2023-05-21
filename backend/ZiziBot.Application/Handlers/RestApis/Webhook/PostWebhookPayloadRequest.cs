@@ -40,7 +40,7 @@ public class PostWebhookPayloadHandler : IRequestHandler<PostWebhookPayloadReque
         var stopwatch = Stopwatch.StartNew();
         var response = new ApiResponseBase<PostWebhookPayloadResponseDto>()
         {
-            transactionId = request.HttpContextAccessor?.HttpContext?.TraceIdentifier ?? string.Empty
+            TransactionId = request.HttpContextAccessor?.HttpContext?.TraceIdentifier ?? string.Empty
         };
 
         if (request.Content.ToString() == null)

@@ -7,12 +7,14 @@ namespace ZiziBot.WebApi.Controllers;
 public class AntiSpamController : ApiControllerBase
 {
     [HttpPost("ess-ban")]
+    [AccessFilter(checkHeader: true)]
     public async Task<IActionResult> PostEs2BanListAsync(PostGlobalBanApiRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpDelete("ess-ban")]
+    [AccessFilter(checkHeader: true)]
     public async Task<IActionResult> DeleteEs2BanListAsync([FromBody] DeleteGlobalBanApiRequest request)
     {
         return await SendRequest(request);

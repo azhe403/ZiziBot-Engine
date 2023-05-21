@@ -53,7 +53,7 @@ public static class RestApiExtension
                     return new BadRequestObjectResult(new ApiResponseBase<object>()
                     {
                         StatusCode = HttpStatusCode.BadRequest,
-                        transactionId = transactionId,
+                        TransactionId = transactionId,
                         Message = "Please ensure your request",
                         Result = new
                         {
@@ -130,8 +130,8 @@ public static class RestApiExtension
     {
         services.Scan(
             selector => {
-                selector.FromAssembliesOf(typeof(HeaderCheckMiddleware))
-                    .AddClasses(filter => filter.InNamespaceOf<HeaderCheckMiddleware>())
+                selector.FromAssembliesOf(typeof(GlobalExceptionMiddleware))
+                    .AddClasses(filter => filter.InNamespaceOf<GlobalExceptionMiddleware>())
                     .AsSelf()
                     .WithTransientLifetime();
             }
@@ -143,7 +143,6 @@ public static class RestApiExtension
     public static WebApplication ConfigureApi(this WebApplication app)
     {
         app.UseMiddleware<GlobalExceptionMiddleware>();
-        app.UseMiddleware<HeaderCheckMiddleware>();
         app.UseMiddleware<InjectHeaderMiddleware>();
         app.MapHub<LogHub>("/api/logging");
 
