@@ -39,7 +39,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             if (latestArticle == null)
             {
-                _logger.LogInformation("No article found in RSS Url: {Url}", request.RssUrl);
+                _logger.LogInformation("No article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
                 return false;
             }
 
@@ -52,7 +52,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             if (latestHistory != null)
             {
-                _logger.LogDebug("No new article found in RSS Url: {Url}", request.RssUrl);
+                _logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
                 return false;
             }
 
@@ -87,7 +87,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             if (exception.Message.IsIgnorable())
             {
-                _logger.LogWarning("Disabling and remove RSS Url: {Url} for ChatId: {ChatId}", request.RssUrl, request.ChatId);
+                _logger.LogWarning("Disabling and remove in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
 
                 var rssSetting = await _chatDbContext.RssSetting
                     .FirstOrDefaultAsync(entity =>
