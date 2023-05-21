@@ -28,9 +28,10 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         var repository = pushEvent.Repository;
         var branchName = pushEvent.Ref.Split('/').Last();
         var treeUrl = repository.HtmlUrl.AppendPathSegment($"tree/{branchName}");
+        var commitsStr = "commit".ToQuantity(commitCount);
 
         var htmlMessage = HtmlMessage.Empty
-            .Url(pushEvent.Compare, $"🏗 commit".ToQuantity(commitCount)).Bold($" to ").Url(treeUrl, $"{repository.FullName}:{branchName}")
+            .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(treeUrl, $"{repository.FullName}:{branchName}")
             .Br().Br();
 
         commits.ForEach(commit => {
