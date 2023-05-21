@@ -17,11 +17,8 @@ public class NoteService
     public async Task<List<NoteEntity>> GetAllByChat(long chatId)
     {
         var tags = await _chatDbContext.Note
-            .Where(
-                entity =>
-                    entity.ChatId == chatId &&
-                    entity.Status == (int)EventStatus.Complete
-            )
+            .Where(entity => entity.ChatId == chatId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.Query)
             .ToListAsync();
 
@@ -31,6 +28,7 @@ public class NoteService
     public async Task<ServiceResult> Save(NoteEntity entity)
     {
         ServiceResult result = new();
+        _logger.LogInformation("Checking Note with Query: {Query}", entity.Query);
 
         var findNote = await _chatDbContext.Note
             .Where(x => x.Id == entity.Id)
@@ -39,11 +37,16 @@ public class NoteService
 
         if (findNote == null)
         {
+            _logger.LogInformation("Adding Note with Query: {Query}", entity.Query);
             _chatDbContext.Note.Add(entity);
+
             result.Message = "Note created successfully";
         }
         else
         {
+            _logger.LogInformation("Updating Note with Id: {Id}", entity.Id);
+
+            findNote.Query = entity.Query;
             findNote.Content = entity.Content;
             findNote.DataType = entity.DataType;
             findNote.FileId = entity.FileId;
@@ -55,6 +58,7 @@ public class NoteService
         }
 
         await _chatDbContext.SaveChangesAsync();
+
         return result;
     }
 }
