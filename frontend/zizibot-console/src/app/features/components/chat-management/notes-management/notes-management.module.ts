@@ -21,6 +21,8 @@ import {DetailNoteComponent} from './detail-note/detail-note.component';
 
 import {NotesManagementRoutingModule} from './notes-management-routing.module';
 import {NotesManagementComponent} from './notes-management/notes-management.component';
+import {ListboxModule} from "primeng/listbox";
+import {SplitterModule} from "primeng/splitter";
 
 
 @NgModule({
@@ -47,7 +49,9 @@ import {NotesManagementComponent} from './notes-management/notes-management.comp
         InputTextModule,
         InputTextareaModule,
         PaginatorModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        ListboxModule,
+        SplitterModule
     ]
 })
 export class NotesManagementModule {
