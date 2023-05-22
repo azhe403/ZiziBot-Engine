@@ -158,11 +158,11 @@ public class TelegramService
         return Complete();
     }
 
-    public async Task<BotResponseBase> EditMessageText(string text)
+    public async Task<BotResponseBase> EditMessageText(string text, InlineKeyboardMarkup? replyMarkup = null)
     {
         text += "\n\n" + GetExecStamp();
 
-        await Bot.EditMessageTextAsync(ChatId, SentMessage.MessageId, text, parseMode: ParseMode.Html);
+        await Bot.EditMessageTextAsync(ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
 
         return Complete();
     }

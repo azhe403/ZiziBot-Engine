@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
@@ -39,12 +40,21 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         var userId = request.UserId;
         var expireDate = DateTime.UtcNow;
 
+        var replyMarkup = new InlineKeyboardMarkup(new[]
+        {
+            new[]
+            {
+                InlineKeyboardButton.WithUrl("Bagaimana cara mendapatkan OrderId?", UrlConst.DOC_MIRROR_VERIFY_DONATION)
+            }
+        });
+
         if (string.IsNullOrEmpty(request.Payload))
         {
             htmlMessage.Text("Sertakan tautan dari Trakteer.id untuk diverifikasi.").Br()
-                .Bold("Contoh: ").CodeBr("/sp https://trakteer.id/payment-status/xxxx");
+                .Bold("Contoh: ").CodeBr("/sp 9d16023b-67be-5a0b-bc47-47809f059013");
 
-            return await _telegramService.SendMessageText(htmlMessage.ToString());
+
+            return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
         if (request.ForUserId != 0)
@@ -77,7 +87,11 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
 
         if (mirrorApproval != null)
         {
-            return await _telegramService.EditMessageText("Pembayaran sudah terverifikasi.");
+            htmlMessage = HtmlMessage.Empty
+                .Bold("Pembayaran ini sudah diklaim.").Br()
+                .Text("Pastikan <b>OrderId</b> Anda dapatkan dari web Trakteer.id");
+
+            return await _telegramService.EditMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
         _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
