@@ -1,9 +1,11 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-import { LogViewerRoutingModule } from './log-viewer-routing.module';
-import { LogViewerComponent } from './log-viewer/log-viewer.component';
+import {LogViewerRoutingModule} from './log-viewer-routing.module';
+import {LogViewerComponent} from './log-viewer/log-viewer.component';
 import {TableModule} from "primeng/table";
+import {DropdownModule} from "primeng/dropdown";
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -12,7 +14,9 @@ import {TableModule} from "primeng/table";
     imports: [
         CommonModule,
         LogViewerRoutingModule,
-        TableModule
+        TableModule,
+        DropdownModule,
+        FormsModule
     ]
 })
 export class LogViewerModule { }
