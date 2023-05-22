@@ -95,7 +95,7 @@ export class DetailNoteComponent implements AfterViewInit, OnInit {
                     console.error('detail note', err);
                     this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.message});
                 },
-                complete: () => console.info('get note complete')
+                complete: () => console.debug('get note complete')
             });
     }
 
@@ -121,7 +121,7 @@ export class DetailNoteComponent implements AfterViewInit, OnInit {
                 this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.result.error});
             },
             complete: () => {
-                console.info('get note complete');
+                console.debug('get note complete');
             }
         });
 
