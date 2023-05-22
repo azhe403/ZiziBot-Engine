@@ -23,4 +23,3 @@ global using ZiziBot.Infrastructure.MongoConfig;
 global using ZiziBot.Kot.MongoMigrations;
 global using ZiziBot.Parsers;
 global using ZiziBot.Utils;
-global using ZiziBot.WebApi;

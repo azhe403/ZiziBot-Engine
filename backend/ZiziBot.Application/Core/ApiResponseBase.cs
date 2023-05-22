@@ -1,12 +1,18 @@
 using System.Net;
+using Newtonsoft.Json;
 
 namespace ZiziBot.Application.Core;
 
 public class ApiResponseBase<TResult>
 {
     public HttpStatusCode StatusCode { get; set; }
-    public string transactionId { get; set; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public string? TransactionId { get; set; }
+
     public string Message { get; set; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public TResult? Result { get; set; }
 
     public ApiResponseBase<TResult> Success(string message, TResult? result = default)

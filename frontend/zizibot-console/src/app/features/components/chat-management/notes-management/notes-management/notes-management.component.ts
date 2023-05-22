@@ -13,7 +13,8 @@ import {ChatService} from "../../../../services/chat.service";
 export class NotesManagementComponent implements AfterViewInit {
     selectedChatId = 0;
     loading: any;
-    listWelcomeMessage: Note[] = [];
+    listNote: Note[] = [];
+    selectedNote: Note = {} as Note;
 
     constructor(private router: Router, private chatService: ChatService) {
     }
@@ -26,15 +27,8 @@ export class NotesManagementComponent implements AfterViewInit {
         this.chatService.getNote(this.selectedChatId).subscribe((response) => {
             console.debug('list note', response);
 
-            this.listWelcomeMessage = response.result;
+            this.listNote = response.result;
         });
-    }
-
-    onSelectChange($event: number) {
-        console.debug('onSelectChange', $event);
-        this.selectedChatId = $event;
-
-        this.loadNote();
     }
 
     onOpenEditor(note: any) {
@@ -43,4 +37,10 @@ export class NotesManagementComponent implements AfterViewInit {
         this.router.navigate(['/chat/notes/', note.id]).then(r => console.debug('navigate to Note editor', r));
     }
 
+    onSelectedChatId($event: number) {
+        this.chatService.getNote($event).subscribe((res) => {
+            console.log('list Note', res);
+            this.listNote = res.result;
+        });
+    }
 }

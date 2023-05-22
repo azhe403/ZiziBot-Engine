@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {environment} from 'src/environments/environment';
 import {AboutService} from "./service/about.service";
 import {LayoutService} from './service/app.layout.service';
+import {DashboardService} from "../features/services/dashboard.service";
 
 @Component({
     selector: 'app-menu',
@@ -31,12 +32,17 @@ export class AppMenuComponent implements OnInit {
             items: [
                 {label: 'Welcome Message', routerLink: '/group/welcome-message'}
             ]
-        }, {
+        }];
+
+    adminMenu = [
+        {
             label: "Administrator",
             items: [
+                {label: 'Log Viewer', routerLink: '/administrator/log-viewer'},
                 {label: 'Hangfire', url: ['/hangfire-jobs'], target: '_blank'}
             ]
-        }];
+        }
+    ];
 
     developmentMenu = [
         {
@@ -204,7 +210,7 @@ export class AppMenuComponent implements OnInit {
         }
     ];
 
-    constructor(public layoutService: LayoutService, public aboutService: AboutService) {
+    constructor(public layoutService: LayoutService, public aboutService: AboutService, private dashboardService: DashboardService) {
     }
 
     ngOnInit() {
@@ -218,9 +224,13 @@ export class AppMenuComponent implements OnInit {
                 if (result.environment.toLowerCase() == 'production') {
                     this.model = this.mainMenu;
                 }
-                // else {
-                //     this.model = [...this.mainMenu, ...this.developmentMenu]
-                // }
             });
+
+        this.dashboardService.checkBearerSession().then(userSession => {
+            if (userSession.roleName == 'Sudo') {
+                this.model = [...this.mainMenu, ...this.adminMenu, ...this.developmentMenu]
+            }
+        })
+
     }
 }

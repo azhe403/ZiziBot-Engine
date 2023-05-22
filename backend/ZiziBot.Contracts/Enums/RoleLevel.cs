@@ -5,7 +5,7 @@ public enum RoleLevel
     Guest,
     User,
     ChatAdmin,
-    ChatAdminOrPrivate,
     ChatCreator,
+    ChatAdminOrPrivate,
     Sudo
 }

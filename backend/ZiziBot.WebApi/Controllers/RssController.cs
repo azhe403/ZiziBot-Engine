@@ -7,7 +7,15 @@ namespace ZiziBot.WebApi.Controllers;
 public class RssController : ApiControllerBase
 {
     [HttpGet()]
+    [AccessFilter(checkHeader: true)]
     public async Task<IActionResult> Index(GetListRssRequest request)
+    {
+        return await SendRequest(request);
+    }
+
+    [HttpPost]
+    [AccessFilter(checkHeader: true)]
+    public async Task<IActionResult> Save(SaveRssRequest request)
     {
         return await SendRequest(request);
     }

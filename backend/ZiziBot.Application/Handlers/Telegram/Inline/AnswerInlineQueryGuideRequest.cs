@@ -21,45 +21,53 @@ public class AnswerInlineQueryGuideRequestHandler : IRequestHandler<AnswerInline
     {
         _telegramService.SetupResponse(request);
 
-        var learnMore = "https://docs.zizibot.winten.my.id/features/inline-query";
-        var learnMoreContent = $"Silakan pelajari selengkapnya" +
-                               $"\n{learnMore}" +
-                               $"\n\nAtau tekan salah satu tombol dibawah ini";
-
-        var replyMarkup = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
-                InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Ping", $"ping"),
-                InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Api doc", $"api-doc")
-            }
-        });
-
         return await _telegramService.AnswerInlineQueryAsync(new List<InlineQueryResult>()
         {
             new InlineQueryResultArticle(
                 id: "guide-1",
                 title: "Bagaimana cara menggunakannya?",
-                inputMessageContent: new InputTextMessageContent(learnMoreContent)
+                inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText)
                 {
                     DisableWebPagePreview = true
                 }
             )
             {
-                ReplyMarkup = replyMarkup
+                ReplyMarkup = InlineDefaults.DefaultButtonMarkup
             },
             new InlineQueryResultArticle(
                 id: "guide-2",
                 title: "Cobalah ketikkan 'ping'",
-                inputMessageContent: new InputTextMessageContent(learnMoreContent)
+                inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText)
                 {
                     DisableWebPagePreview = true
                 }
             )
             {
-                ReplyMarkup = replyMarkup
+                ReplyMarkup = InlineDefaults.DefaultButtonMarkup
             }
         });
     }
 
+}
+
+public static class InlineDefaults
+{
+    public static readonly InlineKeyboardMarkup DefaultButtonMarkup = new(new[]
+    {
+        new[]
+        {
+            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Ping", $"ping "),
+            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Api doc", $"api-doc ")
+        },
+        new[]
+        {
+            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Web Search", $"search "),
+            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Windows UUPs", $"uup ")
+        }
+    });
+
+    public const string InlineQueryDoc = "https://docs.zizibot.winten.my.id/features/inline-query";
+    public static readonly string DefaultGuideText = $"Silakan pelajari selengkapnya" +
+                                                 $"\n{InlineQueryDoc}" +
+                                                 $"\n\nAtau tekan salah satu tombol dibawah ini";
 }

@@ -26,7 +26,8 @@ public class HeaderCheckMiddleware : IMiddleware
 
         var ignorePaths = new[]
         {
-            "/api/webhook"
+            "/api/webhook",
+            "/api/logging"
         };
 
         if (ignorePaths.Any(s => context.Request.Path.Value.StartsWith(s)))

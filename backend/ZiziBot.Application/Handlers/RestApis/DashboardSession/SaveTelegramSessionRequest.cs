@@ -86,6 +86,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
 
         var sessionData = request.Model.ToDictionary()
             .Select(pair => new KeyValuePair<string, string>(pair.Key.Replace(" ", "_"), pair.Value))
+            .Where(pair => pair.Value.IsNotNullOrEmpty())
             .Where(pair => pair.Key != "session_id");
 
         var checkAuthorization = loginWidget.CheckAuthorization(sessionData);
@@ -102,20 +103,15 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             return response.BadRequest("Authentication is not yet configured");
         }
 
-        var checkSudo = await _appSettingsDbContext.Sudoers
-            .Where(entity => entity.UserId == request.Model.Id)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
-
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, request.Model.Username),
             new Claim(ClaimTypes.Name, request.Model.FirstName),
-            new Claim(ClaimTypes.Role, checkSudo == null ? "User" : "Sudoer"),
+            new Claim(ClaimTypes.Role, request.SessionUserRole.ToString()),
             new Claim(HeaderKey.UserId, request.Model.Id.ToString()),
-            new Claim("photoUrl", request.Model.PhotoUrl),
+            new Claim("photoUrl", request.Model.PhotoUrl ?? ""),
         };
 
         var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);

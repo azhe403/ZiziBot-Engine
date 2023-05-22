@@ -19,7 +19,6 @@ public static class ServiceExtension
         services.AddBackgroundQueue();
         services.AddCacheTower();
         services.AddAllService();
-        services.AddAllMiddleware();
 
         return services;
     }

@@ -1,6 +1,6 @@
 namespace ZiziBot.WebApi.RBAC;
 
-public enum AccessLevelEnum
+public enum AccessFilter
 {
     User,
     AdminOrPrivate,
