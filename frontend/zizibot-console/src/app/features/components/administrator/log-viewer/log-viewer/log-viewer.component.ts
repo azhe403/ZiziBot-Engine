@@ -10,9 +10,11 @@ import {Logging} from "../../../../../../../projects/zizibot-types/src/restapi/l
 })
 export class LogViewerComponent implements OnInit {
 
-    logs: Logging[] = [];
+    logsAll: Logging[] = [];
+    filteredLogs: Logging[] = [];
     cols: any[] = [];
     status: string = 'Sedang menunggu data..';
+    searchLog: string | undefined;
 
     constructor(private logSignalrService: LogSignalrService, private http: HttpClient) {
     }
@@ -36,10 +38,18 @@ export class LogViewerComponent implements OnInit {
                 console.debug('Connection started');
                 this.status = 'Tersambung ke sumber..';
                 this.logSignalrService.hubConnection.on('SendLogAsObject', (data: Logging) => {
-                    // console.debug('log-object-co', data);
-                    this.logs.unshift(data);
+                    this.logsAll.unshift(data);
+                    // this.filteredLogs = this.logsAll.filter(element => dayjs(element.timestamp).isAfter(dayjs().subtract(5,'minute')));
+                    this.filteredLogs = this.logsAll;
+                    this.onSearchLog();
                 });
             })
             .catch(err => console.log('Error while starting connection: ' + err));
+    }
+
+    onSearchLog() {
+        if (this.searchLog) {
+            this.filteredLogs = this.filteredLogs.filter(element => element.message.toLowerCase().includes(<string>this.searchLog?.toLowerCase()));
+        }
     }
 }

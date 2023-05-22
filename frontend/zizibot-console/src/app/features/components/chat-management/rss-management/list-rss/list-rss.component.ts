@@ -20,7 +20,7 @@ export class ListRssComponent {
 
     onSelectedChatId($event: number) {
         this.chatService.getListRss($event).subscribe((res) => {
-            console.log('list RSS', res);
+            console.debug('list rss', res);
             this.listRss = res.result;
         });
     }

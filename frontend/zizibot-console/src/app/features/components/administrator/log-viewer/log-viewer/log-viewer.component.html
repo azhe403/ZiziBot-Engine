@@ -1,6 +1,10 @@
 <h1 class="text-xl sm:text-2xl md:text-4xl xl:text-6xl">Log Viewer</h1>
 <h5>{{status}}</h5>
-<p-table [columns]="cols" [value]="logs" [tableStyle]="{ 'min-width': '50rem' }">
+<h6>Total: {{filteredLogs.length}}/{{logsAll.length}} item(s)</h6>
+<div class="p-inputgroup">
+    <input (ngModelChange)="onSearchLog()" [(ngModel)]="searchLog" pInputText placeholder="Search.." type="text"/>
+</div>
+<p-table [columns]="cols" [value]="filteredLogs" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '50rem' }">
     <ng-template pTemplate="header" let-columns>
         <tr>
             <th *ngFor="let col of columns">

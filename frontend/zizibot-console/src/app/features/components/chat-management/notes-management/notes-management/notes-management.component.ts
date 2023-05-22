@@ -39,7 +39,7 @@ export class NotesManagementComponent implements AfterViewInit {
 
     onSelectedChatId($event: number) {
         this.chatService.getNote($event).subscribe((res) => {
-            console.log('list Note', res);
+            console.debug('list Note', res);
             this.listNote = res.result;
         });
     }

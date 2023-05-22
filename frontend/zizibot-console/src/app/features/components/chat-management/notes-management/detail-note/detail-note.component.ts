@@ -69,7 +69,7 @@ export class DetailNoteComponent implements AfterViewInit, OnInit {
         this.formGroup.addControl('chatTitle', new FormControl('', [Validators.required]));
         this.formGroup.addControl('query', new FormControl('', [Validators.required]));
         this.formGroup.addControl('text', new FormControl('', [Validators.required]));
-        this.formGroup.addControl('media', new FormControl(''));
+        this.formGroup.addControl('fileId', new FormControl(''));
         this.formGroup.addControl('dataType', new FormControl<MediaType | null>(Enumerable.from(this.mediaTypes).first()));
         this.formGroup.addControl('rawButton', new FormControl(''));
 
@@ -95,7 +95,7 @@ export class DetailNoteComponent implements AfterViewInit, OnInit {
                     console.error('detail note', err);
                     this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.message});
                 },
-                complete: () => console.info('get note complete')
+                complete: () => console.debug('get note complete')
             });
     }
 
@@ -108,7 +108,7 @@ export class DetailNoteComponent implements AfterViewInit, OnInit {
             query: this.formGroup.value.query,
             content: this.formGroup.value.text,
             rawButton: this.formGroup.value.rawButton,
-            media: this.formGroup.value.media,
+            fileId: this.formGroup.value.fileId,
             dataType: this.formGroup.value.dataType.value,
         }).subscribe({
             next: (response) => {
@@ -121,7 +121,7 @@ export class DetailNoteComponent implements AfterViewInit, OnInit {
                 this.messageService.add({severity: 'error', summary: err.statusText, detail: err.error.result.error});
             },
             complete: () => {
-                console.info('get note complete');
+                console.debug('get note complete');
             }
         });
 
