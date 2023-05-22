@@ -5,7 +5,7 @@ export interface Note {
     query: string;
     text: string;
     rawButton: null;
-    media: null;
+    fileId: null;
     dataType: number;
     dataTypeName: string;
     status: number;

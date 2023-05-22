@@ -11,7 +11,7 @@ public class NoteDto
     public string Query { get; set; }
     public string? Text { get; set; }
     public string? RawButton { get; set; }
-    public string? Media { get; set; }
+     public string? FileId { get; set; }
 
     public int DataType { get; set; }
     public string DataTypeName => ((CommonMediaType)DataType).ToString();
