@@ -116,6 +116,16 @@ public class MongoConfigSource : IConfigurationSource
                 {
                     { "ApiKey", "YOUR_API_KEY" }
                 }
+            },
+            new()
+            {
+                Root = "BinderByte",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "IsEnabled", false },
+                    { "BaseUrl", "https://api.binderbyte.com" },
+                    { "ApiKey", "YOUR_API_KEY" },
+                }
             }
         };
 

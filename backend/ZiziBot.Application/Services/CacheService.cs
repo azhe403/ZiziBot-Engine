@@ -75,7 +75,14 @@ public class CacheService
 
     public async Task EvictAsync(string cacheKey)
     {
-        _logger.LogDebug("Evicting cache with key: {CacheKey}", cacheKey);
-        await _cacheStack.EvictAsync(cacheKey);
+        try
+        {
+            _logger.LogDebug("Evicting cache with key: {CacheKey}", cacheKey);
+            await _cacheStack.EvictAsync(cacheKey);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Fail to evict cache Key: {Key}", cacheKey);
+        }
     }
 }

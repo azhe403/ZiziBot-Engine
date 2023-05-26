@@ -9,6 +9,7 @@ public static class DataSourceExtension
         var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
         services.AddTransient<AppSettingsDbContext>(provider => new AppSettingsDbContext(mongodbConnectionString));
+        services.AddTransient<AdditionalDbContext>(provider => new AdditionalDbContext(mongodbConnectionString));
         services.AddTransient<AntiSpamDbContext>(provider => new AntiSpamDbContext(mongodbConnectionString));
         services.AddTransient<ChatDbContext>(provider => new ChatDbContext(mongodbConnectionString));
         services.AddTransient<GroupDbContext>(provider => new GroupDbContext(mongodbConnectionString));

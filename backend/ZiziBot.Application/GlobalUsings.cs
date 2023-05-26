@@ -19,6 +19,7 @@ global using ZiziBot.Contracts.Dtos;
 global using ZiziBot.Contracts.Enums;
 global using ZiziBot.Contracts.Interfaces;
 global using ZiziBot.Contracts.Types;
+global using ZiziBot.Contracts.Vendor.BinderByte;
 global using ZiziBot.Contracts.Vendor.FathimahApi;
 global using ZiziBot.Contracts.Vendor.UupDump;
 global using ZiziBot.DataSource.MongoDb;
