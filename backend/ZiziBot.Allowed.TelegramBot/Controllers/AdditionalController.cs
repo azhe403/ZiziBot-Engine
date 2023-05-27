@@ -1,5 +1,6 @@
 using Allowed.Telegram.Bot.Attributes;
 using Allowed.Telegram.Bot.Controllers;
+using Allowed.Telegram.Bot.Enums;
 using Allowed.Telegram.Bot.Models;
 
 namespace ZiziBot.Allowed.TelegramBot.Controllers;
@@ -46,6 +47,26 @@ public class AdditionalController : CommandController
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
+        });
+    }
+
+    [TextCommand("anteraja", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("jne", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("jnt", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("lion", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("ncs", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("tiki", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("trawl", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("trawlbens", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("sicepat", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("wahana", Type = ComparisonTypes.Parameterized)]
+    public async Task CheckAwb(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new CheckAwbRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
         });
     }
 }
