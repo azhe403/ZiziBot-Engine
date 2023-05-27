@@ -33,6 +33,7 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
             _userDbContext.BotUser.Add(new BotUserEntity()
             {
                 UserId = request.UserId,
+                Username = request.User?.Username,
                 FirstName = request.User?.FirstName,
                 LastName = request.User?.LastName,
                 LanguageCode = request.UserLanguageCode,
@@ -44,6 +45,7 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
             _logger.LogDebug("Updating User with UserId: {UserId}", request.UserId);
 
             botUser.UserId = request.UserId;
+            botUser.Username = request.User?.Username;
             botUser.FirstName = request.User?.FirstName;
             botUser.LastName = request.User?.LastName;
             botUser.LanguageCode = request.UserLanguageCode;
