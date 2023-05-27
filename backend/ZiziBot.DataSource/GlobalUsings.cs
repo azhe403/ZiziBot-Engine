@@ -10,3 +10,4 @@ global using ZiziBot.DataSource.MongoDb;
 global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.Parsers;
 global using ZiziBot.Utils;
+global using TonjooAwbDetail = ZiziBot.Contracts.Vendor.TonjooStudio.Detail;

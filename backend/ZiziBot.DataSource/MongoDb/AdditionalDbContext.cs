@@ -9,4 +9,5 @@ public class AdditionalDbContext:MongoDbContextBase
     }
 
     public MongoDbSet<BinderByteCheckAwbEntity> BinderByteCheckAwb { get; set; }
+    public MongoDbSet<TonjooAwbEntity> TonjooAwb { get; set; }
 }

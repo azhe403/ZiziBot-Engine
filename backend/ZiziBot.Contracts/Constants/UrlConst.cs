@@ -19,4 +19,5 @@ public static class UrlConst
     public const string DOC_MIRROR_VERIFY_DONATION = "https://docs.mirror.winten.my.id/verifikasi-donasi";
 
     public const string API_BINDERBYTE = "https://api.binderbyte.com/v1/";
+    public const string API_TONJOO_ONGKIR = "https://pluginongkoskirim.com";
 }

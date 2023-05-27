@@ -19,7 +19,7 @@ public class CheckAwbController : CommandController
     [TextCommand("jne", Type = ComparisonTypes.Parameterized)]
     public async Task CheckJne(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new CheckResiRequest()
+        await _mediatorService.EnqueueAsync(new CheckAwbRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
@@ -30,7 +30,7 @@ public class CheckAwbController : CommandController
     [TextCommand("sicepat", Type = ComparisonTypes.Parameterized)]
     public async Task CheckSiCepat(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new CheckResiRequest()
+        await _mediatorService.EnqueueAsync(new CheckAwbRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,

@@ -1,21 +1,23 @@
 ﻿namespace ZiziBot.Application.Handlers.Telegram.Additional;
 
-public class CheckResiRequest : BotRequestBase
+public class CheckAwbRequest : BotRequestBase
 {
 }
 
-public class CheckResiHandler : IRequestHandler<CheckResiRequest, BotResponseBase>
+public class CheckAwbHandler : IRequestHandler<CheckAwbRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly BinderByteService _binderByteService;
+    private readonly TonjooService _tonjooService;
 
-    public CheckResiHandler(TelegramService telegramService, BinderByteService binderByteService)
+    public CheckAwbHandler(TelegramService telegramService, BinderByteService binderByteService, TonjooService tonjooService)
     {
         _telegramService = telegramService;
         _binderByteService = binderByteService;
+        _tonjooService = tonjooService;
     }
 
-    public async Task<BotResponseBase> Handle(CheckResiRequest request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(CheckAwbRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
         var courier = request.MessageText.GetCommandParamAt<string>(0);
@@ -26,7 +28,8 @@ public class CheckResiHandler : IRequestHandler<CheckResiRequest, BotResponseBas
             return await _telegramService.SendMessageText("Masukkan no resi");
         }
 
-        var check = await _binderByteService.CekResiMergedAsync(courier, awb);
+        // var check = await _binderByteService.CekResiMergedAsync(courier, awb);
+        var check = await _tonjooService.GetAwbInfoMerged(courier, awb);
 
         return await _telegramService.SendMessageText(check);
     }
