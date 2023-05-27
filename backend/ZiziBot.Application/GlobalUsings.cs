@@ -30,4 +30,3 @@ global using ZiziBot.Exceptions;
 global using ZiziBot.Parsers;
 global using ZiziBot.Parsers.WebParser;
 global using ZiziBot.Utils;
-global using TonjooAwbDetail = ZiziBot.Contracts.Vendor.TonjooStudio.Detail;

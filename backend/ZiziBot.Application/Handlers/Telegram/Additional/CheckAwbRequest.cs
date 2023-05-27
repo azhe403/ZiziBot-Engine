@@ -23,6 +23,11 @@ public class CheckAwbHandler : IRequestHandler<CheckAwbRequest, BotResponseBase>
         var courier = request.MessageText.GetCommandParamAt<string>(0);
         var awb = request.MessageText.GetCommandParamAt<string>(1);
 
+        if (request.MessageTexts?.Length > 2)
+        {
+            return _telegramService.Complete();
+        }
+
         if (courier == null || awb == null)
         {
             return await _telegramService.SendMessageText("Masukkan no resi");
