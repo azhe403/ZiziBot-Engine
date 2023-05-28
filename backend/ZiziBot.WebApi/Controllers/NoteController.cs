@@ -26,4 +26,10 @@ public class NoteController : ApiControllerBase
     {
         return await SendRequest(request);
     }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteNote(DeleteNoteRequest request)
+    {
+        return await SendRequest(request);
+    }
 }
