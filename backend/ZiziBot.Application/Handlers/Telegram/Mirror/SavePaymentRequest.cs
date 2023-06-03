@@ -13,12 +13,19 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
 {
     private readonly ILogger<SavePaymentRequestHandler> _logger;
     private readonly TelegramService _telegramService;
+    private readonly AppSettingRepository _appSettingRepository;
     private readonly MirrorDbContext _mirrorDbContext;
 
-    public SavePaymentRequestHandler(ILogger<SavePaymentRequestHandler> logger, TelegramService telegramService, MirrorDbContext mirrorDbContext)
+    public SavePaymentRequestHandler(
+        ILogger<SavePaymentRequestHandler> logger,
+        TelegramService telegramService,
+        AppSettingRepository appSettingRepository,
+        MirrorDbContext mirrorDbContext
+    )
     {
         _logger = logger;
         _telegramService = telegramService;
+        _appSettingRepository = appSettingRepository;
         _mirrorDbContext = mirrorDbContext;
     }
 
@@ -129,6 +136,10 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
             .Bold("Langganan sampai: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss")).Br();
 
-        return await _telegramService.EditMessageText(htmlMessage.ToString());
+        await _telegramService.EditMessageText(htmlMessage.ToString());
+
+        var mirrorConfig = await _appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
+
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId);
     }
 }
