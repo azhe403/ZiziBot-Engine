@@ -33,8 +33,11 @@ public class CheckAwbHandler : IRequestHandler<CheckAwbRequest, BotResponseBase>
             return await _telegramService.SendMessageText("Masukkan no resi");
         }
 
-        // var check = await _binderByteService.CekResiMergedAsync(courier, awb);
         var check = await _tonjooService.GetAwbInfoMerged(courier, awb);
+        if (check.Contains("tidak ada"))
+        {
+            check = await _binderByteService.CekResiMergedAsync(courier, awb);
+        }
 
         return await _telegramService.SendMessageText(check);
     }

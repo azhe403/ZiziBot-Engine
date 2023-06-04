@@ -101,7 +101,7 @@ public class BinderByteService
                 }
             );
 
-        var mergedResult = sb.ToString();
+        var mergedResult = sb.ToString().Trim();
 
         return mergedResult;
     }
