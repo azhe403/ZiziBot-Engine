@@ -48,6 +48,8 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public ExecutionStrategy ExecutionStrategy { get; set; }
     public CleanupTarget CleanupTarget { get; set; }
 
+    public ResponseSource Source { get; set; } = ResponseSource.Bot;
+
     public CleanupTarget[] CleanupTargets { get; set; } = new[]
     {
         CleanupTarget.None
