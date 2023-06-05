@@ -73,7 +73,7 @@ public class CacheService
         }
     }
 
-    public async Task EvictAsync(string cacheKey)
+    private async Task EvictAsync(string cacheKey)
     {
         try
         {
@@ -83,6 +83,7 @@ public class CacheService
         catch (Exception exception)
         {
             _logger.LogError(exception, "Fail to evict cache Key: {Key}", cacheKey);
+            Directory.Delete(PathConst.CACHE_TOWER_PATH, true);
         }
     }
 }
