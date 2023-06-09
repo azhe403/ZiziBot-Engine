@@ -20,6 +20,13 @@ public static class VersionUtil
         return seconds;
     }
 
+    public static Version GetVersionNumber()
+    {
+        var currentAssembly = Assembly.GetEntryAssembly()?.GetCustomAttribute<BuildStampAttribute>();
+        var version = currentAssembly?.Version ?? new Version(1, 0, 0, 0);
+        return version;
+    }
+
     public static string GetVersion(bool pretty = false)
     {
         var currentAssembly = Assembly.GetEntryAssembly()?.GetCustomAttribute<BuildStampAttribute>();
