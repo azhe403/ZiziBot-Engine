@@ -17,6 +17,7 @@ public class DebugController : CommandController
     }
 
     [Command("about")]
+    [Command("start")]
     public async Task GetAbout(MessageData data)
     {
         await _mediatorService.EnqueueAsync(new GetAboutBotRequest()
