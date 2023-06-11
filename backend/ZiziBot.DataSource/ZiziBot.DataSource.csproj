@@ -7,7 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MongoFramework" Version="0.28.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.5" />
+        <PackageReference Include="MongoFramework" Version="0.29.0" />
     </ItemGroup>
 
     <ItemGroup>

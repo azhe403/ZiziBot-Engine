@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AngleSharp" Version="1.0.1" />
+        <PackageReference Include="AngleSharp" Version="1.0.3" />
         <PackageReference Include="AngleSharp.Io" Version="1.0.0" />
         <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
         <PackageReference Include="CodeHollow.FeedReader" Version="1.2.6" />

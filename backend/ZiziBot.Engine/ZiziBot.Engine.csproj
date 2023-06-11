@@ -7,20 +7,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1"/>
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.5"/>
-        <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.4.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.5" />
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.302" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ZiziBot.Allowed.TelegramBot\ZiziBot.Allowed.TelegramBot.csproj"/>
-        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
-        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
-        <ProjectReference Include="..\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj"/>
-        <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj"/>
-        <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
-        <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Allowed.TelegramBot\ZiziBot.Allowed.TelegramBot.csproj" />
+        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
+        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
+        <ProjectReference Include="..\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj" />
+        <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj" />
+        <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj" />
+        <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -39,18 +39,18 @@
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(FrontEndRoot)\node_modules') ">
         <!-- Ensure Node.js is installed -->
         <Exec Command="node --version" ContinueOnError="true">
-            <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
+            <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
         </Exec>
-        <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE."/>
-        <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..."/>
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install"/>
+        <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+        <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
     </Target>
     <Target Name="PublishAngular" AfterTargets="ComputeFilesToPublish">
-        <Message Importance="high" Text="Building SPA files..."/>
-        <Exec Command="npm install" WorkingDirectory="$(SpaRoot)"/>
-        <Exec Command="npm run build-staging" WorkingDirectory="$(SpaRoot)"/>
+        <Message Importance="high" Text="Building SPA files..." />
+        <Exec Command="npm install" WorkingDirectory="$(SpaRoot)" />
+        <Exec Command="npm run build-staging" WorkingDirectory="$(SpaRoot)" />
         <ItemGroup>
-            <DistFiles Include="$(SpaRoot)\dist\**"/>
+            <DistFiles Include="$(SpaRoot)\dist\**" />
             <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
                 <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
