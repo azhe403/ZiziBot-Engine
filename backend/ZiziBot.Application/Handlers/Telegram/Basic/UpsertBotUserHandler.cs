@@ -9,17 +9,24 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
     where TResponse : BotResponseBase
 {
     private readonly ILogger<UpsertBotUserHandler<TRequest, TResponse>> _logger;
+    private readonly TelegramService _telegramService;
     private readonly UserDbContext _userDbContext;
 
-    public UpsertBotUserHandler(ILogger<UpsertBotUserHandler<TRequest, TResponse>> logger, UserDbContext userDbContext)
+    public UpsertBotUserHandler(ILogger<UpsertBotUserHandler<TRequest, TResponse>> logger, TelegramService telegramService, UserDbContext userDbContext)
     {
         _logger = logger;
+        _telegramService = telegramService;
         _userDbContext = userDbContext;
     }
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Updating User information for UserId: {UserId}", request.UserId);
+
+        if(request.Source!= ResponseSource.Bot)
+            return;
+
+        _telegramService.SetupResponse(request);
 
         var botUser = await _userDbContext.BotUser
             .Where(entity => entity.UserId == request.UserId)
@@ -43,6 +50,20 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
         else
         {
             _logger.LogDebug("Updating User with UserId: {UserId}", request.UserId);
+
+            var trackingMessage = HtmlMessage.Empty;
+
+            if (botUser.FirstName != request.User?.FirstName)
+                trackingMessage.TextBr("Mengubah nama depannya");
+
+            if(botUser.LastName != request.User?.LastName)
+                trackingMessage.TextBr("Mengubah nama belakangnya");
+
+            if(botUser.Username != request.User?.Username)
+                trackingMessage.TextBr("Mengubah username-nya");
+
+            await _telegramService.SendMessageText(trackingMessage.ToString());
+
 
             botUser.UserId = request.UserId;
             botUser.Username = request.User?.Username;
