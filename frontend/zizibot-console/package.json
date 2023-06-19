@@ -5,7 +5,7 @@
         "prestart": "node aspnetcore-https",
         "ng": "ng",
         "ng-update": "ng update @angular-eslint/schematics @angular/cdk @angular/cli @angular/core --allow-dirty",
-        "restore": "npm install",
+        "restore": "pnpm install",
         "start": "ng serve --port 7121 --ssl --disable-host-check",
         "start-https": "ng serve --port 443 --ssl --host 0.0.0.0 --disable-host-check --ssl-cert cert/sakai-ng.pem --ssl-key cert/sakai-ng.key",
         "build": "ng build",
@@ -17,7 +17,8 @@
         "clear:.angular": "rimraf .angular",
         "clear:node_modules": "rimraf node_modules",
         "clear:dist": "rimraf dist",
-        "clear:all": "npm run clear:.angular && npm run clear:node_modules && npm run clear:dist"
+        "clear:all": "npm run clear:.angular && npm run clear:node_modules && npm run clear:dist",
+        "reinstall": "npm run clear:node_modules && npm run restore"
     },
     "private": true,
     "dependencies": {
@@ -36,7 +37,7 @@
         "ngx-cookie-service": "^16.0.0",
         "primeflex": "^3.2.1",
         "primeicons": "6.0.1",
-        "primeng": "16.0.0-rc.1",
+        "primeng": "16.0.0",
         "quill": "^1.3.7",
         "rxjs": "~7.5.0",
         "tslib": "^2.3.0",
