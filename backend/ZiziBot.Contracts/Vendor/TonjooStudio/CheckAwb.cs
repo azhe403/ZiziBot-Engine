@@ -44,10 +44,10 @@ public class Detail
     public UserAddress Consignee { get; set; }
 
     [JsonProperty("date_shipment")]
-    public DateTimeOffset DateShipment { get; set; }
+    public DateTimeOffset? DateShipment { get; set; }
 
     [JsonProperty("date_received")]
-    public DateTimeOffset DateReceived { get; set; }
+    public DateTimeOffset? DateReceived { get; set; }
 
     [JsonProperty("receiver")]
     public string Receiver { get; set; }
