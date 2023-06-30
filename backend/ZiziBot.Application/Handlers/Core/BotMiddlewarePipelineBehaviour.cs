@@ -21,13 +21,6 @@ public class BotMiddlewarePipelineBehaviour<TRequest, TResponse> : IPipelineBeha
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        request.CleanupTargets = new[]
-        {
-            CleanupTarget.FromBot
-        };
-
-        _telegramService.SetupResponse(request);
-
         if (request.Source != ResponseSource.Bot)
         {
             _logger.LogDebug("Awatiting next because Request Source is: {Source}", request.Source);
@@ -46,6 +39,13 @@ public class BotMiddlewarePipelineBehaviour<TRequest, TResponse> : IPipelineBeha
         {
             return await next();
         }
+
+        request.CleanupTargets = new[]
+        {
+            CleanupTarget.FromBot
+        };
+
+        _telegramService.SetupResponse(request);
 
         await _telegramService.SendMessageText(text: result.Message, replyMarkup: result.ReplyMarkup);
 
