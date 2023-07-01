@@ -3,20 +3,20 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
-public class CreateWebSessionBotRequestModel : BotRequestBase
+public class PrepareConsoleBotRequest : BotRequestBase
 {
 }
 
-public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionBotRequestModel, BotResponseBase>
+public class PrepareConsoleHandler : IRequestHandler<PrepareConsoleBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
 
-    public CreateWebSessionRequestHandler(TelegramService telegramService)
+    public PrepareConsoleHandler(TelegramService telegramService)
     {
         _telegramService = telegramService;
     }
 
-    public async Task<BotResponseBase> Handle(CreateWebSessionBotRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(PrepareConsoleBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
@@ -29,18 +29,17 @@ public class CreateWebSessionRequestHandler : IRequestHandler<CreateWebSessionBo
             await _telegramService.SendMessageText("Maaf fitur ini belum dipersiapkan");
         }
 
+        var replyMarkup = InlineKeyboardMarkup.Empty();
         var htmlMessage = HtmlMessage.Empty
             .BoldBr("🎛 ZiziBot Console")
-            .TextBr("Silakan klik tombol dibawah ini untuk membuka.")
+            .TextBr("Buka Console untuk mengelola pengaturan, catatan dan lain-lain.")
             .Br();
 
         if (webUrl.Contains("localhost"))
         {
             htmlMessage.Code(webUrl).Br();
         }
-
-        var replyMarkup = InlineKeyboardMarkup.Empty();
-        if (!webUrl.Contains("localhost"))
+        else
         {
             replyMarkup = new[]
             {

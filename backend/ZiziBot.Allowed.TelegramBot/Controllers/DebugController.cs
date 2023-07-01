@@ -84,22 +84,6 @@ public class DebugController : CommandController
         });
     }
 
-    [Command("console")]
-    public async Task OpenConsole(MessageData data)
-    {
-        await _mediatorService.EnqueueAsync(new CreateWebSessionBotRequestModel()
-        {
-            BotToken = data.Options.Token,
-            Message = data.Message,
-            ReplyMessage = true,
-            CleanupTargets = new[]
-            {
-                CleanupTarget.FromBot,
-                CleanupTarget.FromSender
-            }
-        });
-    }
-
     [Command("promote")]
     [Command("demote")]
     public async Task PromoteMember(MessageData data)
