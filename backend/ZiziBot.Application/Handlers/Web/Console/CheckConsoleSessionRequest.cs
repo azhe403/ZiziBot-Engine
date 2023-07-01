@@ -6,29 +6,29 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoFramework.Linq;
 
-namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
+namespace ZiziBot.Application.Handlers.Web.Console;
 
-public class SaveTelegramSessionRequest : ApiRequestBase<SaveDashboardSessionIdResponseDto>
+public class CheckConsoleSessionRequest : WebRequestBase<CheckConsoleSessionResponseDto>
 {
     [FromBody]
     public TelegramSessionDto Model { get; set; }
 }
 
-public class SaveDashboardSessionIdResponseDto
+public class CheckConsoleSessionResponseDto
 {
     public bool IsSessionValid { get; set; }
     public string BearerToken { get; set; }
 }
 
-public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequest, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
+public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionRequest, WebResponseBase<CheckConsoleSessionResponseDto>>
 {
-    private readonly ILogger<SaveTelegramSessionRequestHandler> _logger;
+    private readonly ILogger<CheckConsoleSessionHandler> _logger;
     private readonly AppSettingsDbContext _appSettingsDbContext;
     private readonly UserDbContext _userDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
-    public SaveTelegramSessionRequestHandler(
-        ILogger<SaveTelegramSessionRequestHandler> logger,
+    public CheckConsoleSessionHandler(
+        ILogger<CheckConsoleSessionHandler> logger,
         AppSettingsDbContext appSettingsDbContext,
         UserDbContext userDbContext,
         AppSettingRepository appSettingRepository
@@ -40,9 +40,9 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         _appSettingRepository = appSettingRepository;
     }
 
-    public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(SaveTelegramSessionRequest request, CancellationToken cancellationToken)
+    public async Task<WebResponseBase<CheckConsoleSessionResponseDto>> Handle(CheckConsoleSessionRequest request, CancellationToken cancellationToken)
     {
-        ApiResponseBase<SaveDashboardSessionIdResponseDto> response = new();
+        WebResponseBase<CheckConsoleSessionResponseDto> response = new();
 
         var botSetting = await _appSettingsDbContext.BotSettings
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -81,7 +81,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         {
             new Claim(ClaimTypes.NameIdentifier, request.Model.Username),
             new Claim(ClaimTypes.Name, request.Model.FirstName),
-            new Claim(ClaimTypes.Role, request.SessionUserRole.ToString()),
+            // new Claim(ClaimTypes.Role, request.SessionUserRole.ToString()),
             new Claim(HeaderKey.UserId, request.Model.Id.ToString()),
             new Claim("photoUrl", request.Model.PhotoUrl ?? ""),
         };
@@ -105,7 +105,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
 
         await _userDbContext.SaveChangesAsync(cancellationToken);
 
-        return response.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto()
+        return response.Success("Session saved successfully", new CheckConsoleSessionResponseDto()
         {
             IsSessionValid = true,
             BearerToken = stringToken

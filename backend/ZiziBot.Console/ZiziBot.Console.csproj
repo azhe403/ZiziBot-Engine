@@ -17,4 +17,9 @@
         <PackageReference Include="Radzen.Blazor" Version="4.13.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
+      <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj" />
+    </ItemGroup>
+
 </Project>
