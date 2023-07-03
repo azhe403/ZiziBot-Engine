@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Radzen;
 
@@ -24,11 +25,24 @@ namespace ZiziBot.Console.Shared
         [Inject]
         protected NotificationService NotificationService { get; set; }
 
+        [Inject]
+        public ILogger<MainLayout> Logger { get; set; }
+
         private bool sidebarExpanded = true;
 
         void SidebarToggleClick()
         {
             sidebarExpanded = !sidebarExpanded;
+        }
+
+        void OnParentClicked(MenuItemEventArgs args)
+        {
+            Logger.LogDebug($"{args.Text} clicked from parent");
+        }
+
+        void OnChildClicked(MenuItemEventArgs args)
+        {
+            Logger.LogDebug($"{args.Text} from child clicked");
         }
     }
 }

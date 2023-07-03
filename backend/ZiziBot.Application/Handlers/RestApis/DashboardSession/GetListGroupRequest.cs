@@ -2,17 +2,11 @@ using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class GetListGroupRequest : ApiRequestBase<List<GetListGroupResponse>?>
+public class GetListGroupRequest : ApiRequestBase<List<ChatInfoDto>?>
 {
 }
 
-public class GetListGroupResponse
-{
-    public long ChatId { get; set; }
-    public string ChatTitle { get; set; }
-}
-
-public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiResponseBase<List<GetListGroupResponse>?>>
+public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiResponseBase<List<ChatInfoDto>?>>
 {
     private readonly ChatDbContext _chatDbContext;
     private readonly UserDbContext _userDbContext;
@@ -23,9 +17,9 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
         _userDbContext = userDbContext;
     }
 
-    public async Task<ApiResponseBase<List<GetListGroupResponse>?>> Handle(GetListGroupRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<List<ChatInfoDto>?>> Handle(GetListGroupRequest request, CancellationToken cancellationToken)
     {
-        ApiResponseBase<List<GetListGroupResponse>?> response = new();
+        ApiResponseBase<List<ChatInfoDto>?> response = new();
 
         #region Check Dashboard Session
         var dashboardSession = await _userDbContext.DashboardSessions
@@ -61,15 +55,15 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
             .Where(x => chatIds.Contains(x.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
-        List<GetListGroupResponse> listPermission = new();
-        listPermission.Add(new GetListGroupResponse()
+        List<ChatInfoDto> listPermission = new();
+        listPermission.Add(new ChatInfoDto()
         {
             ChatId = request.SessionUserId,
             ChatTitle = "Saya"
         });
 
         var listGroup = chatAdmin
-            .Join(listChatSetting, adminEntity => adminEntity.ChatId, settingEntity => settingEntity.ChatId, (adminEntity, settingEntity) => new GetListGroupResponse()
+            .Join(listChatSetting, adminEntity => adminEntity.ChatId, settingEntity => settingEntity.ChatId, (adminEntity, settingEntity) => new ChatInfoDto()
             {
                 ChatId = adminEntity.ChatId,
                 ChatTitle = settingEntity.ChatTitle
