@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using Microsoft.Extensions.Logging
 <RadzenText>Pilih Obrolan:</RadzenText>
-<RadzenListBox @bind-Value="SelectedChatId" Change="OnValueChanged" Data="ListChat" LoadData="OnLoadData" Style="width: 100%; height: 100%;" TextProperty="ChatTitle" ValueProperty="ChatId">
+<RadzenListBox @bind-Value="SelectedChatId" Change="OnValueChanged" Data="ListChat" LoadData="OnLoadData" Style="width: 100%; height: calc(100% - 32px);" TextProperty="ChatTitle" ValueProperty="ChatId">
     <Template>
         @((context as ChatInfoDto).ChatTitle)
     </Template>
