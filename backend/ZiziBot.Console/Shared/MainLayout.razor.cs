@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
-using Radzen;
-
 namespace ZiziBot.Console.Shared
 {
     public partial class MainLayout

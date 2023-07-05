@@ -48,4 +48,14 @@ public static class LinqUtil
     {
         return keywords.Any(keyword => message.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
     }
+
+    public static bool IsEmpty<TSource>(this IEnumerable<TSource>? source)
+    {
+        if (source == null || !source.Any())
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -15,11 +15,14 @@
         <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.8" />
         <PackageReference Include="Radzen.Blazor" Version="4.13.4" />
+        <PackageReference Include="ReactiveUI.Blazor" Version="19.2.1" />
+        <PackageReference Include="ReactiveUI.Fody" Version="19.2.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
       <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj" />
     </ItemGroup>
+
 
 </Project>

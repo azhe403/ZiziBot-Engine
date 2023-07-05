@@ -1,7 +1,5 @@
-using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Radzen;
 
 namespace ZiziBot.Console.Extensions;
 
@@ -14,6 +12,7 @@ public static class ServiceExtension
         services.AddServerSideBlazor();
         services.AddBlazoredLocalStorage();
         services.AddRadzenComponents();
+        services.AddReactiveViewModels();
 
         return services;
     }
@@ -34,6 +33,13 @@ public static class ServiceExtension
         services.AddScoped<NotificationService>();
         services.AddScoped<TooltipService>();
         services.AddScoped<ContextMenuService>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddReactiveViewModels(this IServiceCollection services)
+    {
+        services.AddScoped<ChatSelectorViewModel>();
 
         return services;
     }
