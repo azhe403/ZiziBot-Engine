@@ -27,17 +27,46 @@ public partial class Notes
     protected ILogger<Notes> Logger { get; set; }
 
     protected string noteId { get; set; }
+    protected long ChatId { get; set; }
     protected List<NoteDto> ListNote { get; set; }
 
     private async Task OnSelectChatCallback(long chatId)
     {
         Logger.LogDebug("Selected Chat: {ChatId}", chatId);
+        ChatId = chatId;
 
-        ListNote = await ChatSettingRepository.GetListNote(chatId);
+        await LoadNotes();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task OnSelectedItemChanged(object obj)
+    {
+        if (obj is not string noteId) return;
+
+        await DialogService.OpenAsync<NoteAdd>(
+            title: "Edit Note",
+            parameters: new()
+            {
+                { "NoteId", noteId }
+            },
+            options: new()
+            {
+                Width = "700px",
+                Height = "600px",
+                CloseDialogOnEsc = true,
+                Resizable = true,
+                Draggable = true
+            });
+
+        await LoadNotes();
+    }
+
+    private async Task LoadNotes()
+    {
+        ListNote = await ChatSettingRepository.GetListNote(ChatId);
     }
 }

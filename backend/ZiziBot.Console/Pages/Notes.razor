@@ -12,7 +12,7 @@
                     </RadzenSplitterPane>
                     <RadzenSplitterPane>
                         <RadzenText>Pilih Chat terlebih dahulu</RadzenText>
-                        <RadzenListBox @bind-Value="noteId" Data="ListNote" TextProperty="Query" ValueProperty="Id" Style="width: 100%; height: calc(100% - 32px);">
+                        <RadzenListBox @bind-Value="noteId" Data="ListNote" Change="OnSelectedItemChanged" TextProperty="Query" ValueProperty="Id" Style="width: 100%; height: calc(100% - 32px);">
                             <Template>
                                 @((context as NoteDto).Query)
                             </Template>

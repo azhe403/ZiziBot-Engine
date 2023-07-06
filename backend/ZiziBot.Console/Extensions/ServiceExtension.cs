@@ -39,7 +39,7 @@ public static class ServiceExtension
 
     private static IServiceCollection AddReactiveViewModels(this IServiceCollection services)
     {
-        services.AddScoped<ChatSelectorViewModel>();
+        services.Scan(selector => selector.FromAssemblyOf<ChatSelectorViewModel>());
 
         return services;
     }
