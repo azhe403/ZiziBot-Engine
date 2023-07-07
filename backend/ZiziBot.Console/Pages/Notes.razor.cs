@@ -56,7 +56,6 @@ public partial class Notes
             options: new()
             {
                 Width = "700px",
-                Height = "600px",
                 CloseDialogOnEsc = true,
                 Resizable = true,
                 Draggable = true
