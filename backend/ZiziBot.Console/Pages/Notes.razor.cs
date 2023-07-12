@@ -64,6 +64,21 @@ public partial class Notes
         await LoadNotes();
     }
 
+    private async Task OnOpenAddDialog()
+    {
+        await DialogService.OpenAsync<NoteAdd>(
+            title: "Add Note",
+            options: new()
+            {
+                Width = "700px",
+                CloseDialogOnEsc = true,
+                Resizable = true,
+                Draggable = true
+            });
+
+        await LoadNotes();
+    }
+
     private async Task LoadNotes()
     {
         ListNote = await ChatSettingRepository.GetListNote(ChatId);

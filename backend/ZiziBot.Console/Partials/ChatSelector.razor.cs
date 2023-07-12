@@ -1,4 +1,4 @@
-﻿namespace ZiziBot.Console.Partials;
+namespace ZiziBot.Console.Partials;
 
 public partial class ChatSelector: ReactiveInjectableComponentBase<ChatSelectorViewModel>
 {
@@ -21,6 +21,9 @@ public partial class ChatSelector: ReactiveInjectableComponentBase<ChatSelectorV
     protected ILogger<ChatSelector> Logger { get; set; }
 
     [Parameter]
+    public SelectorMode SelectorMode { get; set; }
+
+    [Parameter]
     public long SelectedChatId { get; set; }
 
     [Parameter]
@@ -30,13 +33,16 @@ public partial class ChatSelector: ReactiveInjectableComponentBase<ChatSelectorV
     public Action<long> OnChatSelected { get; set; }
 
     [Parameter]
-    public EventCallback<long> OnChatSelectedCallback { get; set; }
+    public EventCallback<long> SelectedChatIdChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> ValueChanged { get; set; }
 
     private async Task OnValueChanged(object obj)
     {
         if (obj is not long chatId) return;
 
-        await OnChatSelectedCallback.InvokeAsync(chatId);
+        await SelectedChatIdChanged.InvokeAsync(chatId);
         await InvokeAsync(StateHasChanged);
     }
 
@@ -47,12 +53,18 @@ public partial class ChatSelector: ReactiveInjectableComponentBase<ChatSelectorV
             return;
 
         ListChat = await ChatSettingRepository.GetChatByBearerToken(bearerToken.Value);
-        if(!ListChat.IsEmpty())
+        if (!ListChat.IsEmpty() && SelectedChatId == 0)
         {
             SelectedChatId = ListChat.FirstOrDefault().ChatId;
-            await OnChatSelectedCallback.InvokeAsync(SelectedChatId);
+            SelectedChatIdChanged.InvokeAsync(SelectedChatId);
         }
 
         await InvokeAsync(StateHasChanged);
     }
+}
+
+public enum SelectorMode
+{
+    List,
+    Dropdown
 }

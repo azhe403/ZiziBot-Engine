@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components.Routing;
+
 namespace ZiziBot.Console.Shared
 {
     public partial class MainLayout
@@ -28,6 +30,17 @@ namespace ZiziBot.Console.Shared
         void SidebarToggleClick()
         {
             sidebarExpanded = !sidebarExpanded;
+        }
+
+        protected override Task OnAfterRenderAsync(bool firstRender)
+        {
+            NavigationManager.LocationChanged += NavigationManagerOnLocationChanged;
+            return base.OnAfterRenderAsync(firstRender);
+        }
+
+        private void NavigationManagerOnLocationChanged(object? sender, LocationChangedEventArgs e)
+        {
+            // throw new NotImplementedException();
         }
 
         void OnParentClicked(MenuItemEventArgs args)

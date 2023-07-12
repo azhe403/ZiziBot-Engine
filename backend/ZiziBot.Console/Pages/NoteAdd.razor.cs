@@ -3,7 +3,7 @@ namespace ZiziBot.Console.Pages
     public partial class NoteAdd : ReactiveInjectableComponentBase<NoteAddViewModel>
     {
         [Parameter]
-        public string NoteId { get; set; }
+        public string? NoteId { get; set; }
 
         [Inject]
         protected IMediator Mediator { get; set; }
@@ -15,23 +15,21 @@ namespace ZiziBot.Console.Pages
 
         protected override async Task OnParametersSetAsync()
         {
-            var noteInfo = await ChatSettingRepository.GetNote(NoteId);
+            if (NoteId != null)
+            {
+                var noteInfo = await ChatSettingRepository.GetNote(NoteId);
 
-            ViewModel.NoteId = noteInfo.Id;
-            ViewModel.ChatId = noteInfo.ChatId;
-            ViewModel.Query = noteInfo.Query;
-            ViewModel.Content = noteInfo.Text;
-            ViewModel.RawButton = noteInfo.RawButton;
-            ViewModel.FileId = noteInfo.FileId;
-            ViewModel.CreatedDate = noteInfo.CreatedDate;
-            ViewModel.UpdatedDate = noteInfo.UpdatedDate;
+                ViewModel.NoteId = noteInfo.Id;
+                ViewModel.ChatId = noteInfo.ChatId;
+                ViewModel.Query = noteInfo.Query;
+                ViewModel.Content = noteInfo.Text;
+                ViewModel.RawButton = noteInfo.RawButton;
+                ViewModel.FileId = noteInfo.FileId;
+                ViewModel.CreatedDate = noteInfo.CreatedDate;
+                ViewModel.UpdatedDate = noteInfo.UpdatedDate;
+            }
 
             await base.OnParametersSetAsync();
-        }
-
-        private void OnSave()
-        {
-            throw new NotImplementedException();
         }
     }
 }

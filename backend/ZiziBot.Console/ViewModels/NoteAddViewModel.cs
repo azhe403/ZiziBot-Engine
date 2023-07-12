@@ -1,17 +1,19 @@
-using MongoDB.Bson;
-using ZiziBot.Application.Services;
-using ZiziBot.DataSource.MongoDb.Entities;
+using System.Reactive.Linq;
 using Unit = System.Reactive.Unit;
 
 namespace ZiziBot.Console.ViewModels;
 
 public class NoteAddViewModel : ReactiveObject, IActivatableViewModel
 {
+    private readonly IMediator _mediator;
     private readonly DialogService _dialogService;
     private readonly NoteService _noteService;
     public ViewModelActivator Activator { get; } = new ViewModelActivator();
     public ReactiveCommand<Unit, Unit> OnSaveCommand { get; }
     public ReactiveCommand<Unit, Unit> OnCancelCommand { get; }
+
+    [Reactive]
+    public bool HasErrors { get; private set; }
 
     [Reactive]
     public string NoteId { get; set; }
@@ -37,26 +39,34 @@ public class NoteAddViewModel : ReactiveObject, IActivatableViewModel
     [Reactive]
     public DateTime UpdatedDate { get; set; }
 
-    public NoteAddViewModel(DialogService dialogService, NoteService noteService)
+    public NoteAddViewModel(IMediator mediator, DialogService dialogService, NoteService noteService)
     {
+        _mediator = mediator;
         _dialogService = dialogService;
         _noteService = noteService;
 
-        OnSaveCommand = ReactiveCommand.CreateFromTask(() => SaveCommand());
+        var valid = this.WhenAnyValue(vm => vm.Query, (model) => !string.IsNullOrEmpty(model))
+            .Log(this, "Validity changed")
+            .Publish()
+            .RefCount();
+
+        valid.Subscribe(x => HasErrors = !x);
+
+        OnSaveCommand = ReactiveCommand.CreateFromTask(() => SaveCommand(), canExecute: valid);
+
         OnCancelCommand = ReactiveCommand.CreateFromTask(() => CancelCommand());
     }
 
     private async Task SaveCommand()
     {
-        await _noteService.Save(new NoteEntity()
+        await _mediator.Send(new SaveNoteRequest()
         {
-            Id = ObjectId.Parse(NoteId),
+            Id = NoteId,
             ChatId = ChatId,
             Query = Query,
             Content = Content,
             RawButton = RawButton,
             FileId = FileId,
-            TransactionId = Guid.NewGuid().ToString()
         });
 
         _dialogService.Close();

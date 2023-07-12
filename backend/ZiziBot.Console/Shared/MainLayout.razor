@@ -6,19 +6,22 @@
 
 <RadzenLayout style="grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body';">
     <RadzenHeader>
-        <div class="rz-m-lg-2">
+        <div class="rz-m-md-2">
             <RadzenMenu Click="OnParentClicked">
-                <RadzenMenuItem Icon="power_settings_new"></RadzenMenuItem>
-                <RadzenMenuItem Text="Console" Path="/" Icon="home"></RadzenMenuItem>
+                <RadzenMenuItem Text="Home" Path="/" Icon="home"></RadzenMenuItem>
                 <RadzenMenuItem Text="Group" Icon="group">
-                    <RadzenMenuItem Text="Feature Control" Path="menu" Icon="line_weight"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Feature Management" Path="menu" Icon="line_weight"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Settings" Path="menu" Icon="line_weight"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Security" Path="menu" Icon="security"></RadzenMenuItem>
                     <RadzenMenuItem Text="Badword" Path="dialog" Icon="stop"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Group Staff" Path="notification" Icon="stop"></RadzenMenuItem>
                     <RadzenMenuItem Text="Night Mode" Path="notification" Icon="stop"></RadzenMenuItem>
                     <RadzenMenuItem Text="Thread Mapping" Path="textbox" Icon="map"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Welcome Message" Path="welcome" Icon="notifications_active"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Welcome Message" Path="welcome-message" Icon="notifications_active"></RadzenMenuItem>
                 </RadzenMenuItem>
                 <RadzenMenuItem Text="Chat" Icon="chat">
                     <RadzenMenuItem Text="Notes" Path="notes" Icon="notes"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Cities" Path="cities" Icon="map"></RadzenMenuItem>
                     <RadzenMenuItem Text="RSS" Path="rss" Icon="rss_feed"></RadzenMenuItem>
                     <RadzenMenuItem Text="TextArea" Path="textarea" Icon="description"></RadzenMenuItem>
                 </RadzenMenuItem>
@@ -27,11 +30,13 @@
                 </RadzenMenuItem>
                 <RadzenMenuItem Text="Administrator" Icon="admin_panel_settings">
                     <RadzenMenuItem Text="App Settings" Path="" Icon="settings"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Commands Management" Path="commands-management" Icon="line_weight"></RadzenMenuItem>
                     <RadzenMenuItem Text="Hangfire Dashboard" Path="/hangfire-jobs" Icon="area_chart"></RadzenMenuItem>
                     <RadzenMenuItem Text="Log Viewer" Path="/log-viewer" Icon="text_snippet"></RadzenMenuItem>
                 </RadzenMenuItem>
                 <RadzenMenuItem Text="Help" Icon="help">
                     <RadzenMenuItem Text="About" Path="about" Icon="info"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Feedback" Path="about" Icon="forum"></RadzenMenuItem>
                 </RadzenMenuItem>
             </RadzenMenu>
         </div>
