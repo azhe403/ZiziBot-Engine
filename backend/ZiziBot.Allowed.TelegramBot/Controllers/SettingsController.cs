@@ -15,14 +15,20 @@ public class SettingsController : CommandController
         _mediatorService = mediatorService;
     }
 
+    [Command("console")]
     [Command("settings")]
     public async Task GetSettingPanel(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetSettingPanelBotRequestModel()
+        await _mediatorService.EnqueueAsync(new PrepareConsoleBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,
-            ReplyToMessageId = data.Message.MessageId
+            ReplyMessage = true,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
         });
     }
 }

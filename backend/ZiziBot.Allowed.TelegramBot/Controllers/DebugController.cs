@@ -17,6 +17,7 @@ public class DebugController : CommandController
     }
 
     [Command("about")]
+    [Command("start")]
     public async Task GetAbout(MessageData data)
     {
         await _mediatorService.EnqueueAsync(new GetAboutBotRequest()
@@ -75,22 +76,6 @@ public class DebugController : CommandController
             Message = data.Message,
             ReplyMessage = true,
             CleanupTarget = CleanupTarget.FromBot | CleanupTarget.FromSender,
-            CleanupTargets = new[]
-            {
-                CleanupTarget.FromBot,
-                CleanupTarget.FromSender
-            }
-        });
-    }
-
-    [Command("console")]
-    public async Task OpenConsole(MessageData data)
-    {
-        await _mediatorService.EnqueueAsync(new CreateWebSessionBotRequestModel()
-        {
-            BotToken = data.Options.Token,
-            Message = data.Message,
-            ReplyMessage = true,
             CleanupTargets = new[]
             {
                 CleanupTarget.FromBot,

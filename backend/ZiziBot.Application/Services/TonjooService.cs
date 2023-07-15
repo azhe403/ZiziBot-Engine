@@ -51,7 +51,7 @@ public class TonjooService
             .Bold("Resi: ").CodeBr(detail.Code)
             .Bold("Service: ").TextBr(detail.Service)
             .Bold("Status: ").TextBr(detail.Status)
-            .Bold("Tanggal: ").Text(detail.DateShipment.ToString("yyyy-MM-dd HH:mm")).Text(" -> ").TextBr(detail.DateReceived.ToString("yyyy-MM-dd HH:mm"))
+            .Bold("Tanggal: ").Text(detail.DateShipment?.ToString("yyyy-MM-dd HH:mm")).Text(" -> ").TextBr(detail.DateReceived?.ToString("yyyy-MM-dd HH:mm"))
             .Br()
             .Bold("📜 Detail").Br()
             .Bold("Pengirim: ").TextBr(detail.Shipper.Name)

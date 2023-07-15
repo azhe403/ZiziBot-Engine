@@ -272,3 +272,4 @@ __pycache__/
 .env
 package-lock.json
 dist
+FodyWeavers.*

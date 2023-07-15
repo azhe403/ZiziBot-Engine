@@ -14,18 +14,29 @@
   </a>
 </p>
 
+# Setup Development
+
+1. <a href="https://dotnet.microsoft.com/en-us/download" target="_blank">.NET 7</a>
+2. <a href="https://nodejs.org/en/download" target="_blank">NodeJs 18</a>
+3. <a href="https://www.jetbrains.com/rider" target="_blank">Jetbrains Rider</a> || <a href="https://visualstudio.microsoft.com" target="_blank">Visual Studio 2022</a> || <a href="https://code.visualstudio.com" target="_blank">Visual Studio Code</a>
+4. Docker (Optional)
+5. MongoDB (We can use <a href="https://www.mongodb.com/atlas/database" target="_blank">Mongo Atlas</a>)
+
 # Stack
 
-This project is made possible by these awesome open source projects:
+The **ZiziBot** project is made possible by these awesome open source projects:
 
-- [.NET](https://github.com/dotnet)
-- [Hangfire](https://github.com/HangfireIO)
-- [MediatR](https://github.com/jbogard/MediatR)
-- [MongoFramework](https://github.com/TurnerSoftware/MongoFramework)
-- [CacheTower](https://github.com/TurnerSoftware/CacheTower)
-- [Telegram.Bot](https://github.com/TelegramBots/Telegram.Bot)
-- [Allowed.Telegram.Bot](https://github.com/VodemSharp/Allowed.Telegram.Bot)
-- [Scrutor](https://github.com/khellang/Scrutor)
-- [Serilog](https://github.com/serilog)
+<ul>
+    <li><a href="https://github.com/dotnet" target="_blank">.NET</a></li>
+    <li><a href="https://github.com/HangfireIO" target="_blank">Hangfire</a></li>
+    <li><a href="https://github.com/jbogard/MediatR" target="_blank">MediatR</a></li>
+    <li><a href="https://github.com/TurnerSoftware/MongoFramework" target="_blank">MongoFramework</a></li>
+    <li><a href="https://github.com/TurnerSoftware/CacheTower" target="_blank">CacheTower</a></li>
+    <li><a href="https://github.com/TelegramBots/Telegram.Bot" target="_blank">Telegram.Bot</a></li>
+    <li><a href="https://github.com/VodemSharp/Allowed.Telegram.Bot" target="_blank">Allowed.Telegram.Bot</a></li>
+    <li><a href="https://github.com/khellang/Scrutor" target="_blank">Scrutor</a></li>
+    <li><a href="https://github.com/serilog" target="_blank">Serilog</a></li>
+    <li><a href="https://anglesharp.github.io" target="_blank">Anglesharp</a></li>
+</ul>
 
 ..and other awesome projects.

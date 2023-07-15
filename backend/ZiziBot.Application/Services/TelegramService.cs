@@ -118,6 +118,7 @@ public class TelegramService
         _logger.LogInformation("Sending message to chat {ChatId}", ChatId);
         SentMessage = await Bot.SendTextMessageAsync(
             chatId: ChatId,
+            messageThreadId: _request.MessageThreadId,
             text: text,
             replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
             parseMode: ParseMode.Html,
@@ -132,25 +133,26 @@ public class TelegramService
             return Complete();
 
         _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
+
         _mediatorService.Schedule(new DeleteMessageBotRequestModel
-            {
-                BotToken = _request.BotToken,
-                Message = _request.Message,
-                MessageId = SentMessage.MessageId,
-                DeleteAfter = _request.DeleteAfter
-            }
-        );
+        {
+            BotToken = _request.BotToken,
+            Message = _request.Message,
+            MessageId = SentMessage.MessageId,
+            DeleteAfter = _request.DeleteAfter,
+            Source = ResponseSource.Hangfire
+        });
 
         if (_request.CleanupTargets.Contains(CleanupTarget.FromSender))
         {
             _mediatorService.Schedule(new DeleteMessageBotRequestModel
-                {
-                    BotToken = _request.BotToken,
-                    Message = _request.Message,
-                    MessageId = _request.MessageId,
-                    DeleteAfter = _request.DeleteAfter
-                }
-            );
+            {
+                BotToken = _request.BotToken,
+                Message = _request.Message,
+                MessageId = _request.MessageId,
+                DeleteAfter = _request.DeleteAfter,
+                Source = ResponseSource.Hangfire
+            });
         }
 
         _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", SentMessage.MessageId, DeleteAfter.TotalSeconds);
@@ -341,6 +343,20 @@ public class TelegramService
     {
         var memberCount = await Bot.GetChatMemberCountAsync(ChatId);
         return memberCount;
+    }
+
+    public async Task MuteMemberAsync(long userId, TimeSpan duration)
+    {
+        var untilDate = DateTime.UtcNow + duration;
+        await Bot.RestrictChatMemberAsync(chatId: _request.ChatId, userId: userId, permissions: new ChatPermissions()
+        {
+            CanSendAudios = false,
+            CanSendPhotos = false,
+            CanSendVideos = false,
+            CanSendVideoNotes = false,
+            CanSendVoiceNotes = false,
+            CanSendDocuments = false
+        }, untilDate: untilDate);
     }
     #endregion
 

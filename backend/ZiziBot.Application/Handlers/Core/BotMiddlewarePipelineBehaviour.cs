@@ -21,10 +21,13 @@ public class BotMiddlewarePipelineBehaviour<TRequest, TResponse> : IPipelineBeha
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        var commonMessage = string.Empty;
-        _telegramService.SetupResponse(request);
+        if (request.Source != ResponseSource.Bot)
+        {
+            _logger.LogDebug("Awatiting next because Request Source is: {Source}", request.Source);
+            return await next();
+        }
 
-        var checkAntispam = await _mediator.Send(new AntiSpamRequestModel()
+        var result = await _mediator.Send(new BotMiddlewareRunnerRequest()
             {
                 UserId = request.UserId,
                 ChatId = request.ChatIdentifier,
@@ -32,16 +35,26 @@ public class BotMiddlewarePipelineBehaviour<TRequest, TResponse> : IPipelineBeha
             },
             cancellationToken);
 
-        if (!checkAntispam.CanContinue)
+        if (result.CanContinue)
         {
-            await _telegramService.DeleteMessageAsync();
-            await _telegramService.SendMessageText(checkAntispam.Message);
-
-            throw new UserGlobalBannedException(request.UserId);
+            return await next();
         }
 
-        // todo. execute another middlewares
+        request.CleanupTargets = new[]
+        {
+            CleanupTarget.FromBot
+        };
 
-        return await next();
+        _telegramService.SetupResponse(request);
+
+        await _telegramService.SendMessageText(text: result.Message, replyMarkup: result.ReplyMarkup);
+
+        if (result.MuteDuration != TimeSpan.Zero)
+            await _telegramService.MuteMemberAsync(userId: request.UserId, duration: result.MuteDuration);
+
+        if (result.DeleteMessage)
+            await _telegramService.DeleteMessageAsync();
+
+        throw new BotMiddlewareException<TRequest>("User Not Passed");
     }
 }

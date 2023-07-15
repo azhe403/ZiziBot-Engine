@@ -6,6 +6,7 @@ public class AntiSpamDto
     public bool IsBanEss { get; set; }
     public bool IsBanCasFed { get; set; }
     public bool IsBanSwFed { get; set; }
+
     public CombotAntispamResult? CasRecord { get; set; }
     public SpamwatchDto? SpamWatchRecord { get; set; }
 }

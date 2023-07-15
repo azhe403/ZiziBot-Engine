@@ -5,41 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoFramework.Linq;
-using Newtonsoft.Json;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
 public class SaveTelegramSessionRequest : ApiRequestBase<SaveDashboardSessionIdResponseDto>
 {
     [FromBody]
-    public SaveTelegramSessionRequestModel Model { get; set; }
-}
-
-public class SaveTelegramSessionRequestModel
-{
-    [JsonProperty("id")]
-    public long Id { get; set; }
-
-    [JsonProperty("first_name")]
-    public string? FirstName { get; set; }
-
-    [JsonProperty("last_name")]
-    public string? LastName { get; set; }
-
-    [JsonProperty("username")]
-    public string? Username { get; set; }
-
-    [JsonProperty("photo_url")]
-    public string? PhotoUrl { get; set; }
-
-    [JsonProperty("auth_date")]
-    public long AuthDate { get; set; }
-
-    [JsonProperty("hash")]
-    public string Hash { get; set; }
-
-    [JsonProperty("session_id")]
-    public string SessionId { get; set; }
+    public TelegramSessionDto Model { get; set; }
 }
 
 public class SaveDashboardSessionIdResponseDto

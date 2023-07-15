@@ -143,7 +143,7 @@ public static class RestApiExtension
     public static WebApplication ConfigureApi(this WebApplication app)
     {
         app.UseMiddleware<GlobalExceptionMiddleware>();
-        app.UseMiddleware<InjectHeaderMiddleware>();
+        // app.UseMiddleware<InjectHeaderMiddleware>();
         app.MapHub<LogHub>("/api/logging");
 
         app.UseCors("CorsPolicy");

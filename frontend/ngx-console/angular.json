@@ -39,6 +39,7 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
+              "dayjs",
               "sweetalert2"
             ]
           },
