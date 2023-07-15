@@ -1,8 +1,11 @@
 // Global using directives
 
+global using ZiziBot.Application.Behaviours;
 global using ZiziBot.Application.Handlers.Core;
 global using ZiziBot.Application.Handlers.RestApis.GlobalBan;
 global using ZiziBot.Application.Handlers.Telegram.Basic;
+global using ZiziBot.Application.Handlers.Telegram.Group;
+global using ZiziBot.Application.Handlers.Telegram.Note;
 global using ZiziBot.Application.Handlers.Telegram.WebHook.GitHub;
 global using ZiziBot.Application.HostedServices;
 global using ZiziBot.Application.Services;
