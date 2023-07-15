@@ -12,7 +12,7 @@
         <PackageReference Include="Hangfire.Heartbeat" Version="0.5.1" />
         <PackageReference Include="Hangfire.InMemory" Version="0.5.1" />
         <PackageReference Include="Hangfire.Mongo" Version="1.9.6" />
-        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+        <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
     </ItemGroup>
 
     <ItemGroup>
