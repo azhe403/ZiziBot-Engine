@@ -31,6 +31,9 @@ public class NoteAddViewModel : ReactiveObject, IActivatableViewModel
     public string FileId { get; set; }
 
     [Reactive]
+    public int MediaTypeId { get; set; }
+
+    [Reactive]
     public string RawButton { get; set; }
 
     [Reactive]
@@ -67,6 +70,7 @@ public class NoteAddViewModel : ReactiveObject, IActivatableViewModel
             Content = Content,
             RawButton = RawButton,
             FileId = FileId,
+            DataType = MediaTypeId
         });
 
         _dialogService.Close();

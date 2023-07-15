@@ -24,6 +24,8 @@
             <RadzenText>File ID</RadzenText>
             <RadzenTextBox @bind-Value="@ViewModel.FileId" class="w-100"></RadzenTextBox>
 
+            <MediaTypeSelector @bind-MediaTypeId="ViewModel.MediaTypeId"></MediaTypeSelector>
+
             <RadzenText class="rz-py-3">Created: @ViewModel.CreatedDate, Updated: @ViewModel.UpdatedDate</RadzenText>
         </RadzenStack>
     </RadzenColumn>

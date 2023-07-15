@@ -25,6 +25,7 @@ namespace ZiziBot.Console.Pages
                 ViewModel.Content = noteInfo.Text;
                 ViewModel.RawButton = noteInfo.RawButton;
                 ViewModel.FileId = noteInfo.FileId;
+                ViewModel.MediaTypeId = noteInfo.DataType;
                 ViewModel.CreatedDate = noteInfo.CreatedDate;
                 ViewModel.UpdatedDate = noteInfo.UpdatedDate;
             }
