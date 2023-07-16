@@ -1,3 +1,6 @@
+using System.Reactive.Linq;
+using Microsoft.AspNetCore.SignalR.Client;
+
 namespace ZiziBot.Console.Pages;
 
 public partial class LogViewer
@@ -19,4 +22,33 @@ public partial class LogViewer
 
     [Inject]
     protected NotificationService NotificationService { get; set; }
+
+    private List<Log> Logs { get; set; } = new List<Log>();
+
+    private List<Log> LogsFiltered = new List<Log>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/api/logging"))
+            .Build();
+
+        hubConnection.On<Log>("SendLogAsObject", async (data) =>
+        {
+            Logs.Insert(0, data);
+
+            await InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+}
+
+public class Log
+{
+    public string id { get; set; }
+    public string timestamp { get; set; }
+    public string level { get; set; }
+    public string message { get; set; }
+    public string exception { get; set; }
 }
