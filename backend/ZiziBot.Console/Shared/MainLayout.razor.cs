@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Components.Routing;
+using System.Net;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace ZiziBot.Console.Shared
 {
@@ -23,34 +24,85 @@ namespace ZiziBot.Console.Shared
         protected NotificationService NotificationService { get; set; }
 
         [Inject]
+        protected AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+        [Inject]
+        protected ProtectedLocalStorage ProtectedLocalStorage { get; set; }
+
+        [Inject]
+        protected CustomAuthenticationStateProvider CustomAuthenticationStateProvider { get; set; }
+
+        [Inject]
+        public IMediator Mediator { get; set; }
+
+        [Inject]
         public ILogger<MainLayout> Logger { get; set; }
 
         private bool sidebarExpanded = true;
 
-        void SidebarToggleClick()
+        private void SidebarToggleClick()
         {
             sidebarExpanded = !sidebarExpanded;
         }
 
-        protected override Task OnAfterRenderAsync(bool firstRender)
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            NavigationManager.LocationChanged += NavigationManagerOnLocationChanged;
-            return base.OnAfterRenderAsync(firstRender);
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (!firstRender)
+                return;
+
+            var sessionDto = NavigationManager.QueryString<TelegramSessionDto>();
+            var validate = await sessionDto?.ValidateAsync<TelegramSessionDtoValidator, TelegramSessionDto>();
+            if (validate.IsValid)
+            {
+                var webResponse = await Mediator.Send(new CheckConsoleSessionRequest()
+                {
+                    Model = sessionDto
+                });
+
+                if (webResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    NotificationService.Notify(NotificationSeverity.Warning, "Sesi tidak valid, Silahkan coba lagi");
+                    Logger.LogDebug("Session is invalid, continue..");
+                    return;
+                }
+
+                await ProtectedLocalStorage.SetAsync("bearer_token", webResponse.Result?.BearerToken);
+                NotificationService.Notify(NotificationSeverity.Success,
+                    $"Selamat datang, {sessionDto.FirstName} {sessionDto.LastName}");
+
+                await JSRuntime.InvokeVoidAsync("eval",
+                    $"document.cookie='bearer_token={webResponse.Result?.BearerToken}; path=/hangfire-jobs; expires=Fri, 31 Dec 2024;'");
+                NavigationManager.NavigateTo("/", replace: true);
+            }
+
+            Logger.LogDebug("URL contains no session payload, continue..");
+            await ValidateBearer();
         }
 
-        private void NavigationManagerOnLocationChanged(object? sender, LocationChangedEventArgs e)
-        {
-            // throw new NotImplementedException();
-        }
-
-        void OnParentClicked(MenuItemEventArgs args)
+        private void OnParentClicked(MenuItemEventArgs args)
         {
             Logger.LogDebug($"{args.Text} clicked from parent");
         }
 
-        void OnChildClicked(MenuItemEventArgs args)
+        private void OnChildClicked(MenuItemEventArgs args)
         {
             Logger.LogDebug($"{args.Text} from child clicked");
+        }
+
+        private async Task ValidateBearer()
+        {
+            var bearerToken = await ProtectedLocalStorage.GetAsync<string>("bearer_token");
+
+            if (bearerToken.Value == null)
+            {
+                Logger.LogWarning("Bearer empty");
+
+                return;
+            }
+
+            ((CustomAuthenticationStateProvider)AuthenticationStateProvider).AuthenticateUser(bearerToken.Value);
         }
     }
 }
