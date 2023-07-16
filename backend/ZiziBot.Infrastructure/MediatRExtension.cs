@@ -16,20 +16,18 @@ public static class MediatRExtension
             configuration => configuration
                 .RegisterServicesFromAssemblyContaining<PingRequestHandler>()
                 .AddOpenBehavior(typeof(BotMiddlewarePipelineBehaviour<,>))
+                .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
+                .AddOpenRequestPostProcessor(typeof(EnsureChatAdminRequestHandler<,>))
+                .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))
+                .AddOpenRequestPostProcessor(typeof(FindNoteRequestHandler<,>))
+                .AddOpenRequestPostProcessor(typeof(UpsertBotUserHandler<,>))
         );
 
         services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
 
         services.AddMediatRAttributedBehaviors(assembly);
-        services.AddMediatRBehaviors();
 
-        return services;
-    }
-
-    private static IServiceCollection AddMediatRBehaviors(this IServiceCollection services)
-    {
-        // services.AddTransient(typeof(IPipelineBehavior<CreateNoteRequestModel, ResponseBase>), typeof(CheckChatAdminBehavior));
         return services;
     }
 }
