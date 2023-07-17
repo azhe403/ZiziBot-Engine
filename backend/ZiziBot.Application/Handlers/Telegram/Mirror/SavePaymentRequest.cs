@@ -140,6 +140,6 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
 
         var mirrorConfig = await _appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId);
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId, threadId: 0);
     }
 }

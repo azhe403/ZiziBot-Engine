@@ -105,7 +105,7 @@ public class TelegramService
         return await SendMessageText(text.ToString(), replyMarkup, chatId);
     }
 
-    public async Task<BotResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1)
+    public async Task<BotResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1, int threadId = -1)
     {
         if (text.IsNullOrEmpty())
             return Complete();
@@ -115,10 +115,13 @@ public class TelegramService
         if (chatId != -1)
             ChatId = chatId;
 
+        if (threadId == -1)
+            threadId = _request.MessageThreadId;
+
         _logger.LogInformation("Sending message to chat {ChatId}", ChatId);
         SentMessage = await Bot.SendTextMessageAsync(
             chatId: ChatId,
-            messageThreadId: _request.MessageThreadId,
+            messageThreadId: threadId,
             text: text,
             replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
             parseMode: ParseMode.Html,
