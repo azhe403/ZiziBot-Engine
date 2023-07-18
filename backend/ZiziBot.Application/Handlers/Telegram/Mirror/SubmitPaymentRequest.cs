@@ -156,6 +156,6 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         htmlMessage.Bold("OrderID: ").CodeBr(trakteerParsedDto.OrderId)
             .Bold("Url: ").Text(trakteerParsedDto.PaymentUrl);
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId);
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId, threadId: 0);
     }
 }

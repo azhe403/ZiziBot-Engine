@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ZiziBot.Console.Extensions;
 
 public static class ServiceExtension
 {
-
     public static IServiceCollection AddConsole(this IServiceCollection services)
     {
         services.AddRazorPages();
@@ -13,6 +13,8 @@ public static class ServiceExtension
         services.AddBlazoredLocalStorage();
         services.AddRadzenComponents();
         services.AddReactiveViewModels();
+
+        services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
         return services;
     }
