@@ -20,11 +20,19 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
+        if (request.Source != ResponseSource.Bot)
+        {
+            _logger.LogDebug("Find Note stop because Source: {Source}", request.Source);
+
+            return;
+        }
+
         request.ReplyMessage = true;
 
         _telegramService.SetupResponse(request);
 
         var listNote = await _noteService.GetAllByChat(request.ChatIdentifier);
+
         if (listNote.Count == 0)
         {
             _logger.LogInformation("No note found in chat {chatId}", request.ChatIdentifier);
@@ -32,6 +40,7 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
         }
 
         var words = request.MessageTexts?.Where(x => x.StartsWith('#')).ToList();
+
         if (words?.Any() ?? false)
         {
             //find note single word - invoked by hashtag (#)
@@ -40,16 +49,15 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
                          .Select(tag => listNote.FirstOrDefault(x => x.Query == tag))
                          .Where(notes => notes != null)
                     )
-            {
                 await SendNoteAsync(notes);
-            }
         }
         else
         {
             //find note by text - invoked by entire/partial message text
-            var note = listNote.FirstOrDefault(x => request.MessageText?.Equals(x.Query, StringComparison.CurrentCultureIgnoreCase) ?? false);
-            await SendNoteAsync(note);
+            var note = listNote.FirstOrDefault(x =>
+                request.MessageText?.Equals(x.Query, StringComparison.CurrentCultureIgnoreCase) ?? false);
 
+            await SendNoteAsync(note);
         }
     }
 
@@ -68,10 +76,10 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
         var replyMarkup = notes.RawButton.ToButtonMarkup();
 
         if (dataType <= CommonMediaType.Text)
-            await _telegramService.SendMessageText(notes.Content, replyMarkup: replyMarkup);
+            await _telegramService.SendMessageText(notes.Content, replyMarkup);
         else
             await _telegramService.SendMediaAsync(
-                fileId: notes.FileId,
+                notes.FileId,
                 caption: notes.Content,
                 mediaType: (CommonMediaType)notes.DataType,
                 replyMarkup: replyMarkup
