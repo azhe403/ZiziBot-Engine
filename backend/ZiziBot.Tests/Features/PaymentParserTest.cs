@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace ZiziBot.Tests.Pipelines;
+namespace ZiziBot.Tests.Features;
 
 public class MirrorUserParserTest
 {
@@ -46,5 +46,18 @@ public class MirrorUserParserTest
         trakteerApi.Total.Should().BeGreaterThan(0);
         trakteerApi.OrderDate.Should().BeMoreThan(default);
         trakteerApi.PaymentMethod.Should().NotBeNullOrEmpty();
+    }
+
+    [Theory]
+    [InlineData("9dd30a01-0c59-4cc4-9d53-b726f4579dc5")]
+    [InlineData("https://saweria.co/receipt/9dd30a01-0c59-4cc4-9d53-b726f4579dc5")]
+    public async Task SaweriaApiTest(string url)
+    {
+        var trakteerApi = await url.GetSaweriaApi();
+
+        trakteerApi.OrderId.Should().NotBeNullOrEmpty();
+        trakteerApi.CendolCount.Should().BeGreaterThan(0);
+        trakteerApi.Total.Should().BeGreaterThan(0);
+        trakteerApi.OrderDate.Should().BeMoreThan(default);
     }
 }

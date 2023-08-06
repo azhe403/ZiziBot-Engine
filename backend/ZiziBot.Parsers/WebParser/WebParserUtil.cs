@@ -83,6 +83,23 @@ public static class WebParserUtil
         return data;
     }
 
+    public static async Task<SaweriaParsedDto> GetSaweriaApi(this string url)
+    {
+        if (!url.StartsWith("https://saweria.co/receipt"))
+        {
+            url = Url.Combine("https://saweria.co/receipt", url);
+        }
+
+        var data = await UrlConst.API_SAWERIA_PARSER.SetQueryParam("oid", url)
+            .GetJsonAsync<SaweriaParsedDto>();
+
+        data.IsValid = data.OrderId != null;
+        data.CendolCount = data.Total / 5000;
+        data.PaymentUrl = url;
+
+        return data;
+    }
+
     public static async Task<IEnumerable<WebSearch>> WebSearchText(string search)
     {
         var ctx = await new SearchContext()
