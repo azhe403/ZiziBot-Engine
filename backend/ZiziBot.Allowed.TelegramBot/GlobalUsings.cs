@@ -2,6 +2,7 @@
 
 global using JetBrains.Annotations;
 global using ZiziBot.Application.Handlers.Telegram.Additional;
+global using ZiziBot.Application.Handlers.Telegram.Ban;
 global using ZiziBot.Application.Handlers.Telegram.Basic;
 global using ZiziBot.Application.Handlers.Telegram.Chat;
 global using ZiziBot.Application.Handlers.Telegram.Group;

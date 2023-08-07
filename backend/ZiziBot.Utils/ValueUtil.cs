@@ -23,6 +23,8 @@ public static class ValueUtil
 
     public static TNumber Convert<TNumber>(this string? src)
     {
+        if (src == null) return default;
+
         return Convert<TNumber>((object?)src?.Replace(".", ""));
     }
 

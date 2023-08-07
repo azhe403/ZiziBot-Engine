@@ -108,4 +108,9 @@ public static class StringUtil
 
         return key;
     }
+
+    public static string StrJoin(this IEnumerable<string> source, string separator = ",")
+    {
+        return string.Join(separator, source);
+    }
 }
