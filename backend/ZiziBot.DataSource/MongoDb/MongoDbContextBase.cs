@@ -7,6 +7,8 @@ namespace ZiziBot.DataSource.MongoDb;
 
 public class MongoDbContextBase : MongoDbContext
 {
+    public MongoDbSet<ChatRestrictionEntity> ChatRestriction { get; set; }
+
     public MongoDbContextBase(string connectionStr) : base(MongoDbConnection.FromConnectionString(connectionStr))
     {
     }
@@ -55,11 +57,11 @@ public class MongoDbContextBase : MongoDbContext
                 case EntityEntryState.Added:
                     ((EntityBase)entityEntry.Entity).CreatedDate = DateTime.UtcNow;
                     break;
+
                 case EntityEntryState.Deleted:
                     ((EntityBase)entityEntry.Entity).Status = (int)EventStatus.Deleted;
                     break;
             }
-
         }
     }
 }
