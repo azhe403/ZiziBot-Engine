@@ -3,6 +3,7 @@ using MediatR;
 using MediatR.Extensions.AttributedBehaviors;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
+using ZiziBot.Application.Handlers.Telegram.Middleware;
 
 namespace ZiziBot.Infrastructure;
 
@@ -16,6 +17,7 @@ public static class MediatRExtension
             configuration => configuration
                 .RegisterServicesFromAssemblyContaining<PingRequestHandler>()
                 .AddOpenBehavior(typeof(BotMiddlewarePipelineBehaviour<,>))
+                .AddOpenRequestPreProcessor(typeof(ChatRestrictionProcessorBotRequest<>))
                 .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
                 .AddOpenRequestPostProcessor(typeof(EnsureChatAdminRequestHandler<,>))
                 .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))

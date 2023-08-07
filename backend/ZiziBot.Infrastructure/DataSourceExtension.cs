@@ -14,6 +14,7 @@ public static class DataSourceExtension
         services.AddTransient<ChatDbContext>(provider => new ChatDbContext(mongodbConnectionString));
         services.AddTransient<GroupDbContext>(provider => new GroupDbContext(mongodbConnectionString));
         services.AddTransient<MirrorDbContext>(provider => new MirrorDbContext(mongodbConnectionString));
+        services.AddTransient<MongoDbContextBase>(provider => new MongoDbContextBase(mongodbConnectionString));
         services.AddTransient<UserDbContext>(provider => new UserDbContext(mongodbConnectionString));
 
         return services;

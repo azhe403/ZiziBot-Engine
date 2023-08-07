@@ -42,6 +42,7 @@ public class MongoConfigSource : IConfigurationSource
                     { "Vendor", "WinTenDev" },
                     { "Website", "https://winten.my.id" },
                     { "Support", "https://t.me/WinTenDevSupport" },
+                    { "EnableChatRestriction", false },
                     { "TelegramEngineMode", "Auto" }
                 }
             },

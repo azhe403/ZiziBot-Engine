@@ -315,6 +315,11 @@ public class TelegramService
         await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, reducedResults, cacheTime: 60);
         return Complete();
     }
+
+    public async Task LeaveChatAsync()
+    {
+        await Bot.LeaveChatAsync(_request.ChatId);
+    }
     #endregion
 
 
