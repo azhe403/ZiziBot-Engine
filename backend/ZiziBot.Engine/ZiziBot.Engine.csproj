@@ -9,7 +9,7 @@
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.9" />
-        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.306" />
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.307" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
