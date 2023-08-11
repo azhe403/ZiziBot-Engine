@@ -1,6 +1,5 @@
 ﻿using MediatR.Pipeline;
 using MongoFramework.Linq;
-using Telegram.Bot;
 
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
@@ -8,16 +7,23 @@ public class ChatRestrictionProcessorBotRequest<TRequest> : IRequestPreProcessor
     where TRequest : BotRequestBase
 {
     private readonly TelegramService _telegramService;
+    private readonly AppSettingRepository _appSettingRepository;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public ChatRestrictionProcessorBotRequest(TelegramService telegramService, MongoDbContextBase mongoDbContext)
+    public ChatRestrictionProcessorBotRequest(TelegramService telegramService, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext)
     {
         _telegramService = telegramService;
+        _appSettingRepository = appSettingRepository;
         _mongoDbContext = mongoDbContext;
     }
 
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
+        var config = await _appSettingRepository.GetConfigSectionAsync<EngineConfig>();
+
+        if (!(config?.EnableChatRestriction ?? false))
+            return;
+
         _telegramService.SetupResponse(request);
 
         var check = await _mongoDbContext.ChatRestriction
@@ -30,6 +36,5 @@ public class ChatRestrictionProcessorBotRequest<TRequest> : IRequestPreProcessor
             await _telegramService.SendMessageText("Untuk mendapatkan pengalaman terbaik, silakan gunakan @MissZiziBot di Grub Anda.");
             await _telegramService.LeaveChatAsync();
         }
-
     }
 }
