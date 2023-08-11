@@ -59,30 +59,31 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
 
             await SendNoteAsync(note);
         }
-    }
 
-    private async Task SendNoteAsync(NoteEntity? notes)
-    {
-        if (notes == null)
+
+        async Task SendNoteAsync(NoteEntity? notes)
         {
-            _logger.LogDebug("No Notes for Send to ChatId: {ChatId}", _telegramService.ChatId);
-            return;
+            if (notes == null)
+            {
+                _logger.LogDebug("No Notes for Send to ChatId: {ChatId}", request.ChatId);
+                return;
+            }
+
+            var dataType = (CommonMediaType)notes.DataType;
+
+            _logger.LogInformation("Sending note {NoteId} with data type {DataType}", notes.Id, dataType);
+
+            var replyMarkup = notes.RawButton.ToButtonMarkup();
+
+            if (dataType <= CommonMediaType.Text)
+                await _telegramService.SendMessageText(notes.Content, replyMarkup);
+            else
+                await _telegramService.SendMediaAsync(
+                    notes.FileId,
+                    caption: notes.Content,
+                    mediaType: (CommonMediaType)notes.DataType,
+                    replyMarkup: replyMarkup
+                );
         }
-
-        var dataType = (CommonMediaType)notes.DataType;
-
-        _logger.LogInformation("Sending note {NoteId} with data type {DataType}", notes.Id, dataType);
-
-        var replyMarkup = notes.RawButton.ToButtonMarkup();
-
-        if (dataType <= CommonMediaType.Text)
-            await _telegramService.SendMessageText(notes.Content, replyMarkup);
-        else
-            await _telegramService.SendMediaAsync(
-                notes.FileId,
-                caption: notes.Content,
-                mediaType: (CommonMediaType)notes.DataType,
-                replyMarkup: replyMarkup
-            );
     }
 }
