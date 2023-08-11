@@ -1,5 +1,4 @@
 using MongoFramework.Linq;
-using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Application.Handlers.Telegram.Ban;
 
@@ -25,6 +24,11 @@ public class AddBanBotHandler : IRequestHandler<AddBanBotRequest, BotResponseBas
         var htmlMessage = HtmlMessage.Empty;
         var userId = request.MessageTexts?.Skip(1).FirstOrDefault().Convert<long>();
         var reason = request.Param.Replace(userId.ToString(), "");
+
+        if (request.ReplyToMessage != null)
+        {
+            userId = request.ReplyToMessage.From?.Id;
+        }
 
         if (userId == 0)
         {
@@ -53,6 +57,9 @@ public class AddBanBotHandler : IRequestHandler<AddBanBotRequest, BotResponseBas
         }
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
+
+        htmlMessage.Bold("Pengguna berhasi diban").Br()
+            .Bold("UserID: ").CodeBr(userId.ToString());
 
         return await _telegramService.SendMessageText(htmlMessage.ToString());
     }
