@@ -35,10 +35,8 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);
 
-        var cendolCount = 0;
         var transactionId = string.Empty;
         var userId = request.UserId;
-        var expireDate = DateTime.UtcNow;
 
         var replyMarkup = new InlineKeyboardMarkup(new[]
         {
@@ -64,8 +62,17 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
 
         await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
         var trakteerParsedDto = await request.Payload.GetTrakteerApi();
+        var saweriaParsedDto = await request.Payload.GetSaweriaApi();
 
-        if (!trakteerParsedDto.IsValid)
+
+        var orderId = trakteerParsedDto.IsValid ? trakteerParsedDto.OrderId : saweriaParsedDto.OrderId;
+        var orderDate = trakteerParsedDto.IsValid ? trakteerParsedDto.OrderDate : saweriaParsedDto.OrderDate;
+        var cendolCount = trakteerParsedDto.IsValid ? trakteerParsedDto.CendolCount : saweriaParsedDto.CendolCount;
+        var total = trakteerParsedDto.IsValid ? trakteerParsedDto.Total : saweriaParsedDto.Total;
+        var paymentUrl = trakteerParsedDto.IsValid ? trakteerParsedDto.PaymentUrl : saweriaParsedDto.PaymentUrl;
+        var donationSource = trakteerParsedDto.IsValid ? "Trakteer" : "Saweria";
+
+        if (orderId == null)
         {
             htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
                 .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
@@ -75,13 +82,13 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
 
         var mirrorConfig = await _appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
 
-        if (trakteerParsedDto.OrderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
+        if (orderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
         {
             return await _telegramService.EditMessageText("Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
         }
 
         var mirrorApproval = await _mirrorDbContext.MirrorApproval
-            .Where(entity => entity.OrderId == trakteerParsedDto.OrderId)
+            .Where(entity => entity.OrderId == orderId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -89,7 +96,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         {
             htmlMessage = HtmlMessage.Empty
                 .Bold("Pembayaran ini sudah diklaim.").Br()
-                .Text("Pastikan <b>OrderId</b> Anda dapatkan dari web Trakteer.id");
+                .Text("Pastikan <b>OrderId</b> Anda dapatkan dari Trakteer/Saweria");
 
             return await _telegramService.EditMessageText(htmlMessage.ToString(), replyMarkup);
         }
@@ -97,26 +104,24 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
         {
             UserId = request.UserId,
-            PaymentUrl = trakteerParsedDto.PaymentUrl,
+            PaymentUrl = paymentUrl,
             RawText = trakteerParsedDto.RawText,
-            CendolCount = trakteerParsedDto.CendolCount,
+            CendolCount = cendolCount,
             AdminFees = trakteerParsedDto.AdminFees,
-            Subtotal = trakteerParsedDto.Total,
-            OrderDate = trakteerParsedDto.OrderDate,
+            Subtotal = total,
+            OrderDate = orderDate,
             PaymentMethod = trakteerParsedDto.PaymentMethod,
-            OrderId = trakteerParsedDto.OrderId,
+            OrderId = orderId,
             Status = (int)EventStatus.Complete,
             TransactionId = transactionId
         });
-
-        cendolCount = trakteerParsedDto.CendolCount;
 
         var mirrorUser = await _mirrorDbContext.MirrorUsers
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        expireDate = DateTime.Now.AddMonths(cendolCount);
+        var expireDate = DateTime.Now.AddMonths(cendolCount);
 
         if (mirrorUser == null)
         {
@@ -149,12 +154,13 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
             .Bold("Pengguna: ").UserMention(request.User).Br()
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
+            .Bold("Source: ").Code(donationSource).Br()
             .Bold("Langganan sampai: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss zzz")).Br();
 
         await _telegramService.EditMessageText(htmlMessage.ToString());
 
-        htmlMessage.Bold("OrderID: ").CodeBr(trakteerParsedDto.OrderId)
-            .Bold("Url: ").Text(trakteerParsedDto.PaymentUrl);
+        htmlMessage.Bold("OrderID: ").CodeBr(orderId)
+            .Bold("Url: ").Text(paymentUrl);
 
         return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId, threadId: 0);
     }

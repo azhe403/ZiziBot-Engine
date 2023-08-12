@@ -11,4 +11,6 @@ public class EngineConfig
     public string Website { get; set; }
     public string Support { get; set; }
     public BotEngineMode TelegramEngineMode { get; set; }
+
+    public bool EnableChatRestriction { get; set; }
 }

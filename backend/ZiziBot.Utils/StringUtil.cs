@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using NanoidDotNet;
 
 namespace ZiziBot.Utils;
 
@@ -38,12 +39,12 @@ public static class StringUtil
 
     public static string GetNanoId(int size = 11)
     {
-        return Nanoid.Nanoid.Generate(size: size);
+        return Nanoid.Generate(size: size);
     }
 
     public static async Task<string> GetNanoIdAsync(int size = 11)
     {
-        return await Nanoid.Nanoid.GenerateAsync(size: size);
+        return await Nanoid.GenerateAsync(size: size);
     }
 
     public static bool IsNullOrEmpty(this string? str)
@@ -107,5 +108,10 @@ public static class StringUtil
             .TrimEnd('_');
 
         return key;
+    }
+
+    public static string StrJoin(this IEnumerable<string> source, string separator = ",")
+    {
+        return string.Join(separator, source);
     }
 }

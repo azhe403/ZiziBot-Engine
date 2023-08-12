@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="WTD.Allowed.Telegram.Bot" Version="4.3.0-preview.7" />
+        <PackageReference Include="WTD.Allowed.Telegram.Bot" Version="4.3.0-preview.9"/>
     </ItemGroup>
 
 </Project>

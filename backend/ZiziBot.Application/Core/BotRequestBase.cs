@@ -10,6 +10,10 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public string BotToken { get; set; }
     public IMediator Mediator { get; set; }
 
+    public Update? Update { get; set; }
+
+    public ChatJoinRequest? ChatJoinRequest => Update?.ChatJoinRequest;
+
     public Message? Message { get; set; }
     public Message? ReplyToMessage => Message?.ReplyToMessage;
 
@@ -24,15 +28,17 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public string[]? MessageTexts => Message?.Text?.Split(" ");
     public string[]? RepliedMessageTexts => ReplyToMessage?.Text?.Split(" ");
 
-    public ChatId ChatId => Message?.Chat.Id ?? default;
+    public string Param => MessageTexts?.Skip(1).StrJoin(" ") ?? "";
+
+    public ChatId ChatId => ChatJoinRequest?.Chat.Id ?? Message?.Chat.Id ?? default;
     public int MessageThreadId => Message?.MessageThreadId ?? default;
     public long ChatIdentifier => ChatId.Identifier ?? default;
     public ChatType ChatType => Message?.Chat.Type ?? default;
     public string ChatTitle => Message?.Chat.Title ?? Message?.From?.FirstName ?? Message?.From?.Username ?? Message?.From?.LastName ?? "Unknown";
 
-    public User? User => Message?.From ?? CallbackQuery?.From ?? InlineQuery.From ?? default;
+    public User? User => ChatJoinRequest?.From ?? Message?.From ?? CallbackQuery?.From ?? InlineQuery?.From ?? default;
 
-    public long UserId => Message?.From?.Id ?? CallbackQuery?.From?.Id ?? InlineQuery.From?.Id ?? 0;
+    public long UserId => Message?.From?.Id ?? CallbackQuery?.From?.Id ?? InlineQuery?.From?.Id ?? 0;
     public string UserFullName => $"{Message?.From?.FirstName} {Message?.From?.LastName}".Trim();
     public string UserLanguageCode => Message?.From?.LanguageCode ?? CallbackQuery?.From?.LanguageCode ?? InlineQuery?.From?.LanguageCode ?? "en";
 

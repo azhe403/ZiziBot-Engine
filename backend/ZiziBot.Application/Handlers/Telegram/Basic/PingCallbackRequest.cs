@@ -28,17 +28,23 @@ public class PingCallbackRequestHandler : IRequestHandler<PingCallbackBotRequest
 
         var webhookInfo = await _telegramService.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
 
+        var messageCallback = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
 
         if (!webhookInfo.Url.IsNullOrEmpty())
         {
-            htmlMessage.Text("URL: ").TextBr(webhookInfo.Url);
+            messageCallback = "WebHook info dikirimkan ke Private.";
         }
         else
         {
-            htmlMessage.Text("Engine mode bukan Webhook");
+            messageCallback = "Engine mode bukan Webhook";
+            htmlMessage.Text(messageCallback);
         }
 
-        return await _telegramService.AnswerCallbackAsync(htmlMessage.ToString(), showAlert: true);
+        await _telegramService.AnswerCallbackAsync(messageCallback, showAlert: true);
+
+        await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: request.UserId);
+
+        return _telegramService.Complete();
     }
 }
