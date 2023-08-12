@@ -1,4 +1,3 @@
-using FluentValidation;
 using MediatR.Extensions.AttributedBehaviors;
 using Microsoft.Extensions.Logging;
 using Nut.MediatR;
@@ -7,20 +6,12 @@ using Telegram.Bot.Types;
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 [WithBehaviors(typeof(FluentValidationBehavior<,>))]
+[MediatRBehavior(typeof(RequestValidationPipeline))]
 [MediatRBehavior(typeof(CheckUsernamePipeline))]
 [MediatRBehavior(typeof(CheckAntispamPipeline))]
 public class BotMiddlewareRunnerRequest : BotMiddlewareRequestBase<AntiSpamDto>
 {
     public User? User { get; set; }
-}
-
-public class BotMiddlewareRunnerRequestValidation : AbstractValidator<BotMiddlewareRunnerRequest>
-{
-    public BotMiddlewareRunnerRequestValidation()
-    {
-        RuleFor(x => x.UserId).GreaterThan(0);
-        RuleFor(x => x.ChatId).GreaterThan(0);
-    }
 }
 
 public class BotMiddlewareRunnerHandler : IRequestHandler<BotMiddlewareRunnerRequest, BotMiddlewareResponseBase<AntiSpamDto>>

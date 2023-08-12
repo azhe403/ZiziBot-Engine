@@ -8,14 +8,16 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public RoleLevel MinimumRole { get; set; }
 
     public string BotToken { get; set; }
-    public IMediator Mediator { get; set; }
 
     public Update? Update { get; set; }
 
     public ChatJoinRequest? ChatJoinRequest => Update?.ChatJoinRequest;
 
     public Message? Message { get; set; }
-    public Message? ReplyToMessage => Message?.ReplyToMessage;
+    public Message? ReplyToMessage => Message?.ReplyToMessage?.Type is not (MessageType.ForumTopicCreated or MessageType.ForumTopicEdited) ? Message?.ReplyToMessage : default;
+    public Message? ChannelPost => Update?.ChannelPost;
+    public Message? ChannelPostEdited => Update?.EditedChannelPost;
+    public Message? ChannelPostAny => ChannelPost ?? ChannelPostEdited;
 
     public ForumTopicCreated? ForumTopicCreated => Message?.ForumTopicCreated;
     public ForumTopicEdited? ForumTopicEdited => Message?.ForumTopicEdited;
@@ -23,15 +25,19 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public CallbackQuery? CallbackQuery { get; set; }
     public InlineQuery? InlineQuery { get; set; }
 
+    public DateTime MessageDate => Message?.Date ?? Message?.EditDate ?? DateTime.UtcNow;
+
     public string? CurrentTopicName => ForumTopicEdited?.Name ?? ForumTopicCreated?.Name;
     public string? MessageText => Message?.Text;
     public string[]? MessageTexts => Message?.Text?.Split(" ");
     public string[]? RepliedMessageTexts => ReplyToMessage?.Text?.Split(" ");
 
     public string Param => MessageTexts?.Skip(1).StrJoin(" ") ?? "";
+    public string CallbackQueryId => CallbackQuery?.Id ?? string.Empty;
+
 
     public ChatId ChatId => ChatJoinRequest?.Chat.Id ?? Message?.Chat.Id ?? default;
-    public int MessageThreadId => Message?.MessageThreadId ?? default;
+    public int MessageThreadId => (int)(CurrentTopicName != null ? Message?.MessageThreadId : 0);
     public long ChatIdentifier => ChatId.Identifier ?? default;
     public ChatType ChatType => Message?.Chat.Type ?? default;
     public string ChatTitle => Message?.Chat.Title ?? Message?.From?.FirstName ?? Message?.From?.Username ?? Message?.From?.LastName ?? "Unknown";
@@ -50,6 +56,8 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public int ReplyToMessageId { get; set; }
 
     public bool ReplyMessage { get; set; }
+    public bool IsChannel => Update?.ChannelPost != null || Update?.EditedChannelPost != null;
+    public bool IsPrivateChat => Message?.Chat.Type == ChatType.Private;
 
     public ExecutionStrategy ExecutionStrategy { get; set; }
     public CleanupTarget CleanupTarget { get; set; }
