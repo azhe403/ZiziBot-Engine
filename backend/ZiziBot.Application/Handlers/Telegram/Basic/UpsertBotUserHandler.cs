@@ -23,7 +23,8 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
     {
         _logger.LogInformation("Updating User information for UserId: {UserId}", request.UserId);
 
-        if(request.Source!= ResponseSource.Bot)
+        if (request.Source != ResponseSource.Bot ||
+            request.IsChannel)
             return;
 
         request.DeleteAfter = TimeSpan.FromDays(1);

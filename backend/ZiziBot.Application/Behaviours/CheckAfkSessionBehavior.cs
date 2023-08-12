@@ -25,7 +25,8 @@ public class CheckAfkSessionBehavior<TRequest, TResponse> : IRequestPostProcesso
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
-        if (request.Source != ResponseSource.Bot)
+        if (request.Source != ResponseSource.Bot ||
+            request.IsChannel)
             return;
 
         request.ReplyMessage = true;

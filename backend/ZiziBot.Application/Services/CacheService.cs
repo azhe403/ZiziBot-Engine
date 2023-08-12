@@ -42,18 +42,17 @@ public class CacheService
 
         try
         {
-            _logger.LogDebug(
-                "Loading Cache value with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}",
-                cacheKey,
-                staleAfterSpan,
-                expireAfterSpan
-            );
+            _logger.LogDebug("Loading Cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
 
             var cacheSettings = new CacheSettings(expireAfterSpan, staleAfterSpan);
 
             var cache = await _cacheStack.GetOrSetAsync<T>(
                 cacheKey: cacheKey.Trim(),
-                valueFactory: async (_) => await action(),
+                valueFactory: async (_) => {
+                    _logger.LogDebug("Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
+
+                    return await action();
+                },
                 settings: cacheSettings
             );
 

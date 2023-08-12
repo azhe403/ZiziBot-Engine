@@ -19,6 +19,10 @@ public class ChatRestrictionProcessorBotRequest<TRequest> : IRequestPreProcessor
 
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
+        if (request.IsChannel ||
+            request.IsPrivateChat)
+            return;
+
         var config = await _appSettingRepository.GetConfigSectionAsync<EngineConfig>();
 
         if (!(config?.EnableChatRestriction ?? false))

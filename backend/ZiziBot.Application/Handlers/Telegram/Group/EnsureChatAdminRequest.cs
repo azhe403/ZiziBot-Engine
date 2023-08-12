@@ -25,6 +25,7 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostPr
         _telegramService.SetupResponse(request);
 
         if (request.ChatType == ChatType.Private ||
+            request.IsChannel ||
             request.InlineQuery != null)
             return;
 
@@ -46,7 +47,7 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostPr
                     ChatId = request.ChatIdentifier,
                     UserId = x.User.Id,
                     Role = x.Status,
-                    Status = (int) EventStatus.Complete
+                    Status = (int)EventStatus.Complete
                 }
             )
             .ToList();
