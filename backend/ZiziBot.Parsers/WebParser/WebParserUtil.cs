@@ -74,7 +74,7 @@ public static class WebParserUtil
             url = Url.Combine("https://trakteer.id/payment-status", url);
         }
 
-        var data = await UrlConst.API_TRAKTEER_PARSER.SetQueryParam("url", url)
+        var data = await UrlConst.API_TRAKTEER_PARSER.SetQueryParam("url", url, true)
             .GetJsonAsync<TrakteerApiDto>();
 
         data.IsValid = data.OrderId != null;
@@ -90,7 +90,7 @@ public static class WebParserUtil
             url = Url.Combine("https://saweria.co/receipt", url);
         }
 
-        var data = await UrlConst.API_SAWERIA_PARSER.SetQueryParam("oid", url)
+        var data = await UrlConst.API_SAWERIA_PARSER.SetQueryParam("oid", url, true)
             .GetJsonAsync<SaweriaParsedDto>();
 
         data.IsValid = data.OrderId != null;
