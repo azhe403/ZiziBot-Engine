@@ -10,7 +10,7 @@ public class ChatDbContext : MongoDbContextBase
 
     public MongoDbSet<AfkEntity> Afk { get; set; }
 
-    [Obsolete("Please use GroupAdmin from GroupDbContext")]
+    [Obsolete("Please use GroupAdmin from MongoDbContextBase")]
     public MongoDbSet<ChatAdminEntity> ChatAdmin { get; set; }
 
     public MongoDbSet<ChatGptSessionEntity> ChatGptSession { get; set; }
