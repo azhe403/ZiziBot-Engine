@@ -28,6 +28,10 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
         }
 
         request.ReplyMessage = true;
+        request.CleanupTargets = new[]
+        {
+            CleanupTarget.None
+        };
 
         _telegramService.SetupResponse(request);
 
