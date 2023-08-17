@@ -7,22 +7,31 @@ public class NoteService
 {
     private readonly ILogger<NoteService> _logger;
     private readonly ChatDbContext _chatDbContext;
+    private readonly CacheService _cacheService;
 
-    public NoteService(ILogger<NoteService> logger, ChatDbContext chatDbContext)
+    public NoteService(ILogger<NoteService> logger, ChatDbContext chatDbContext, CacheService cacheService)
     {
         _logger = logger;
         _chatDbContext = chatDbContext;
+        _cacheService = cacheService;
     }
 
-    public async Task<List<NoteEntity>> GetAllByChat(long chatId)
+    public async Task<List<NoteEntity>> GetAllByChat(long chatId, bool evictBefore = false)
     {
-        var tags = await _chatDbContext.Note
-            .Where(entity => entity.ChatId == chatId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .OrderBy(entity => entity.Query)
-            .ToListAsync();
+        var cache = await _cacheService.GetOrSetAsync(
+            cacheKey: $"notes/{chatId}",
+            evictBefore: evictBefore,
+            action: async () => {
+                var tags = await _chatDbContext.Note
+                    .Where(entity => entity.ChatId == chatId)
+                    .Where(entity => entity.Status == (int)EventStatus.Complete)
+                    .OrderBy(entity => entity.Query)
+                    .ToListAsync();
 
-        return tags;
+                return tags;
+            });
+
+        return cache;
     }
 
     public async Task<ServiceResult> Save(NoteEntity entity)
@@ -58,6 +67,8 @@ public class NoteService
         }
 
         await _chatDbContext.SaveChangesAsync();
+
+        await GetAllByChat(entity.ChatId, true);
 
         return result;
     }
