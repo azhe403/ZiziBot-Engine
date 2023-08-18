@@ -32,6 +32,9 @@ public class AnswerInlineQueryUupRequestHandler : IRequestHandler<AnswerInlineQu
         var data = await _uupDumpService.GetUpdatesAsync(request.Query);
 
         var inlineQueryResults = data.Response.Builds
+            .OrderByDescending(x => x.Created)
+            .Where(x => !x.Title.Contains("Stack"))
+            .Where(x => !x.Title.Contains("Cumulative"))
             .Select(build => {
                 var htmlDescription = HtmlMessage.Empty
                     .TextBr(build.Title)
