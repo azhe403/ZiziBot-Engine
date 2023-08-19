@@ -7,6 +7,8 @@ namespace ZiziBot.DataSource.MongoDb;
 
 public class MongoDbContextBase : MongoDbContext
 {
+    public MongoDbSet<ChannelMapEntity> ChannelMap { get; set; }
+    public MongoDbSet<ChannelPostEntity> ChannelPost { get; set; }
     public MongoDbSet<ChatRestrictionEntity> ChatRestriction { get; set; }
     public MongoDbSet<GlobalBanEntity> GlobalBan { get; set; }
 
