@@ -18,6 +18,7 @@ public static class MediatRExtension
                 .AddOpenBehavior(typeof(BotMiddlewarePipelineBehaviour<,>))
                 .AddOpenRequestPreProcessor(typeof(CheckRoleHandler<>))
                 .AddOpenRequestPreProcessor(typeof(ChatRestrictionProcessorBotRequest<>))
+                .AddOpenRequestPreProcessor(typeof(ScanMessageProcessor<>))
                 .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
                 .AddOpenRequestPostProcessor(typeof(EnsureChatAdminRequestHandler<,>))
                 .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))
