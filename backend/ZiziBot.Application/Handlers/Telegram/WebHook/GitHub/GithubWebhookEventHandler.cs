@@ -75,6 +75,20 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         return SendMessage(htmlMessage.ToString());
     }
 
+    protected override Task ProcessStatusWebhookAsync(WebhookHeaders headers, StatusEvent statusEvent)
+    {
+        var htmlMessage = HtmlMessage.Empty;
+        var repository = statusEvent.Repository;
+
+        htmlMessage
+            .Bold("ℹ️ Status").Br()
+            .Bold("Creator: ").TextBr(statusEvent.Sender.Login)
+            .Bold("Repo: ").Url(repository.HtmlUrl, repository.FullName).Br()
+            .Bold("Status: ").Url(statusEvent.TargetUrl, statusEvent.State.StringValue);
+
+        return SendMessage(htmlMessage.ToString());
+    }
+
     protected override Task ProcessDeploymentStatusWebhookAsync(WebhookHeaders headers, DeploymentStatusEvent deploymentStatusEvent, DeploymentStatusAction action)
     {
         var htmlMessage = HtmlMessage.Empty;
