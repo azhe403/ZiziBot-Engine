@@ -12,6 +12,8 @@ public class MongoDbContextBase : MongoDbContext
     public MongoDbSet<ChatRestrictionEntity> ChatRestriction { get; set; }
     public MongoDbSet<GlobalBanEntity> GlobalBan { get; set; }
 
+    public MongoDbSet<WordFilterEntity> WordFilter { get; set; }
+
     public MongoDbContextBase(string connectionStr) : base(MongoDbConnection.FromConnectionString(connectionStr))
     {
     }
