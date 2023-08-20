@@ -11,7 +11,7 @@ public static class AppStartupExtension
         var logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(AppStartupExtension));
 
         logger.LogInformation("ZiziBot 5");
-        logger.LogInformation("Version: 2022.12.1");
+        logger.LogInformation("Version: {Version}", VersionUtil.GetVersionNumber());
 
         return app;
     }
