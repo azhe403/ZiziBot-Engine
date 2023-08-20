@@ -40,15 +40,22 @@ public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
         await _mirrorDbContext.ExportAllAsync<ApiKeyEntity>();
         await _mirrorDbContext.ExportAllAsync<BotCommandEntity>();
         await _mirrorDbContext.ExportAllAsync<BotSettingsEntity>();
+        await _mirrorDbContext.ExportAllAsync<CityEntity>();
+        await _mirrorDbContext.ExportAllAsync<ChannelMapEntity>();
+        await _mirrorDbContext.ExportAllAsync<ChannelPostEntity>();
+        // await _mirrorDbContext.ExportAllAsync<BinderByteCheckAwbEntity>();
         await _mirrorDbContext.ExportAllAsync<ChatSettingEntity>();
         await _mirrorDbContext.ExportAllAsync<GlobalBanEntity>();
-        // await _mirrorDbContext.ExportAll<MirrorApprovalEntity>();
+        await _mirrorDbContext.ExportAllAsync<GroupTopicEntity>();
+        await _mirrorDbContext.ExportAllAsync<MirrorApprovalEntity>();
         await _mirrorDbContext.ExportAllAsync<MirrorUserEntity>();
         await _mirrorDbContext.ExportAllAsync<NoteEntity>();
         await _mirrorDbContext.ExportAllAsync<RssSettingEntity>();
         await _mirrorDbContext.ExportAllAsync<SudoerEntity>();
+        // await _mirrorDbContext.ExportAllAsync<TonjooAwbEntity>();
         await _mirrorDbContext.ExportAllAsync<WebhookChatEntity>();
         await _mirrorDbContext.ExportAllAsync<WelcomeMessageDto>();
+        await _mirrorDbContext.ExportAllAsync<WordFilterEntity>();
 
         var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
 
