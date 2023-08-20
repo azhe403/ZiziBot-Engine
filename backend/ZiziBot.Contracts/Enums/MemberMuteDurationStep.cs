@@ -11,5 +11,5 @@ public enum MemberMuteDurationStep
 public class MemberMuteDuration
 {
     public static MemberMuteDurationStep[] DurationSteps => Enum.GetValues<MemberMuteDurationStep>();
-    public static MemberMuteDurationStep Select(int index) => DurationSteps.FirstOrDefault(d => d == (MemberMuteDurationStep)index);
+    public static TimeSpan Select(int step) => TimeSpan.FromMinutes((double)DurationSteps.ElementAtOrDefault(step));
 }
