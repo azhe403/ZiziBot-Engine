@@ -18,7 +18,7 @@ public class TonjooTests
     {
         var checkAwb = await _tonjooService.GetAwbInfoRaw(courier, awb);
 
-        checkAwb.Data.Found.Should().BeTrue();
+        checkAwb.Data?.Found.Should().BeTrue();
     }
 
     [Theory]
