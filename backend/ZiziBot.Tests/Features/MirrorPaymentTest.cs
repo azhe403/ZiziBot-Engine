@@ -3,9 +3,9 @@ using Xunit;
 
 namespace ZiziBot.Tests.Features;
 
-public class MirrorUserParserTest
+public class MirrorPaymentTest
 {
-    public MirrorUserParserTest(MediatorService mediatorService)
+    public MirrorPaymentTest(MediatorService mediatorService)
     {
 
     }
