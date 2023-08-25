@@ -55,6 +55,15 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
+        if (!request.Payload.IsValidGuid())
+        {
+            htmlMessage = HtmlMessage.Empty
+                .Bold("OrderId sepertinya tidak valid").Br()
+                .Text("Pastikan <b>OrderId</b> Anda dapatkan dari Trakteer/Saweria");
+
+            return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        }
+
         if (request.ForUserId != 0)
         {
             userId = request.ForUserId;
