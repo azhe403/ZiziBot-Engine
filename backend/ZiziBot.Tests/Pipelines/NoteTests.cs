@@ -7,11 +7,13 @@ public class NoteTests
 {
     private readonly MediatorService _mediatorService;
     private readonly AppSettingRepository _appSettingRepository;
+    private readonly ChatDbContext _chatDbContext;
 
-    public NoteTests(MediatorService mediatorService, AppSettingRepository appSettingRepository)
+    public NoteTests(MediatorService mediatorService, AppSettingRepository appSettingRepository, ChatDbContext chatDbContext)
     {
         _mediatorService = mediatorService;
         _appSettingRepository = appSettingRepository;
+        _chatDbContext = chatDbContext;
     }
 
     [Theory]
@@ -25,7 +27,6 @@ public class NoteTests
         {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
-            ReplyMessage = true,
             Query = "sample_query",
             Content = "lorem ipsum dolor",
             RawButton = "example|https://azhe.my.id",
@@ -35,5 +36,46 @@ public class NoteTests
         });
 
         result.ResponseSource.Should().Be(ResponseSource.Bot);
+    }
+
+    [Theory]
+    [InlineData("ini-note-ngab")]
+    public async Task DeleteNoteTest(string note)
+    {
+        // Arrange
+        _chatDbContext.Note.Add(new NoteEntity()
+        {
+            ChatId = SampleMessages.CommonMessage.Chat.Id,
+            Query = note,
+            Status = (int)EventStatus.Complete
+        });
+
+        await _chatDbContext.SaveChangesAsync();
+
+
+        // Act
+        var botMain = await _appSettingRepository.GetBotMain();
+
+        await _mediatorService.EnqueueAsync(new DeleteNoteRequest()
+        {
+            BotToken = botMain.Token,
+            Message = SampleMessages.CommonMessage,
+            Note = note
+        });
+    }
+
+    [Theory]
+    [InlineData("ini-note-ngab")]
+    public async Task DeleteNoteAlreadyDeletedTest(string note)
+    {
+        var botMain = await _appSettingRepository.GetBotMain();
+
+        await _mediatorService.EnqueueAsync(new DeleteNoteRequest()
+        {
+            BotToken = botMain.Token,
+            Message = SampleMessages.CommonMessage,
+            // ReplyMessage = true,
+            Note = note
+        });
     }
 }
