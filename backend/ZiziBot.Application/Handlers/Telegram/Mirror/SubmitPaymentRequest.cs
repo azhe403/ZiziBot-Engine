@@ -48,7 +48,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
 
         if (string.IsNullOrEmpty(request.Payload))
         {
-            htmlMessage.Text("Sertakan tautan dari Trakteer.id untuk diverifikasi.").Br()
+            htmlMessage.Text("Sertakan Order Id untuk diverifikasi.").Br()
                 .Bold("Contoh: ").CodeBr("/sp 9d16023b-67be-5a0b-bc47-47809f059013");
 
 
@@ -94,7 +94,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         if (orderId == null)
         {
             htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
-                .Text("Pastikan link yang kamu kirim benar dan bukti pembayaran sudah terverifikasi oleh Trakteer.");
+                .Text("Pastikan Order Id yang kamu dapatkan dari Trakteer/Saweria.");
 
             return await _telegramService.EditMessageText(htmlMessage.ToString());
         }
@@ -169,7 +169,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
 
         await _mirrorDbContext.SaveChangesAsync(cancellationToken);
 
-        htmlMessage.Bold("Pengguna berhasil disimpan").Br()
+        htmlMessage.Bold("Langganan berhasil disimpan").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
             .Bold("Pengguna: ").UserMention(request.User).Br()
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
