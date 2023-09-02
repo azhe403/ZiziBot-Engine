@@ -1,13 +1,11 @@
-﻿using MongoFramework;
+﻿namespace ZiziBot.DataSource.MongoDb;
 
-namespace ZiziBot.DataSource.MongoDb;
-
-public class AdditionalDbContext:MongoDbContextBase
+public class AdditionalDbContext : MongoDbContextBase
 {
     public AdditionalDbContext(string connectionStr) : base(connectionStr)
     {
     }
 
-    public MongoDbSet<BinderByteCheckAwbEntity> BinderByteCheckAwb { get; set; }
-    public MongoDbSet<TonjooAwbEntity> TonjooAwb { get; set; }
+    // public MongoDbSet<BinderByteCheckAwbEntity> BinderByteCheckAwb { get; set; }
+    // public MongoDbSet<TonjooAwbEntity> TonjooAwb { get; set; }
 }

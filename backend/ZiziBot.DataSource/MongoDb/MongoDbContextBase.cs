@@ -7,12 +7,45 @@ namespace ZiziBot.DataSource.MongoDb;
 
 public class MongoDbContextBase : MongoDbContext
 {
+    public MongoDbSet<AppSettingsEntity> AppSettings { get; set; }
+    public MongoDbSet<BotSettingsEntity> BotSettings { get; set; }
+    public MongoDbSet<BotCommandEntity> BotCommand { get; set; }
+    public MongoDbSet<SudoerEntity> Sudoers { get; set; }
+
+    public MongoDbSet<DashboardSessionEntity> DashboardSessions { get; set; }
+    public MongoDbSet<ApiKeyEntity> ApiKey { get; set; }
+    public MongoDbSet<BotUserEntity> BotUser { get; set; }
+
     public MongoDbSet<ChannelMapEntity> ChannelMap { get; set; }
     public MongoDbSet<ChannelPostEntity> ChannelPost { get; set; }
     public MongoDbSet<ChatRestrictionEntity> ChatRestriction { get; set; }
     public MongoDbSet<GlobalBanEntity> GlobalBan { get; set; }
 
+    public MongoDbSet<ChatAdminEntity> GroupAdmin { get; set; }
+    public MongoDbSet<GroupTopicEntity> GroupTopic { get; set; }
+    public MongoDbSet<WelcomeMessageEntity> WelcomeMessage { get; set; }
+    public MongoDbSet<AfkEntity> Afk { get; set; }
+    public MongoDbSet<WarnUserEntity> WarnUser { get; set; }
+
+    [Obsolete("Please use GroupAdmin from MongoDbContextBase")]
+    public MongoDbSet<ChatAdminEntity> ChatAdmin { get; set; }
+
+    public MongoDbSet<ChatGptSessionEntity> ChatGptSession { get; set; }
+    public MongoDbSet<ChatSettingEntity> ChatSetting { get; set; }
+    public MongoDbSet<CityEntity> City { get; set; }
+    public MongoDbSet<NoteEntity> Note { get; set; }
+    public MongoDbSet<RssSettingEntity> RssSetting { get; set; }
+    public MongoDbSet<RssHistoryEntity> RssHistory { get; set; }
+    public MongoDbSet<WebhookChatEntity> WebhookChat { get; set; }
+
+
     public MongoDbSet<WordFilterEntity> WordFilter { get; set; }
+
+    public MongoDbSet<MirrorUserEntity> MirrorUsers { get; set; }
+    public MongoDbSet<MirrorApprovalEntity> MirrorApproval { get; set; }
+
+    public MongoDbSet<BinderByteCheckAwbEntity> BinderByteCheckAwb { get; set; }
+    public MongoDbSet<TonjooAwbEntity> TonjooAwb { get; set; }
 
     public MongoDbContextBase(string connectionStr) : base(MongoDbConnection.FromConnectionString(connectionStr))
     {
