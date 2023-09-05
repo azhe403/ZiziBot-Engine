@@ -1,5 +1,3 @@
-using MongoFramework;
-
 namespace ZiziBot.DataSource.MongoDb;
 
 public class AntiSpamDbContext : MongoDbContextBase
@@ -8,5 +6,5 @@ public class AntiSpamDbContext : MongoDbContextBase
     {
     }
 
-    public MongoDbSet<GlobalBanEntity> GlobalBan { get; set; }
+    // public MongoDbSet<GlobalBanEntity> GlobalBan { get; set; }
 }

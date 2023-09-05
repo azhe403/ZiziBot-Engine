@@ -17,7 +17,7 @@ public class MirrorUserTest
     }
 
     [Theory]
-    [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
+    [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")] // trakteer
     public async Task SubmitTrakteerPaymentTest(string url)
     {
         // Arrange
@@ -45,7 +45,7 @@ public class MirrorUserTest
     }
 
     [Theory]
-    [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd", 12345)]
+    [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd", 12345)] // trakteer
     public async Task SubmitTrakteerPaymentForUserIdTest(string url, long userId)
     {
         // Arrange
@@ -74,7 +74,7 @@ public class MirrorUserTest
     }
 
     [Theory]
-    [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
+    [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")] // trakteer
     public async Task SubmitTrakteerPaymentConfirmationExpiredTest(string url)
     {
         // Arrange
@@ -94,8 +94,25 @@ public class MirrorUserTest
     }
 
     [Theory]
-    [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
+    [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")] // trakteer
     public async Task SubmitTrakteerPaymentAlreadyPaidTest(string url)
+    {
+        // Arrange
+        var bot = await _appSettingRepository.GetBotMain();
+
+        Assert.NotNull(bot);
+
+        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
+        {
+            BotToken = bot.Token,
+            Message = SampleMessages.CommonMessage,
+            Payload = url
+        });
+    }
+
+    [Theory]
+    [InlineData("dummy-order-id")]
+    public async Task SubmitTrakteerPaymentInvalidOrderIdTest(string url)
     {
         // Arrange
         var bot = await _appSettingRepository.GetBotMain();

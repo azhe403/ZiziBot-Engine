@@ -72,4 +72,22 @@ public class NoteService
 
         return result;
     }
+
+    public async Task<BotResponseBase> Delete(long chatId, string note, Func<string, Task<BotResponseBase>> func)
+    {
+        var findNote = await _chatDbContext.Note
+            .Where(x => x.ChatId == chatId)
+            .Where(x => x.Query == note)
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
+
+        if (findNote == null)
+            return await func.Invoke("Note tidak ditemukan, mungkin sudah dihapus.");
+
+        findNote.Status = (int)EventStatus.Deleted;
+
+        await _chatDbContext.SaveChangesAsync();
+
+        return await func.Invoke("Note berhasil dihapus");
+    }
 }

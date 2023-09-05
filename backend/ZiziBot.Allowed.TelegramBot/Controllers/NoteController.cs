@@ -58,4 +58,22 @@ public class NotesController : CommandController
             }
         });
     }
+
+    [Command("dnote")]
+    public async Task DeleteNote(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new DeleteNoteRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            Note = data.Params,
+            ReplyMessage = true,
+            DeleteAfter = TimeSpan.FromMinutes(1),
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
 }

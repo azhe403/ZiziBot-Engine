@@ -1,5 +1,4 @@
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Tests.SampleData;
 
@@ -7,8 +6,19 @@ public static class SampleMessages
 {
     public static Message CommonMessage => new Message
     {
-        MessageId = 282464,
+        MessageId = 316001,
         MessageThreadId = 297986,
+        ForumTopicCreated = new ForumTopicCreated()
+        {
+            Name = "Playground 1"
+        },
+        ForumTopicEdited = new ForumTopicEdited()
+        {
+            Name = "Playground II"
+        },
+        Date = DateTime.UtcNow,
+        EditDate = DateTime.UtcNow,
+        ForwardDate = DateTime.UtcNow,
         Chat = new Chat
         {
             Id = -1001404591750,

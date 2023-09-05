@@ -57,6 +57,11 @@ public static class StringUtil
         return !string.IsNullOrEmpty(str);
     }
 
+    public static bool IsValidGuid(this string guid)
+    {
+        return Guid.TryParse(guid, out _);
+    }
+
     public static TValue ToEnum<TValue>(this string value, TValue defaultValue) where TValue : struct
     {
         if (string.IsNullOrEmpty(value)) return defaultValue;
