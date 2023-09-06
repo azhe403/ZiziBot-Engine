@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace ZiziBot.Utils;
@@ -49,7 +50,7 @@ public static class LinqUtil
         return keywords.Any(keyword => message.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    public static bool IsEmpty<TSource>(this IEnumerable<TSource>? source)
+    public static bool IsEmpty<TSource>([NotNullWhen(false)] this IEnumerable<TSource>? source)
     {
         if (source == null || !source.Any())
         {
@@ -57,5 +58,10 @@ public static class LinqUtil
         }
 
         return false;
+    }
+
+    public static bool NotEmpty<TSource>([NotNullWhen(true)] this IEnumerable<TSource>? source)
+    {
+        return !source.IsEmpty();
     }
 }

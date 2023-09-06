@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -47,7 +48,7 @@ public static class StringUtil
         return await Nanoid.GenerateAsync(size: size);
     }
 
-    public static bool IsNullOrEmpty(this string? str)
+    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
     {
         return string.IsNullOrEmpty(str);
     }
