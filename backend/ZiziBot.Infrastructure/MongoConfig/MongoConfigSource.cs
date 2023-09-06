@@ -4,11 +4,11 @@ namespace ZiziBot.Infrastructure.MongoConfig;
 
 public class MongoConfigSource : IConfigurationSource
 {
-    private readonly AppSettingsDbContext _dbContext;
+    private readonly MongoDbContextBase _dbContext;
 
     public MongoConfigSource(string connectionString)
     {
-        _dbContext = new AppSettingsDbContext(connectionString);
+        _dbContext = new MongoDbContextBase(connectionString);
     }
 
     public IConfigurationProvider Build(IConfigurationBuilder builder)

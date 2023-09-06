@@ -18,18 +18,18 @@ public class DeleteNoteRequestBody
 
 public class DeleteNoteHandler : IRequestHandler<DeleteNoteRequest, ApiResponseBase<bool>>
 {
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public DeleteNoteHandler(ChatDbContext chatDbContext)
+    public DeleteNoteHandler(MongoDbContextBase mongoDbContext)
     {
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<bool>> Handle(DeleteNoteRequest request, CancellationToken cancellationToken)
     {
         ApiResponseBase<bool> response = new();
 
-        var note = await _chatDbContext.Note
+        var note = await _mongoDbContext.Note
             .Where(entity => entity.ChatId == request.Body.ChatId)
             .Where(entity => entity.Id == new ObjectId(request.Body.Id))
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -42,7 +42,7 @@ public class DeleteNoteHandler : IRequestHandler<DeleteNoteRequest, ApiResponseB
 
         note.Status = (int)EventStatus.Deleted;
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Note deleted successfully.");
     }

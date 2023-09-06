@@ -10,13 +10,13 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
 {
     private readonly ILogger<UpsertBotUserHandler<TRequest, TResponse>> _logger;
     private readonly TelegramService _telegramService;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public UpsertBotUserHandler(ILogger<UpsertBotUserHandler<TRequest, TResponse>> logger, TelegramService telegramService, UserDbContext userDbContext)
+    public UpsertBotUserHandler(ILogger<UpsertBotUserHandler<TRequest, TResponse>> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
 
         _telegramService.SetupResponse(request);
 
-        var botUser = await _userDbContext.BotUser
+        var botUser = await _mongoDbContext.BotUser
             .Where(entity => entity.UserId == request.UserId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -40,7 +40,7 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
         {
             _logger.LogDebug("Adding User with UserId: {UserId}", request.UserId);
 
-            _userDbContext.BotUser.Add(new BotUserEntity()
+            _mongoDbContext.BotUser.Add(new BotUserEntity()
             {
                 UserId = request.UserId,
                 Username = request.User?.Username,
@@ -76,7 +76,7 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
             botUser.Status = (int)EventStatus.Complete;
         }
 
-        await _userDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("User information for UserId: {UserId} has been updated", request.UserId);
     }
 }

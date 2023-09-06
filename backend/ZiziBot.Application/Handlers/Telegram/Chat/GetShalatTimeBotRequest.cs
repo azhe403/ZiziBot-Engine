@@ -14,14 +14,14 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
 {
     private readonly ILogger<GetShalatTimeHandler> _logger;
     private readonly TelegramService _telegramService;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly FathimahApiService _fathimahApiService;
 
-    public GetShalatTimeHandler(ILogger<GetShalatTimeHandler> logger, TelegramService telegramService, ChatDbContext chatDbContext, FathimahApiService fathimahApiService)
+    public GetShalatTimeHandler(ILogger<GetShalatTimeHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext, FathimahApiService fathimahApiService)
     {
         _logger = logger;
         _telegramService = telegramService;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
         _fathimahApiService = fathimahApiService;
 
     }
@@ -31,7 +31,7 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
         _logger.LogInformation("Get Shalat Time list for ChatId: {ChatId}", request.ChatId);
         _telegramService.SetupResponse(request);
 
-        var cityList = await _chatDbContext.City
+        var cityList = await _mongoDbContext.City
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.CityName)

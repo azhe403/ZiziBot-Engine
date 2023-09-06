@@ -26,18 +26,18 @@ public class PostGlobalBanApiValidator : AbstractValidator<PostGlobalBanApiReque
 
 public class PostGlobalBanApiHandler : IRequestHandler<PostGlobalBanApiRequest, ApiResponseBase<bool>>
 {
-    private readonly AntiSpamDbContext _antiSpamDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public PostGlobalBanApiHandler(AntiSpamDbContext antiSpamDbContext)
+    public PostGlobalBanApiHandler(MongoDbContextBase mongoDbContext)
     {
-        _antiSpamDbContext = antiSpamDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<bool>> Handle(PostGlobalBanApiRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<bool>();
 
-        var globalBan = await _antiSpamDbContext.GlobalBan.FirstOrDefaultAsync(entity =>
+        var globalBan = await _mongoDbContext.GlobalBan.FirstOrDefaultAsync(entity =>
                 entity.UserId == request.Model.UserId &&
                 entity.Status == (int)EventStatus.Complete,
             cancellationToken: cancellationToken);
@@ -48,7 +48,7 @@ public class PostGlobalBanApiHandler : IRequestHandler<PostGlobalBanApiRequest, 
         }
         else
         {
-            _antiSpamDbContext.GlobalBan.Add(new GlobalBanEntity()
+            _mongoDbContext.GlobalBan.Add(new GlobalBanEntity()
             {
                 UserId = request.Model.UserId,
                 Reason = request.Model.Reason,
@@ -56,7 +56,7 @@ public class PostGlobalBanApiHandler : IRequestHandler<PostGlobalBanApiRequest, 
             });
         }
 
-        await _antiSpamDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Global ban saved.", true);
     }

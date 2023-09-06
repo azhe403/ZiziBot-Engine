@@ -26,12 +26,12 @@ public class CreateNoteValidator : AbstractValidator<CreateNoteBotRequest>
 public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public CreateNoteHandler(TelegramService telegramService, ChatDbContext chatDbContext)
+    public CreateNoteHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _telegramService = telegramService;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(CreateNoteBotRequest request, CancellationToken cancellationToken)
@@ -53,7 +53,7 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
             await _telegramService.SendMessageText("Balas sebuah pesan yang akan disimpan");
         }
 
-        var note = await _chatDbContext.Note
+        var note = await _mongoDbContext.Note
             .FirstOrDefaultAsync(entity =>
                     entity.ChatId == request.ChatIdentifier &&
                     entity.Query == request.Query &&
@@ -83,7 +83,7 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
         {
             await _telegramService.SendMessageText("Sedang membuat catatan...");
 
-            _chatDbContext.Note.Add(new NoteEntity()
+            _mongoDbContext.Note.Add(new NoteEntity()
             {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
@@ -96,7 +96,7 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
             });
         }
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return await _telegramService.EditMessageText("Catatan berhasil disimpan");
     }

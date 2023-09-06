@@ -5,18 +5,18 @@ namespace ZiziBot.Application.Tasks;
 
 public class RegisterShalatTimeTask : IStartupTask
 {
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
     public bool SkipAwait { get; set; }
 
-    public RegisterShalatTimeTask(ChatDbContext chatDbContext)
+    public RegisterShalatTimeTask(MongoDbContextBase mongoDbContext)
     {
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task ExecuteAsync()
     {
-        var cities = await _chatDbContext.City
+        var cities = await _mongoDbContext.City
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .Select(entity => entity.ChatId)
             .Distinct()

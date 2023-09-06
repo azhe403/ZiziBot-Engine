@@ -14,19 +14,19 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
     private readonly ILogger<SavePaymentRequestHandler> _logger;
     private readonly TelegramService _telegramService;
     private readonly AppSettingRepository _appSettingRepository;
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
     public SavePaymentRequestHandler(
         ILogger<SavePaymentRequestHandler> logger,
         TelegramService telegramService,
         AppSettingRepository appSettingRepository,
-        MirrorDbContext mirrorDbContext
+        MongoDbContextBase mongoDbContext
     )
     {
         _logger = logger;
         _telegramService = telegramService;
         _appSettingRepository = appSettingRepository;
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(SavePaymentBotRequestModel request, CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
                 return await _telegramService.SendMessageText(htmlMessage.ToString());
             }
 
-            var mirrorApproval = await _mirrorDbContext.MirrorApproval
+            var mirrorApproval = await _mongoDbContext.MirrorApproval
                 .Where(entity => entity.TransactionId == transactionId)
                 .Where(entity => entity.Status == (int)EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -68,7 +68,7 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
             }
 
             await _telegramService.SendMessageText("Sedang menambahkan pengguna...");
-            _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
+            _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
             {
                 UserId = request.UserId,
                 RawText = request.ReplyToMessage.Text,
@@ -97,7 +97,7 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
             userId = forwardMessage.Id;
         }
 
-        var mirrorUser = await _mirrorDbContext.MirrorUsers
+        var mirrorUser = await _mongoDbContext.MirrorUsers
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -108,7 +108,7 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
         {
             _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
 
-            _mirrorDbContext.MirrorUsers.Add(new MirrorUserEntity()
+            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity()
             {
                 UserId = userId,
                 ExpireDate = expireDate,
@@ -129,7 +129,7 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
             mirrorUser.TransactionId = transactionId;
         }
 
-        await _mirrorDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Pengguna berhasil disimpan").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()

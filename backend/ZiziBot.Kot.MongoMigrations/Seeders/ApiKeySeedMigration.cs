@@ -7,13 +7,13 @@ namespace ZiziBot.Kot.MongoMigrations.Seeders;
 public class ApiKeySeedMigration : MongoMigration
 {
     private readonly ILogger<ApiKeySeedMigration> _logger;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private static DatabaseVersion DBVersion => new("232.26.3");
 
-    public ApiKeySeedMigration(ILogger<ApiKeySeedMigration> logger, UserDbContext userDbContext) : base(DBVersion)
+    public ApiKeySeedMigration(ILogger<ApiKeySeedMigration> logger, MongoDbContextBase mongoDbContext) : base(DBVersion)
     {
         _logger = logger;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public override async Task DownAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
@@ -23,14 +23,14 @@ public class ApiKeySeedMigration : MongoMigration
 
     public override async Task UpAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
     {
-        _userDbContext.ApiKey.Add(new ApiKeyEntity()
+        _mongoDbContext.ApiKey.Add(new ApiKeyEntity()
         {
             Name = "SAMPLE_API_KEY",
             Category = "INTERNAL",
             ApiKey = Guid.NewGuid().ToString(),
-            Status = (int) EventStatus.InProgress
+            Status = (int)EventStatus.InProgress
         });
 
-        await _userDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -27,7 +27,7 @@ public static class ConfigurationExtension
         var provider = services.BuildServiceProvider();
 
         var config = provider.GetRequiredService<IConfiguration>();
-        var appSettingDbContext = provider.GetRequiredService<AppSettingsDbContext>();
+        var appSettingDbContext = provider.GetRequiredService<MongoDbContextBase>();
 
         services.Configure<CacheConfig>(config.GetSection("Cache"));
         services.Configure<EngineConfig>(config.GetSection("Engine"));

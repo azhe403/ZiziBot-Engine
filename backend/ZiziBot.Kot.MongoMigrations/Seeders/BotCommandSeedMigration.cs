@@ -8,13 +8,13 @@ namespace ZiziBot.Kot.MongoMigrations.Seeders;
 public class BotCommandSeedMigration : MongoMigration
 {
     private readonly ILogger<BotCommandSeedMigration> _logger;
-    private readonly AppSettingsDbContext _appSettingsDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private static DatabaseVersion DBVersion => new("233.30.1");
 
-    public BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, AppSettingsDbContext appSettingsDbContext) : base(DBVersion)
+    public BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, MongoDbContextBase mongoDbContext) : base(DBVersion)
     {
         _logger = logger;
-        _appSettingsDbContext = appSettingsDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public override async Task DownAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
@@ -24,7 +24,7 @@ public class BotCommandSeedMigration : MongoMigration
 
     public override async Task UpAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
     {
-        _appSettingsDbContext.BotCommand.AddRange(new[]
+        _mongoDbContext.BotCommand.AddRange(new[]
         {
             new BotCommandEntity()
             {
@@ -49,6 +49,6 @@ public class BotCommandSeedMigration : MongoMigration
             },
         });
 
-        await _appSettingsDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
     }
 }

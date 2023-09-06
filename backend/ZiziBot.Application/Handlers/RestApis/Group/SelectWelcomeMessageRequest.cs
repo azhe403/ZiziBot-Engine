@@ -17,18 +17,18 @@ public class SelectWelcomeMessageRequestModel
 
 public class SelectWelcomeMessageHandler : IRequestHandler<SelectWelcomeMessageRequest, ApiResponseBase<object>>
 {
-    private readonly GroupDbContext _groupDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public SelectWelcomeMessageHandler(GroupDbContext groupDbContext)
+    public SelectWelcomeMessageHandler(MongoDbContextBase mongoDbContext)
     {
-        _groupDbContext = groupDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<object>> Handle(SelectWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<object>();
 
-        var listWelcomeMessage = await _groupDbContext.WelcomeMessage
+        var listWelcomeMessage = await _mongoDbContext.WelcomeMessage
             .Where(entity => entity.ChatId == request.Model.ChatId)
             .Where(entity => entity.Status != (int)EventStatus.Deleted)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
@@ -52,7 +52,7 @@ public class SelectWelcomeMessageHandler : IRequestHandler<SelectWelcomeMessageR
 
         selectedWelcome.Status = (int)EventStatus.Complete;
 
-        await _groupDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Welcome Message activated successfully.", true);
     }

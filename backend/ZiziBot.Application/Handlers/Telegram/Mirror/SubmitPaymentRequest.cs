@@ -14,20 +14,20 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
 {
     private readonly ILogger<SubmitPaymentRequestHandler> _logger;
     private readonly TelegramService _telegramService;
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
     public SubmitPaymentRequestHandler(
         ILogger<SubmitPaymentRequestHandler> logger,
         TelegramService telegramService,
         AppSettingRepository appSettingRepository,
-        MirrorDbContext mirrorDbContext
+        MongoDbContextBase mongoDbContext
     )
     {
         _logger = logger;
         _telegramService = telegramService;
         _appSettingRepository = appSettingRepository;
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(SubmitPaymentBotRequestModel request, CancellationToken cancellationToken)
@@ -106,7 +106,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             return await _telegramService.EditMessageText("Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
         }
 
-        var mirrorApproval = await _mirrorDbContext.MirrorApproval
+        var mirrorApproval = await _mongoDbContext.MirrorApproval
             .Where(entity => entity.OrderId == orderId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
@@ -120,7 +120,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             return await _telegramService.EditMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
-        _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
+        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
         {
             UserId = request.UserId,
             PaymentUrl = paymentUrl,
@@ -135,7 +135,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             TransactionId = transactionId
         });
 
-        var mirrorUser = await _mirrorDbContext.MirrorUsers
+        var mirrorUser = await _mongoDbContext.MirrorUsers
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -146,7 +146,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         {
             _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
 
-            _mirrorDbContext.MirrorUsers.Add(new MirrorUserEntity()
+            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity()
             {
                 UserId = userId,
                 ExpireDate = expireDate,
@@ -167,7 +167,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             mirrorUser.TransactionId = transactionId;
         }
 
-        await _mirrorDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Langganan berhasil disimpan").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()

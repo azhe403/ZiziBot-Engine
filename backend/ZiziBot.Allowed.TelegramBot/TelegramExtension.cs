@@ -42,7 +42,7 @@ public static class TelegramExtension
     public static async Task<IApplicationBuilder> RunTelegramBot(this IApplicationBuilder app)
     {
         var provider = app.ApplicationServices;
-        var appSettingsDbContext = provider.GetRequiredService<AppSettingsDbContext>();
+        var appSettingsDbContext = provider.GetRequiredService<MongoDbContextBase>();
 
         var listBotOptions = provider.GetRequiredService<IOptions<List<SimpleTelegramBotClientOptions>>>().Value;
 

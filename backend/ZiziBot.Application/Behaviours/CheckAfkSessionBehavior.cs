@@ -8,19 +8,19 @@ public class CheckAfkSessionBehavior<TRequest, TResponse> : IRequestPostProcesso
     where TRequest : BotRequestBase, IRequest<TResponse>
     where TResponse : BotResponseBase
 {
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly ILogger<CheckAfkSessionBehavior<TRequest, TResponse>> _logger;
     private readonly TelegramService _telegramService;
 
     public CheckAfkSessionBehavior(
         ILogger<CheckAfkSessionBehavior<TRequest, TResponse>> logger,
         TelegramService telegramService,
-        ChatDbContext chatDbContext
+        MongoDbContextBase mongoDbContext
     )
     {
         _logger = logger;
         _telegramService = telegramService;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
@@ -53,7 +53,7 @@ public class CheckAfkSessionBehavior<TRequest, TResponse> : IRequestPostProcesso
             userName = request.ReplyToMessage.From.GetFullMention();
         }
 
-        var afkEntity = await _chatDbContext.Afk
+        var afkEntity = await _mongoDbContext.Afk
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == userId &&
                     entity.Status == (int)EventStatus.Complete,
@@ -73,6 +73,6 @@ public class CheckAfkSessionBehavior<TRequest, TResponse> : IRequestPostProcesso
         }
 
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
     }
 }

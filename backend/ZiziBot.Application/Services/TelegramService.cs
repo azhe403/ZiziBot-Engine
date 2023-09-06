@@ -13,7 +13,7 @@ namespace ZiziBot.Application.Services;
 
 public class TelegramService
 {
-    private readonly AppSettingsDbContext _appSettingsDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly CacheService _cacheService;
     private readonly ILogger<TelegramService> _logger;
     private readonly MediatorService _mediatorService;
@@ -23,13 +23,13 @@ public class TelegramService
     private string _timeInit = string.Empty;
 
     public ITelegramBotClient Bot { get; set; }
-    public Message SentMessage { get; set; }
+    public Message? SentMessage { get; set; }
 
-    public TelegramService(ILogger<TelegramService> logger, CacheService cacheService, AppSettingsDbContext appSettingsDbContext, MediatorService mediatorService)
+    public TelegramService(ILogger<TelegramService> logger, CacheService cacheService, MongoDbContextBase mongoDbContext, MediatorService mediatorService)
     {
         _logger = logger;
         _cacheService = cacheService;
-        _appSettingsDbContext = appSettingsDbContext;
+        _mongoDbContext = mongoDbContext;
         _mediatorService = mediatorService;
     }
 
@@ -48,7 +48,7 @@ public class TelegramService
 
     public async Task<bool> IsBotName(string name)
     {
-        var botSettings = await _appSettingsDbContext.BotSettings
+        var botSettings = await _mongoDbContext.BotSettings
             .FirstOrDefaultAsync(x => x.Token == _request.BotToken);
 
         return botSettings.Name == name;
@@ -162,10 +162,10 @@ public class TelegramService
     public async Task<BotResponseBase> SendMediaAsync(
         string fileId,
         CommonMediaType mediaType,
-        string? caption = "",
+        string? caption = null,
         IReplyMarkup? replyMarkup = null,
         long customChatId = -1,
-        string customFileName = ""
+        string? customFileName = null
     )
     {
         var targetChatId = customChatId == -1 ? _request.ChatId : customChatId;
@@ -269,6 +269,50 @@ public class TelegramService
         return Complete();
     }
 
+    public async Task<BotResponseBase> SendMessageAsync(
+        string? text,
+        InlineKeyboardMarkup? replyMarkup = null,
+        string? fileId = null,
+        CommonMediaType mediaType = CommonMediaType.Unknown,
+        long customChatId = -1,
+        int threadId = -1,
+        string? customFileName = null
+    )
+    {
+        if (SentMessage != null)
+        {
+            await EditMessageText(text, replyMarkup);
+        }
+        else
+        {
+            if (fileId.IsNullOrEmpty() ||
+                mediaType == CommonMediaType.Text ||
+                mediaType == CommonMediaType.Unknown)
+            {
+                await SendMessageText(
+                    text: text,
+                    replyMarkup: replyMarkup,
+                    chatId: customChatId,
+                    threadId: threadId
+                );
+            }
+            else
+            {
+                await SendMediaAsync(
+                    fileId: fileId,
+                    mediaType: mediaType,
+                    caption: text,
+                    replyMarkup: replyMarkup,
+                    customChatId: customChatId,
+                    customFileName: customFileName
+                );
+
+            }
+        }
+
+        return Complete();
+    }
+
     public async Task DeleteMessageAsync()
     {
         try
@@ -352,6 +396,12 @@ public class TelegramService
             CanSendVoiceNotes = false,
             CanSendDocuments = false
         }, untilDate: untilDate);
+    }
+
+    public async Task AnswerJoinRequestAsync(ChatJoinRequest joinRequest)
+    {
+        // var result = await Bot.ApproveChatJoinRequest(_request.ChatId, joinRequest.From.Id);
+
     }
     #endregion
 

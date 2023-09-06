@@ -27,21 +27,15 @@ public class UserFeature
 public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDashboardBearerSessionRequestDto, ApiResponseBase<CheckDashboardBearerSessionResponseDto>>
 {
     private readonly ILogger<CheckDashboardSessionRequestHandler> _logger;
-    private readonly UserDbContext _userDbContext;
-    private readonly ChatDbContext _chatDbContext;
-    private readonly AppSettingsDbContext _appSettingsDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
     public CheckDashboardBearerSessionRequestHandler(
         ILogger<CheckDashboardSessionRequestHandler> logger,
-        AppSettingsDbContext appSettingsDbContext,
-        ChatDbContext chatDbContext,
-        UserDbContext userDbContext
+        MongoDbContextBase mongoDbContext
     )
     {
         _logger = logger;
-        _appSettingsDbContext = appSettingsDbContext;
-        _chatDbContext = chatDbContext;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<CheckDashboardBearerSessionResponseDto>> Handle(CheckDashboardBearerSessionRequestDto request, CancellationToken cancellationToken)
@@ -49,8 +43,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
         ApiResponseBase<CheckDashboardBearerSessionResponseDto> response = new();
 
         #region Check Dashboard Session
-
-        var dashboardSession = await _userDbContext.DashboardSessions
+        var dashboardSession = await _mongoDbContext.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == request.BearerToken &&
                 entity.Status == (int)EventStatus.Complete
@@ -63,11 +56,9 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
         }
 
         var userId = dashboardSession.TelegramUserId;
-
         #endregion
 
         #region Get User Role
-
         var result = new CheckDashboardBearerSessionResponseDto()
         {
             IsSessionValid = true,
@@ -78,7 +69,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
             Features = new List<UserFeature>()
         };
 
-        var checkSudo = await _appSettingsDbContext.Sudoers
+        var checkSudo = await _mongoDbContext.Sudoers
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == userId &&
                     entity.Status == (int)EventStatus.Complete,
@@ -89,7 +80,6 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
             result.RoleId = 1;
             result.RoleName = "Sudo";
         }
-
         #endregion
 
         result.Features = GetFeatures(result.RoleId);

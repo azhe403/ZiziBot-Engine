@@ -14,13 +14,13 @@ public class MainDbBackupRequest : IRequest<bool>
 public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
 {
     private readonly ILogger<MainDbBackupHandler> _logger;
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
-    public MainDbBackupHandler(ILogger<MainDbBackupHandler> logger, MirrorDbContext mirrorDbContext, AppSettingRepository appSettingRepository)
+    public MainDbBackupHandler(ILogger<MainDbBackupHandler> logger, MongoDbContextBase mongoDbContext, AppSettingRepository appSettingRepository)
     {
         _logger = logger;
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
         _appSettingRepository = appSettingRepository;
     }
 
@@ -36,26 +36,26 @@ public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
             return false;
         }
 
-        await _mirrorDbContext.ExportAllAsync<AppSettingsEntity>();
-        await _mirrorDbContext.ExportAllAsync<ApiKeyEntity>();
-        await _mirrorDbContext.ExportAllAsync<BotCommandEntity>();
-        await _mirrorDbContext.ExportAllAsync<BotSettingsEntity>();
-        await _mirrorDbContext.ExportAllAsync<CityEntity>();
-        await _mirrorDbContext.ExportAllAsync<ChannelMapEntity>();
-        await _mirrorDbContext.ExportAllAsync<ChannelPostEntity>();
+        await _mongoDbContext.ExportAllAsync<AppSettingsEntity>();
+        await _mongoDbContext.ExportAllAsync<ApiKeyEntity>();
+        await _mongoDbContext.ExportAllAsync<BotCommandEntity>();
+        await _mongoDbContext.ExportAllAsync<BotSettingsEntity>();
+        await _mongoDbContext.ExportAllAsync<CityEntity>();
+        await _mongoDbContext.ExportAllAsync<ChannelMapEntity>();
+        await _mongoDbContext.ExportAllAsync<ChannelPostEntity>();
         // await _mirrorDbContext.ExportAllAsync<BinderByteCheckAwbEntity>();
-        await _mirrorDbContext.ExportAllAsync<ChatSettingEntity>();
-        await _mirrorDbContext.ExportAllAsync<GlobalBanEntity>();
-        await _mirrorDbContext.ExportAllAsync<GroupTopicEntity>();
-        await _mirrorDbContext.ExportAllAsync<MirrorApprovalEntity>();
-        await _mirrorDbContext.ExportAllAsync<MirrorUserEntity>();
-        await _mirrorDbContext.ExportAllAsync<NoteEntity>();
-        await _mirrorDbContext.ExportAllAsync<RssSettingEntity>();
-        await _mirrorDbContext.ExportAllAsync<SudoerEntity>();
+        await _mongoDbContext.ExportAllAsync<ChatSettingEntity>();
+        await _mongoDbContext.ExportAllAsync<GlobalBanEntity>();
+        await _mongoDbContext.ExportAllAsync<GroupTopicEntity>();
+        await _mongoDbContext.ExportAllAsync<MirrorApprovalEntity>();
+        await _mongoDbContext.ExportAllAsync<MirrorUserEntity>();
+        await _mongoDbContext.ExportAllAsync<NoteEntity>();
+        await _mongoDbContext.ExportAllAsync<RssSettingEntity>();
+        await _mongoDbContext.ExportAllAsync<SudoerEntity>();
         // await _mirrorDbContext.ExportAllAsync<TonjooAwbEntity>();
-        await _mirrorDbContext.ExportAllAsync<WebhookChatEntity>();
-        await _mirrorDbContext.ExportAllAsync<WelcomeMessageDto>();
-        await _mirrorDbContext.ExportAllAsync<WordFilterEntity>();
+        await _mongoDbContext.ExportAllAsync<WebhookChatEntity>();
+        await _mongoDbContext.ExportAllAsync<WelcomeMessageDto>();
+        await _mongoDbContext.ExportAllAsync<WordFilterEntity>();
 
         var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
 

@@ -8,13 +8,13 @@ public class ThreadUpdateBotRequest : BotRequestBase
 
 public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateBotRequest, BotResponseBase>
 {
-    private readonly GroupDbContext _groupDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly TelegramService _telegramService;
 
-    public ThreadUpdateHandler(TelegramService telegramService, GroupDbContext groupDbContext)
+    public ThreadUpdateHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _telegramService = telegramService;
-        _groupDbContext = groupDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(ThreadUpdateBotRequest request, CancellationToken cancellationToken)
@@ -24,13 +24,13 @@ public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateBotRequest, BotRe
         var prevTopicName = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
 
-        var findTopic = await _groupDbContext.GroupTopic
+        var findTopic = await _mongoDbContext.GroupTopic
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        if(!request.CurrentTopicName.IsNullOrEmpty())
+        if (!request.CurrentTopicName.IsNullOrEmpty())
             htmlMessage.Text("Topic berubah nama menjadi ").BoldBr($" {request.CurrentTopicName}");
 
         if (findTopic == null)
@@ -45,7 +45,7 @@ public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateBotRequest, BotRe
             if (request.CurrentTopicName != null)
                 entity.ThreadName = request.CurrentTopicName;
 
-            _groupDbContext.GroupTopic.Add(entity);
+            _mongoDbContext.GroupTopic.Add(entity);
         }
         else
         {
@@ -58,7 +58,7 @@ public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateBotRequest, BotRe
             }
         }
 
-        await _groupDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return await _telegramService.SendMessageText(htmlMessage.ToString());
     }

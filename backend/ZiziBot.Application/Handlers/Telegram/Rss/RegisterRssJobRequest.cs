@@ -13,13 +13,13 @@ public class RegisterRssJobRequest : IRequest<bool>
 public class RegisterRssJobHandler : IRequestHandler<RegisterRssJobRequest, bool>
 {
     private readonly ILogger<RegisterRssJobHandler> _logger;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly IRecurringJobManager _recurringJobManager;
 
-    public RegisterRssJobHandler(ILogger<RegisterRssJobHandler> logger, ChatDbContext chatDbContext, IRecurringJobManager recurringJobManager)
+    public RegisterRssJobHandler(ILogger<RegisterRssJobHandler> logger, MongoDbContextBase mongoDbContext, IRecurringJobManager recurringJobManager)
     {
         _logger = logger;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
         _recurringJobManager = recurringJobManager;
     }
 
@@ -27,12 +27,15 @@ public class RegisterRssJobHandler : IRequestHandler<RegisterRssJobRequest, bool
     {
         if (request.ResetStatus)
         {
-            var rssSettingsAll = await _chatDbContext.RssSetting.ToListAsync(cancellationToken: cancellationToken);
-            rssSettingsAll.ForEach(entity => entity.Status = (int)EventStatus.Complete);
-            await _chatDbContext.SaveChangesAsync(cancellationToken);
+            var rssSettingsAll = await _mongoDbContext.RssSetting.ToListAsync(cancellationToken: cancellationToken);
+            rssSettingsAll.ForEach(entity => {
+                entity.LastErrorMessage = string.Empty;
+                entity.Status = (int)EventStatus.Complete;
+            });
+            await _mongoDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        var rssSettings = await _chatDbContext.RssSetting
+        var rssSettings = await _mongoDbContext.RssSetting
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .ToListAsync(cancellationToken: cancellationToken);
@@ -63,7 +66,7 @@ public class RegisterRssJobHandler : IRequestHandler<RegisterRssJobRequest, bool
             rssSettingEntity.CronJobId = jobId;
         }
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return true;
     }

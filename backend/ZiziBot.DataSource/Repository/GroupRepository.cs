@@ -5,18 +5,16 @@ namespace ZiziBot.DataSource.Repository;
 
 public class GroupRepository
 {
-    private readonly ChatDbContext _chatDbContext;
-    private readonly GroupDbContext _groupDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public GroupRepository(ChatDbContext chatDbContext, GroupDbContext groupDbContext)
+    public GroupRepository(MongoDbContextBase mongoDbContext)
     {
-        _chatDbContext = chatDbContext;
-        _groupDbContext = groupDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<WelcomeMessageDto?> GetWelcomeMessageById(string welcomeId)
     {
-        var query = await _groupDbContext.WelcomeMessage
+        var query = await _mongoDbContext.WelcomeMessage
             .AsNoTracking()
             .Where(entity => entity.Id == new ObjectId(welcomeId))
             .FirstOrDefaultAsync();
@@ -24,7 +22,7 @@ public class GroupRepository
         if (query == null)
             return default;
 
-        var listChatSetting = await _chatDbContext.ChatSetting
+        var listChatSetting = await _mongoDbContext.ChatSetting
             .Where(entity => entity.ChatId == query.ChatId)
             .FirstOrDefaultAsync();
 
@@ -50,7 +48,7 @@ public class GroupRepository
 
     public async Task<List<ChatAdminEntity>> GetChatAdminByUserId(long userId)
     {
-        var listChatAdmin = await _chatDbContext.ChatAdmin
+        var listChatAdmin = await _mongoDbContext.ChatAdmin
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .ToListAsync();

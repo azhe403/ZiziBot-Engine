@@ -14,14 +14,15 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
 {
     private readonly ILogger<SendShalatTimeHandler> _logger;
     private readonly AppSettingRepository _appSettingRepository;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly FathimahApiService _fathimahApiService;
 
-    public SendShalatTimeHandler(ILogger<SendShalatTimeHandler> logger, AppSettingRepository appSettingRepository, ChatDbContext chatDbContext, FathimahApiService fathimahApiService)
+    public SendShalatTimeHandler(ILogger<SendShalatTimeHandler> logger, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext,
+        FathimahApiService fathimahApiService)
     {
         _logger = logger;
         _appSettingRepository = appSettingRepository;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
         _fathimahApiService = fathimahApiService;
     }
 
@@ -32,7 +33,7 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
 
         var defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
 
-        var cityList = await _chatDbContext.City
+        var cityList = await _mongoDbContext.City
             .Where(entity => entity.ChatId == request.ChatId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.CityName)

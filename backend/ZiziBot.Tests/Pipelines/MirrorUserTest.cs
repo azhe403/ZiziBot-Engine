@@ -7,13 +7,13 @@ public class MirrorUserTest
 {
     private readonly MediatorService _mediatorService;
     private readonly AppSettingRepository _appSettingRepository;
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public MirrorUserTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, MirrorDbContext mirrorDbContext)
+    public MirrorUserTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext)
     {
         _mediatorService = mediatorService;
         _appSettingRepository = appSettingRepository;
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     [Theory]
@@ -22,7 +22,7 @@ public class MirrorUserTest
     {
         // Arrange
         var bot = await _appSettingRepository.GetBotMain();
-        var payment = await _mirrorDbContext.MirrorApproval
+        var payment = await _mongoDbContext.MirrorApproval
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(entity => entity.PaymentUrl == url);
 
@@ -30,7 +30,7 @@ public class MirrorUserTest
         {
             payment.Status = (int)EventStatus.Deleted;
 
-            await _mirrorDbContext.SaveChangesAsync();
+            await _mongoDbContext.SaveChangesAsync();
         }
 
         // Assert
@@ -50,7 +50,7 @@ public class MirrorUserTest
     {
         // Arrange
         var bot = await _appSettingRepository.GetBotMain();
-        var payment = await _mirrorDbContext.MirrorApproval
+        var payment = await _mongoDbContext.MirrorApproval
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(entity => entity.PaymentUrl == url);
 
@@ -58,7 +58,7 @@ public class MirrorUserTest
         {
             payment.Status = (int)EventStatus.Deleted;
 
-            await _mirrorDbContext.SaveChangesAsync();
+            await _mongoDbContext.SaveChangesAsync();
         }
 
         // Assert

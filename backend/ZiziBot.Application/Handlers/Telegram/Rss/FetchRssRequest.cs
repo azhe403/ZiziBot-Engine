@@ -15,15 +15,13 @@ public class FetchRssRequest : IRequest<bool>
 public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 {
     private readonly ILogger<FetchRssHandler> _logger;
-    private readonly AppSettingsDbContext _appSettingsDbContext;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly IRecurringJobManager _recurringJobManager;
 
-    public FetchRssHandler(ILogger<FetchRssHandler> logger, AppSettingsDbContext appSettingsDbContext, ChatDbContext chatDbContext, IRecurringJobManager recurringJobManager)
+    public FetchRssHandler(ILogger<FetchRssHandler> logger, MongoDbContextBase mongoDbContext, IRecurringJobManager recurringJobManager)
     {
         _logger = logger;
-        _appSettingsDbContext = appSettingsDbContext;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
         _recurringJobManager = recurringJobManager;
     }
 
@@ -43,7 +41,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 return false;
             }
 
-            var latestHistory = await _chatDbContext.RssHistory
+            var latestHistory = await _mongoDbContext.RssHistory
                 .FirstOrDefaultAsync(history =>
                         history.ChatId == request.ChatId &&
                         history.RssUrl == request.RssUrl &&
@@ -56,7 +54,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 return false;
             }
 
-            var botSettings = await _appSettingsDbContext.BotSettings
+            var botSettings = await _mongoDbContext.BotSettings
                 .FirstOrDefaultAsync(settings =>
                         settings.Name == "Main" &&
                         settings.Status == (int)EventStatus.Complete,
@@ -70,7 +68,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 parseMode: ParseMode.Html,
                 cancellationToken: cancellationToken);
 
-            _chatDbContext.RssHistory.Add(new RssHistoryEntity()
+            _mongoDbContext.RssHistory.Add(new RssHistoryEntity()
             {
                 ChatId = request.ChatId,
                 RssUrl = request.RssUrl,
@@ -89,7 +87,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
             {
                 _logger.LogWarning("Disabling and remove in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
 
-                var rssSetting = await _chatDbContext.RssSetting
+                var rssSetting = await _mongoDbContext.RssSetting
                     .FirstOrDefaultAsync(entity =>
                             entity.ChatId == request.ChatId &&
                             entity.RssUrl == request.RssUrl,
@@ -106,7 +104,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
             }
         }
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return true;
     }

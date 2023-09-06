@@ -11,13 +11,13 @@ public class AddCityBotRequest : BotRequestBase
 internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly FathimahApiService _fathimahApiService;
 
-    public AddCityHandler(TelegramService telegramService, ChatDbContext chatDbContext, FathimahApiService fathimahApiService)
+    public AddCityHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext, FathimahApiService fathimahApiService)
     {
         _telegramService = telegramService;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
         _fathimahApiService = fathimahApiService;
     }
 
@@ -37,7 +37,7 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
             return await _telegramService.SendMessageText("Kota tidak ditemukan");
         }
 
-        var city = await _chatDbContext.City
+        var city = await _mongoDbContext.City
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.CityId == cityInfo.Id)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -55,7 +55,7 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
         }
         else
         {
-            _chatDbContext.City.Add(new CityEntity()
+            _mongoDbContext.City.Add(new CityEntity()
             {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
@@ -64,7 +64,7 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
                 Status = (int)EventStatus.Complete
             });
 
-            await _chatDbContext.SaveChangesAsync(cancellationToken);
+            await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
             htmlMessage.Text("Kota berhasil disimpan")
                 .Br()

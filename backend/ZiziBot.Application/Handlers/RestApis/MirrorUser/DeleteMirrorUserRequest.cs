@@ -10,21 +10,21 @@ public class DeleteMirrorUserRequestDto : ApiRequestBase<bool>
 
 public class DeleteMirrorUserRequestHandler : IRequestHandler<DeleteMirrorUserRequestDto, ApiResponseBase<bool>>
 {
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public DeleteMirrorUserRequestHandler(MirrorDbContext mirrorDbContext)
+    public DeleteMirrorUserRequestHandler(MongoDbContextBase mongoDbContext)
     {
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<bool>> Handle(DeleteMirrorUserRequestDto request, CancellationToken cancellationToken)
     {
-        var mirrorUser = await _mirrorDbContext.MirrorUsers
+        var mirrorUser = await _mongoDbContext.MirrorUsers
             .FirstOrDefaultAsync(user => user.UserId == request.UserId, cancellationToken: cancellationToken);
 
         mirrorUser.Status = (int)EventStatus.Deleted;
 
-        await _mirrorDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return new ApiResponseBase<bool>
         {

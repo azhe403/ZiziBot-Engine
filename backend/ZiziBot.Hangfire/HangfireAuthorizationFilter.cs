@@ -6,18 +6,15 @@ namespace ZiziBot.Hangfire;
 public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
 {
     private readonly ILogger<HangfireAuthorizationFilter> _logger;
-    private readonly AppSettingsDbContext _appSettingsDbContext;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
     public HangfireAuthorizationFilter(
         ILogger<HangfireAuthorizationFilter> logger,
-        AppSettingsDbContext appSettingsDbContext,
-        UserDbContext userDbContext
+        MongoDbContextBase mongoDbContext
     )
     {
         _logger = logger;
-        _appSettingsDbContext = appSettingsDbContext;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<bool> AuthorizeAsync(DashboardContext context)
@@ -43,7 +40,7 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
 
     private async Task<bool> CheckSession(string sessionId)
     {
-        var dashboardSessions = await _userDbContext.DashboardSessions
+        var dashboardSessions = await _mongoDbContext.DashboardSessions
             .FirstOrDefaultAsync(session =>
                 session.BearerToken == sessionId &&
                 session.Status == (int)EventStatus.Complete
@@ -52,7 +49,7 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
         if (dashboardSessions == null)
             return false;
 
-        var sudoer = _appSettingsDbContext.Sudoers
+        var sudoer = _mongoDbContext.Sudoers
             .FirstOrDefault(sudo =>
                 sudo.UserId == dashboardSessions.TelegramUserId &&
                 sudo.Status == (int)EventStatus.Complete
