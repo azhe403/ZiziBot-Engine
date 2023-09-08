@@ -43,6 +43,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public string ChatTitle => Message?.Chat.Title ?? Message?.From?.FirstName ?? Message?.From?.Username ?? Message?.From?.LastName ?? "Unknown";
 
     public User? User => ChatJoinRequest?.From ?? Message?.From ?? CallbackQuery?.From ?? InlineQuery?.From ?? default;
+    public User? ReplyToUser => ReplyToMessage?.From;
 
     public long UserId => Message?.From?.Id ?? CallbackQuery?.From?.Id ?? InlineQuery?.From?.Id ?? 0;
     public string UserFullName => $"{Message?.From?.FirstName} {Message?.From?.LastName}".Trim();

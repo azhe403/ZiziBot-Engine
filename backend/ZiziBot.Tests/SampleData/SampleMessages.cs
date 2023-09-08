@@ -1,4 +1,5 @@
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Tests.SampleData;
 
@@ -67,6 +68,63 @@ public static class SampleMessages
                 FirstName = "I'm",
                 LastName = "Groot"
             }
+        }
+    };
+
+    public static Update UpdateChannelPost => new()
+    {
+        Id = 0,
+        Message = null,
+        EditedMessage = null,
+        ChannelPost = ChannelPost,
+        EditedChannelPost = null,
+    };
+
+    public static Update UpdateChannelPostDocument => new()
+    {
+        Id = 0,
+        Message = null,
+        EditedMessage = null,
+        ChannelPost = ChannelPostDocument,
+        EditedChannelPost = null,
+    };
+
+    public static Update UpdateEditedChannelPost => new()
+    {
+        Id = 0,
+        Message = null,
+        EditedMessage = null,
+        ChannelPost = null,
+        EditedChannelPost = ChannelPost
+    };
+
+    public static Message ChannelPost = new()
+    {
+        MessageId = 45,
+        Date = DateTime.UtcNow,
+        Chat = new()
+        {
+            Id = -1001556283448,
+            Type = (ChatType)0,
+            Title = "Telegram Bot API 2",
+        },
+        Text = "this is message text"
+    };
+
+    public static Message ChannelPostDocument = new()
+    {
+        MessageId = 45,
+        Date = DateTime.UtcNow,
+        Chat = new()
+        {
+            Id = -1001556283448,
+            Type = (ChatType)0,
+            Title = "Telegram Bot API 2",
+        },
+        Caption = "this is message caption",
+        Document = new()
+        {
+            FileId = "BQACAgUAAx0CU7hehgABBNdfZPrwISnUYnEMrm5Tzpo40aZBdXMAAl0LAAIXHEhVVErnd8J1j8YwBA"
         }
     };
 }

@@ -46,12 +46,33 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
             if (request.ChannelPost != null)
             {
                 _logger.LogDebug("Sending channel post from {ChannelId} to {ChatId}:{ThreadId} ..", entity.ChannelId, entity.ChatId, entity.ThreadId);
-                var sent = await _telegramService.Bot.SendTextMessageAsync(
-                    chatId: entity.ChatId,
-                    text: channel.Text,
-                    messageThreadId: entity.ThreadId.Convert<int>(),
-                    parseMode: ParseMode.Html,
-                    cancellationToken: cancellationToken);
+
+                var send = channel!.Type switch
+                {
+                    MessageType.Text => await _telegramService.SendMessageText(
+                        text: channel.Text,
+                        threadId: entity.ThreadId.Convert<int>(),
+                        chatId: entity.ChatId),
+                    MessageType.Document => await _telegramService.SendMediaAsync(
+                        fileId: channel.GetFileId(),
+                        caption: channel.Caption,
+                        mediaType: CommonMediaType.Document,
+                        threadId: entity.ThreadId.Convert<int>(),
+                        customChatId: entity.ChatId),
+                    MessageType.Photo => await _telegramService.SendMediaAsync(
+                        fileId: channel.GetFileId(),
+                        caption: channel.Caption,
+                        mediaType: CommonMediaType.Photo,
+                        threadId: entity.ThreadId.Convert<int>(),
+                        customChatId: entity.ChatId),
+                    MessageType.Video => await _telegramService.SendMediaAsync(
+                        fileId: channel.GetFileId(),
+                        caption: channel.Caption,
+                        mediaType: CommonMediaType.Video,
+                        threadId: entity.ThreadId.Convert<int>(),
+                        customChatId: entity.ChatId),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
 
                 _mongoDbContext.ChannelPost.Add(new ChannelPostEntity()
                 {
@@ -59,7 +80,7 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
                     SourceMessageId = channel.MessageId,
                     DestinationChatId = entity.ChatId,
                     DestinationThreadId = entity.ThreadId,
-                    DestinationMessageId = sent.MessageId,
+                    DestinationMessageId = send.SentMessage.MessageId,
                     Status = (int)EventStatus.Complete
                 });
             }
@@ -71,6 +92,7 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
                     chatId: entity.ChatId,
                     messageId: channelPost.DestinationMessageId.Convert<int>(),
                     text: channel.Text,
+                    entities: channel.Entities,
                     parseMode: ParseMode.Html,
                     cancellationToken: cancellationToken);
             }

@@ -165,10 +165,12 @@ public class TelegramService
         string? caption = null,
         IReplyMarkup? replyMarkup = null,
         long customChatId = -1,
-        string? customFileName = null
+        string? customFileName = null,
+        int? threadId = null
     )
     {
         var targetChatId = customChatId == -1 ? _request.ChatId : customChatId;
+        var targetThreadId = threadId ?? _request.MessageThreadId;
 
         _logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId, targetChatId);
         InputFile inputFile = InputFile.FromFileId(fileId);
@@ -191,7 +193,8 @@ public class TelegramService
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId
+                    replyToMessageId: _request.ReplyToMessageId,
+                    messageThreadId: targetThreadId
                 );
                 break;
 
@@ -208,7 +211,8 @@ public class TelegramService
                         caption: caption,
                         parseMode: ParseMode.Html,
                         replyMarkup: replyMarkup,
-                        replyToMessageId: _request.ReplyToMessageId
+                        replyToMessageId: _request.ReplyToMessageId,
+                        messageThreadId: targetThreadId
                     );
                 }
 
@@ -221,7 +225,8 @@ public class TelegramService
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId
+                    replyToMessageId: _request.ReplyToMessageId,
+                    messageThreadId: targetThreadId
                 );
                 break;
 
@@ -232,7 +237,8 @@ public class TelegramService
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId
+                    replyToMessageId: _request.ReplyToMessageId,
+                    messageThreadId: targetThreadId
                 );
                 break;
 
@@ -243,7 +249,8 @@ public class TelegramService
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId
+                    replyToMessageId: _request.ReplyToMessageId,
+                    messageThreadId: targetThreadId
                 );
                 break;
 
@@ -252,7 +259,8 @@ public class TelegramService
                     chatId: targetChatId,
                     sticker: inputFile,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId
+                    replyToMessageId: _request.ReplyToMessageId,
+                    messageThreadId: targetThreadId
                 );
 
                 break;
