@@ -56,6 +56,8 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
 
             var trackingMessage = HtmlMessage.Empty;
 
+            trackingMessage.Bold("Pengguna: ").User(request.User).Br();
+
             if (botUser.FirstName != request.User?.FirstName)
                 trackingMessage.TextBr("Mengubah nama depannya");
 
