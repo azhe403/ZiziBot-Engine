@@ -30,6 +30,7 @@ public class ScanMessageProcessor<TRequest> : IRequestPreProcessor<TRequest> whe
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
         if (request.IsChannel ||
+            request.Source == ResponseSource.Hangfire ||
             request.IsPrivateChat)
             return;
 
