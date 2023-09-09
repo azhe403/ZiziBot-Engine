@@ -16,6 +16,7 @@ public static class MediatRExtension
             configuration => configuration
                 .RegisterServicesFromAssemblyContaining<PingRequestHandler>()
                 .AddOpenBehavior(typeof(BotMiddlewarePipelineBehaviour<,>))
+                .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
                 .AddOpenRequestPreProcessor(typeof(CheckRoleHandler<>))
                 .AddOpenRequestPreProcessor(typeof(ChatRestrictionProcessorBotRequest<>))
                 .AddOpenRequestPreProcessor(typeof(ScanMessageProcessor<>))
