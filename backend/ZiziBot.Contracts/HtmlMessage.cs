@@ -112,4 +112,5 @@ public class HtmlMessage
     }
 
     public override string ToString() => _stringBuilder.ToString().Trim();
+    public bool IsEmpty => _stringBuilder.ToString().IsNullOrEmpty();
 }

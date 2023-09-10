@@ -56,8 +56,6 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
 
             var trackingMessage = HtmlMessage.Empty;
 
-            trackingMessage.Bold("Pengguna: ").User(request.User).Br();
-
             if (botUser.FirstName != request.User?.FirstName)
                 trackingMessage.TextBr("Mengubah nama depannya");
 
@@ -67,8 +65,14 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
             if (botUser.Username != request.User?.Username)
                 trackingMessage.TextBr("Mengubah username-nya");
 
-            await _telegramService.SendMessageText(trackingMessage.ToString());
+            if (!trackingMessage.IsEmpty)
+            {
+                var message = HtmlMessage.Empty
+                    .Bold("Pengguna: ").User(request.User).Br()
+                    .Append(trackingMessage);
 
+                await _telegramService.SendMessageText(message.ToString());
+            }
 
             botUser.UserId = request.UserId;
             botUser.Username = request.User?.Username;
