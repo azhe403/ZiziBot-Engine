@@ -41,11 +41,11 @@ The **ZiziBot** project is made possible by these awesome open source projects:
 
 ..and other awesome projects.
 
-# Thanks
+# Shoutouts
 
 Thanks to JetBrains have given us for
 <a href="https://www.jetbrains.com/dotnet" target="_blank">dotUltimate</a> licenses.
 
 <a href="https://www.jetbrains.com/?from=zizibot" target="_blank">
-    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/Rider.svg" alt="Rider logo.">
+    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="Rider logo.">
 </a>
