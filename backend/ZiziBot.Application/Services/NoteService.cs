@@ -16,19 +16,34 @@ public class NoteService
         _cacheService = cacheService;
     }
 
-    public async Task<List<NoteEntity>> GetAllByChat(long chatId, bool evictBefore = false)
+    public async Task<List<NoteDto>> GetAllByChat(long chatId, bool evictBefore = false)
     {
         var cache = await _cacheService.GetOrSetAsync(
             cacheKey: $"notes/{chatId}",
             evictBefore: evictBefore,
             action: async () => {
-                var tags = await _mongoDbContext.Note
+                var noteEntities = await _mongoDbContext.Note
                     .Where(entity => entity.ChatId == chatId)
                     .Where(entity => entity.Status == (int)EventStatus.Complete)
                     .OrderBy(entity => entity.Query)
                     .ToListAsync();
 
-                return tags;
+                var noteDto = noteEntities.Select(entity => new NoteDto
+                {
+                    Id = entity.Id.ToString() ?? string.Empty,
+                    ChatId = entity.ChatId,
+                    Query = entity.Query,
+                    Text = entity.Content,
+                    RawButton = entity.RawButton,
+                    FileId = entity.FileId,
+                    DataType = entity.DataType,
+                    Status = entity.Status,
+                    TransactionId = entity.TransactionId,
+                    CreatedDate = entity.CreatedDate,
+                    UpdatedDate = entity.UpdatedDate
+                }).ToList();
+
+                return noteDto;
             });
 
         return cache;

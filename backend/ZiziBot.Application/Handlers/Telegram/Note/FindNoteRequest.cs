@@ -65,7 +65,7 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
         }
 
 
-        async Task SendNoteAsync(NoteEntity? notes)
+        async Task SendNoteAsync(NoteDto? notes)
         {
             if (notes == null)
             {
@@ -80,11 +80,11 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
             var replyMarkup = notes.RawButton.ToButtonMarkup();
 
             if (dataType <= CommonMediaType.Text)
-                await _telegramService.SendMessageText(notes.Content, replyMarkup);
+                await _telegramService.SendMessageText(notes.Text, replyMarkup);
             else
                 await _telegramService.SendMediaAsync(
                     notes.FileId,
-                    caption: notes.Content,
+                    caption: notes.Text,
                     mediaType: (CommonMediaType)notes.DataType,
                     replyMarkup: replyMarkup
                 );
