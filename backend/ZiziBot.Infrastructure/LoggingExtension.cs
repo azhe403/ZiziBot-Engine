@@ -19,8 +19,7 @@ public static class LoggingExtension
 
     public static IHostBuilder ConfigureSerilog(this IHostBuilder hostBuilder, bool fullMode = false)
     {
-        hostBuilder.UseSerilog((context, provider, config) =>
-        {
+        hostBuilder.UseSerilog((context, provider, config) => {
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Debug()
@@ -30,11 +29,22 @@ public static class LoggingExtension
                 .Console(outputTemplate: OUTPUT_TEMPLATE)
                 .WriteTo.SignalRSink<LogHub, IHub>(LogEventLevel.Debug, provider));
 
+
             if (!fullMode)
                 return;
 
             var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
             var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
+
+            var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
+            if (sentryConfig?.IsEnabled ?? false)
+            {
+                config.WriteTo.Async(cfg => {
+                    cfg.Sentry(options => {
+                        options.Dsn = sentryConfig.Dsn;
+                    });
+                });
+            }
 
             config.WriteTo.Async(configuration => configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
         });
@@ -45,16 +55,13 @@ public static class LoggingExtension
     public static IApplicationBuilder ConfigureFlurlLogging(this IApplicationBuilder app)
     {
         FlurlHttp.Configure(
-            settings =>
-            {
-                settings.BeforeCall = flurlCall =>
-                {
+            settings => {
+                settings.BeforeCall = flurlCall => {
                     var request = flurlCall.Request;
                     Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
                 };
 
-                settings.AfterCall = flurlCall =>
-                {
+                settings.AfterCall = flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
                     Log.Information(

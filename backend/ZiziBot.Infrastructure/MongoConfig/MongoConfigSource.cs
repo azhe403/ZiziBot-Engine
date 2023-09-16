@@ -93,6 +93,15 @@ public class MongoConfigSource : IConfigurationSource
             },
             new()
             {
+                Root = "Sentry",
+                KeyPair = new Dictionary<string, object>()
+                {
+                    { "IsEnabled", false },
+                    { "Dsn", "SENTRY_DSN" }
+                }
+            },
+            new()
+            {
                 Root = "Mirror",
                 KeyPair = new Dictionary<string, object>()
                 {
