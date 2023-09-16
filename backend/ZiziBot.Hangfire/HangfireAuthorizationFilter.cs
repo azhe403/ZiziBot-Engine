@@ -28,6 +28,7 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
         {
             var checkSession = await CheckSession(sessionId);
             _logger.LogDebug("SessionId is have access? {CheckSession}", checkSession);
+
             if (checkSession)
                 return true;
         }
@@ -41,23 +42,18 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
     private async Task<bool> CheckSession(string sessionId)
     {
         var dashboardSessions = await _mongoDbContext.DashboardSessions
-            .FirstOrDefaultAsync(session =>
-                session.BearerToken == sessionId &&
-                session.Status == (int)EventStatus.Complete
-            );
+            .Where(entity => entity.BearerToken == sessionId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
 
         if (dashboardSessions == null)
             return false;
 
         var sudoer = _mongoDbContext.Sudoers
-            .FirstOrDefault(sudo =>
-                sudo.UserId == dashboardSessions.TelegramUserId &&
-                sudo.Status == (int)EventStatus.Complete
-            );
+            .Where(entity => entity.UserId == dashboardSessions.TelegramUserId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
 
-        if (sudoer == null)
-            return false;
-
-        return true;
+        return sudoer != null;
     }
 }
