@@ -58,11 +58,11 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
             ("MemberCount", memberCount.ToString())
         });
 
-        if (welcomeMessage?.DataType > (int)CommonMediaType.Text)
-        {
-            return await _telegramService.SendMediaAsync(welcomeMessage.Media, (CommonMediaType)welcomeMessage.DataType, messageText);
-        }
-
-        return await _telegramService.SendMessageText(messageText);
+        return await _telegramService.SendMessageAsync(
+            text: welcomeMessage.Text,
+            replyMarkup: welcomeMessage.RawButton.ToButtonMarkup(),
+            fileId: welcomeMessage.Media,
+            mediaType: (CommonMediaType)welcomeMessage.DataType
+        );
     }
 }

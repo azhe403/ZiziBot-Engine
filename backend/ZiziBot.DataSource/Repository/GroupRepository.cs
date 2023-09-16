@@ -55,4 +55,14 @@ public class GroupRepository
 
         return listChatAdmin;
     }
+
+    public async Task<WelcomeMessageEntity?> GetWelcomeMessage(long chatId)
+    {
+        var welcomeMessage = await _mongoDbContext.WelcomeMessage
+            .Where(e => e.ChatId == chatId)
+            .Where(e => e.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
+
+        return welcomeMessage;
+    }
 }
