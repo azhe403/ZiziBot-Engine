@@ -81,8 +81,6 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", request.ChatId, request.RssUrl);
-
             if (exception.Message.IsIgnorable())
             {
                 _logger.LogWarning("Disabling and remove in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
@@ -101,6 +99,10 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                     var jobId = "RssJob:" + rssSetting.Id;
                     _recurringJobManager.RemoveIfExists(jobId);
                 }
+            }
+            else
+            {
+                _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", request.ChatId, request.RssUrl);
             }
         }
 
