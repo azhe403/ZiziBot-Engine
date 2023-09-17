@@ -37,7 +37,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public string CallbackQueryId => CallbackQuery?.Id ?? string.Empty;
 
     public ChatId ChatId => ChatJoinRequest?.Chat.Id ?? Message?.Chat.Id ?? default;
-    public int MessageThreadId => (int)(CurrentTopicName != null ? Message?.MessageThreadId : 0);
+    public int MessageThreadId => Message?.MessageThreadId ?? default;
     public long ChatIdentifier => ChatId.Identifier ?? default;
     public ChatType ChatType => Message?.Chat.Type ?? default;
     public string ChatTitle => Message?.Chat.Title ?? Message?.From?.FirstName ?? Message?.From?.Username ?? Message?.From?.LastName ?? "Unknown";
@@ -56,7 +56,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public int MessageId => Message?.MessageId ?? default;
     public int ReplyToMessageId { get; set; }
 
-    public bool ReplyMessage { get; set; }
+    public bool ReplyMessage { get; set; } = true;
     public bool IsChannel => Update?.ChannelPost != null || Update?.EditedChannelPost != null;
     public bool IsPrivateChat => Message?.Chat.Type == ChatType.Private;
 

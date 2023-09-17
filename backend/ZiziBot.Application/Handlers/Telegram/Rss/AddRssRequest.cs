@@ -11,11 +11,13 @@ public class AddRssHandler : IRequestHandler<AddRssRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
     private readonly MongoDbContextBase _mongoDbContext;
+    private readonly IMediator _mediator;
 
-    public AddRssHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
+    public AddRssHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext, IMediator mediator)
     {
         _telegramService = telegramService;
         _mongoDbContext = mongoDbContext;
+        _mediator = mediator;
     }
 
     public async Task<BotResponseBase> Handle(AddRssRequest request, CancellationToken cancellationToken)
@@ -49,16 +51,28 @@ public class AddRssHandler : IRequestHandler<AddRssRequest, BotResponseBase>
         if (rssSetting != null)
             return await _telegramService.SendMessageAsync("RSS Sudah disimpan");
 
+        var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
+
         _mongoDbContext.RssSetting.Add(new()
         {
             ChatId = request.ChatIdentifier,
             RssUrl = rssUrl,
             ThreadId = request.MessageThreadId,
             UserId = request.UserId,
+            CronJobId = uniqueId,
             Status = (int)EventStatus.Complete
         });
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
+
+        await _telegramService.SendMessageAsync("Membuat Cron Job");
+
+        await _mediator.Send(new RegisterRssJobUrlRequest
+        {
+            ChatId = request.ChatIdentifier,
+            Url = rssUrl,
+            JobId = uniqueId
+        });
 
         return await _telegramService.SendMessageAsync("RSS Berhasil disimpan");
 

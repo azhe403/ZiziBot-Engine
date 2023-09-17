@@ -18,7 +18,7 @@ public class RegisterRssJobTasks : IStartupTask
     public async Task ExecuteAsync()
     {
         _logger.LogInformation("Registering RSS Jobs");
-        await _mediatorService.Send(new RegisterRssJobRequest()
+        await _mediatorService.Send(new RegisterRssJobAllRequest()
         {
             ResetStatus = true
         });

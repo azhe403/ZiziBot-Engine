@@ -1,29 +1,28 @@
-using Hangfire;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
-public class RegisterRssJobRequest : IRequest<bool>
+public class RegisterRssJobAllRequest : IRequest<bool>
 {
     public bool ResetStatus { get; set; }
     public long ChatId { get; set; }
 }
 
-public class RegisterRssJobHandler : IRequestHandler<RegisterRssJobRequest, bool>
+public class RegisterRssJobAllHandler : IRequestHandler<RegisterRssJobAllRequest, bool>
 {
-    private readonly ILogger<RegisterRssJobHandler> _logger;
+    private readonly ILogger<RegisterRssJobAllHandler> _logger;
     private readonly MongoDbContextBase _mongoDbContext;
-    private readonly IRecurringJobManager _recurringJobManager;
+    private readonly IMediator _mediator;
 
-    public RegisterRssJobHandler(ILogger<RegisterRssJobHandler> logger, MongoDbContextBase mongoDbContext, IRecurringJobManager recurringJobManager)
+    public RegisterRssJobAllHandler(ILogger<RegisterRssJobAllHandler> logger, MongoDbContextBase mongoDbContext, IMediator mediator)
     {
         _logger = logger;
         _mongoDbContext = mongoDbContext;
-        _recurringJobManager = recurringJobManager;
+        _mediator = mediator;
     }
 
-    public async Task<bool> Handle(RegisterRssJobRequest request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(RegisterRssJobAllRequest request, CancellationToken cancellationToken)
     {
         if (request.ResetStatus)
         {
@@ -44,24 +43,20 @@ public class RegisterRssJobHandler : IRequestHandler<RegisterRssJobRequest, bool
 
         foreach (var rssSettingEntity in rssSettings)
         {
-            var uniqueId = await StringUtil.GetNanoIdAsync(7);
+            var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
             var rssId = rssSettingEntity.Id;
             var chatId = rssSettingEntity.ChatId;
             var rssUrl = rssSettingEntity.RssUrl;
-            var jobId = rssSettingEntity.CronJobId.IsNullOrEmpty() ? $"RssJob:{uniqueId}" : rssSettingEntity.CronJobId;
+            var jobId = rssSettingEntity.CronJobId.IsNullOrEmpty() ? uniqueId : rssSettingEntity.CronJobId;
 
             _logger.LogDebug("Registering RSS Job. RssId: {RssId}, ChatId: {ChatId}, RssUrl: {RssUrl}", rssId, chatId, rssUrl);
 
-            _recurringJobManager.RemoveIfExists(jobId);
-            _recurringJobManager.AddOrUpdate<MediatorService>(
-                recurringJobId: jobId,
-                methodCall: mediatorService => mediatorService.Send(new FetchRssRequest()
-                {
-                    ChatId = chatId,
-                    RssUrl = rssUrl
-                }),
-                queue: "rss",
-                cronExpression: TimeUtil.MinuteInterval(3));
+            await _mediator.Send(new RegisterRssJobUrlRequest
+            {
+                ChatId = chatId,
+                Url = rssUrl,
+                JobId = jobId
+            });
 
             rssSettingEntity.CronJobId = jobId;
         }

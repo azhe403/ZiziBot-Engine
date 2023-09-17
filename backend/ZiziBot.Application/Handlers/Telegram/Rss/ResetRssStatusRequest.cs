@@ -16,7 +16,7 @@ public class ResetRssStatusHandler : IRequestHandler<ResetRssStatusRequest, bool
 
     public async Task<bool> Handle(ResetRssStatusRequest request, CancellationToken cancellationToken)
     {
-        await _mediatorService.Send(new RegisterRssJobRequest()
+        await _mediatorService.Send(new RegisterRssJobAllRequest()
         {
             ResetStatus = true
         });

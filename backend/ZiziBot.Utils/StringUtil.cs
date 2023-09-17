@@ -43,9 +43,10 @@ public static class StringUtil
         return Nanoid.Generate(size: size);
     }
 
-    public static async Task<string> GetNanoIdAsync(int size = 11)
+    public static async Task<string> GetNanoIdAsync(string prefix = "", int size = 11)
     {
-        return await Nanoid.GenerateAsync(size: size);
+        var id = await Nanoid.GenerateAsync(size: size);
+        return $"{prefix}:{id}";
     }
 
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
