@@ -4,6 +4,7 @@ namespace ZiziBot.DataSource.MongoDb.Entities;
 public class RssHistoryEntity : EntityBase
 {
     public long ChatId { get; set; }
+    public int ThreadId { get; set; }
     public string RssUrl { get; set; }
     public string Url { get; set; }
     public string Title { get; set; }

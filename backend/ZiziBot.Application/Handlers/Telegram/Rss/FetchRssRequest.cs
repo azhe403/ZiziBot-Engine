@@ -9,6 +9,7 @@ namespace ZiziBot.Application.Handlers.Telegram.Rss;
 public class FetchRssRequest : IRequest<bool>
 {
     public long ChatId { get; set; }
+    public int ThreadId { get; set; }
     public string RssUrl { get; set; }
 }
 
@@ -44,6 +45,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
             var latestHistory = await _mongoDbContext.RssHistory
                 .FirstOrDefaultAsync(history =>
                         history.ChatId == request.ChatId &&
+                        history.ThreadId == request.ThreadId &&
                         history.RssUrl == request.RssUrl &&
                         history.Status == (int)EventStatus.Complete,
                     cancellationToken: cancellationToken);
@@ -60,17 +62,20 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                         settings.Status == (int)EventStatus.Complete,
                     cancellationToken: cancellationToken);
 
-            var telegramBotClient = new TelegramBotClient(botSettings.Token);
+            var botClient = new TelegramBotClient(botSettings.Token);
 
-            await telegramBotClient.SendTextMessageAsync(
+            await botClient.SendTextMessageAsync(
                 chatId: request.ChatId,
+                messageThreadId: request.ThreadId,
                 text: $"{latestArticle.Title}\n{latestArticle.Link}",
                 parseMode: ParseMode.Html,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken
+            );
 
             _mongoDbContext.RssHistory.Add(new RssHistoryEntity()
             {
                 ChatId = request.ChatId,
+                ThreadId = request.ThreadId,
                 RssUrl = request.RssUrl,
                 Title = latestArticle.Title,
                 Url = latestArticle.Link,
@@ -88,6 +93,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 var rssSetting = await _mongoDbContext.RssSetting
                     .FirstOrDefaultAsync(entity =>
                             entity.ChatId == request.ChatId &&
+                            entity.ThreadId == request.ThreadId &&
                             entity.RssUrl == request.RssUrl,
                         cancellationToken: cancellationToken);
 

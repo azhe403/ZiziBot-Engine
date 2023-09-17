@@ -70,9 +70,10 @@ public class AddRssHandler : IRequestHandler<AddRssRequest, BotResponseBase>
         await _mediator.Send(new RegisterRssJobUrlRequest
         {
             ChatId = request.ChatIdentifier,
+            ThreadId = request.MessageThreadId,
             Url = rssUrl,
             JobId = uniqueId
-        });
+        }, cancellationToken);
 
         return await _telegramService.SendMessageAsync("RSS Berhasil disimpan");
 

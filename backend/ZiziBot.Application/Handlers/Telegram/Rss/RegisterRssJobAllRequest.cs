@@ -44,17 +44,13 @@ public class RegisterRssJobAllHandler : IRequestHandler<RegisterRssJobAllRequest
         foreach (var rssSettingEntity in rssSettings)
         {
             var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
-            var rssId = rssSettingEntity.Id;
-            var chatId = rssSettingEntity.ChatId;
-            var rssUrl = rssSettingEntity.RssUrl;
             var jobId = rssSettingEntity.CronJobId.IsNullOrEmpty() ? uniqueId : rssSettingEntity.CronJobId;
-
-            _logger.LogDebug("Registering RSS Job. RssId: {RssId}, ChatId: {ChatId}, RssUrl: {RssUrl}", rssId, chatId, rssUrl);
 
             await _mediator.Send(new RegisterRssJobUrlRequest
             {
-                ChatId = chatId,
-                Url = rssUrl,
+                ChatId = rssSettingEntity.ChatId,
+                ThreadId = rssSettingEntity.ThreadId,
+                Url = rssSettingEntity.RssUrl,
                 JobId = jobId
             });
 
