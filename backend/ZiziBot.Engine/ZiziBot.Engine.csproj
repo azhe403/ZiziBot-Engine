@@ -8,8 +8,8 @@
 
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.10"/>
-        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.400"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.11"/>
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.401"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
