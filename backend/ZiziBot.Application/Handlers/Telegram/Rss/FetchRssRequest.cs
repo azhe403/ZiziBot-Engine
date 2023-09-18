@@ -88,22 +88,20 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
         {
             if (exception.Message.IsIgnorable())
             {
-                _logger.LogWarning("Disabling and remove in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
-
                 var rssSetting = await _mongoDbContext.RssSetting
                     .FirstOrDefaultAsync(entity =>
                             entity.ChatId == request.ChatId &&
-                            entity.ThreadId == request.ThreadId &&
                             entity.RssUrl == request.RssUrl,
                         cancellationToken: cancellationToken);
 
                 if (rssSetting != null)
                 {
+                    _logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}", request.ChatId, request.RssUrl);
+
                     rssSetting.Status = (int)EventStatus.InProgress;
                     rssSetting.LastErrorMessage = exception.Message;
 
-                    var jobId = "RssJob:" + rssSetting.Id;
-                    _recurringJobManager.RemoveIfExists(jobId);
+                    _recurringJobManager.RemoveIfExists(rssSetting.CronJobId);
                 }
             }
             else
