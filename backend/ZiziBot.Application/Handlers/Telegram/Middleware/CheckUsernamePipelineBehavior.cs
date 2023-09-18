@@ -22,7 +22,8 @@ public class CheckUsernamePipelineBehavior<TRequest, TResponse> : IPipelineBehav
         CancellationToken cancellationToken
     )
     {
-        if (request.Source != ResponseSource.Bot)
+        if (request.Source != ResponseSource.Bot ||
+            request.ChannelPostAny != null)
             return await next();
 
         _logger.LogDebug("Checking Username for UserId: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
