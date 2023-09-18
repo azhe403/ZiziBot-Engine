@@ -21,7 +21,7 @@ public class GlobalExceptionMiddleware : IMiddleware
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Unhandled exception");
+            _logger.LogError(exception, "Unhandled API Exception");
 
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>()
