@@ -17,6 +17,7 @@ public static class ErrorUtil
             "no such host is known",
             "not match",
             "root level is invalid",
+            "user is deactivated",
             "unexpected token"
         };
 
