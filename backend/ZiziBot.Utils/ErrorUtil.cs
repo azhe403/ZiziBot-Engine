@@ -16,6 +16,7 @@ public static class ErrorUtil
             "name or service not known",
             "no such host is known",
             "not match",
+            "reference to undeclared entity",
             "root level is invalid",
             "user is deactivated",
             "unexpected token"
