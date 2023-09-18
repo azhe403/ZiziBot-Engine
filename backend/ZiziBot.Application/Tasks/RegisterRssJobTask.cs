@@ -20,7 +20,7 @@ public class RegisterRssJobTasks : IStartupTask
         _logger.LogInformation("Registering RSS Jobs");
         await _mediatorService.Send(new RegisterRssJobAllRequest()
         {
-            ResetStatus = true
+            ResetStatus = false
         });
 
         _logger.LogDebug("Registering RSS Jobs Completed");
