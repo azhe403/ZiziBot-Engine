@@ -131,4 +131,15 @@ public class ChatSettingRepository
 
         return listNoteEntity;
     }
+
+    public async Task<List<CityEntity>> GetCity(long chatId)
+    {
+        var cityList = await _mongoDbContext.City
+            .Where(entity => entity.ChatId == chatId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .OrderBy(entity => entity.CityName)
+            .ToListAsync();
+
+        return cityList;
+    }
 }

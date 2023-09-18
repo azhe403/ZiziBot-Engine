@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -14,16 +13,16 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
 {
     private readonly ILogger<SendShalatTimeHandler> _logger;
     private readonly AppSettingRepository _appSettingRepository;
-    private readonly MongoDbContextBase _mongoDbContext;
     private readonly FathimahApiService _fathimahApiService;
+    private readonly ChatSettingRepository _chatSettingRepository;
 
-    public SendShalatTimeHandler(ILogger<SendShalatTimeHandler> logger, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext,
-        FathimahApiService fathimahApiService)
+    public SendShalatTimeHandler(ILogger<SendShalatTimeHandler> logger, AppSettingRepository appSettingRepository,
+        FathimahApiService fathimahApiService, ChatSettingRepository chatSettingRepository)
     {
         _logger = logger;
         _appSettingRepository = appSettingRepository;
-        _mongoDbContext = mongoDbContext;
         _fathimahApiService = fathimahApiService;
+        _chatSettingRepository = chatSettingRepository;
     }
 
     public async Task<bool> Handle(SendShalatTimeRequest request, CancellationToken cancellationToken)
@@ -33,19 +32,15 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
 
         var defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
 
-        var cityList = await _mongoDbContext.City
-            .Where(entity => entity.ChatId == request.ChatId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .OrderBy(entity => entity.CityName)
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        _logger.LogDebug("Found about {Count} city(es)", cityList.Count);
+        var cityList = await _chatSettingRepository.GetCity(request.ChatId);
 
         if (!cityList.Any())
         {
             _logger.LogInformation("City list is empty");
             return false;
         }
+
+        _logger.LogDebug("Found about {Count} city(es) for ChatId: {ChatId}", cityList.Count, request.ChatId);
 
         foreach (var cityEntity in cityList)
         {
@@ -66,7 +61,22 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
                 ("City", cityEntity.CityName)
             });
 
-            await botClient.SendTextMessageAsync(request.ChatId, message, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+            try
+            {
+                await botClient.SendTextMessageAsync(request.ChatId, message, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                if (exception.Message.IsIgnorable())
+                {
+                    _logger.LogDebug(exception, "Failed to send Salat Time notification to ChatId: {ChatId}", request.ChatId);
+                    break;
+                }
+                else
+                {
+                    _logger.LogError(exception, "Error occured send Salat Time notification to ChatId: {ChatId}", request.ChatId);
+                }
+            }
         }
 
         return true;
