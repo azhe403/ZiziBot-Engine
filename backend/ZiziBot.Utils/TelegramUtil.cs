@@ -36,6 +36,23 @@ public static class TelegramUtil
         return fileId;
     }
 
+    public static string? GetFileUniqueId(this Message message)
+    {
+        var fileId = message.Type switch
+        {
+            MessageType.Photo => message.Photo?.LastOrDefault()?.FileUniqueId,
+            MessageType.Audio => message.Audio?.FileUniqueId,
+            MessageType.Video => message.Video?.FileUniqueId,
+            MessageType.Voice => message.Voice?.FileUniqueId,
+            MessageType.Document => message.Document?.FileUniqueId,
+            MessageType.Sticker => message.Sticker?.FileUniqueId,
+            MessageType.VideoNote => message.VideoNote?.FileUniqueId,
+            _ => null
+        };
+
+        return fileId;
+    }
+
     public static T GetInlineQueryAt<T>(this string query, int index)
     {
         dynamic value = query.Split(" ").ElementAtOrDefault(index);
