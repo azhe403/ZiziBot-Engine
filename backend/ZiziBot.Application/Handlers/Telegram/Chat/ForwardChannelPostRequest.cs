@@ -42,11 +42,18 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
 
         await channelMaps.ForEachAsync(async channelMap => {
             var channelPost = await _mongoDbContext.ChannelPost
-                .Where(x => x.SourceMessageId == channel!.MessageId)
-                .Where(x => x.DestinationThreadId == channelMap.ThreadId)
                 .Where(x => x.DestinationChatId == channelMap.ChatId)
+                .Where(x => x.DestinationThreadId == channelMap.ThreadId)
+                .Where(x => x.SourceMessageId == channel!.MessageId)
                 .Where(x => x.Status == (int)EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+            if (channelPost == null)
+            {
+                _logger.LogDebug("No channel post found from {ChannelId} to {ChatId}:{ThreadId} ..", channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
+
+                return;
+            }
 
             try
             {
