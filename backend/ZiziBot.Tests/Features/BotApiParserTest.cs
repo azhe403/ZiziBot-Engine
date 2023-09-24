@@ -3,7 +3,6 @@ using FluentAssertions;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using ZiziBot.Contracts.Types;
 
 namespace ZiziBot.Tests.Features;
 

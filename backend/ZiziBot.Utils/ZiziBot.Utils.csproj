@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
         <ProjectReference Include="..\ZiziBot.Exceptions\ZiziBot.Exceptions.csproj" />
     </ItemGroup>
 

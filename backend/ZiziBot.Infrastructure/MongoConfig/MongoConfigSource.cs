@@ -82,6 +82,15 @@ public class MongoConfigSource : IConfigurationSource
             },
             new()
             {
+                Root = "Flag",
+                KeyPair = new Dictionary<string, object>()
+                {
+                    { "IsEnabled", false },
+                    { "IsForwardMessageEnabled", false }
+                }
+            },
+            new()
+            {
                 Root = "Cache",
                 KeyPair = new Dictionary<string, object>
                 {

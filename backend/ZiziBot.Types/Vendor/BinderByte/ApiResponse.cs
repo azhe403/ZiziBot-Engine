@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ZiziBot.Contracts.Vendor.BinderByte;
+namespace ZiziBot.Types.Vendor.BinderByte;
 
 public class ApiResponse
 {

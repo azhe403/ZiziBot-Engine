@@ -1,4 +1,4 @@
-﻿namespace ZiziBot.Contracts;
+﻿namespace ZiziBot.Types.Types;
 
 // Original source: https://github.com/TelegramBots/Telegram.Bot.Extensions.LoginWidget/blob/master/src/Telegram.Bot.Extensions.LoginWidget/LoginWidget.cs
 

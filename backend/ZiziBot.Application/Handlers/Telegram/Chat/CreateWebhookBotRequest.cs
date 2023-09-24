@@ -33,7 +33,8 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookBotRequest, Bot
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var routeId = await StringUtil.GetNanoIdAsync();
-        var webhookUrl = UrlConst.WEBHOOK_URL + routeId;
+        var webhookApi = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL) + "/api/webhook/";
+        var webhookUrl = webhookApi + routeId;
         var htmlMessage = HtmlMessage.Empty
             .Bold("Webhook").Br();
 
@@ -49,7 +50,7 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookBotRequest, Bot
         }
         else
         {
-            webhookUrl = UrlConst.WEBHOOK_URL + webhookChat.RouteId;
+            webhookUrl = webhookApi + webhookChat.RouteId;
         }
 
         htmlMessage.Code(webhookUrl);

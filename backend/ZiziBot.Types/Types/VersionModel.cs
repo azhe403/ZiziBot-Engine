@@ -1,4 +1,4 @@
-﻿namespace ZiziBot.Contracts.Types;
+﻿namespace ZiziBot.Types.Types;
 
 /*
  * Reference: https://github.com/TAGC/dotnet-setversion/blob/develop/src/dotnet-setversion/VersionModel.cs

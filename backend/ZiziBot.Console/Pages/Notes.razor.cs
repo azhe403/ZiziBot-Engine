@@ -26,7 +26,7 @@ public partial class Notes
     [Inject]
     protected ILogger<Notes> Logger { get; set; }
 
-    protected string noteId { get; set; }
+    protected string NoteId { get; set; }
     protected long ChatId { get; set; }
     protected List<NoteDto> ListNote { get; set; }
 

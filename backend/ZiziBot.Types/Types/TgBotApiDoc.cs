@@ -2,7 +2,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace ZiziBot.Contracts.Types;
+namespace ZiziBot.Types.Types;
 
 public partial class TgBotApiDoc
 {
@@ -124,7 +124,7 @@ internal class SubtypeOfConverter : JsonConverter
             serializer.Serialize(writer, null);
             return;
         }
-        var value = (SubtypeOf) untypedValue;
+        var value = (SubtypeOf)untypedValue;
         switch (value)
         {
             case SubtypeOf.BotCommandScope:

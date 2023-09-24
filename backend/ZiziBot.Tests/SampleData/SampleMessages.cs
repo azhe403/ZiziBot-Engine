@@ -5,6 +5,15 @@ namespace ZiziBot.Tests.SampleData;
 
 public static class SampleMessages
 {
+
+    private static readonly long[] chatIds =
+    {
+        -1001710313973,
+        -1001929269823,
+        -1001645422053,
+        -1001936696407
+    };
+
     public static Message CommonMessage => new Message
     {
         MessageId = 316001,
@@ -22,14 +31,15 @@ public static class SampleMessages
         ForwardDate = DateTime.UtcNow,
         Chat = new Chat
         {
-            Id = -1001404591750,
+            Id = chatIds.RandomPick(),
             Title = "🇮🇩 Telegram Bot API🔥🔥"
         },
         From = new User
         {
-            Id = 1025424321,
-            FirstName = "Sandal",
-            LastName = "Jepit"
+            Id = 236205726,
+            FirstName = "Azhe",
+            LastName = "Kun",
+            Username = "azhe403"
         }
     };
 
@@ -39,8 +49,8 @@ public static class SampleMessages
         MessageThreadId = 297986,
         Chat = new Chat()
         {
-            Id = -1001404591750,
-            Title = "🇮🇩 Telegram Bot API🔥🔥"
+            Id = chatIds.RandomPick(),
+            Title = "Grub Name"
         },
         From = new User()
         {

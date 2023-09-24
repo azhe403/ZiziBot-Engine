@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

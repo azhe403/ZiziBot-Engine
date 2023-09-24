@@ -2,10 +2,11 @@ using Flurl.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sentry;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.AspNetCore.SignalR.Extensions;
-using Serilog.Sinks.AspNetCore.SignalR.Interfaces;
+using IHub = Serilog.Sinks.AspNetCore.SignalR.Interfaces.IHub;
 
 namespace ZiziBot.Infrastructure;
 
@@ -42,6 +43,8 @@ public static class LoggingExtension
                 config.WriteTo.Async(cfg => {
                     cfg.Sentry(options => {
                         options.Dsn = sentryConfig.Dsn;
+                        options.StackTraceMode = StackTraceMode.Enhanced;
+                        options.Release = VersionUtil.GetVersion();
                     });
                 });
             }

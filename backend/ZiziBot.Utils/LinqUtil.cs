@@ -5,11 +5,12 @@ namespace ZiziBot.Utils;
 
 public static class LinqUtil
 {
-    public static T RandomPick<T>(this List<T> source)
+    public static T RandomPick<T>(this IEnumerable<T> source)
     {
         var random = new Random();
-        var index = random.Next(source.Count);
-        var item = source.ElementAt(index);
+        var src = source.ToList();
+        var index = random.Next(src.Count);
+        var item = src.ElementAt(index);
 
         return item;
     }

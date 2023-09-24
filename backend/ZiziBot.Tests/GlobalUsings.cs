@@ -17,4 +17,5 @@ global using ZiziBot.Infrastructure;
 global using ZiziBot.Parsers.WebParser;
 global using ZiziBot.Tests.SampleData;
 global using ZiziBot.Tests.SampleData;
+global using ZiziBot.Types.Types;
 global using ZiziBot.Utils;

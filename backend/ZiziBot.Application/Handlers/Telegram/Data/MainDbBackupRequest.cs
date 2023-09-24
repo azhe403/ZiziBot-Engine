@@ -36,6 +36,8 @@ public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
             return false;
         }
 
+        var exportPath = PathConst.MONGODB_BACKUP.EnsureDirectory();
+
         await _mongoDbContext.ExportAllAsync<AppSettingsEntity>();
         await _mongoDbContext.ExportAllAsync<ApiKeyEntity>();
         await _mongoDbContext.ExportAllAsync<BotCommandEntity>();
@@ -59,7 +61,7 @@ public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
 
         var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
 
-        var zipFile = PathConst.MONGODB_BACKUP.CompressToZip($"MongoDB-{date}.zip");
+        var zipFile = exportPath.CompressToZip($"MongoDB-{date}.zip");
 
         var htmlMessage = HtmlMessage.Empty;
 

@@ -35,7 +35,7 @@ public class TonjooService
                 return htmlMessage.ToString();
             }
 
-            detail = awbInfoRaw.Data?.Detail;
+            detail = awbInfoRaw.Data?.AwbDetail;
 
             if (detail?.Status.Contains("delivered", StringComparison.InvariantCultureIgnoreCase) ?? false)
             {

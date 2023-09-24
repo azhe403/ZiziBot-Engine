@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ZiziBot.Contracts.Vendor.TonjooStudio;
+namespace ZiziBot.Types.Vendor.TonjooStudio;
 
 public class CheckAwb
 {
@@ -14,10 +14,10 @@ public class Data
     public bool Found { get; set; }
 
     [JsonProperty("detail")]
-    public Detail Detail { get; set; }
+    public TonjooAwbDetail AwbDetail { get; set; }
 }
 
-public class Detail
+public class TonjooAwbDetail
 {
     [JsonProperty("code")]
     public string Code { get; set; }

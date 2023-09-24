@@ -6,5 +6,5 @@ namespace ZiziBot.Contracts.Configs;
 public class OptiicDevConfig
 {
     public string ApiKey { get; set; }
-    public List<string> ApiKeys => ApiKey.Split(",").TrimEach().ToList();
+    public List<string> ApiKeys => ApiKey.Split(",").Select(x => x.Trim()).ToList();
 }

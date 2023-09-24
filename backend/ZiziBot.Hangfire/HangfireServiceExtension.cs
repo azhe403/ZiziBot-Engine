@@ -16,9 +16,10 @@ public static class HangfireServiceExtension
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
         var hangfireConfig = serviceProvider.GetRequiredService<IOptionsSnapshot<HangfireConfig>>().Value;
 
-        var queues = new string[]
+        var queues = new[]
         {
             "default",
+            "data",
             "rss",
             "shalat-time"
         };

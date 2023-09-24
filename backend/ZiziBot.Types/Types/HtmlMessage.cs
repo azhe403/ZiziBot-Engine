@@ -2,7 +2,7 @@ using System.Net;
 using System.Text;
 using Telegram.Bot.Types;
 
-namespace ZiziBot.Contracts;
+namespace ZiziBot.Types.Types;
 
 // Source: https://raw.githubusercontent.com/AleXr64/Telegram-bot-framework/master/TGBotFramework/BotFramework/Utils/HtmlString.cs
 
@@ -36,11 +36,11 @@ public class HtmlMessage
         return this;
     }
 
-    public HtmlMessage TextBr(string text, bool encoded = false) => Text(text + Environment.NewLine, encoded);
+    public HtmlMessage TextBr(string text, bool encoded = false) => Text(text + System.Environment.NewLine, encoded);
 
     public HtmlMessage Br()
     {
-        _stringBuilder.Append(Environment.NewLine);
+        _stringBuilder.Append(System.Environment.NewLine);
         return this;
     }
 
@@ -103,7 +103,7 @@ public class HtmlMessage
 
         _stringBuilder.Clear();
 
-        sbStr.Split(Environment.NewLine)
+        sbStr.Split(System.Environment.NewLine)
             .SkipLast(count)
             .ToList()
             .ForEach(s => TextBr(s.Trim()));

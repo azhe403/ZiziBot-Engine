@@ -5,6 +5,7 @@ global using ZiziBot.Application.Handlers.Telegram.Additional;
 global using ZiziBot.Application.Handlers.Telegram.Ban;
 global using ZiziBot.Application.Handlers.Telegram.Basic;
 global using ZiziBot.Application.Handlers.Telegram.Chat;
+global using ZiziBot.Application.Handlers.Telegram.Core;
 global using ZiziBot.Application.Handlers.Telegram.Group;
 global using ZiziBot.Application.Handlers.Telegram.Group.Welcome;
 global using ZiziBot.Application.Handlers.Telegram.Inline;

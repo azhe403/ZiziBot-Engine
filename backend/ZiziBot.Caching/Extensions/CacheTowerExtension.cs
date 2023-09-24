@@ -56,7 +56,7 @@ public static class CacheTowerExtension
 
         builder.AddFileCacheLayer(
             new FileCacheLayerOptions(
-                DirectoryPath: PathConst.CACHE_TOWER_PATH,
+                DirectoryPath: PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
                 Serializer: new NewtonsoftJsonCacheSerializer(new JsonSerializerSettings() { Formatting = Formatting.Indented })
             )
         );

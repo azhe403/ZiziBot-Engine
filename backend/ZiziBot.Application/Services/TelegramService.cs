@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using AsyncAwaitBestPractices;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
@@ -277,6 +278,54 @@ public class TelegramService
         return Complete();
     }
 
+    public async Task<BotResponseBase> EditMediaAsync(
+        string fileId,
+        CommonMediaType mediaType,
+        string? caption = null,
+        IReplyMarkup? replyMarkup = null,
+        long customChatId = -1,
+        string? customFileName = null,
+        int? threadId = null,
+        int? messageId = null
+    )
+    {
+        var targetChatId = customChatId == -1 ? _request.ChatId : customChatId;
+        var targetThreadId = threadId ?? _request.MessageThreadId;
+        var targetMessageId = messageId ?? SentMessage.MessageId;
+
+        await Task.Delay(1);
+
+        _logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId, targetChatId);
+        _logger.LogDebug("Updating media caption in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId, targetMessageId);
+
+        Bot.EditMessageCaptionAsync(
+            chatId: targetChatId,
+            messageId: targetMessageId,
+            caption: caption,
+            parseMode: ParseMode.Html,
+            replyMarkup: replyMarkup as InlineKeyboardMarkup
+        ).SafeFireAndForget(e => _logger.LogWarning(e, "Error updating media caption"));
+
+        InputMedia media = mediaType switch
+        {
+            CommonMediaType.Photo => new InputMediaPhoto(new InputFileId(fileId)),
+            CommonMediaType.Audio => new InputMediaAudio(new InputFileId(fileId)),
+            CommonMediaType.Video => new InputMediaVideo(new InputFileId(fileId)),
+            CommonMediaType.Document => new InputMediaDocument(new InputFileId(fileId)),
+            _ => throw new ArgumentOutOfRangeException(nameof(mediaType), mediaType, null)
+        };
+
+        _logger.LogDebug("Updating media file in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId, targetMessageId);
+        Bot.EditMessageMediaAsync(
+            chatId: targetChatId,
+            messageId: targetMessageId,
+            media: media,
+            replyMarkup: replyMarkup as InlineKeyboardMarkup
+        ).SafeFireAndForget(e => _logger.LogWarning(e, "Error updating media file"));
+
+        return Complete();
+    }
+
     public async Task<BotResponseBase> SendMessageAsync(
         string? text,
         InlineKeyboardMarkup? replyMarkup = null,
@@ -284,6 +333,7 @@ public class TelegramService
         CommonMediaType mediaType = CommonMediaType.Unknown,
         long customChatId = -1,
         int threadId = -1,
+        int customMessageId = -1,
         string? customFileName = null
     )
     {

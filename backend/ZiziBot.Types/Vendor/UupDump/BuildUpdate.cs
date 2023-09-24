@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ZiziBot.Contracts.Vendor.UupDump;
+namespace ZiziBot.Types.Vendor.UupDump;
 
 public partial class BuildUpdate
 {
@@ -56,6 +56,7 @@ internal class ArchConverter : JsonConverter
     public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
     {
         if (reader.TokenType == JsonToken.Null) return null;
+
         var value = serializer.Deserialize<string>(reader);
         switch (value)
         {

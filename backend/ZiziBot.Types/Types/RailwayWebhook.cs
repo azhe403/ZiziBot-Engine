@@ -1,4 +1,4 @@
-namespace ZiziBot.Contracts.Types;
+namespace ZiziBot.Types.Types;
 
 public class RailwayWebhook
 {

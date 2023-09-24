@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ZiziBot.Attributes\ZiziBot.Attributes.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
     </ItemGroup>
 
 </Project>
