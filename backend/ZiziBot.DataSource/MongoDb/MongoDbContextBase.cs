@@ -11,7 +11,6 @@ public class MongoDbContextBase : MongoDbContext
     public MongoDbSet<BotSettingsEntity> BotSettings { get; set; }
     public MongoDbSet<BotCommandEntity> BotCommand { get; set; }
     public MongoDbSet<SudoerEntity> Sudoers { get; set; }
-    public MongoDbSet<FeatureEntity> Feature { get; set; }
 
     public MongoDbSet<DashboardSessionEntity> DashboardSessions { get; set; }
     public MongoDbSet<ApiKeyEntity> ApiKey { get; set; }
