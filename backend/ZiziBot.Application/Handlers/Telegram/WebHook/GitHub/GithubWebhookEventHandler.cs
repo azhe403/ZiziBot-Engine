@@ -33,7 +33,7 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         var commitsStr = "commit".ToQuantity(commitCount);
 
         var htmlMessage = HtmlMessage.Empty
-            .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(treeUrl, $"{repository.FullName}:{branchName}")
+            .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(repository.HtmlUrl, $"{repository.FullName}").Text(":").Url(treeUrl, $"{branchName}")
             .Br().Br();
 
         commits.ForEach(commit => {
