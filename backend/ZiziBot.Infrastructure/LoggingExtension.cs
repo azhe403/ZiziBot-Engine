@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using Flurl.Http;
+using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +15,7 @@ namespace ZiziBot.Infrastructure;
 public static class LoggingExtension
 {
     // ReSharper disable InconsistentNaming
-    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_BASE = $"[{{Level:u3}}] {{MemoryUsage}} {{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
 
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
@@ -24,7 +26,14 @@ public static class LoggingExtension
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Debug()
-                .Enrich.WithDemystifiedStackTraces();
+                .Enrich.WithDemystifiedStackTraces()
+                .Enrich.WithDynamicProperty("MemoryUsage", () => {
+                    var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
+                    return $"{mem} |";
+                }).Enrich.WithDynamicProperty("ThreadId", () => {
+                    var threadId = Environment.CurrentManagedThreadId.ToString();
+                    return $"{threadId} |";
+                });
 
             config.WriteTo.Async(cfg => cfg
                 .Console(outputTemplate: OUTPUT_TEMPLATE)
