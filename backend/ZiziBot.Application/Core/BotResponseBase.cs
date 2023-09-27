@@ -20,7 +20,7 @@ public class BotResponseBase
 
     public bool DirectAction { get; set; }
 
-    public Message SentMessage { get; set; }
+    public Message? SentMessage { get; set; }
     public ResponseSource ResponseSource { get; set; } = ResponseSource.Unknown;
 
     public BotResponseBase()
