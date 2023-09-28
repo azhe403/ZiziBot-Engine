@@ -29,10 +29,10 @@ public static class LoggingExtension
                 .Enrich.WithDemystifiedStackTraces()
                 .Enrich.WithDynamicProperty("MemoryUsage", () => {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
-                    return $"{mem} |";
+                    return $"{mem}";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
                     var threadId = Environment.CurrentManagedThreadId.ToString();
-                    return $"{threadId} |";
+                    return $"{threadId}";
                 });
 
             config.WriteTo.Async(cfg => cfg
