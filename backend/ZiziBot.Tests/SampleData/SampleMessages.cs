@@ -46,17 +46,18 @@ public static class SampleMessages
     public static Message NewChatMembers => new()
     {
         MessageId = 12345,
-        MessageThreadId = 297986,
+        MessageThreadId = 321067,
         Chat = new Chat()
         {
-            Id = chatIds.RandomPick(),
+            Id = -1001404591750,
             Title = "Grub Name"
         },
         From = new User()
         {
             Id = 552609163,
             FirstName = "I'am",
-            LastName = "Groot"
+            LastName = "Groot",
+            Username = "groot"
         },
         NewChatMembers = new[]
         {

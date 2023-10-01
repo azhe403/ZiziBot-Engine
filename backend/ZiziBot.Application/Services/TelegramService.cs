@@ -185,7 +185,7 @@ public class TelegramService
 
     public async Task<BotResponseBase> SendMediaAsync(
         string fileId,
-        CommonMediaType mediaType,
+        CommonMediaType? mediaType,
         string? caption = null,
         IReplyMarkup? replyMarkup = null,
         long customChatId = -1,
@@ -218,6 +218,7 @@ public class TelegramService
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
                     replyToMessageId: _request.ReplyToMessageId,
+                    allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
                 break;
@@ -236,6 +237,7 @@ public class TelegramService
                         parseMode: ParseMode.Html,
                         replyMarkup: replyMarkup,
                         replyToMessageId: _request.ReplyToMessageId,
+                        allowSendingWithoutReply: true,
                         messageThreadId: targetThreadId
                     );
                 }
@@ -250,6 +252,7 @@ public class TelegramService
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
                     replyToMessageId: _request.ReplyToMessageId,
+                    allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
                 break;
@@ -262,6 +265,7 @@ public class TelegramService
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
                     replyToMessageId: _request.ReplyToMessageId,
+                    allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
                 break;
@@ -274,6 +278,7 @@ public class TelegramService
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
                     replyToMessageId: _request.ReplyToMessageId,
+                    allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
                 break;
@@ -284,6 +289,7 @@ public class TelegramService
                     sticker: inputFile,
                     replyMarkup: replyMarkup,
                     replyToMessageId: _request.ReplyToMessageId,
+                    allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
 
@@ -353,7 +359,7 @@ public class TelegramService
         string? text,
         InlineKeyboardMarkup? replyMarkup = null,
         string? fileId = null,
-        CommonMediaType mediaType = CommonMediaType.Unknown,
+        CommonMediaType? mediaType = CommonMediaType.Unknown,
         long customChatId = -1,
         int threadId = -1,
         int customMessageId = -1,

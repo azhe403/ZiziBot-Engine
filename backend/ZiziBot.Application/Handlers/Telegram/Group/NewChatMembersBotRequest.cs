@@ -59,10 +59,10 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
         });
 
         return await _telegramService.SendMessageAsync(
-            text: welcomeMessage.Text,
-            replyMarkup: welcomeMessage.RawButton.ToButtonMarkup(),
-            fileId: welcomeMessage.Media,
-            mediaType: (CommonMediaType)welcomeMessage.DataType
+            text: messageText,
+            replyMarkup: welcomeMessage?.RawButton.ToButtonMarkup(),
+            fileId: welcomeMessage?.Media,
+            mediaType: (CommonMediaType)welcomeMessage?.DataType
         );
     }
 }
