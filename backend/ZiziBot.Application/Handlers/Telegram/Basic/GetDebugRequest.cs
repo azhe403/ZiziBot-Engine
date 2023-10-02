@@ -1,19 +1,19 @@
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
-public class GetDebugBotRequestModel : BotRequestBase
+public class GetDebugBotRequest : BotRequestBase
 {
 }
 
-public class GetDebugRequestHandler : IRequestHandler<GetDebugBotRequestModel, BotResponseBase>
+public class GetDebugHandler : IBotRequestHandler<GetDebugBotRequest>
 {
     private readonly TelegramService _telegramService;
 
-    public GetDebugRequestHandler(TelegramService telegramService)
+    public GetDebugHandler(TelegramService telegramService)
     {
         _telegramService = telegramService;
     }
 
-    public async Task<BotResponseBase> Handle(GetDebugBotRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(GetDebugBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
