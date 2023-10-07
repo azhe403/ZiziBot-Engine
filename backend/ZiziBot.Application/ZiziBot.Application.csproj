@@ -10,11 +10,9 @@
         <PackageReference Include="AsyncAwaitBestPractices" Version="6.0.6" />
         <PackageReference Include="CacheTower" Version="0.14.0"/>
         <PackageReference Include="CloudCraic.Hosting.BackgroundQueue" Version="1.0.7" />
-        <PackageReference Include="FirebaseAdmin" Version="2.4.0" />
         <PackageReference Include="FirebaseDatabase.net" Version="4.2.0" />
         <PackageReference Include="Flurl.Http" Version="3.2.4" />
-        <PackageReference Include="Google.Apis.Auth" Version="1.62.0"/>
-        <PackageReference Include="Google.Cloud.Firestore" Version="3.3.0" />
+        <PackageReference Include="Google.Cloud.Firestore" Version="3.4.0"/>
         <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
         <PackageReference Include="MediatR" Version="12.1.1" />
         <PackageReference Include="MediatR.Extensions.AttributedBehaviors" Version="3.0.0" />
@@ -25,7 +23,7 @@
         <PackageReference Include="Octokit.Webhooks" Version="2.0.3"/>
         <PackageReference Include="Serilog" Version="3.0.1" />
         <PackageReference Include="SerilogTimings" Version="3.0.1" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.0"/>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.33.0"/>
         <PackageReference Include="Telegram.Bot" Version="19.0.0" />
     </ItemGroup>
 
