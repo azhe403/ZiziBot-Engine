@@ -21,13 +21,15 @@ public class BotRequestBase : IRequest<BotResponseBase>
 
     public ForumTopicCreated? ForumTopicCreated => Message?.ForumTopicCreated;
     public ForumTopicEdited? ForumTopicEdited => Message?.ForumTopicEdited;
+    public string? EditedTopicName => ReplyToMessage?.ForumTopicEdited?.Name ?? ForumTopicEdited?.Name;
+    public string? CreatedTopicName =>  ReplyToMessage?.ForumTopicCreated?.Name ?? ForumTopicCreated?.Name;
+    public string? TopicName => EditedTopicName ?? CreatedTopicName;
 
     public CallbackQuery? CallbackQuery { get; set; }
     public InlineQuery? InlineQuery { get; set; }
 
     public DateTime MessageDate => Message?.Date ?? Message?.EditDate ?? DateTime.UtcNow;
 
-    public string? CurrentTopicName => ForumTopicEdited?.Name ?? ForumTopicCreated?.Name;
     public string? MessageText => Message?.Text;
     public string[]? MessageTexts => Message?.Text?.Split(" ");
     public string[]? RepliedMessageTexts => ReplyToMessage?.Text?.Split(" ");
@@ -71,6 +73,4 @@ public class BotRequestBase : IRequest<BotResponseBase>
     };
 
     public TimeSpan DeleteAfter { get; set; } = TimeSpan.FromMinutes(1);
-
-    public Message SentMessage { get; set; }
 }
