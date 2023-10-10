@@ -4,7 +4,7 @@ public static class ErrorUtil
 {
     public static bool IsIgnorable(this string message)
     {
-        var ignorableMessages = new[]
+        var ignorableMessages = new List<string>()
         {
             "a connection attempt failed",
             "bot was blocked",
@@ -17,11 +17,13 @@ public static class ErrorUtil
             "no such host is known",
             "not match",
             "reference to undeclared entity",
+            "request was canceled",
+            "root element is missing",
             "root level is invalid",
             "user is deactivated",
             "unexpected token"
         };
 
-        return ignorableMessages.Any(message.ToLower().Contains);
+        return ignorableMessages.Exists(message.ToLower().Contains);
     }
 }
