@@ -1,8 +1,9 @@
 using Firebase.Database;
 using Firebase.Database.Query;
+using Firebase.Database.Streaming;
 using Google.Apis.Auth.OAuth2;
 
-namespace ZiziBot.Application.Services;
+namespace ZiziBot.Services;
 
 public class FirebaseService
 {
@@ -16,23 +17,49 @@ public class FirebaseService
 
     public async Task PostAsync<T>(string resourceName, T data)
     {
+        var client = await GetClient();
+
+        await client.Child(resourceName).PostAsync(data);
+    }
+
+    public async Task PutAsync<T>(string resourceName, T data)
+    {
+        var client = await GetClient();
+
+        await client.Child(resourceName).PutAsync(data);
+    }
+
+    public async Task DeleteAsync(string resourceName)
+    {
+        var client = await GetClient();
+
+        await client.Child(resourceName).DeleteAsync();
+    }
+
+    public async Task<IObservable<FirebaseEvent<T>>> AsObservable<T>(string resourceName)
+    {
+        var client = await GetClient();
+
+        return client.Child(resourceName).AsObservable<T>();
+    }
+
+    private async Task<FirebaseClient> GetClient()
+    {
         _gcpConfig = await _appSettingRepository.GetConfigSectionAsync<GcpConfig>();
 
-        if (_gcpConfig == null) return;
+        if (_gcpConfig == null)
+            throw new AppException("Firebase config not found");
 
-        using var client = new FirebaseClient(
-            _gcpConfig.FirebaseProjectUrl,
-            new FirebaseOptions
+        var client = new FirebaseClient(
+            baseUrl: _gcpConfig.FirebaseProjectUrl,
+            options: new FirebaseOptions
             {
                 AuthTokenAsyncFactory = GetAccessToken,
                 AsAccessToken = true
             }
         );
 
-        await client
-            .Child(resourceName)
-            .PostAsync(data);
-
+        return client;
     }
 
     private async Task<string> GetAccessToken()

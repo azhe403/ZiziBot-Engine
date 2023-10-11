@@ -53,6 +53,11 @@ public static class ServiceExtension
                 .WithTransientLifetime()
         );
 
+        services.Scan(selector => selector.FromAssembliesOf(typeof(FirebaseService))
+            .AddClasses(filter => filter.InNamespaceOf<FirebaseService>())
+            .AsSelf()
+            .WithScopedLifetime());
+
         return services;
     }
 
