@@ -15,6 +15,7 @@ public class Startup : IStartup
     public void ConfigureServices(IServiceCollection services)
     {
         services.ConfigureServices();
+        services.AddSkippableFactSupport();
     }
 
     public void Configure(IServiceProvider provider, ITestOutputHelperAccessor accessor)

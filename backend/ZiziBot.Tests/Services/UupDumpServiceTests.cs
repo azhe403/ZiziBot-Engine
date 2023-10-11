@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Flurl.Http;
 using Xunit;
 
 namespace ZiziBot.Tests.Services;
@@ -18,7 +19,7 @@ public class UupDumpServiceTests
         _uupDumpService = uupDumpService;
     }
 
-    [Theory]
+    [SkippableTheory(typeof(FlurlHttpException))]
     [InlineData("")]
     [InlineData("19041")]
     [InlineData("22000")]

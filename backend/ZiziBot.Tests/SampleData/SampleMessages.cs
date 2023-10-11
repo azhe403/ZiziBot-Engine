@@ -11,20 +11,21 @@ public static class SampleMessages
         -1001710313973,
         -1001929269823,
         -1001645422053,
-        -1001936696407
+        -1001936696407,
+        -1001404591750
     };
 
-    public static Message CommonMessage => new Message
+    public static Message CommonMessage => new()
     {
         MessageId = 316001,
         MessageThreadId = 297986,
         ForumTopicCreated = new ForumTopicCreated()
         {
-            Name = "Playground 1"
+            Name = "Sample - Taufik Name"
         },
         ForumTopicEdited = new ForumTopicEdited()
         {
-            Name = "Playground II"
+            Name = "Sample - New Taufik Name"
         },
         Date = DateTime.UtcNow,
         EditDate = DateTime.UtcNow,
@@ -32,7 +33,7 @@ public static class SampleMessages
         Chat = new Chat
         {
             Id = chatIds.RandomPick(),
-            Title = "🇮🇩 Telegram Bot API🔥🔥"
+            Title = "Sample - Grub Name"
         },
         From = new User
         {
@@ -117,7 +118,7 @@ public static class SampleMessages
         {
             Id = -1001556283448,
             Type = (ChatType)0,
-            Title = "Telegram Bot API 2",
+            Title = "Sample - Telegram Bot API Channel",
         },
         Text = "this is message text"
     };
@@ -130,12 +131,15 @@ public static class SampleMessages
         {
             Id = -1001556283448,
             Type = (ChatType)0,
-            Title = "Telegram Bot API 2",
+            Title = "Sample - Telegram Bot API Channel",
         },
         Caption = "this is message caption",
         Document = new()
         {
-            FileId = "BQACAgUAAx0CU7hehgABBNdfZPrwISnUYnEMrm5Tzpo40aZBdXMAAl0LAAIXHEhVVErnd8J1j8YwBA"
+            FileId = "BQACAgUAAx0CU7hehgABBNdfZPrwISnUYnEMrm5Tzpo40aZBdXMAAl0LAAIXHEhVVErnd8J1j8YwBA",
+            FileUniqueId = "BQACAgUAA",
+            FileSize = 2000,
+            FileName = "FileName.exe"
         }
     };
 }
