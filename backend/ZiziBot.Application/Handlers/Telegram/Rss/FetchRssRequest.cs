@@ -88,21 +88,20 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
         {
             if (exception.Message.IsIgnorable())
             {
-                var rssSetting = await _mongoDbContext.RssSetting
-                    .FirstOrDefaultAsync(entity =>
-                            entity.ChatId == request.ChatId &&
-                            entity.RssUrl == request.RssUrl,
-                        cancellationToken: cancellationToken);
+                var findRssSetting = await _mongoDbContext.RssSetting
+                    .Where(entity => entity.ChatId == request.ChatId)
+                    .Where(entity => entity.RssUrl == request.RssUrl)
+                    .Where(entity => entity.Status == (int)EventStatus.Complete)
+                    .ToListAsync(cancellationToken);
 
-                if (rssSetting != null)
-                {
-                    _logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}", request.ChatId, request.RssUrl);
+                findRssSetting.ForEach(e => {
+                    _logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}", e.ChatId, e.RssUrl);
 
-                    rssSetting.Status = (int)EventStatus.InProgress;
-                    rssSetting.LastErrorMessage = exception.Message;
+                    e.Status = (int)EventStatus.InProgress;
+                    e.LastErrorMessage = exception.Message;
 
-                    _recurringJobManager.RemoveIfExists(rssSetting.CronJobId);
-                }
+                    _recurringJobManager.RemoveIfExists(e.CronJobId);
+                });
             }
             else
             {
