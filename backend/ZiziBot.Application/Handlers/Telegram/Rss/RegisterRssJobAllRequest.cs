@@ -6,7 +6,6 @@ namespace ZiziBot.Application.Handlers.Telegram.Rss;
 public class RegisterRssJobAllRequest : IRequest<bool>
 {
     public bool ResetStatus { get; set; }
-    public long ChatId { get; set; }
 }
 
 public class RegisterRssJobAllHandler : IRequestHandler<RegisterRssJobAllRequest, bool>
@@ -31,20 +30,21 @@ public class RegisterRssJobAllHandler : IRequestHandler<RegisterRssJobAllRequest
                 entity.LastErrorMessage = string.Empty;
                 entity.Status = (int)EventStatus.Complete;
             });
+
             await _mongoDbContext.SaveChangesAsync(cancellationToken);
         }
 
+        HangfireUtil.RemoveRssJobs();
+
         var rssSettings = await _mongoDbContext.RssSetting
             .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .ToListAsync(cancellationToken: cancellationToken);
 
         _logger.LogInformation("Registering RSS Jobs. Count: {Count}", rssSettings.Count);
 
         foreach (var rssSettingEntity in rssSettings)
         {
-            var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
-            var jobId = rssSettingEntity.CronJobId.IsNullOrEmpty() ? uniqueId : rssSettingEntity.CronJobId;
+            var jobId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
 
             await _mediator.Send(new RegisterRssJobUrlRequest
             {
