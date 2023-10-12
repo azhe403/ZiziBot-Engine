@@ -12,6 +12,11 @@ public class MongoDbContextBase : MongoDbContext
     public MongoDbSet<BotCommandEntity> BotCommand { get; set; }
     public MongoDbSet<SudoerEntity> Sudoers { get; set; }
 
+    public MongoDbSet<FeatureFlagEntity> FeatureFlag { get; set; }
+    public MongoDbSet<FeatureRoleEntity> FeatureRole { get; set; }
+    public MongoDbSet<FeatureRoleFlagEntity> FeatureRoleFlag { get; set; }
+    public MongoDbSet<FeatureAssignmentEntity> FeatureAssignment { get; set; }
+
     public MongoDbSet<DashboardSessionEntity> DashboardSessions { get; set; }
     public MongoDbSet<ApiKeyEntity> ApiKey { get; set; }
     public MongoDbSet<BotUserEntity> BotUser { get; set; }
