@@ -2,60 +2,52 @@ using Firebase.Database;
 using Firebase.Database.Query;
 using Firebase.Database.Streaming;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.Extensions.Options;
 
 namespace ZiziBot.Services;
 
 public class FirebaseService
 {
-    private readonly AppSettingRepository _appSettingRepository;
-    private GcpConfig? _gcpConfig;
+    private readonly IOptions<GcpConfig> _options;
 
-    public FirebaseService(AppSettingRepository appSettingRepository)
+    private GcpConfig GcpConfig => _options.Value;
+
+    public FirebaseService(IOptions<GcpConfig> options)
     {
-        _appSettingRepository = appSettingRepository;
+        _options = options;
     }
 
     public async Task PostAsync<T>(string resourceName, T data)
     {
-        var client = await GetClient();
-
-        await client.Child(resourceName).PostAsync(data);
+        await GetClient().Child(resourceName).PostAsync(data);
     }
 
     public async Task PutAsync<T>(string resourceName, T data)
     {
-        var client = await GetClient();
-
-        await client.Child(resourceName).PutAsync(data);
+        await GetClient().Child(resourceName).PutAsync(data);
     }
 
     public async Task DeleteAsync(string resourceName)
     {
-        var client = await GetClient();
-
-        await client.Child(resourceName).DeleteAsync();
+        await GetClient().Child(resourceName).DeleteAsync();
     }
 
-    public async Task<IObservable<FirebaseEvent<T>>> AsObservable<T>(string resourceName)
+    public IObservable<FirebaseEvent<T>> AsObservable<T>(string resourceName)
     {
-        var client = await GetClient();
-
-        return client.Child(resourceName).AsObservable<T>();
+        return GetClient().Child(resourceName).AsObservable<T>();
     }
 
-    private async Task<FirebaseClient> GetClient()
+    private FirebaseClient GetClient()
     {
-        _gcpConfig = await _appSettingRepository.GetConfigSectionAsync<GcpConfig>();
-
-        if (_gcpConfig == null)
-            throw new AppException("Firebase config not found");
+        if (!GcpConfig.IsEnabled)
+            throw new AppException("Firebase is disabled");
 
         var client = new FirebaseClient(
-            baseUrl: _gcpConfig.FirebaseProjectUrl,
+            baseUrl: GcpConfig.FirebaseProjectUrl,
             options: new FirebaseOptions
             {
                 AuthTokenAsyncFactory = GetAccessToken,
-                AsAccessToken = true
+                AsAccessToken = true,
             }
         );
 
@@ -64,7 +56,7 @@ public class FirebaseService
 
     private async Task<string> GetAccessToken()
     {
-        var credential = GoogleCredential.FromJson(_gcpConfig?.FirebaseServiceAccountJson)
+        var credential = GoogleCredential.FromJson(GcpConfig.FirebaseServiceAccountJson)
             .CreateScoped("https://www.googleapis.com/auth/firebase.database", "https://www.googleapis.com/auth/userinfo.email");
 
         var accessToken = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();

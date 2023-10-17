@@ -124,6 +124,7 @@ public class MongoConfigSource : IConfigurationSource
                 Root = "Gcp",
                 KeyPair = new Dictionary<string, object>
                 {
+                    { "IsEnabled", false },
                     { "FirebaseProjectUrl", "https://yourapp.firebaseio.com" },
                     { "FirebaseServiceAccountJson", "{\"your_firebase_service_account_json\":\"string\"}" }
                 }

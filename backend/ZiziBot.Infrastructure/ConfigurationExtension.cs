@@ -32,6 +32,7 @@ public static class ConfigurationExtension
         services.Configure<CacheConfig>(config.GetSection("Cache"));
         services.Configure<EngineConfig>(config.GetSection("Engine"));
         services.Configure<EventLogConfig>(config.GetSection("EventLog"));
+        services.Configure<GcpConfig>(config.GetSection("Gcp"));
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
         services.Configure<JwtConfig>(config.GetSection("Jwt"));
         services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
