@@ -135,6 +135,7 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         }
         catch (Exception exception)
         {
+            _logger.LogWarning("Trying send GitHub Webhook without thread to ChatId: {ChatId}", ChatId);
             if (exception.Message.Contains("thread not found"))
             {
                 await botClient.SendTextMessageAsync(

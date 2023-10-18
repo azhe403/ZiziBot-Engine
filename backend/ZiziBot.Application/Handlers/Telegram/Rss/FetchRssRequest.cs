@@ -64,13 +64,31 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             var botClient = new TelegramBotClient(botSettings.Token);
 
-            await botClient.SendTextMessageAsync(
-                chatId: request.ChatId,
-                messageThreadId: request.ThreadId,
-                text: $"{latestArticle.Title}\n{latestArticle.Link}",
-                parseMode: ParseMode.Html,
-                cancellationToken: cancellationToken
-            );
+            var rssText = $"{latestArticle.Title}\n{latestArticle.Link}";
+
+            try
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: request.ChatId,
+                    messageThreadId: request.ThreadId,
+                    text: rssText,
+                    parseMode: ParseMode.Html,
+                    cancellationToken: cancellationToken
+                );
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
+                if (exception.Message.Contains("thread not found"))
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: request.ChatId,
+                        text: rssText,
+                        parseMode: ParseMode.Html,
+                        cancellationToken: cancellationToken
+                    );
+                }
+            }
 
             _mongoDbContext.RssHistory.Add(new RssHistoryEntity()
             {
