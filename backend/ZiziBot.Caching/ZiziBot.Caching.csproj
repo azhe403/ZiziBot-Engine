@@ -18,6 +18,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
+        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
         <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
     </ItemGroup>
 

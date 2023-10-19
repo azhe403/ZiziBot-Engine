@@ -2,7 +2,6 @@ using CacheTower.Providers.FileSystem;
 using CacheTower.Providers.Redis;
 using CacheTower.Serializers.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -14,7 +13,6 @@ public static class CacheTowerExtension
     public static IServiceCollection AddCacheTower(this IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
-        var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
         var cacheConfig = serviceProvider.GetRequiredService<IOptions<CacheConfig>>().Value;
 
         services.AddCacheStack(
@@ -22,6 +20,7 @@ public static class CacheTowerExtension
                 builder
                     .WithCleanupFrequency(TimeSpan.FromDays(1))
                     .AddMemoryCacheLayer()
+                    .ConfigureSqliteCacheLayer(cacheConfig)
                     .ConfigureRedisCacheLayer(cacheConfig)
                     .ConfigureFileCacheLayer(cacheConfig)
                     .ConfigureFirebaseCacheLayer(cacheConfig);
@@ -66,7 +65,8 @@ public static class CacheTowerExtension
 
     private static ICacheStackBuilder ConfigureFirebaseCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
     {
-        if (!cacheConfig.UseFirebase) return builder;
+        if (!cacheConfig.UseFirebase)
+            return builder;
 
         var firebaseOptions = new FirebaseCacheOptions
         {
@@ -75,6 +75,18 @@ public static class CacheTowerExtension
         };
 
         builder.CacheLayers.Add(new CacheTowerFirebaseProvider(firebaseOptions));
+
+        return builder;
+    }
+
+    private static ICacheStackBuilder ConfigureSqliteCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    {
+        if (!cacheConfig.UseSqlite)
+            return builder;
+
+        var dbPath = PathConst.CACHE_TOWER_SQLITE_PATH.EnsureDirectory();
+
+        builder.CacheLayers.Add(new CacheTowerSqliteProvider(dbPath));
 
         return builder;
     }

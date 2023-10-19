@@ -97,6 +97,7 @@ public class MongoConfigSource : IConfigurationSource
                     { "UseJsonFile", false },
                     { "UseFirebase", false },
                     { "UseRedis", false },
+                    { "UseSqlite", false },
                     { "RedisConnection", "localhost:6379" }
                 }
             },
