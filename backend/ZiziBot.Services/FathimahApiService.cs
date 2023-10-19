@@ -1,12 +1,14 @@
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Types.Vendor.FathimahApi;
 
-namespace ZiziBot.Application.Services;
+namespace ZiziBot.Services;
 
 public class FathimahApiService
 {
     private const string BaseUrl = "https://api.banghasan.com";
+
     private readonly ILogger<FathimahApiService> _logger;
     private readonly CacheService _cacheService;
 

@@ -32,6 +32,7 @@
         <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj" />
         <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
         <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj" />
+        <ProjectReference Include="..\ZiziBot.Services\ZiziBot.Services.csproj"/>
         <ProjectReference Include="..\ZiziBot.Types\ZiziBot.Types.csproj"/>
         <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj" />
     </ItemGroup>

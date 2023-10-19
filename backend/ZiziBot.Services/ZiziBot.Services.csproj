@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CacheTower" Version="0.14.0"/>
         <PackageReference Include="FirebaseDatabase.net" Version="4.2.0"/>
         <PackageReference Include="Flurl.Http" Version="3.2.4"/>
         <PackageReference Include="Google.Apis.Auth" Version="1.62.1"/>
@@ -15,6 +16,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Types\ZiziBot.Types.csproj"/>
         <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
     </ItemGroup>
 

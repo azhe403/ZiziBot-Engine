@@ -24,6 +24,7 @@ global using ZiziBot.Exceptions;
 global using ZiziBot.Hangfire;
 global using ZiziBot.Parsers;
 global using ZiziBot.Parsers.WebParser;
+global using ZiziBot.Services;
 global using ZiziBot.Types.Types;
 global using ZiziBot.Types.Vendor.BinderByte;
 global using ZiziBot.Types.Vendor.FathimahApi;

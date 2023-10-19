@@ -1,7 +1,7 @@
 using CacheTower;
 using Microsoft.Extensions.Logging;
 
-namespace ZiziBot.Application.Services;
+namespace ZiziBot.Services;
 
 public class CacheService
 {
@@ -32,7 +32,8 @@ public class CacheService
         if (disableCache)
             return await action();
 
-        if (evictBefore) await EvictAsync(cacheKey);
+        if (evictBefore)
+            await EvictAsync(cacheKey);
 
         if (expireAfter != null) _expireAfter = expireAfter;
         if (staleAfter != null) _staleAfter = staleAfter;
@@ -56,7 +57,8 @@ public class CacheService
                 settings: cacheSettings
             );
 
-            if (evictAfter) await EvictAsync(cacheKey);
+            if (evictAfter)
+                await EvictAsync(cacheKey);
 
             return cache;
         }
