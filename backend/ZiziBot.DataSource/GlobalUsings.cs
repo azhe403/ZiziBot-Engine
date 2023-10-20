@@ -9,6 +9,7 @@ global using ZiziBot.DataSource.MongoDb;
 global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.DataSource.Sqlite.Entities;
 global using ZiziBot.Parsers;
+global using ZiziBot.Services;
 global using ZiziBot.Types.Vendor.BinderByte;
 global using ZiziBot.Types.Vendor.TonjooStudio;
 global using ZiziBot.Utils;
