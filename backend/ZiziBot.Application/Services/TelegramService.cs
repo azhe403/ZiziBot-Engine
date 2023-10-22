@@ -527,13 +527,13 @@ public class TelegramService
         );
     }
 
-    public async Task<ChatMember[]> GetChatAdministrator()
+    public async Task<List<ChatMember>> GetChatAdministrator()
     {
         var cacheValue = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.LIST_CHAT_ADMIN + _request.ChatId,
             action: async () => {
                 var chatAdmins = await Bot.GetChatAdministratorsAsync(_request.ChatId);
-                return chatAdmins;
+                return chatAdmins.ToList();
             }
         );
         return cacheValue;
@@ -542,7 +542,7 @@ public class TelegramService
     public async Task<bool> CheckAdministration()
     {
         var chatAdmins = await GetChatAdministrator();
-        var isAdmin = chatAdmins.Any(x => x.User.Id == _request.UserId);
+        var isAdmin = chatAdmins.Exists(x => x.User.Id == _request.UserId);
         return isAdmin;
     }
 
@@ -557,10 +557,7 @@ public class TelegramService
     public async Task<bool> CheckChatCreator()
     {
         var chatAdmins = await GetChatAdministrator();
-        var isAdmin = chatAdmins.Any(x =>
-            x.User.Id == _request.UserId &&
-            x.Status == ChatMemberStatus.Creator
-        );
+        var isAdmin = chatAdmins.Exists(x => x.User.Id == _request.UserId && x.Status == ChatMemberStatus.Creator);
         return isAdmin;
     }
     #endregion

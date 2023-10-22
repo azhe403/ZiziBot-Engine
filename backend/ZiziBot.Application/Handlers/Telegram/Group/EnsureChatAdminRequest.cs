@@ -38,7 +38,7 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostPr
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         var chatAdministrators = await _telegramService.GetChatAdministrator();
-        _logger.LogDebug("List of Administrator in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Length);
+        _logger.LogDebug("List of Administrator in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Count);
 
         var chatAdminEntities = chatAdministrators
             .Select(
