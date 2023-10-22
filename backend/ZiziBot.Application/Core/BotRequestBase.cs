@@ -22,7 +22,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public ForumTopicCreated? ForumTopicCreated => Message?.ForumTopicCreated;
     public ForumTopicEdited? ForumTopicEdited => Message?.ForumTopicEdited;
     public string? EditedTopicName => ReplyToMessage?.ForumTopicEdited?.Name ?? ForumTopicEdited?.Name;
-    public string? CreatedTopicName =>  ReplyToMessage?.ForumTopicCreated?.Name ?? ForumTopicCreated?.Name;
+    public string? CreatedTopicName => ReplyToMessage?.ForumTopicCreated?.Name ?? ForumTopicCreated?.Name;
     public string? TopicName => EditedTopicName ?? CreatedTopicName;
 
     public CallbackQuery? CallbackQuery { get; set; }

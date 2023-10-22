@@ -64,10 +64,8 @@ public class TelegramService
 
     public async Task<string> DownloadFileAsync(string prefixName)
     {
-        var photo = (_request.ReplyToMessage ?? _request.Message).Photo?.LastOrDefault();
-        var fileId = photo?.FileId;
-
-        var filePath = PathConst.TEMP_PATH + prefixName + photo?.FileUniqueId + ".jpg";
+        var fileId = (_request.ReplyToMessage ?? _request.Message)?.GetFileId();
+        var filePath = PathConst.TEMP_PATH + prefixName + (_request.ReplyToMessage ?? _request.Message)?.GetFileName();
 
         await using Stream fileStream = File.OpenWrite(filePath.EnsureDirectory());
         await Bot.GetInfoAndDownloadFileAsync(fileId, fileStream);
@@ -446,7 +444,7 @@ public class TelegramService
     {
         var cmd = string.Empty;
 
-        if (!_request.MessageText?.StartsWith("/") ?? true) return cmd;
+        if (!_request.MessageText?.StartsWith('/') ?? true) return cmd;
 
         cmd = _request.MessageTexts?.ElementAtOrDefault(0);
 
