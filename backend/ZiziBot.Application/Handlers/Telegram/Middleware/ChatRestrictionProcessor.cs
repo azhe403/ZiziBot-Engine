@@ -21,6 +21,7 @@ public class ChatRestrictionProcessorBotRequest<TRequest> : IRequestPreProcessor
     {
         if (request.IsChannel ||
             request.InlineQuery != null ||
+            request.CallbackQuery != null ||
             request.IsPrivateChat)
             return;
 
