@@ -47,7 +47,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public User? User => ChatJoinRequest?.From ?? Message?.From ?? CallbackQuery?.From ?? InlineQuery?.From ?? default;
     public User? ReplyToUser => ReplyToMessage?.From;
 
-    public long UserId => Message?.From?.Id ?? CallbackQuery?.From?.Id ?? InlineQuery?.From?.Id ?? 0;
+    public long UserId => User?.Id ?? 0;
     public string UserFullName => $"{Message?.From?.FirstName} {Message?.From?.LastName}".Trim();
     public string UserLanguageCode => Message?.From?.LanguageCode ?? CallbackQuery?.From?.LanguageCode ?? InlineQuery?.From?.LanguageCode ?? "en";
 

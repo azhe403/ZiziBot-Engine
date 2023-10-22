@@ -23,7 +23,7 @@ public class BotMiddlewarePipelineBehaviour<TRequest, TResponse> : IPipelineBeha
     {
         if (request.Source != ResponseSource.Bot)
         {
-            _logger.LogDebug("Awatiting next because Request Source is: {Source}", request.Source);
+            _logger.LogDebug("Awaiting next because Request Source is: {Source}", request.Source);
             return await next();
         }
 
