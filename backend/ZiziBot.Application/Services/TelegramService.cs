@@ -485,7 +485,7 @@ public class TelegramService
 
     public async Task AnswerJoinRequestAsync(ChatJoinRequest joinRequest)
     {
-        // var result = await Bot.ApproveChatJoinRequest(_request.ChatId, joinRequest.From.Id);
+        var result = await Bot.ApproveChatJoinRequest(_request.ChatId, joinRequest.From.Id);
 
     }
     #endregion

@@ -34,6 +34,21 @@ public class ChatController : CommandController
         });
     }
 
+    [UpdateCommand(UpdateType.ChatJoinRequest)]
+    public async Task JoinRequest(UpdateData data)
+    {
+        await _mediatorService.EnqueueAsync(new ChatJoinBotRequest()
+        {
+            BotToken = data.Options.Token,
+            Update = data.Update,
+            DeleteAfter = TimeSpan.FromMinutes(10),
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot
+            }
+        });
+    }
+
     [TypedCommand(MessageType.ChatMembersAdded)]
     public async Task NewChatMembers(MessageData data)
     {
