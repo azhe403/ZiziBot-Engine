@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.7.1"/>
+        <PackageReference Include="FluentValidation" Version="11.8.0"/>
         <PackageReference Include="JetBrains.Annotations" Version="2023.2.0"/>
         <PackageReference Include="WTD.Allowed.Telegram.Bot" Version="4.3.0-preview.10"/>
     </ItemGroup>

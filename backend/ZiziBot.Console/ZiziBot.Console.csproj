@@ -13,9 +13,9 @@
 
     <ItemGroup>
         <PackageReference Include="Blazored.LocalStorage" Version="4.4.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.11"/>
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.11"/>
-        <PackageReference Include="Radzen.Blazor" Version="4.16.4"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.12"/>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.12"/>
+        <PackageReference Include="Radzen.Blazor" Version="4.18.1"/>
         <PackageReference Include="ReactiveUI.Blazor" Version="19.5.1"/>
         <PackageReference Include="ReactiveUI.Fody" Version="19.5.1"/>
         <PackageReference Include="Scrutor" Version="4.2.2" />
