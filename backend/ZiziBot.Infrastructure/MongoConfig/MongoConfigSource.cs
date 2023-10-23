@@ -48,6 +48,14 @@ public class MongoConfigSource : IConfigurationSource
             },
             new()
             {
+                Root = "Log",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "ProcessEnrich", false }
+                }
+            },
+            new()
+            {
                 Root = "Jwt",
                 KeyPair = new Dictionary<string, object>
                 {

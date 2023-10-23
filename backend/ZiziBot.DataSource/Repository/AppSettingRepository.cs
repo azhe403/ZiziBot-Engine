@@ -73,6 +73,12 @@ public class AppSettingRepository
         return data;
     }
 
+    public T GetRequiredConfigSection<T>() where T : new()
+    {
+        return GetConfigSection<T>() ?? new T();
+    }
+
+
     public async Task UpdateAppSetting(string name, string value)
     {
         var appSettings = await _mongoDbContext.AppSettings

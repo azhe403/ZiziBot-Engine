@@ -23,30 +23,36 @@ public static class LoggingExtension
     public static IHostBuilder ConfigureSerilog(this IHostBuilder hostBuilder, bool fullMode = false)
     {
         hostBuilder.UseSerilog((context, provider, config) => {
+            var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+            var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
+
+            var logConfig = appSettingRepository.GetRequiredConfigSection<LogConfig>();
+
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Debug()
-                .Enrich.WithDemystifiedStackTraces()
-                .Enrich.WithDynamicProperty("MemoryUsage", () => {
+                .Enrich.WithDemystifiedStackTraces();
+
+            if (logConfig.ProcessEnrich)
+            {
+                config.Enrich.WithDynamicProperty("MemoryUsage", () => {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
                     return $"{mem}";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
                     var threadId = Environment.CurrentManagedThreadId.ToString();
                     return $"{threadId}";
                 });
+            }
 
             config.WriteTo.Async(cfg => cfg
                 .Console(outputTemplate: OUTPUT_TEMPLATE)
                 .WriteTo.SignalRSink<LogHub, IHub>(LogEventLevel.Debug, provider));
 
-
             if (!fullMode)
                 return;
 
-            var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
-            var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
-
             var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
+
             if (sentryConfig?.IsEnabled ?? false)
             {
                 config.WriteTo.Async(cfg => {
