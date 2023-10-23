@@ -34,25 +34,6 @@ public class ChatController : CommandController
         });
     }
 
-    [Command("slow")]
-    [Command("slowall")]
-    public async Task SaveSlowMode(MessageData data)
-    {
-        await _mediatorService.EnqueueAsync(new SaveSlowModeRequest()
-        {
-            BotToken = data.Options.Token,
-            Message = data.Message,
-            ReplyMessage = true,
-            MinimumRole = RoleLevel.ChatAdmin,
-            ForAll = data.Message.Text.IsCommand("sloall"),
-            CleanupTargets = new[]
-            {
-                CleanupTarget.FromBot,
-                CleanupTarget.FromSender
-            }
-        });
-    }
-
     [UpdateCommand(UpdateType.ChatJoinRequest)]
     public async Task JoinRequest(UpdateData data)
     {
