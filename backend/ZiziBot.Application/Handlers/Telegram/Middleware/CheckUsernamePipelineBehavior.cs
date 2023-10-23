@@ -26,16 +26,16 @@ public class CheckUsernamePipelineBehavior<TRequest, TResponse> : IPipelineBehav
             request.ChannelPostAny != null)
             return await next();
 
+        _telegramService.SetupResponse(request);
+
         _logger.LogDebug("Checking Username for UserId: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
 
-        if (request.User?.Username != null)
+        if (await _telegramService.UserHasUsername())
         {
             _logger.LogDebug("User passed from checking Username for UserId: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
 
             return await next();
         }
-
-        _telegramService.SetupResponse(request);
 
         var fullName = request.User?.GetFullMention();
 

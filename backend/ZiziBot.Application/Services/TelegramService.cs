@@ -488,6 +488,41 @@ public class TelegramService
         var result = await Bot.ApproveChatJoinRequest(_request.ChatId, joinRequest.From.Id);
 
     }
+
+    public async Task<string[]> GetChatUsernames()
+    {
+        var chat = await Bot.GetChatAsync(_request.ChatId);
+        var activeUsernames = chat.ActiveUsernames;
+
+        return activeUsernames ?? Array.Empty<string>();
+    }
+
+    public async Task<string[]> GetUserUsernames()
+    {
+        var chat = await Bot.GetChatAsync(_request.UserId);
+        var activeUsernames = chat.ActiveUsernames;
+
+        return activeUsernames ?? Array.Empty<string>();
+    }
+
+    public async Task<string[]> GetAllUsernames()
+    {
+        var chat = await GetChatUsernames();
+        var chatUser = await GetUserUsernames();
+        var activeUsernames = chat.Concat(chatUser).ToArray();
+
+        return activeUsernames;
+    }
+
+    public async Task<bool> UserHasUsername()
+    {
+        if (_request.User?.Username != null)
+            return true;
+
+        var usernames = await GetUserUsernames();
+
+        return usernames.Any();
+    }
     #endregion
 
     #region Role
