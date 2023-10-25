@@ -4,21 +4,21 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
-public class SubmitPaymentBotRequestModel : BotRequestBase
+public class SubmitPaymentBotRequest : BotRequestBase
 {
     public string? Payload { get; set; }
     public long ForUserId { get; set; }
 }
 
-public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotRequestModel, BotResponseBase>
+public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBotRequest>
 {
-    private readonly ILogger<SubmitPaymentRequestHandler> _logger;
+    private readonly ILogger<SubmitPaymentBotRequestHandler> _logger;
     private readonly TelegramService _telegramService;
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
-    public SubmitPaymentRequestHandler(
-        ILogger<SubmitPaymentRequestHandler> logger,
+    public SubmitPaymentBotRequestHandler(
+        ILogger<SubmitPaymentBotRequestHandler> logger,
         TelegramService telegramService,
         AppSettingRepository appSettingRepository,
         MongoDbContextBase mongoDbContext
@@ -30,7 +30,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         _mongoDbContext = mongoDbContext;
     }
 
-    public async Task<BotResponseBase> Handle(SubmitPaymentBotRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(SubmitPaymentBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);
@@ -46,7 +46,9 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             }
         });
 
-        if (string.IsNullOrEmpty(request.Payload))
+        var guidOrderId = request.Payload?.UrlSegment(1, request.Payload);
+
+        if (guidOrderId.IsNullOrEmpty())
         {
             htmlMessage.Text("Sertakan Order Id untuk diverifikasi.").Br()
                 .Bold("Contoh: ").CodeBr("/sp 9d16023b-67be-5a0b-bc47-47809f059013");
@@ -55,7 +57,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
-        if (!request.Payload.IsValidGuid())
+        if (!guidOrderId.IsValidGuid())
         {
             htmlMessage = HtmlMessage.Empty
                 .Bold("OrderId sepertinya tidak valid").Br()
@@ -70,7 +72,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         }
 
         await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
-        var trakteerParsedDto = await request.Payload.GetTrakteerApi();
+        var trakteerParsedDto = await guidOrderId.GetTrakteerApi();
 
         var orderId = trakteerParsedDto.OrderId;
         var orderDate = trakteerParsedDto.OrderDate;
@@ -81,7 +83,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
 
         if (!trakteerParsedDto.IsValid)
         {
-            var saweriaParsedDto = await request.Payload.GetSaweriaApi();
+            var saweriaParsedDto = await guidOrderId.GetSaweriaApi();
 
             orderId = saweriaParsedDto.OrderId;
             orderDate = saweriaParsedDto.OrderDate;

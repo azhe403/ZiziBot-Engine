@@ -18,13 +18,15 @@ public class MirrorUserTest
 
     [Theory]
     [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")] // trakteer
+    [InlineData("https://trakteer.id/payment-status/94537cf1-b8a3-5c57-acfd-dd3705476d68")] // trakteerUrl
     public async Task SubmitTrakteerPaymentTest(string url)
     {
         // Arrange
+        var orderId = url.UrlSegment(1, url);
         var bot = await _appSettingRepository.GetBotMain();
         var payment = await _mongoDbContext.MirrorApproval
             .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .FirstOrDefaultAsync(entity => entity.PaymentUrl == url);
+            .FirstOrDefaultAsync(entity => entity.OrderId == orderId);
 
         if (payment != null)
         {
@@ -36,11 +38,11 @@ public class MirrorUserTest
         // Assert
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequest()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
-            Payload = url
+            Payload = orderId
         });
     }
 
@@ -52,7 +54,7 @@ public class MirrorUserTest
         var bot = await _appSettingRepository.GetBotMain();
         var payment = await _mongoDbContext.MirrorApproval
             .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .FirstOrDefaultAsync(entity => entity.PaymentUrl == url);
+            .FirstOrDefaultAsync(entity => entity.OrderId == url);
 
         if (payment != null)
         {
@@ -64,7 +66,7 @@ public class MirrorUserTest
         // Assert
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequest()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
@@ -83,7 +85,7 @@ public class MirrorUserTest
 
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequest()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
@@ -102,7 +104,7 @@ public class MirrorUserTest
 
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequest()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
@@ -119,7 +121,7 @@ public class MirrorUserTest
 
         Assert.NotNull(bot);
 
-        await _mediatorService.Send(new SubmitPaymentBotRequestModel()
+        await _mediatorService.Send(new SubmitPaymentBotRequest()
         {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
