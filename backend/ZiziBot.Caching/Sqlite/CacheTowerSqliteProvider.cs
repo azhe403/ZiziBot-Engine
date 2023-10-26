@@ -5,38 +5,45 @@ namespace ZiziBot.Caching.Sqlite;
 
 public class CacheTowerSqliteProvider : ICacheLayer
 {
-    private readonly SqliteCachingDbContext _dbContext;
+    private readonly string _dbPath;
 
     public CacheTowerSqliteProvider(string dbPath)
     {
-        _dbContext = new SqliteCachingDbContext(dbPath);
+        _dbPath = dbPath;
 
-        _dbContext.Database.EnsureCreated();
+        GetContext().Database.EnsureCreated();
     }
 
     public async ValueTask FlushAsync()
     {
-        await _dbContext.SqliteCache.ExecuteDeleteAsync();
-        await _dbContext.SaveChangesAsync();
+        var dbContext = GetContext();
+
+        await dbContext.SqliteCache.ExecuteDeleteAsync();
+        await dbContext.SaveChangesAsync();
     }
 
     public async ValueTask CleanupAsync()
     {
-        await _dbContext.SqliteCache.Where(x => x.Expiry < DateTime.UtcNow).ExecuteDeleteAsync();
-        await _dbContext.SaveChangesAsync();
+        var dbContext = GetContext();
+
+        await dbContext.SqliteCache.Where(x => x.Expiry < DateTime.UtcNow).ExecuteDeleteAsync();
+        await dbContext.SaveChangesAsync();
     }
 
     public async ValueTask EvictAsync(string cacheKey)
     {
-        await _dbContext.SqliteCache.Where(x => x.CacheKey == cacheKey).ExecuteDeleteAsync();
-        await _dbContext.SaveChangesAsync();
+        var dbContext = GetContext();
+
+        await dbContext.SqliteCache.Where(x => x.CacheKey == cacheKey).ExecuteDeleteAsync();
+        await dbContext.SaveChangesAsync();
     }
 
     public async ValueTask<CacheEntry<T>?> GetAsync<T>(string cacheKey)
     {
         var cacheEntry = default(CacheEntry<T>);
+        var dbContext = GetContext();
 
-        var obj = await _dbContext.SqliteCache.Where(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
+        var obj = await dbContext.SqliteCache.Where(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
 
         if (obj != null)
         {
@@ -47,12 +54,14 @@ public class CacheTowerSqliteProvider : ICacheLayer
         return cacheEntry;
     }
 
-    public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T?> cacheEntry)
+    public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
     {
-        var findCache = await _dbContext.SqliteCache.FirstOrDefaultAsync(x => x.CacheKey == cacheKey);
+        var dbContext = GetContext();
+
+        var findCache = await dbContext.SqliteCache.FirstOrDefaultAsync(x => x.CacheKey == cacheKey);
         if (findCache == null)
         {
-            await _dbContext.SqliteCache.AddAsync(new SqliteCacheEntity()
+            await dbContext.SqliteCache.AddAsync(new SqliteCacheEntity()
             {
                 CacheKey = cacheKey,
                 Value = cacheEntry.Value.ToJson(),
@@ -65,12 +74,22 @@ public class CacheTowerSqliteProvider : ICacheLayer
             findCache.Expiry = cacheEntry.Expiry;
         }
 
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
     {
-        var obj = await _dbContext.SqliteCache.Where(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
+        var dbContext = GetContext();
+
+        var obj = await dbContext.SqliteCache.Where(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
+
         return obj != null;
+    }
+
+    private SqliteCachingDbContext GetContext()
+    {
+        var dbContext = new SqliteCachingDbContext(_dbPath);
+
+        return dbContext;
     }
 }
