@@ -25,7 +25,7 @@ public class FathimahApiService
         _logger.LogInformation("Get City");
 
         var apis = await _cacheService.GetOrSetAsync(
-            cacheKey: $"vendor/api.banghasan.com/shalat/list-kota",
+            cacheKey: $"vendor/api-banghasan-com/shalat/list-kota",
             expireAfter: "1d",
             staleAfter: "1h",
             action: async () => {
@@ -51,7 +51,7 @@ public class FathimahApiService
         _logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateStr);
 
         var apis = await _cacheService.GetOrSetAsync(
-            cacheKey: $"vendor/api.banghasan.com/shalat/kota/{cityId}",
+            cacheKey: $"vendor/api-banghasan-com/shalat/kota/{cityId}",
             expireAfter: "1d",
             staleAfter: "1h",
             action: async () => {
