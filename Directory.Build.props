@@ -2,7 +2,16 @@
     <PropertyGroup>
         <BaseIntermediateOutputPath>.obj\</BaseIntermediateOutputPath>
         <BaseOutputPath>.bin\</BaseOutputPath>
+        <Version>223.9.8667.29262</Version>
     </PropertyGroup>
+
+    <!-- Store Build Date -->
+    <ItemGroup>
+        <AssemblyAttribute Include="ZiziBot.Attributes.BuildStampAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+    <!-- Store Build Date -->
 
     <Target Name="PostClean" AfterTargets="Clean" Condition=" '$(Configuration)' == 'Debug'">
         <!-- bin -->

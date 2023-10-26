@@ -7,7 +7,7 @@ namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 [WithBehaviors(typeof(FluentValidationBehavior<,>))]
 [MediatRBehavior(typeof(RequestValidationPipeline))]
-[MediatRBehavior(typeof(CheckUsernamePipeline))]
+// [MediatRBehavior(typeof(CheckUsernamePipeline))]
 [MediatRBehavior(typeof(CheckAntispamPipeline))]
 public class BotMiddlewareRunnerRequest : BotMiddlewareRequestBase<AntiSpamDto>
 {

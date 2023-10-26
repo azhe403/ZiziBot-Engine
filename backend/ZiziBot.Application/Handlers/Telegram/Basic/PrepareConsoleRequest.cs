@@ -21,7 +21,8 @@ public class PrepareConsoleHandler : IRequestHandler<PrepareConsoleBotRequest, B
         _telegramService.SetupResponse(request);
 
         var sessionId = Guid.NewGuid().ToString();
-        var webUrlBase = Env.WEB_VERIFY_SESSION_URL + "?session_id=";
+        var consoleUrl = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL);
+        var webUrlBase = consoleUrl + "?session_id=";
         var webUrl = webUrlBase + sessionId;
 
         if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))

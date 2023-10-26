@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\ZiziBot.Attributes\ZiziBot.Attributes.csproj"/>
+    </ItemGroup>
+
 </Project>

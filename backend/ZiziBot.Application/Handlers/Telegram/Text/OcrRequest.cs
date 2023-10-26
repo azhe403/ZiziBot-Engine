@@ -1,10 +1,10 @@
 namespace ZiziBot.Application.Handlers.Telegram.Text;
 
-public class OcrBotRequestModel : BotRequestBase
+public class OcrBotRequest : BotRequestBase
 {
 }
 
-public class OcrRequestHandler : IRequestHandler<OcrBotRequestModel, BotResponseBase>
+public class OcrRequestHandler : IBotRequestHandler<OcrBotRequest>
 {
     private readonly TelegramService _telegramService;
     private readonly OptiicDevService _optiicDevService;
@@ -15,7 +15,7 @@ public class OcrRequestHandler : IRequestHandler<OcrBotRequestModel, BotResponse
         _optiicDevService = optiicDevService;
     }
 
-    public async Task<BotResponseBase> Handle(OcrBotRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(OcrBotRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
@@ -23,16 +23,16 @@ public class OcrRequestHandler : IRequestHandler<OcrBotRequestModel, BotResponse
 
         try
         {
-            var localFile = await _telegramService.DownloadFileAsync("ocr_");
+            var localFile = await _telegramService.DownloadFileAsync("ocr/");
             var ocrResult = await _optiicDevService.ScanImageAsync(localFile);
 
             return await _telegramService.EditMessageText(ocrResult.Text);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
             var htmlMessage = HtmlMessage.Empty
                 .Bold("Terjadi kesalahan ketika menjalankan OCR").Br()
-                .Bold("Error: ").Text(e.Message.Split(":").FirstOrDefault());
+                .Bold("Error: ").Text(exception.Message.Split(":").FirstOrDefault());
 
             return await _telegramService.EditMessageText(htmlMessage.ToString());
         }

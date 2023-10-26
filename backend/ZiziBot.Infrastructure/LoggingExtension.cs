@@ -1,30 +1,48 @@
+using System.Diagnostics;
 using Flurl.Http;
+using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sentry;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.AspNetCore.SignalR.Extensions;
-using Serilog.Sinks.AspNetCore.SignalR.Interfaces;
+using IHub = Serilog.Sinks.AspNetCore.SignalR.Interfaces.IHub;
 
 namespace ZiziBot.Infrastructure;
 
 public static class LoggingExtension
 {
     // ReSharper disable InconsistentNaming
-    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_BASE = $"[{{Level:u3}}] {{MemoryUsage}} {{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
 
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
 
     public static IHostBuilder ConfigureSerilog(this IHostBuilder hostBuilder, bool fullMode = false)
     {
-        hostBuilder.UseSerilog((context, provider, config) =>
-        {
+        hostBuilder.UseSerilog((context, provider, config) => {
+            var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+            var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
+
+            var logConfig = appSettingRepository.GetRequiredConfigSection<LogConfig>();
+
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Debug()
                 .Enrich.WithDemystifiedStackTraces();
+
+            if (logConfig.ProcessEnrich)
+            {
+                config.Enrich.WithDynamicProperty("MemoryUsage", () => {
+                    var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
+                    return $"{mem}";
+                }).Enrich.WithDynamicProperty("ThreadId", () => {
+                    var threadId = Environment.CurrentManagedThreadId.ToString();
+                    return $"{threadId}";
+                });
+            }
 
             config.WriteTo.Async(cfg => cfg
                 .Console(outputTemplate: OUTPUT_TEMPLATE)
@@ -33,8 +51,18 @@ public static class LoggingExtension
             if (!fullMode)
                 return;
 
-            var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
-            var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
+            var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
+
+            if (sentryConfig?.IsEnabled ?? false)
+            {
+                config.WriteTo.Async(cfg => {
+                    cfg.Sentry(options => {
+                        options.Dsn = sentryConfig.Dsn;
+                        options.StackTraceMode = StackTraceMode.Enhanced;
+                        options.Release = VersionUtil.GetVersion();
+                    });
+                });
+            }
 
             config.WriteTo.Async(configuration => configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
         });
@@ -45,16 +73,13 @@ public static class LoggingExtension
     public static IApplicationBuilder ConfigureFlurlLogging(this IApplicationBuilder app)
     {
         FlurlHttp.Configure(
-            settings =>
-            {
-                settings.BeforeCall = flurlCall =>
-                {
+            settings => {
+                settings.BeforeCall = flurlCall => {
                     var request = flurlCall.Request;
                     Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
                 };
 
-                settings.AfterCall = flurlCall =>
-                {
+                settings.AfterCall = flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
                     Log.Information(

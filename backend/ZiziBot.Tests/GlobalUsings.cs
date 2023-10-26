@@ -15,6 +15,8 @@ global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.DataSource.Repository;
 global using ZiziBot.Infrastructure;
 global using ZiziBot.Parsers.WebParser;
+global using ZiziBot.Services;
 global using ZiziBot.Tests.SampleData;
 global using ZiziBot.Tests.SampleData;
+global using ZiziBot.Types.Types;
 global using ZiziBot.Utils;

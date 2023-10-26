@@ -7,21 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.10"/>
-        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.400"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="JetBrains.Annotations" Version="2023.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.12"/>
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="7.0.402"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ZiziBot.Allowed.TelegramBot\ZiziBot.Allowed.TelegramBot.csproj" />
-        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
-        <ProjectReference Include="..\ZiziBot.Console\ZiziBot.Console.csproj" />
-        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
-        <ProjectReference Include="..\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj" />
-        <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj" />
-        <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj" />
-        <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj" />
+        <ProjectReference Include="..\ZiziBot.Allowed.TelegramBot\ZiziBot.Allowed.TelegramBot.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Console\ZiziBot.Console.csproj"/>
+        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
+        <ProjectReference Include="..\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
+        <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -62,11 +62,11 @@
     <!--  SPA Config  -->
 
     <!-- Store Build Date -->
-    <ItemGroup>
-        <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildStampAttribute">
-            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
+    <!--    <ItemGroup>-->
+    <!--        <AssemblyAttribute Include="ZiziBot.Contracts.Attributes.BuildStampAttribute">-->
+    <!--            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>-->
+    <!--        </AssemblyAttribute>-->
+    <!--    </ItemGroup>-->
     <!-- Store Build Date -->
 
 </Project>

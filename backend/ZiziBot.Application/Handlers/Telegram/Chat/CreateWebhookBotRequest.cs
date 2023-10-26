@@ -11,13 +11,13 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookBotRequest, Bot
 {
     private readonly ILogger<CreateWebhookHandler> _logger;
     private readonly TelegramService _telegramService;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public CreateWebhookHandler(ILogger<CreateWebhookHandler> logger, TelegramService telegramService, ChatDbContext chatDbContext)
+    public CreateWebhookHandler(ILogger<CreateWebhookHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(CreateWebhookBotRequest request, CancellationToken cancellationToken)
@@ -26,20 +26,21 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookBotRequest, Bot
 
         await _telegramService.SendMessageText("Sedang membuat webhook..");
 
-        var webhookChat = await _chatDbContext.WebhookChat
+        var webhookChat = await _mongoDbContext.WebhookChat
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .Where(entity => entity.MessageThreadId == request.MessageThreadId)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var routeId = await StringUtil.GetNanoIdAsync();
-        var webhookUrl = UrlConst.WEBHOOK_URL + routeId;
+        var webhookApi = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL) + "/api/webhook/";
+        var webhookUrl = webhookApi + routeId;
         var htmlMessage = HtmlMessage.Empty
             .Bold("Webhook").Br();
 
         if (webhookChat == null)
         {
-            _chatDbContext.WebhookChat.Add(new WebhookChatEntity()
+            _mongoDbContext.WebhookChat.Add(new WebhookChatEntity()
             {
                 ChatId = request.ChatIdentifier,
                 MessageThreadId = request.MessageThreadId,
@@ -49,11 +50,11 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookBotRequest, Bot
         }
         else
         {
-            webhookUrl = UrlConst.WEBHOOK_URL + webhookChat.RouteId;
+            webhookUrl = webhookApi + webhookChat.RouteId;
         }
 
         htmlMessage.Code(webhookUrl);
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return await _telegramService.EditMessageText(htmlMessage.ToString());
     }

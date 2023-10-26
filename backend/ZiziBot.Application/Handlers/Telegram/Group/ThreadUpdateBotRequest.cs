@@ -6,15 +6,15 @@ public class ThreadUpdateBotRequest : BotRequestBase
 {
 }
 
-public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateBotRequest, BotResponseBase>
+public class ThreadUpdateHandler : IBotRequestHandler<ThreadUpdateBotRequest>
 {
-    private readonly GroupDbContext _groupDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly TelegramService _telegramService;
 
-    public ThreadUpdateHandler(TelegramService telegramService, GroupDbContext groupDbContext)
+    public ThreadUpdateHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _telegramService = telegramService;
-        _groupDbContext = groupDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(ThreadUpdateBotRequest request, CancellationToken cancellationToken)
@@ -24,14 +24,19 @@ public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateBotRequest, BotRe
         var prevTopicName = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
 
-        var findTopic = await _groupDbContext.GroupTopic
+        var findTopic = await _mongoDbContext.GroupTopic
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        if(!request.CurrentTopicName.IsNullOrEmpty())
-            htmlMessage.Text("Topic berubah nama menjadi ").BoldBr($" {request.CurrentTopicName}");
+        if (!request.CreatedTopicName.IsNullOrEmpty())
+            htmlMessage.Text("Topic telah dibuat").Br()
+                .Bold("Name: ").Code(request.TopicName).Br();
+
+        if (!request.EditedTopicName.IsNullOrEmpty())
+            htmlMessage.Text("Topic berubah nama").Br()
+                .Bold("Sesudah: ").Code(request.TopicName).Br();
 
         if (findTopic == null)
         {
@@ -42,23 +47,25 @@ public class ThreadUpdateHandler : IRequestHandler<ThreadUpdateBotRequest, BotRe
                 Status = (int)EventStatus.Complete
             };
 
-            if (request.CurrentTopicName != null)
-                entity.ThreadName = request.CurrentTopicName;
+            if (request.TopicName != null)
+                entity.ThreadName = request.TopicName;
 
-            _groupDbContext.GroupTopic.Add(entity);
+            _mongoDbContext.GroupTopic.Add(entity);
         }
         else
         {
-            if (request.CurrentTopicName != null)
+            if (request.TopicName != null)
             {
                 prevTopicName = findTopic.ThreadName;
-                findTopic.ThreadName = request.CurrentTopicName;
+                findTopic.ThreadName = request.TopicName;
 
-                htmlMessage.Text("Sebelumnya ").Bold(prevTopicName);
+                htmlMessage.Bold("Sebelum: ").Code(prevTopicName).Br();
             }
         }
 
-        await _groupDbContext.SaveChangesAsync(cancellationToken);
+        htmlMessage.Bold("Topic ID: ").Code(request.MessageThreadId.ToString());
+
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return await _telegramService.SendMessageText(htmlMessage.ToString());
     }

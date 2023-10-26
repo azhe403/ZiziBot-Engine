@@ -13,13 +13,13 @@ public class NewChatMembersBotRequest : BotRequestBase
 public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, BotResponseBase>
 {
     private readonly ILogger<NewChatMembersHandler> _logger;
-    private readonly GroupDbContext _groupDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly TelegramService _telegramService;
 
-    public NewChatMembersHandler(ILogger<NewChatMembersHandler> logger, GroupDbContext groupDbContext, TelegramService telegramService)
+    public NewChatMembersHandler(ILogger<NewChatMembersHandler> logger, MongoDbContextBase mongoDbContext, TelegramService telegramService)
     {
         _logger = logger;
-        _groupDbContext = groupDbContext;
+        _mongoDbContext = mongoDbContext;
         _telegramService = telegramService;
     }
 
@@ -37,7 +37,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
         var messageTemplate = $"Hai {allNewMember}\n" +
                               $"Selamat datang di Kontrakan {request.ChatTitle}";
 
-        var welcomeMessage = await _groupDbContext.WelcomeMessage
+        var welcomeMessage = await _mongoDbContext.WelcomeMessage
             .Where(x => x.ChatId == request.ChatIdentifier)
             .Where(x => x.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
@@ -58,11 +58,11 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
             ("MemberCount", memberCount.ToString())
         });
 
-        if (welcomeMessage?.DataType > (int)CommonMediaType.Text)
-        {
-            return await _telegramService.SendMediaAsync(welcomeMessage.Media, (CommonMediaType)welcomeMessage.DataType, messageText);
-        }
-
-        return await _telegramService.SendMessageText(messageText);
+        return await _telegramService.SendMessageAsync(
+            text: messageText,
+            replyMarkup: welcomeMessage?.RawButton.ToButtonMarkup(),
+            fileId: welcomeMessage?.Media,
+            mediaType: (CommonMediaType)welcomeMessage?.DataType
+        );
     }
 }

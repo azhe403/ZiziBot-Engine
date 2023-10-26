@@ -21,17 +21,17 @@ public class GetMirrorUserResponseDto
 
 public class GetMirrorUsersRequestHandler : IRequestHandler<GetMirrorUsersRequestDto, ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>>>
 {
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public GetMirrorUsersRequestHandler(MirrorDbContext mirrorDbContext)
+    public GetMirrorUsersRequestHandler(MongoDbContextBase mongoDbContext)
     {
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>>> Handle(GetMirrorUsersRequestDto request, CancellationToken cancellationToken)
     {
-        var user = await _mirrorDbContext.MirrorUsers
-            .Where(mirrorUser => mirrorUser.Status == (int) EventStatus.Complete)
+        var user = await _mongoDbContext.MirrorUsers
+            .Where(mirrorUser => mirrorUser.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         var mirrorUsers = user.Select(mirrorUser => new GetMirrorUserResponseDto

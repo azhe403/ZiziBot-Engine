@@ -19,18 +19,18 @@ public class GetGlobalBanApiResponse
 
 public class GetGlobalBanApiHandler : IRequestHandler<GetGlobalBanApiRequest, ApiResponseBase<List<GetGlobalBanApiResponse>>>
 {
-    private readonly AntiSpamDbContext _antiSpamDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public GetGlobalBanApiHandler(AntiSpamDbContext antiSpamDbContext)
+    public GetGlobalBanApiHandler(MongoDbContextBase mongoDbContext)
     {
-        _antiSpamDbContext = antiSpamDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<List<GetGlobalBanApiResponse>>> Handle(GetGlobalBanApiRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<List<GetGlobalBanApiResponse>>();
 
-        var globalBanEntities = await _antiSpamDbContext.GlobalBan.ToListAsync(cancellationToken: cancellationToken);
+        var globalBanEntities = await _mongoDbContext.GlobalBan.ToListAsync(cancellationToken: cancellationToken);
 
         var listGlobalBan = globalBanEntities.Select(entity => new GetGlobalBanApiResponse()
         {

@@ -12,6 +12,11 @@ public class MongoDbContextBase : MongoDbContext
     public MongoDbSet<BotCommandEntity> BotCommand { get; set; }
     public MongoDbSet<SudoerEntity> Sudoers { get; set; }
 
+    public MongoDbSet<FeatureFlagEntity> FeatureFlag { get; set; }
+    public MongoDbSet<FeatureRoleEntity> FeatureRole { get; set; }
+    public MongoDbSet<FeatureRoleFlagEntity> FeatureRoleFlag { get; set; }
+    public MongoDbSet<FeatureAssignmentEntity> FeatureAssignment { get; set; }
+
     public MongoDbSet<DashboardSessionEntity> DashboardSessions { get; set; }
     public MongoDbSet<ApiKeyEntity> ApiKey { get; set; }
     public MongoDbSet<BotUserEntity> BotUser { get; set; }
@@ -65,10 +70,11 @@ public class MongoDbContextBase : MongoDbContext
 
     public async Task<string> ExportAllAsync<T>() where T : class, new()
     {
+        var exportPath = PathConst.MONGODB_BACKUP.EnsureDirectory();
         var data = await Query<T>().ToListAsync();
         var entityName = typeof(T).GetCustomAttribute<TableAttribute>()?.Name!;
 
-        var path = Path.Combine(PathConst.MONGODB_BACKUP, entityName + ".csv").EnsureDirectory();
+        var path = Path.Combine(exportPath, entityName + ".csv").EnsureDirectory();
 
         data.WriteToCsvFile(path);
 

@@ -70,7 +70,7 @@ public class DebugController : CommandController
     [Command("json")]
     public async Task GetDebug(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetDebugBotRequestModel()
+        await _mediatorService.EnqueueAsync(new GetDebugBotRequest()
         {
             BotToken = data.Options.Token,
             Message = data.Message,

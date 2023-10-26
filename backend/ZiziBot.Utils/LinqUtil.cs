@@ -1,14 +1,16 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace ZiziBot.Utils;
 
 public static class LinqUtil
 {
-    public static T RandomPick<T>(this List<T> source)
+    public static T RandomPick<T>(this IEnumerable<T> source)
     {
         var random = new Random();
-        var index = random.Next(source.Count);
-        var item = source.ElementAt(index);
+        var src = source.ToList();
+        var index = random.Next(src.Count);
+        var item = src.ElementAt(index);
 
         return item;
     }
@@ -49,7 +51,7 @@ public static class LinqUtil
         return keywords.Any(keyword => message.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    public static bool IsEmpty<TSource>(this IEnumerable<TSource>? source)
+    public static bool IsEmpty<TSource>([NotNullWhen(false)] this IEnumerable<TSource>? source)
     {
         if (source == null || !source.Any())
         {
@@ -57,5 +59,10 @@ public static class LinqUtil
         }
 
         return false;
+    }
+
+    public static bool NotEmpty<TSource>([NotNullWhen(true)] this IEnumerable<TSource>? source)
+    {
+        return !source.IsEmpty();
     }
 }

@@ -11,13 +11,13 @@ public class GetCityListHandler : IRequestHandler<GetCityListBotRequest, BotResp
 {
     private readonly ILogger<GetCityListHandler> _logger;
     private readonly TelegramService _telegramService;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public GetCityListHandler(ILogger<GetCityListHandler> logger, TelegramService telegramService, ChatDbContext chatDbContext)
+    public GetCityListHandler(ILogger<GetCityListHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(GetCityListBotRequest request, CancellationToken cancellationToken)
@@ -27,7 +27,7 @@ public class GetCityListHandler : IRequestHandler<GetCityListBotRequest, BotResp
 
         _logger.LogDebug("Getting city list from chat {ChatId}", request.ChatId);
 
-        var cityList = await _chatDbContext.City
+        var cityList = await _mongoDbContext.City
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.CityName)

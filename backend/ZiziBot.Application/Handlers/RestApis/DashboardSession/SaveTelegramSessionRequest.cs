@@ -23,20 +23,17 @@ public class SaveDashboardSessionIdResponseDto
 public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSessionRequest, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     private readonly ILogger<SaveTelegramSessionRequestHandler> _logger;
-    private readonly AppSettingsDbContext _appSettingsDbContext;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
     public SaveTelegramSessionRequestHandler(
         ILogger<SaveTelegramSessionRequestHandler> logger,
-        AppSettingsDbContext appSettingsDbContext,
-        UserDbContext userDbContext,
+        MongoDbContextBase mongoDbContext,
         AppSettingRepository appSettingRepository
     )
     {
         _logger = logger;
-        _appSettingsDbContext = appSettingsDbContext;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
         _appSettingRepository = appSettingRepository;
     }
 
@@ -44,7 +41,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
     {
         ApiResponseBase<SaveDashboardSessionIdResponseDto> response = new();
 
-        var botSetting = await _appSettingsDbContext.BotSettings
+        var botSetting = await _mongoDbContext.BotSettings
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .Where(entity => entity.Name == "Main")
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -89,7 +86,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
         var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        _userDbContext.DashboardSessions.Add(new DashboardSessionEntity()
+        _mongoDbContext.DashboardSessions.Add(new DashboardSessionEntity()
         {
             TelegramUserId = request.Model.Id,
             FirstName = request.Model.FirstName,
@@ -103,7 +100,7 @@ public class SaveTelegramSessionRequestHandler : IRequestHandler<SaveTelegramSes
             Status = (int)EventStatus.Complete
         });
 
-        await _userDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto()
         {

@@ -12,28 +12,28 @@ public class GetSettingPanelRequestHandler : IRequestHandler<GetSettingPanelBotR
 {
     private readonly ILogger<GetSettingPanelRequestHandler> _logger;
     private readonly TelegramService _telegramService;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public GetSettingPanelRequestHandler(ILogger<GetSettingPanelRequestHandler> logger, TelegramService telegramService, ChatDbContext chatDbContext)
+    public GetSettingPanelRequestHandler(ILogger<GetSettingPanelRequestHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(GetSettingPanelBotRequestModel request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
-        var chat = await _chatDbContext.ChatSetting.FirstOrDefaultAsync(x => x.ChatId == request.ChatIdentifier, cancellationToken);
+        var chat = await _mongoDbContext.ChatSetting.FirstOrDefaultAsync(x => x.ChatId == request.ChatIdentifier, cancellationToken);
         if (chat == null)
         {
-            _chatDbContext.ChatSetting.Add(new ChatSettingEntity()
+            _mongoDbContext.ChatSetting.Add(new ChatSettingEntity()
             {
                 ChatId = request.ChatIdentifier,
             });
 
-            await _chatDbContext.SaveChangesAsync(cancellationToken);
+            await _mongoDbContext.SaveChangesAsync(cancellationToken);
         }
 
         await _telegramService.SendMessageText("Sedang memuat tombol..");

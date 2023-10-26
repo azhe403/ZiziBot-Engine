@@ -37,7 +37,7 @@ public class NotesController : CommandController
     public async Task CreateNote(MessageData data)
     {
         var query = data.Params.GetCommandParamAt<string>(0, separator: "\n");
-        var rawButton = data.Params.Replace(query ?? "p", "").Trim();
+        var rawButton = data.Params.TrimStart(query);
 
         await _mediatorService.EnqueueAsync(new CreateNoteBotRequest()
         {
@@ -51,6 +51,7 @@ public class NotesController : CommandController
             FileId = data.Message.ReplyToMessage?.GetFileId(),
             DataType = data.Message.ReplyToMessage != null ? (int)data.Message.ReplyToMessage.Type : -1,
             RefreshNote = data.Message.Text?.StartsWith("/renote"),
+            DeleteAfter = TimeSpan.FromHours(1),
             CleanupTargets = new[]
             {
                 CleanupTarget.FromBot,

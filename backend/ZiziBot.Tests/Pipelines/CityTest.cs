@@ -7,14 +7,14 @@ public class CityTest
 {
     private readonly MediatorService _mediatorService;
     private readonly AppSettingRepository _appSettingRepository;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly FathimahApiService _fathimahApiService;
 
-    public CityTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, ChatDbContext chatDbContext, FathimahApiService fathimahApiService)
+    public CityTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext, FathimahApiService fathimahApiService)
     {
         _mediatorService = mediatorService;
         _appSettingRepository = appSettingRepository;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
         _fathimahApiService = fathimahApiService;
     }
 
@@ -46,7 +46,7 @@ public class CityTest
             .WhereIf(cityName.IsNotNullOrEmpty(), kota => kota.Name.Contains(cityName, StringComparison.OrdinalIgnoreCase))
             .FirstOrDefault();
 
-        var city = await _chatDbContext.City
+        var city = await _mongoDbContext.City
             .Where(entity => entity.ChatId == chatId)
             .Where(entity => entity.CityId == cityInfo.Id)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -55,7 +55,7 @@ public class CityTest
         if (city != null)
         {
             city.Status = (int)EventStatus.Deleted;
-            await _chatDbContext.SaveChangesAsync();
+            await _mongoDbContext.SaveChangesAsync();
         }
 
         // Arrange

@@ -9,9 +9,10 @@
         <PackageReference Include="FluentAssertions" Version="6.12.0"/>
         <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2"/>
-        <PackageReference Include="xunit" Version="2.5.0" />
-        <PackageReference Include="Xunit.DependencyInjection" Version="8.8.2"/>
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+        <PackageReference Include="xunit" Version="2.5.3" />
+        <PackageReference Include="Xunit.DependencyInjection" Version="8.9.0"/>
+        <PackageReference Include="Xunit.DependencyInjection.SkippableFact" Version="8.1.0"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -25,6 +26,7 @@
         <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj" />
         <ProjectReference Include="..\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj" />
         <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj" />
+        <ProjectReference Include="..\ZiziBot.Services\ZiziBot.Services.csproj"/>
     </ItemGroup>
     <ItemGroup>
         <None Update=".env">

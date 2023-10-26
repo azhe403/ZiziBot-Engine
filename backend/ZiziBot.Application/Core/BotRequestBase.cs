@@ -21,30 +21,33 @@ public class BotRequestBase : IRequest<BotResponseBase>
 
     public ForumTopicCreated? ForumTopicCreated => Message?.ForumTopicCreated;
     public ForumTopicEdited? ForumTopicEdited => Message?.ForumTopicEdited;
+    public string? EditedTopicName => ReplyToMessage?.ForumTopicEdited?.Name ?? ForumTopicEdited?.Name;
+    public string? CreatedTopicName => ReplyToMessage?.ForumTopicCreated?.Name ?? ForumTopicCreated?.Name;
+    public string? TopicName => EditedTopicName ?? CreatedTopicName;
 
     public CallbackQuery? CallbackQuery { get; set; }
     public InlineQuery? InlineQuery { get; set; }
 
     public DateTime MessageDate => Message?.Date ?? Message?.EditDate ?? DateTime.UtcNow;
 
-    public string? CurrentTopicName => ForumTopicEdited?.Name ?? ForumTopicCreated?.Name;
     public string? MessageText => Message?.Text;
     public string[]? MessageTexts => Message?.Text?.Split(" ");
     public string[]? RepliedMessageTexts => ReplyToMessage?.Text?.Split(" ");
 
+    public string? Command => MessageTexts?.FirstOrDefault();
     public string Param => MessageTexts?.Skip(1).StrJoin(" ") ?? "";
     public string CallbackQueryId => CallbackQuery?.Id ?? string.Empty;
 
-
     public ChatId ChatId => ChatJoinRequest?.Chat.Id ?? Message?.Chat.Id ?? default;
-    public int MessageThreadId => (int)(CurrentTopicName != null ? Message?.MessageThreadId : 0);
+    public int MessageThreadId => Message?.MessageThreadId ?? default;
     public long ChatIdentifier => ChatId.Identifier ?? default;
     public ChatType ChatType => Message?.Chat.Type ?? default;
     public string ChatTitle => Message?.Chat.Title ?? Message?.From?.FirstName ?? Message?.From?.Username ?? Message?.From?.LastName ?? "Unknown";
 
     public User? User => ChatJoinRequest?.From ?? Message?.From ?? CallbackQuery?.From ?? InlineQuery?.From ?? default;
+    public User? ReplyToUser => ReplyToMessage?.From;
 
-    public long UserId => Message?.From?.Id ?? CallbackQuery?.From?.Id ?? InlineQuery?.From?.Id ?? 0;
+    public long UserId => User?.Id ?? 0;
     public string UserFullName => $"{Message?.From?.FirstName} {Message?.From?.LastName}".Trim();
     public string UserLanguageCode => Message?.From?.LanguageCode ?? CallbackQuery?.From?.LanguageCode ?? InlineQuery?.From?.LanguageCode ?? "en";
 
@@ -55,7 +58,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public int MessageId => Message?.MessageId ?? default;
     public int ReplyToMessageId { get; set; }
 
-    public bool ReplyMessage { get; set; }
+    public bool ReplyMessage { get; set; } = true;
     public bool IsChannel => Update?.ChannelPost != null || Update?.EditedChannelPost != null;
     public bool IsPrivateChat => Message?.Chat.Type == ChatType.Private;
 
@@ -70,6 +73,4 @@ public class BotRequestBase : IRequest<BotResponseBase>
     };
 
     public TimeSpan DeleteAfter { get; set; } = TimeSpan.FromMinutes(1);
-
-    public Message SentMessage { get; set; }
 }

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace ZiziBot.Contracts.Constants;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public class CacheKey
+public static class CacheKey
 {
     public const string BAN_ESS = "ban/ess/";
     public const string BAN_CAS = "ban/cas/";
@@ -13,4 +13,6 @@ public class CacheKey
     public const string LIST_CHAT_ADMIN = "chat/admin/";
 
     public const string API_DOC = "api-doc";
+
+    public const string BADWORD = "badword";
 }

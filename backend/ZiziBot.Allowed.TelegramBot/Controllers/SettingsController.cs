@@ -31,4 +31,40 @@ public class SettingsController : CommandController
             }
         });
     }
+
+    [Command("wb")]
+    [Command("wd")]
+    [Command("wt")]
+    public async Task SaveWelcome(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new SaveWelcomeMessageRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            MinimumRole = RoleLevel.ChatAdmin,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
+
+    [Command("wm")]
+    public async Task ShowWelcome(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new ShowWelcomeMessageRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            MinimumRole = RoleLevel.ChatAdmin,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
 }

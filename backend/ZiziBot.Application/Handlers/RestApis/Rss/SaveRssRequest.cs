@@ -27,11 +27,11 @@ public class SaveRssValidation : AbstractValidator<SaveRssRequest>
 
 public class SaveRssHandler : IRequestHandler<SaveRssRequest, ApiResponseBase<bool>>
 {
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public SaveRssHandler(ChatDbContext chatDbContext)
+    public SaveRssHandler(MongoDbContextBase mongoDbContext)
     {
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<bool>> Handle(SaveRssRequest request, CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ public class SaveRssHandler : IRequestHandler<SaveRssRequest, ApiResponseBase<bo
             return response.BadRequest($"Kamu tidak mempunyai akses ke ChatId: {request.Body.ChatId}");
         }
 
-        var rss = await _chatDbContext.RssSetting
+        var rss = await _mongoDbContext.RssSetting
             .Where(entity => entity.ChatId == request.Body.ChatId)
             .Where(entity => entity.RssUrl == request.Body.Url)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -51,7 +51,7 @@ public class SaveRssHandler : IRequestHandler<SaveRssRequest, ApiResponseBase<bo
 
         if (rss == null)
         {
-            _chatDbContext.RssSetting.Add(new RssSettingEntity()
+            _mongoDbContext.RssSetting.Add(new RssSettingEntity()
             {
                 RssUrl = request.Body.Url,
                 ChatId = request.Body.ChatId,
@@ -63,7 +63,7 @@ public class SaveRssHandler : IRequestHandler<SaveRssRequest, ApiResponseBase<bo
 
         }
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("RSS Berhasil disimpan", true);
     }

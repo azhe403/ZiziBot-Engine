@@ -11,12 +11,12 @@ public class GetMirrorSubscriptionBotRequest : BotRequestBase
 public class GetMirrorSubscriptionHandler : IRequestHandler<GetMirrorSubscriptionBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public GetMirrorSubscriptionHandler(TelegramService telegramService, MirrorDbContext mirrorDbContext)
+    public GetMirrorSubscriptionHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _telegramService = telegramService;
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<BotResponseBase> Handle(GetMirrorSubscriptionBotRequest request, CancellationToken cancellationToken)
@@ -24,7 +24,7 @@ public class GetMirrorSubscriptionHandler : IRequestHandler<GetMirrorSubscriptio
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);
 
-        var mirrorSubscription = await _mirrorDbContext.MirrorUsers
+        var mirrorSubscription = await _mongoDbContext.MirrorUsers
             .FirstOrDefaultAsync(x =>
                     x.UserId == request.UserId &&
                     x.Status == (int)EventStatus.Complete,

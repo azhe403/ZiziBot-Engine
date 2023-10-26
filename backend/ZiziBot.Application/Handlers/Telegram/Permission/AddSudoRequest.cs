@@ -11,7 +11,7 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoBotRequestModel, Bot
     private readonly TelegramService _telegramService;
     private readonly SudoService _sudoService;
 
-    public AddSudoRequestHandler(TelegramService telegramService, AppSettingsDbContext appSettingsDbContext, SudoService sudoService)
+    public AddSudoRequestHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext, SudoService sudoService)
     {
         _telegramService = telegramService;
         _sudoService = sudoService;

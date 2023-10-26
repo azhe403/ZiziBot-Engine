@@ -4,6 +4,7 @@ using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Debugging;
 using Serilog.Events;
+using ZiziBot.Types.Types;
 
 namespace ZiziBot.Infrastructure.LoggerSink;
 

@@ -9,12 +9,12 @@ public class EnsureChatSettingBehavior<TRequest, TResponse> : IRequestPostProces
     where TResponse : BotResponseBase
 {
     private readonly ILogger<EnsureChatSettingBehavior<TRequest, TResponse>> _logger;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public EnsureChatSettingBehavior(ILogger<EnsureChatSettingBehavior<TRequest, TResponse>> logger, ChatDbContext chatDbContext)
+    public EnsureChatSettingBehavior(ILogger<EnsureChatSettingBehavior<TRequest, TResponse>> logger, MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
@@ -24,21 +24,21 @@ public class EnsureChatSettingBehavior<TRequest, TResponse> : IRequestPostProces
 
         _logger.LogInformation("Ensure ChatSetting for ChatId: {ChatId} Started", request.ChatId);
 
-        var chatSetting = await _chatDbContext.ChatSetting
+        var chatSetting = await _mongoDbContext.ChatSetting
             .FirstOrDefaultAsync(x => x.ChatId == request.ChatIdentifier, cancellationToken: cancellationToken);
 
         if (chatSetting == null)
         {
             _logger.LogDebug("Creating fresh ChatSetting for ChatId: {ChatId}", request.ChatId);
 
-            _chatDbContext.ChatSetting.Add(
+            _mongoDbContext.ChatSetting.Add(
                 new ChatSettingEntity()
                 {
                     ChatId = request.ChatIdentifier,
                     ChatTitle = request.ChatTitle,
                     ChatType = request.ChatType,
                     ChatTypeName = request.ChatType.ToString(),
-                    Status = (int) EventStatus.Complete
+                    Status = (int)EventStatus.Complete
                 }
             );
         }
@@ -49,10 +49,10 @@ public class EnsureChatSettingBehavior<TRequest, TResponse> : IRequestPostProces
             chatSetting.ChatTitle = request.ChatTitle;
             chatSetting.ChatType = request.ChatType;
             chatSetting.ChatTypeName = request.ChatType.ToString();
-            chatSetting.Status = (int) EventStatus.Complete;
+            chatSetting.Status = (int)EventStatus.Complete;
         }
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Ensure ChatSetting for ChatId: {ChatId} Done", request.ChatId);
     }

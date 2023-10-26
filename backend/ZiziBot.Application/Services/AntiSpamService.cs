@@ -8,16 +8,14 @@ namespace ZiziBot.Application.Services;
 public class AntiSpamService
 {
     private readonly ILogger<AntiSpamService> _logger;
-    private readonly AntiSpamDbContext _antiSpamDbContext;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly ApiKeyService _apiKeyService;
     private readonly CacheService _cacheService;
 
-    public AntiSpamService(ILogger<AntiSpamService> logger, AntiSpamDbContext antiSpamDbContext, UserDbContext userDbContext, ApiKeyService apiKeyService, CacheService cacheService)
+    public AntiSpamService(ILogger<AntiSpamService> logger, MongoDbContextBase mongoDbContext, ApiKeyService apiKeyService, CacheService cacheService)
     {
         _logger = logger;
-        _antiSpamDbContext = antiSpamDbContext;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
         _apiKeyService = apiKeyService;
         _cacheService = cacheService;
     }
@@ -51,8 +49,8 @@ public class AntiSpamService
         var cacheData = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.BAN_ESS + userId,
             action: async () => {
-                var globalBanEntities = await _antiSpamDbContext.GlobalBan
-                    .Where(entity => entity.UserId == userId && entity.Status == (int) EventStatus.Complete)
+                var globalBanEntities = await _mongoDbContext.GlobalBan
+                    .Where(entity => entity.UserId == userId && entity.Status == (int)EventStatus.Complete)
                     .ToListAsync();
 
                 return globalBanEntities.Any();

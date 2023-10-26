@@ -11,7 +11,6 @@ public class GetNoteRequest : ApiRequestBase<object>
 public class GetNoteHandler : IRequestHandler<GetNoteRequest, ApiResponseBase<object>>
 {
     private readonly ChatSettingRepository _chatSettingRepository;
-    private readonly ChatDbContext _chatDbContext;
 
     public GetNoteHandler(ChatSettingRepository chatSettingRepository)
     {

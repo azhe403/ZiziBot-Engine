@@ -1,6 +1,6 @@
 namespace ZiziBot.Console.Partials;
 
-public partial class ChatSelector: ReactiveInjectableComponentBase<ChatSelectorViewModel>
+public partial class ChatSelector : ReactiveInjectableComponentBase<ChatSelectorViewModel>
 {
     [Inject]
     protected IMediator Mediator { get; set; }
@@ -12,7 +12,7 @@ public partial class ChatSelector: ReactiveInjectableComponentBase<ChatSelectorV
     protected ProtectedLocalStorage ProtectedLocalStorage { get; set; }
 
     [Inject]
-    protected ChatDbContext ChatDbContext { get; set; }
+    protected MongoDbContextBase MongoDbContextBase { get; set; }
 
     [Inject]
     protected ChatSettingRepository ChatSettingRepository { get; set; }

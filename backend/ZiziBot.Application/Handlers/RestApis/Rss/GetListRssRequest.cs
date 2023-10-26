@@ -25,18 +25,18 @@ public class GetListRssResponse
 
 public class GetListRssHandler : IRequestHandler<GetListRssRequest, ApiResponseBase<List<GetListRssResponse>>>
 {
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public GetListRssHandler(ChatDbContext chatDbContext)
+    public GetListRssHandler(MongoDbContextBase mongoDbContext)
     {
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<List<GetListRssResponse>>> Handle(GetListRssRequest request, CancellationToken cancellationToken)
     {
         ApiResponseBase<List<GetListRssResponse>> response = new();
 
-        var listRss = await _chatDbContext.RssSetting
+        var listRss = await _mongoDbContext.RssSetting
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .Where(entity => entity.Status == (int)EventStatus.Complete)

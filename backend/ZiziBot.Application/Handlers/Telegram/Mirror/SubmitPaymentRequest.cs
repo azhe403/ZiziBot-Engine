@@ -4,33 +4,33 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
-public class SubmitPaymentBotRequestModel : BotRequestBase
+public class SubmitPaymentBotRequest : BotRequestBase
 {
     public string? Payload { get; set; }
     public long ForUserId { get; set; }
 }
 
-public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotRequestModel, BotResponseBase>
+public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBotRequest>
 {
-    private readonly ILogger<SubmitPaymentRequestHandler> _logger;
+    private readonly ILogger<SubmitPaymentBotRequestHandler> _logger;
     private readonly TelegramService _telegramService;
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
-    public SubmitPaymentRequestHandler(
-        ILogger<SubmitPaymentRequestHandler> logger,
+    public SubmitPaymentBotRequestHandler(
+        ILogger<SubmitPaymentBotRequestHandler> logger,
         TelegramService telegramService,
         AppSettingRepository appSettingRepository,
-        MirrorDbContext mirrorDbContext
+        MongoDbContextBase mongoDbContext
     )
     {
         _logger = logger;
         _telegramService = telegramService;
         _appSettingRepository = appSettingRepository;
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
-    public async Task<BotResponseBase> Handle(SubmitPaymentBotRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(SubmitPaymentBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
         _telegramService.SetupResponse(request);
@@ -46,7 +46,9 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             }
         });
 
-        if (string.IsNullOrEmpty(request.Payload))
+        var guidOrderId = request.Payload?.UrlSegment(1, request.Payload);
+
+        if (guidOrderId.IsNullOrEmpty())
         {
             htmlMessage.Text("Sertakan Order Id untuk diverifikasi.").Br()
                 .Bold("Contoh: ").CodeBr("/sp 9d16023b-67be-5a0b-bc47-47809f059013");
@@ -55,7 +57,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
-        if (!request.Payload.IsValidGuid())
+        if (!guidOrderId.IsValidGuid())
         {
             htmlMessage = HtmlMessage.Empty
                 .Bold("OrderId sepertinya tidak valid").Br()
@@ -70,7 +72,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         }
 
         await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
-        var trakteerParsedDto = await request.Payload.GetTrakteerApi();
+        var trakteerParsedDto = await guidOrderId.GetTrakteerApi();
 
         var orderId = trakteerParsedDto.OrderId;
         var orderDate = trakteerParsedDto.OrderDate;
@@ -81,7 +83,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
 
         if (!trakteerParsedDto.IsValid)
         {
-            var saweriaParsedDto = await request.Payload.GetSaweriaApi();
+            var saweriaParsedDto = await guidOrderId.GetSaweriaApi();
 
             orderId = saweriaParsedDto.OrderId;
             orderDate = saweriaParsedDto.OrderDate;
@@ -106,7 +108,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             return await _telegramService.EditMessageText("Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
         }
 
-        var mirrorApproval = await _mirrorDbContext.MirrorApproval
+        var mirrorApproval = await _mongoDbContext.MirrorApproval
             .Where(entity => entity.OrderId == orderId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
@@ -120,7 +122,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             return await _telegramService.EditMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
-        _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
+        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
         {
             UserId = request.UserId,
             PaymentUrl = paymentUrl,
@@ -135,7 +137,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             TransactionId = transactionId
         });
 
-        var mirrorUser = await _mirrorDbContext.MirrorUsers
+        var mirrorUser = await _mongoDbContext.MirrorUsers
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -146,7 +148,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
         {
             _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
 
-            _mirrorDbContext.MirrorUsers.Add(new MirrorUserEntity()
+            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity()
             {
                 UserId = userId,
                 ExpireDate = expireDate,
@@ -167,7 +169,7 @@ public class SubmitPaymentRequestHandler : IRequestHandler<SubmitPaymentBotReque
             mirrorUser.TransactionId = transactionId;
         }
 
-        await _mirrorDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Langganan berhasil disimpan").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()

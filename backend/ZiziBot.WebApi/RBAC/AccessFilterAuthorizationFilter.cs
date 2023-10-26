@@ -38,7 +38,7 @@ public class AccessFilterAuthorizationFilter : IAsyncAuthorizationFilter
 
         var userId = context.HttpContext.Request.Headers.GetUserId();
 
-        context.HttpContext.RequestServices.GetRequiredService<ChatDbContext>();
+        context.HttpContext.RequestServices.GetRequiredService<MongoDbContextBase>();
         _groupRepository = context.HttpContext.RequestServices.GetRequiredService<GroupRepository>();
         _logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<AccessFilterAuthorizationFilter>>();
 

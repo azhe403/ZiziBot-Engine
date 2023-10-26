@@ -6,21 +6,21 @@ namespace ZiziBot.Application.Services;
 public class ApiKeyService
 {
     private readonly ILogger<ApiKeyService> _logger;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public ApiKeyService(ILogger<ApiKeyService> logger, UserDbContext userDbContext)
+    public ApiKeyService(ILogger<ApiKeyService> logger, MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiKeyEntity?> GetApiKeyAsync(string category, string name)
     {
-        var apiKey = await _userDbContext.ApiKey
+        var apiKey = await _mongoDbContext.ApiKey
             .FirstOrDefaultAsync(entity =>
                 entity.Category == category &&
                 entity.Name == name &&
-                entity.Status == (int) EventStatus.Complete
+                entity.Status == (int)EventStatus.Complete
             );
 
         return apiKey;
@@ -28,11 +28,11 @@ public class ApiKeyService
 
     public async Task<List<ApiKeyEntity>?> GetApiKeysAsync(string category, string name)
     {
-        var apiKey = await _userDbContext.ApiKey
+        var apiKey = await _mongoDbContext.ApiKey
             .Where(entity =>
                 entity.Category == category &&
                 entity.Name == name &&
-                entity.Status == (int) EventStatus.Complete
+                entity.Status == (int)EventStatus.Complete
             ).ToListAsync();
 
         return apiKey;

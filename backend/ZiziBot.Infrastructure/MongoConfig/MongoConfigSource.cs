@@ -4,11 +4,11 @@ namespace ZiziBot.Infrastructure.MongoConfig;
 
 public class MongoConfigSource : IConfigurationSource
 {
-    private readonly AppSettingsDbContext _dbContext;
+    private readonly MongoDbContextBase _dbContext;
 
     public MongoConfigSource(string connectionString)
     {
-        _dbContext = new AppSettingsDbContext(connectionString);
+        _dbContext = new MongoDbContextBase(connectionString);
     }
 
     public IConfigurationProvider Build(IConfigurationBuilder builder)
@@ -48,6 +48,14 @@ public class MongoConfigSource : IConfigurationSource
             },
             new()
             {
+                Root = "Log",
+                KeyPair = new Dictionary<string, object>
+                {
+                    { "ProcessEnrich", false }
+                }
+            },
+            new()
+            {
                 Root = "Jwt",
                 KeyPair = new Dictionary<string, object>
                 {
@@ -82,13 +90,32 @@ public class MongoConfigSource : IConfigurationSource
             },
             new()
             {
+                Root = "Flag",
+                KeyPair = new Dictionary<string, object>()
+                {
+                    { "IsEnabled", false },
+                    { "IsForwardMessageEnabled", false }
+                }
+            },
+            new()
+            {
                 Root = "Cache",
                 KeyPair = new Dictionary<string, object>
                 {
                     { "UseJsonFile", false },
                     { "UseFirebase", false },
                     { "UseRedis", false },
+                    { "UseSqlite", false },
                     { "RedisConnection", "localhost:6379" }
+                }
+            },
+            new()
+            {
+                Root = "Sentry",
+                KeyPair = new Dictionary<string, object>()
+                {
+                    { "IsEnabled", false },
+                    { "Dsn", "SENTRY_DSN" }
                 }
             },
             new()
@@ -106,6 +133,7 @@ public class MongoConfigSource : IConfigurationSource
                 Root = "Gcp",
                 KeyPair = new Dictionary<string, object>
                 {
+                    { "IsEnabled", false },
                     { "FirebaseProjectUrl", "https://yourapp.firebaseio.com" },
                     { "FirebaseServiceAccountJson", "{\"your_firebase_service_account_json\":\"string\"}" }
                 }

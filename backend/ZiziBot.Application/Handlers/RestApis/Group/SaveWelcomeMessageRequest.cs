@@ -36,11 +36,11 @@ public class SaveWelcomeMessageRequestModel
 
 public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageRequest, ApiResponseBase<object>>
 {
-    private readonly GroupDbContext _groupDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public SaveWelcomeMessageHandler(GroupDbContext groupDbContext)
+    public SaveWelcomeMessageHandler(MongoDbContextBase mongoDbContext)
     {
-        _groupDbContext = groupDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<object>> Handle(SaveWelcomeMessageRequest request, CancellationToken cancellationToken)
@@ -52,15 +52,15 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
             return response.BadRequest("You don't have access to this Group");
         }
 
-        var findWelcome = await _groupDbContext.WelcomeMessage
+        var findWelcome = await _mongoDbContext.WelcomeMessage
             .FirstOrDefaultAsync(x => x.Id == request.Model.ObjectId, cancellationToken);
 
         if (findWelcome == null)
         {
-            var welcomeMessage = await _groupDbContext.WelcomeMessage
+            var welcomeMessage = await _mongoDbContext.WelcomeMessage
                 .FirstOrDefaultAsync(x => x.ChatId == request.Model.ChatId, cancellationToken);
 
-            _groupDbContext.WelcomeMessage.Add(new WelcomeMessageEntity
+            _mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity
             {
                 ChatId = request.Model.ChatId,
                 Text = request.Model.Text,
@@ -81,7 +81,7 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
             findWelcome.Status = (int)EventStatus.InProgress;
         }
 
-        await _groupDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Save Welcome Message successfully", true);
     }

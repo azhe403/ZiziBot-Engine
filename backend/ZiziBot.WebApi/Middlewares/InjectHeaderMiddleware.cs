@@ -6,15 +6,11 @@ namespace ZiziBot.WebApi.Middlewares;
 
 public class InjectHeaderMiddleware : IMiddleware
 {
-    private readonly AppSettingsDbContext _appSettingsDbContext;
-    private readonly ChatDbContext _chatDbContext;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public InjectHeaderMiddleware(AppSettingsDbContext appSettingsDbContext, ChatDbContext chatDbContext, UserDbContext userDbContext)
+    public InjectHeaderMiddleware(MongoDbContextBase mongoDbContext)
     {
-        _appSettingsDbContext = appSettingsDbContext;
-        _chatDbContext = chatDbContext;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -44,7 +40,7 @@ public class InjectHeaderMiddleware : IMiddleware
         }
 
         #region Check Dashboard Session
-        var dashboardSession = await _userDbContext.DashboardSessions
+        var dashboardSession = await _mongoDbContext.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == bearerToken &&
                 entity.Status == (int)EventStatus.Complete
@@ -66,7 +62,7 @@ public class InjectHeaderMiddleware : IMiddleware
         #endregion
 
         #region Add List ChatId
-        var chatAdmin = await _chatDbContext.ChatAdmin
+        var chatAdmin = await _mongoDbContext.ChatAdmin
             .Where(entity =>
                 entity.UserId == dashboardSession.TelegramUserId &&
                 entity.Status == (int)EventStatus.Complete
@@ -81,7 +77,7 @@ public class InjectHeaderMiddleware : IMiddleware
         #region Add User Role
         var userRole = ApiRole.Guest;
 
-        var checkSudo = await _appSettingsDbContext.Sudoers
+        var checkSudo = await _mongoDbContext.Sudoers
             .FirstOrDefaultAsync(entity =>
                 entity.UserId == dashboardSession.TelegramUserId &&
                 entity.Status == (int)EventStatus.Complete);

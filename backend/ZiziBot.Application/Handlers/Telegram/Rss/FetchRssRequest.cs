@@ -9,21 +9,20 @@ namespace ZiziBot.Application.Handlers.Telegram.Rss;
 public class FetchRssRequest : IRequest<bool>
 {
     public long ChatId { get; set; }
+    public int ThreadId { get; set; }
     public string RssUrl { get; set; }
 }
 
 public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 {
     private readonly ILogger<FetchRssHandler> _logger;
-    private readonly AppSettingsDbContext _appSettingsDbContext;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly IRecurringJobManager _recurringJobManager;
 
-    public FetchRssHandler(ILogger<FetchRssHandler> logger, AppSettingsDbContext appSettingsDbContext, ChatDbContext chatDbContext, IRecurringJobManager recurringJobManager)
+    public FetchRssHandler(ILogger<FetchRssHandler> logger, MongoDbContextBase mongoDbContext, IRecurringJobManager recurringJobManager)
     {
         _logger = logger;
-        _appSettingsDbContext = appSettingsDbContext;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
         _recurringJobManager = recurringJobManager;
     }
 
@@ -43,9 +42,10 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 return false;
             }
 
-            var latestHistory = await _chatDbContext.RssHistory
+            var latestHistory = await _mongoDbContext.RssHistory
                 .FirstOrDefaultAsync(history =>
                         history.ChatId == request.ChatId &&
+                        history.ThreadId == request.ThreadId &&
                         history.RssUrl == request.RssUrl &&
                         history.Status == (int)EventStatus.Complete,
                     cancellationToken: cancellationToken);
@@ -56,23 +56,44 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 return false;
             }
 
-            var botSettings = await _appSettingsDbContext.BotSettings
+            var botSettings = await _mongoDbContext.BotSettings
                 .FirstOrDefaultAsync(settings =>
                         settings.Name == "Main" &&
                         settings.Status == (int)EventStatus.Complete,
                     cancellationToken: cancellationToken);
 
-            var telegramBotClient = new TelegramBotClient(botSettings.Token);
+            var botClient = new TelegramBotClient(botSettings.Token);
 
-            await telegramBotClient.SendTextMessageAsync(
-                chatId: request.ChatId,
-                text: $"{latestArticle.Title}\n{latestArticle.Link}",
-                parseMode: ParseMode.Html,
-                cancellationToken: cancellationToken);
+            var rssText = $"{latestArticle.Title}\n{latestArticle.Link}";
 
-            _chatDbContext.RssHistory.Add(new RssHistoryEntity()
+            try
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: request.ChatId,
+                    messageThreadId: request.ThreadId,
+                    text: rssText,
+                    parseMode: ParseMode.Html,
+                    cancellationToken: cancellationToken
+                );
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
+                if (exception.Message.Contains("thread not found"))
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: request.ChatId,
+                        text: rssText,
+                        parseMode: ParseMode.Html,
+                        cancellationToken: cancellationToken
+                    );
+                }
+            }
+
+            _mongoDbContext.RssHistory.Add(new RssHistoryEntity()
             {
                 ChatId = request.ChatId,
+                ThreadId = request.ThreadId,
                 RssUrl = request.RssUrl,
                 Title = latestArticle.Title,
                 Url = latestArticle.Link,
@@ -83,30 +104,30 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", request.ChatId, request.RssUrl);
-
             if (exception.Message.IsIgnorable())
             {
-                _logger.LogWarning("Disabling and remove in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
+                var findRssSetting = await _mongoDbContext.RssSetting
+                    .Where(entity => entity.ChatId == request.ChatId)
+                    .Where(entity => entity.RssUrl == request.RssUrl)
+                    .Where(entity => entity.Status == (int)EventStatus.Complete)
+                    .ToListAsync(cancellationToken);
 
-                var rssSetting = await _chatDbContext.RssSetting
-                    .FirstOrDefaultAsync(entity =>
-                            entity.ChatId == request.ChatId &&
-                            entity.RssUrl == request.RssUrl,
-                        cancellationToken: cancellationToken);
+                findRssSetting.ForEach(e => {
+                    _logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}", e.ChatId, e.RssUrl);
 
-                if (rssSetting != null)
-                {
-                    rssSetting.Status = (int)EventStatus.InProgress;
-                    rssSetting.LastErrorMessage = exception.Message;
+                    e.Status = (int)EventStatus.InProgress;
+                    e.LastErrorMessage = exception.Message;
 
-                    var jobId = "RssJob:" + rssSetting.Id;
-                    _recurringJobManager.RemoveIfExists(jobId);
-                }
+                    _recurringJobManager.RemoveIfExists(e.CronJobId);
+                });
+            }
+            else
+            {
+                _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", request.ChatId, request.RssUrl);
             }
         }
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return true;
     }

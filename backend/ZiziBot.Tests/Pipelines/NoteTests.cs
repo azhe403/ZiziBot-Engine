@@ -7,13 +7,13 @@ public class NoteTests
 {
     private readonly MediatorService _mediatorService;
     private readonly AppSettingRepository _appSettingRepository;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public NoteTests(MediatorService mediatorService, AppSettingRepository appSettingRepository, ChatDbContext chatDbContext)
+    public NoteTests(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext)
     {
         _mediatorService = mediatorService;
         _appSettingRepository = appSettingRepository;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     [Theory]
@@ -43,14 +43,14 @@ public class NoteTests
     public async Task DeleteNoteTest(string note)
     {
         // Arrange
-        _chatDbContext.Note.Add(new NoteEntity()
+        _mongoDbContext.Note.Add(new NoteEntity()
         {
             ChatId = SampleMessages.CommonMessage.Chat.Id,
             Query = note,
             Status = (int)EventStatus.Complete
         });
 
-        await _chatDbContext.SaveChangesAsync();
+        await _mongoDbContext.SaveChangesAsync();
 
 
         // Act

@@ -18,8 +18,7 @@ public class OcrController : CommandController
     [Command("ocr")]
     public async Task Ocr(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(
-            new OcrBotRequestModel()
+        await _mediatorService.EnqueueAsync(new OcrBotRequest()
             {
                 BotToken = data.Options.Token,
                 Message = data.Message,

@@ -43,12 +43,12 @@ public class CacheTowerFirebaseProvider : ICacheLayer
 
     public async ValueTask<CacheEntry<T>?> GetAsync<T>(string cacheKey)
     {
-        var cacheEntry = default(CacheEntry<T>);
+        var cacheEntry = default(CacheEntry<T>?);
 
         var data = await GetClient()
             .Child(_cacheOptions.RootDir)
             .Child(cacheKey)
-            .OnceAsync<FirebaseCacheEntry>();
+            .OnceAsync<FirebaseCacheEntry<T>>();
 
         var obj = data.FirstOrDefault(o => o.Object.CacheKey == cacheKey);
 
@@ -58,13 +58,13 @@ public class CacheTowerFirebaseProvider : ICacheLayer
         return cacheEntry;
     }
 
-    public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T?> cacheEntry)
+    public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
     {
         await GetClient()
             .Child(_cacheOptions.RootDir)
             .Child(cacheKey)
             .PutAsync(
-                new FirebaseCacheEntry()
+                new FirebaseCacheEntry<T?>()
                 {
                     CacheKey = cacheKey,
                     Value = cacheEntry.Value,
@@ -100,13 +100,7 @@ public class CacheTowerFirebaseProvider : ICacheLayer
     private async Task<string> GetAccessToken()
     {
         var credential = GoogleCredential.FromJson(_cacheOptions.ServiceAccountJson)
-            .CreateScoped(
-                new[]
-                {
-                    "https://www.googleapis.com/auth/firebase.database",
-                    "https://www.googleapis.com/auth/userinfo.email"
-                }
-            );
+            .CreateScoped("https://www.googleapis.com/auth/firebase.database", "https://www.googleapis.com/auth/userinfo.email");
 
         var accessToken = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
 

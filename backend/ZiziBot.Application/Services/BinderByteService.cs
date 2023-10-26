@@ -12,19 +12,19 @@ public class BinderByteService
     private BinderByteConfig? _binderByteConfig = new();
     private readonly ILogger<BinderByteService> _logger;
     private readonly AppSettingRepository _appSettingRepository;
-    private readonly AdditionalDbContext _additionalDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
     private readonly CacheService _cacheService;
 
     public BinderByteService(
         ILogger<BinderByteService> logger,
         AppSettingRepository appSettingRepository,
-        AdditionalDbContext additionalDbContext,
+        MongoDbContextBase mongoDbContext,
         CacheService cacheService
     )
     {
         _logger = logger;
         _appSettingRepository = appSettingRepository;
-        _additionalDbContext = additionalDbContext;
+        _mongoDbContext = mongoDbContext;
         _cacheService = cacheService;
     }
 
@@ -108,7 +108,7 @@ public class BinderByteService
 
     public async Task<BinderByteCheckAwbEntity?> GetStoredAwb(string awb)
     {
-        var collection = await _additionalDbContext.BinderByteCheckAwb
+        var collection = await _mongoDbContext.BinderByteCheckAwb
             .FirstOrDefaultAsync(resi => resi.AwbInfo.Summary.Awb == awb);
 
         return collection;
@@ -116,7 +116,7 @@ public class BinderByteService
 
     public async Task SaveAwbInfo(AwbInfo data)
     {
-        _additionalDbContext.BinderByteCheckAwb.Add(new BinderByteCheckAwbEntity()
+        _mongoDbContext.BinderByteCheckAwb.Add(new BinderByteCheckAwbEntity()
         {
             Awb = data.Summary.Awb,
             Courier = data.Summary.Courier,
@@ -124,7 +124,7 @@ public class BinderByteService
             Status = (int)EventStatus.Complete
         });
 
-        await _additionalDbContext.SaveChangesAsync();
+        await _mongoDbContext.SaveChangesAsync();
     }
 
     public async Task<ApiResponse> CekResiRawAsync(string courier, string awb)

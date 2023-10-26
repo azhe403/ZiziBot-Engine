@@ -20,6 +20,8 @@ public class ChatRestrictionProcessorBotRequest<TRequest> : IRequestPreProcessor
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
         if (request.IsChannel ||
+            request.InlineQuery != null ||
+            request.CallbackQuery != null ||
             request.IsPrivateChat)
             return;
 

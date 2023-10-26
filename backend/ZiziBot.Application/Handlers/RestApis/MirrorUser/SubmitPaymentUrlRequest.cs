@@ -25,18 +25,18 @@ public class SubmitPaymentUrlValidation : AbstractValidator<SubmitPaymentUrlRequ
 
 public class SubmitPaymentUrlRequestHandler : IRequestHandler<SubmitPaymentUrlRequest, ApiResponseBase<bool>>
 {
-    private readonly MirrorDbContext _mirrorDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public SubmitPaymentUrlRequestHandler(MirrorDbContext mirrorDbContext)
+    public SubmitPaymentUrlRequestHandler(MongoDbContextBase mongoDbContext)
     {
-        _mirrorDbContext = mirrorDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<bool>> Handle(SubmitPaymentUrlRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<bool>();
 
-        var mirrorApproval = await _mirrorDbContext.MirrorApproval
+        var mirrorApproval = await _mongoDbContext.MirrorApproval
             .FirstOrDefaultAsync(x =>
                     x.PaymentUrl == request.Body.Payload &&
                     x.Status == (int)EventStatus.Complete,
@@ -54,7 +54,7 @@ public class SubmitPaymentUrlRequestHandler : IRequestHandler<SubmitPaymentUrlRe
             return response.BadRequest("Tautan Pembayaran tidak valid. Contoh: https://trakteer.id/payment-status/123456");
         }
 
-        _mirrorDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
+        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
         {
             UserId = request.SessionUserId,
             PaymentUrl = trakteerParsedDto.PaymentUrl,
@@ -73,7 +73,7 @@ public class SubmitPaymentUrlRequestHandler : IRequestHandler<SubmitPaymentUrlRe
         var cendolCount = trakteerParsedDto.CendolCount;
 
 
-        var mirrorUser = await _mirrorDbContext.MirrorUsers
+        var mirrorUser = await _mongoDbContext.MirrorUsers
             .FirstOrDefaultAsync(x =>
                     x.UserId == request.SessionUserId &&
                     x.Status == (int)EventStatus.Complete,
@@ -84,7 +84,7 @@ public class SubmitPaymentUrlRequestHandler : IRequestHandler<SubmitPaymentUrlRe
 
         if (mirrorUser == null)
         {
-            _mirrorDbContext.MirrorUsers.Add(new MirrorUserEntity()
+            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity()
             {
                 UserId = request.SessionUserId,
                 ExpireDate = expireDate,
@@ -104,7 +104,7 @@ public class SubmitPaymentUrlRequestHandler : IRequestHandler<SubmitPaymentUrlRe
             mirrorUser.TransactionId = request.TransactionId;
         }
 
-        await _mirrorDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Pembayaran berhasil diverifikasi.", true);
     }

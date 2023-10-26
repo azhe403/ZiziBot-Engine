@@ -5,18 +5,16 @@ namespace ZiziBot.DataSource.Repository;
 
 public class ChatSettingRepository
 {
-    private readonly ChatDbContext _chatDbContext;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public ChatSettingRepository(ChatDbContext chatDbContext, UserDbContext userDbContext)
+    public ChatSettingRepository(MongoDbContextBase mongoDbContext)
     {
-        _chatDbContext = chatDbContext;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<WebhookChatEntity?> GetWebhookRouteById(string routeId)
     {
-        var webhookChat = await _chatDbContext.WebhookChat
+        var webhookChat = await _mongoDbContext.WebhookChat
             .Where(entity => entity.RouteId == routeId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();
@@ -25,9 +23,9 @@ public class ChatSettingRepository
 
     public async Task<List<ChatInfoDto>?> GetChatByBearerToken(string bearerToken)
     {
-        #region Check Dashboard Session
 
-        var dashboardSession = await _userDbContext.DashboardSessions
+        #region Check Dashboard Session
+        var dashboardSession = await _mongoDbContext.DashboardSessions
             .Where(entity => entity.BearerToken == bearerToken)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();
@@ -40,12 +38,12 @@ public class ChatSettingRepository
         var userId = dashboardSession.TelegramUserId;
         #endregion
 
-        var chatAdmin = await _chatDbContext.ChatAdmin
+        var chatAdmin = await _mongoDbContext.ChatAdmin
             .Where(entity =>
-            entity.UserId == userId &&
+                entity.UserId == userId &&
                 entity.Status == (int)EventStatus.Complete
-        )
-        .ToListAsync();
+            )
+            .ToListAsync();
 
         if (chatAdmin.Count == 0)
         {
@@ -54,7 +52,7 @@ public class ChatSettingRepository
 
         var chatIds = chatAdmin.Select(y => y.ChatId);
 
-        var listChatSetting = await _chatDbContext.ChatSetting
+        var listChatSetting = await _mongoDbContext.ChatSetting
             .Where(x => chatIds.Contains(x.ChatId))
             .ToListAsync();
 
@@ -83,10 +81,10 @@ public class ChatSettingRepository
 
     public async Task<List<NoteDto>> GetListNote(long chatId)
     {
-        var listNoteEntity = await _chatDbContext.Note
+        var listNoteEntity = await _mongoDbContext.Note
             .AsNoTracking()
             .Where(entity => entity.ChatId == chatId)
-            .Join(_chatDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto()
+            .Join(_mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto()
             {
                 Id = note.Id.ToString(),
                 ChatId = note.ChatId,
@@ -110,10 +108,10 @@ public class ChatSettingRepository
 
     public async Task<NoteDto> GetNote(string noteId)
     {
-        var listNoteEntity = await _chatDbContext.Note
+        var listNoteEntity = await _mongoDbContext.Note
             .AsNoTracking()
             .Where(entity => entity.Id == new ObjectId(noteId))
-            .Join(_chatDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto()
+            .Join(_mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto()
             {
                 Id = note.Id.ToString(),
                 ChatId = note.ChatId,
@@ -132,5 +130,16 @@ public class ChatSettingRepository
             .FirstOrDefaultAsync();
 
         return listNoteEntity;
+    }
+
+    public async Task<List<CityEntity>> GetCity(long chatId)
+    {
+        var cityList = await _mongoDbContext.City
+            .Where(entity => entity.ChatId == chatId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .OrderBy(entity => entity.CityName)
+            .ToListAsync();
+
+        return cityList;
     }
 }

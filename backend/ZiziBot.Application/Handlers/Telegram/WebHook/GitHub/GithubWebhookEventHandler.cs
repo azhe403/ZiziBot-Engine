@@ -33,7 +33,7 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         var commitsStr = "commit".ToQuantity(commitCount);
 
         var htmlMessage = HtmlMessage.Empty
-            .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(treeUrl, $"{repository.FullName}:{branchName}")
+            .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(repository.HtmlUrl, $"{repository.FullName}").Text(":").Url(treeUrl, $"{branchName}")
             .Br().Br();
 
         commits.ForEach(commit => {
@@ -122,12 +122,29 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
     private async Task SendMessage(string message)
     {
         var botClient = new TelegramBotClient(Token);
-        await botClient.SendTextMessageAsync(
-            chatId: ChatId,
-            text: message.MdToHtml(),
-            messageThreadId: ThreadId,
-            parseMode: ParseMode.Html,
-            disableWebPagePreview: true
-        );
+
+        try
+        {
+            await botClient.SendTextMessageAsync(
+                chatId: ChatId,
+                text: message.MdToHtml(),
+                messageThreadId: ThreadId,
+                parseMode: ParseMode.Html,
+                disableWebPagePreview: true
+            );
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning("Trying send GitHub Webhook without thread to ChatId: {ChatId}", ChatId);
+            if (exception.Message.Contains("thread not found"))
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: ChatId,
+                    text: message.MdToHtml(),
+                    parseMode: ParseMode.Html,
+                    disableWebPagePreview: true
+                );
+            }
+        }
     }
 }

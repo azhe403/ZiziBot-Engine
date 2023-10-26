@@ -10,13 +10,13 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostPr
 {
     private readonly ILogger<EnsureChatAdminRequestHandler<TRequest, TResponse>> _logger;
     private readonly TelegramService _telegramService;
-    private readonly ChatDbContext _chatDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public EnsureChatAdminRequestHandler(ILogger<EnsureChatAdminRequestHandler<TRequest, TResponse>> logger, TelegramService telegramService, ChatDbContext chatDbContext)
+    public EnsureChatAdminRequestHandler(ILogger<EnsureChatAdminRequestHandler<TRequest, TResponse>> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
-        _chatDbContext = chatDbContext;
+        _mongoDbContext = mongoDbContext;
 
     }
 
@@ -29,16 +29,16 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostPr
             request.InlineQuery != null)
             return;
 
-        _chatDbContext.ChatAdmin
+        _mongoDbContext.ChatAdmin
             .RemoveRange(
                 entity =>
                     entity.ChatId == request.ChatIdentifier
             );
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
         var chatAdministrators = await _telegramService.GetChatAdministrator();
-        _logger.LogDebug("List of Administrator in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Length);
+        _logger.LogDebug("List of Administrator in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Count);
 
         var chatAdminEntities = chatAdministrators
             .Select(
@@ -52,8 +52,8 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse> : IRequestPostPr
             )
             .ToList();
 
-        _chatDbContext.ChatAdmin.AddRange(chatAdminEntities);
+        _mongoDbContext.ChatAdmin.AddRange(chatAdminEntities);
 
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        await _mongoDbContext.SaveChangesAsync(cancellationToken);
     }
 }

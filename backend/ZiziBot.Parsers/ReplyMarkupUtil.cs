@@ -33,7 +33,7 @@ public static class ReplyMarkupUtil
         int columns
     )
     {
-        var rows = (int) Math.Ceiling(buttonList.Count / (double) columns);
+        var rows = (int)Math.Ceiling(buttonList.Count / (double)columns);
         var buttons = new InlineKeyboardButton[rows][];
 
         for (var i = 0; i < buttons.Length; i++)

@@ -26,8 +26,8 @@ public static class ServiceExtension
     private static IServiceCollection AddAllService(this IServiceCollection services)
     {
         services.Scan(selector =>
-            selector.FromAssembliesOf(typeof(CacheService))
-                .AddClasses(filter => filter.InNamespaceOf<CacheService>())
+            selector.FromAssembliesOf(typeof(TelegramService))
+                .AddClasses(filter => filter.InNamespaceOf<TelegramService>())
                 .AsSelf()
                 .WithTransientLifetime()
         );
@@ -52,6 +52,11 @@ public static class ServiceExtension
                 .As<GithubWebhookEventProcessor>()
                 .WithTransientLifetime()
         );
+
+        services.Scan(selector => selector.FromAssembliesOf(typeof(FirebaseService))
+            .AddClasses(filter => filter.InNamespaceOf<FirebaseService>())
+            .AsSelf()
+            .WithScopedLifetime());
 
         return services;
     }

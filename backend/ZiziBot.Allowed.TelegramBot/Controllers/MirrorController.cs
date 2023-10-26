@@ -37,7 +37,7 @@ public class MirrorController : CommandController
     [Command("sp")]
     public async Task SubmitMirrorPayment(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new SubmitPaymentBotRequestModel()
+        await _mediatorService.EnqueueAsync(new SubmitPaymentBotRequest()
         {
             BotToken = data.Options.Token,
             ReplyMessage = true,

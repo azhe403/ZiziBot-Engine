@@ -6,18 +6,15 @@ namespace ZiziBot.Hangfire;
 public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
 {
     private readonly ILogger<HangfireAuthorizationFilter> _logger;
-    private readonly AppSettingsDbContext _appSettingsDbContext;
-    private readonly UserDbContext _userDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
     public HangfireAuthorizationFilter(
         ILogger<HangfireAuthorizationFilter> logger,
-        AppSettingsDbContext appSettingsDbContext,
-        UserDbContext userDbContext
+        MongoDbContextBase mongoDbContext
     )
     {
         _logger = logger;
-        _appSettingsDbContext = appSettingsDbContext;
-        _userDbContext = userDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<bool> AuthorizeAsync(DashboardContext context)
@@ -31,6 +28,7 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
         {
             var checkSession = await CheckSession(sessionId);
             _logger.LogDebug("SessionId is have access? {CheckSession}", checkSession);
+
             if (checkSession)
                 return true;
         }
@@ -43,24 +41,19 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
 
     private async Task<bool> CheckSession(string sessionId)
     {
-        var dashboardSessions = await _userDbContext.DashboardSessions
-            .FirstOrDefaultAsync(session =>
-                session.BearerToken == sessionId &&
-                session.Status == (int)EventStatus.Complete
-            );
+        var dashboardSessions = await _mongoDbContext.DashboardSessions
+            .Where(entity => entity.BearerToken == sessionId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
 
         if (dashboardSessions == null)
             return false;
 
-        var sudoer = _appSettingsDbContext.Sudoers
-            .FirstOrDefault(sudo =>
-                sudo.UserId == dashboardSessions.TelegramUserId &&
-                sudo.Status == (int)EventStatus.Complete
-            );
+        var sudoer = _mongoDbContext.Sudoers
+            .Where(entity => entity.UserId == dashboardSessions.TelegramUserId)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
 
-        if (sudoer == null)
-            return false;
-
-        return true;
+        return sudoer != null;
     }
 }

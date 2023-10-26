@@ -25,18 +25,18 @@ public class WelcomeMessageResponse
 
 public class ListWelcomeMessageHandler : IRequestHandler<ListWelcomeMessageRequest, ApiResponseBase<List<WelcomeMessageResponse>>>
 {
-    private readonly GroupDbContext _groupDbContext;
+    private readonly MongoDbContextBase _mongoDbContext;
 
-    public ListWelcomeMessageHandler(GroupDbContext groupDbContext)
+    public ListWelcomeMessageHandler(MongoDbContextBase mongoDbContext)
     {
-        _groupDbContext = groupDbContext;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task<ApiResponseBase<List<WelcomeMessageResponse>>> Handle(ListWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<List<WelcomeMessageResponse>>();
 
-        var query = await _groupDbContext.WelcomeMessage
+        var query = await _mongoDbContext.WelcomeMessage
             .AsNoTracking()
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => entity.Status != (int)EventStatus.Deleted)

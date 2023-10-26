@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Tasks;
@@ -18,10 +19,19 @@ public class RegisterRssJobTasks : IStartupTask
     public async Task ExecuteAsync()
     {
         _logger.LogInformation("Registering RSS Jobs");
-        await _mediatorService.Send(new RegisterRssJobRequest()
+        await _mediatorService.Send(new RegisterRssJobAllRequest()
         {
-            ResetStatus = true
+            ResetStatus = false
         });
+
+        RecurringJob.AddOrUpdate<MediatorService>(
+            recurringJobId: "rss-reset",
+            methodCall: mediatorService => mediatorService.Send(new RegisterRssJobAllRequest()
+            {
+                ResetStatus = true
+            }),
+            queue: "rss",
+            cronExpression: TimeUtil.DayInterval(1));
 
         _logger.LogDebug("Registering RSS Jobs Completed");
     }
