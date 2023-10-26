@@ -1,21 +1,25 @@
 using CacheTower;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ZiziBot.Services;
 
 public class CacheService
 {
     private readonly ILogger<CacheService> _logger;
+    private readonly CacheConfig _cacheConfig;
     private readonly ICacheStack _cacheStack;
     private string _expireAfter = "24h";
     private string _staleAfter = "15s";
 
     public CacheService(
         ILogger<CacheService> logger,
+        IOptions<CacheConfig> cacheConfig,
         ICacheStack cacheStack
     )
     {
         _logger = logger;
+        _cacheConfig = cacheConfig.Value;
         _cacheStack = cacheStack;
     }
 
@@ -84,7 +88,9 @@ public class CacheService
         catch (Exception exception)
         {
             _logger.LogError(exception, "Fail to evict cache Key: {Key}", cacheKey);
-            Directory.Delete(PathConst.CACHE_TOWER_PATH, true);
+
+            if (_cacheConfig.UseJsonFile)
+                Directory.Delete(PathConst.CACHE_TOWER_PATH, true);
         }
     }
 }
