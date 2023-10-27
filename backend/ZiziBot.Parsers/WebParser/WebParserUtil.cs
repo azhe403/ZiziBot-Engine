@@ -21,7 +21,6 @@ public static class WebParserUtil
         Log.Debug("Web title of Url: {Url} => {Title}", url, document.Title);
 
         var container = document.QuerySelector("div.pr-container");
-        var hasNode = container?.HasChildNodes;
 
         if (container == null)
         {
@@ -31,18 +30,12 @@ public static class WebParserUtil
 
         Log.Debug("Found container: {Container} in Url: {Url}", container?.ClassName, url);
 
-        var cendolCount = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-left > div.subtotal-left__unit > span")
-            ?.TextContent;
-        var cendols = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-left > div:nth-child(2) > span:nth-child(2)")
-            ?.TextContent;
-        var adminFees = document
-            .QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-left > div:nth-child(4) > span:nth-child(2)")?.TextContent;
+        var cendolCount = document.QuerySelector(".subtotal-left__unit > span:nth-child(2)")?.TextContent;
+        var adminFees = document.QuerySelector("div.subtotal-left__others:nth-child(4) > span:nth-child(2)")?.TextContent;
         var subtotal = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-right")?.TextContent;
-        var orderDate = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__wrapper > div:nth-child(1) > div:nth-child(1) > div:nth-child(2)")
-            ?.TextContent.Replace("WIB", string.Empty).Trim();
-        var paymentMethod = document
-            .QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__wrapper > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)")?.TextContent;
-        var orderId = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__wrapper > div:nth-child(2) > div:nth-child(2)")?.TextContent;
+        var orderDate = document.QuerySelector("div.pr-detail__item:nth-child(1) > div:nth-child(2)")?.TextContent.Replace("WIB", string.Empty).Trim();
+        var paymentMethod = document.QuerySelector(".pr-detail__wrapper > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)")?.TextContent;
+        var orderId = document.QuerySelector(".pr-detail__wrapper > div:nth-child(2) > div:nth-child(2)")?.TextContent;
 
         var mainNode = container?.ChildNodes
             .Skip(1)
