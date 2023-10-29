@@ -47,13 +47,23 @@
     @*     </div> *@
     @* </RadzenHeader> *@
     <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
-            <RadzenSidebarToggle Click="@(() => SidebarExpanded = !SidebarExpanded)"/>
-            <RadzenLabel Text="ZiziBot Console"/>
-        </RadzenStack>
+        <RadzenRow>
+            <RadzenColumn>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+                    <RadzenSidebarToggle Click="@(() => SidebarExpanded = !SidebarExpanded)"/>
+                    <RadzenLabel Text="ZiziBot Console"/>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    @* <RadzenIcon Icon="account_circle"></RadzenIcon> *@
+                    <RadzenButton Icon="account_circle" Text="User"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
     </RadzenHeader>
     <RadzenSidebar @bind-Expanded="@SidebarExpanded">
-        <RadzenPanelMenu Click="OnParentClicked" Style="width:300px" DisplayStyle="MenuItemDisplayStyle.Text">
+        <RadzenPanelMenu Click="OnParentClicked" Style="width:300px" DisplayStyle="MenuItemDisplayStyle.IconAndText">
             <ChildContent>
                 @foreach (var item in PopulateMenu())
                 {
@@ -61,7 +71,7 @@
                         <ChildContent>
                             @foreach (var subItem in item.Items)
                             {
-                                <RadzenPanelMenuItem Text="@subItem.Text" Path="@subItem.Text"/>
+                                <RadzenPanelMenuItem Text="@subItem.Text" Path="@subItem.Path" Icon="@subItem.Icon"/>
                             }
                         </ChildContent>
                     </RadzenPanelMenuItem>
@@ -206,7 +216,9 @@
                 {
                     new(() => MenuDataCollection)
                     {
-                        Text = "/"
+                        Text = "Home",
+                        Icon = "home",
+                        Path = "/"
                     }
                 },
             },
@@ -217,19 +229,27 @@
                 {
                     new(() => MenuDataCollection)
                     {
-                        Text = "welcome-message"
+                        Text = "Welcome Message",
+                        Path = "welcome-message",
+                        Icon = "emoji_people"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "group-staff"
+                        Text = "Group Staff",
+                        Path = "group-staff",
+                        Icon = "admin_panel_settings"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "night-mode"
+                        Text = "Night Mode",
+                        Path = "night-mode",
+                        Icon = "mode_night"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "feature-management"
+                        Text = "Feature Management",
+                        Path = "feature-management",
+                        Icon = "extension"
                     }
                 },
             },
@@ -240,19 +260,27 @@
                 {
                     new(() => MenuDataCollection)
                     {
-                        Text = "settings",
+                        Text = "Settings",
+                        Path = "settings",
+                        Icon = "settings"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "notes",
+                        Text = "Notes",
+                        Path = "notes",
+                        Icon = "notes"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "cities"
+                        Text = "Cities",
+                        Path = "cities",
+                        Icon = "place"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "rss"
+                        Text = "RSS",
+                        Path = "rss",
+                        Icon = "rss_feed"
                     }
                 }
             },
@@ -263,31 +291,45 @@
                 {
                     new(() => MenuDataCollection)
                     {
-                        Text = "appsettings",
+                        Text = "App Settings",
+                        Path = "app-settings",
+                        Icon = "settings"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "botUser"
+                        Text = "Bot User",
+                        Path = "botUser",
+                        Icon = "people"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "badword"
+                        Text = "BadWord",
+                        Path = "badword",
+                        Icon = "stop"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "command-management"
+                        Text = "Command Management",
+                        Path = "command-management",
+                        Icon = "keyboard_command_key"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "feature-assignment"
+                        Text = "Feature Assignment",
+                        Path = "feature-assignment",
+                        Icon = "extension"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "hangfire-jobs"
+                        Text = "Hangfire Dashboard",
+                        Path = "hangfire-jobs",
+                        Icon = "area_chart"
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "log-viewer"
+                        Text = "Log Viewer",
+                        Path = "log-viewer",
+                        Icon = "text_snippet"
                     }
                 }
             },
@@ -298,11 +340,15 @@
                 {
                     new(() => MenuDataCollection)
                     {
-                        Text = "about",
+                        Text = "About",
+                        Path = "about",
+                        Icon = "info"
                     },
                     new(() => MenuDataCollection)
                     {
                         Text = "feedback",
+                        Path = "feedback",
+                        Icon = "forum"
                     }
                 }
             }
