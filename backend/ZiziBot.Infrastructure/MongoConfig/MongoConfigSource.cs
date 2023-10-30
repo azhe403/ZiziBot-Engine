@@ -158,8 +158,18 @@ public class MongoConfigSource : IConfigurationSource
             }
         };
 
-        listAppSettings.ForEach(
-            dto => {
+        var appSettings = _dbContext.AppSettings
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .ToList();
+
+        var allSeeds = listAppSettings
+            .SelectMany(x => x.KeyPair)
+            .ToList();
+
+        if (appSettings.Count >= allSeeds.Count)
+            return;
+
+        listAppSettings.ForEach(dto => {
                 foreach (var config in dto.KeyPair)
                 {
                     var prefix = dto.Root;
