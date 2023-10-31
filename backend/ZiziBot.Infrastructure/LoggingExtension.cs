@@ -20,6 +20,27 @@ public static class LoggingExtension
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
 
+    public static IHostBuilder ConfigureSerilogLite(this IHostBuilder hostBuilder)
+    {
+        hostBuilder.UseSerilog((context, provider, config) => {
+            config.ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(provider)
+                .MinimumLevel.Debug()
+                .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
+                .Enrich.WithDemystifiedStackTraces();
+
+            config.Enrich.WithDynamicProperty("MemoryUsage", () => {
+                var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
+                return $"{mem}";
+            }).Enrich.WithDynamicProperty("ThreadId", () => {
+                var threadId = Environment.CurrentManagedThreadId.ToString();
+                return $"{threadId}";
+            });
+        });
+
+        return hostBuilder;
+    }
+
     public static IHostBuilder ConfigureSerilog(this IHostBuilder hostBuilder, bool fullMode = false)
     {
         hostBuilder.UseSerilog((context, provider, config) => {

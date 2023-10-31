@@ -9,7 +9,7 @@ await CmdRoot.CreateCommandLineBuilder()
     .UseHost(x => Host.CreateDefaultBuilder(),
         configureHost: hostBuilder => {
             hostBuilder
-                .ConfigureSerilog()
+                .ConfigureSerilogLite()
                 .ConfigureAppConfiguration(builder => {
                     // builder.LoadSettings();
                 })
