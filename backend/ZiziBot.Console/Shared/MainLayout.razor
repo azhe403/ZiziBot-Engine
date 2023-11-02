@@ -1,7 +1,7 @@
+@using System.Security.Claims
 @using ZiziBot.Types.Types
 @using System.Net
 @inherits LayoutComponentBase
-@* @inherits WebComponentBase<MainLayoutViewModel> *@
 
 <RadzenDialog/>
 <RadzenNotification/>
@@ -57,28 +57,30 @@
             <RadzenColumn>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
                     @* <RadzenIcon Icon="account_circle"></RadzenIcon> *@
-                    <RadzenButton Icon="account_circle" Text="User"></RadzenButton>
+                    <RadzenButton Icon="account_circle" Text="@ClaimsPrincipal?.Identity?.Name"></RadzenButton>
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
     </RadzenHeader>
-    <RadzenSidebar @bind-Expanded="@SidebarExpanded">
-        <RadzenPanelMenu Click="OnParentClicked" Style="width:300px" DisplayStyle="MenuItemDisplayStyle.IconAndText">
-            <ChildContent>
-                @foreach (var item in PopulateMenu())
-                {
-                    <RadzenPanelMenuItem Text="@item.Text" Expanded="true">
-                        <ChildContent>
-                            @foreach (var subItem in item.Items)
-                            {
-                                <RadzenPanelMenuItem Text="@subItem.Text" Path="@subItem.Path" Icon="@subItem.Icon"/>
-                            }
-                        </ChildContent>
-                    </RadzenPanelMenuItem>
-                }
-            </ChildContent>
-        </RadzenPanelMenu>
-    </RadzenSidebar>
+    <AuthorizeView>
+        <RadzenSidebar @bind-Expanded="@SidebarExpanded">
+            <RadzenPanelMenu Click="OnParentClicked" Style="width:300px" DisplayStyle="MenuItemDisplayStyle.IconAndText">
+                <ChildContent>
+                    @foreach (var item in PopulateMenu())
+                    {
+                        <RadzenPanelMenuItem Text="@item.Text" Expanded="true">
+                            <ChildContent>
+                                @foreach (var subItem in item.Items)
+                                {
+                                    <RadzenPanelMenuItem Text="@subItem.Text" Path="@subItem.Path" Icon="@subItem.Icon"/>
+                                }
+                            </ChildContent>
+                        </RadzenPanelMenuItem>
+                    }
+                </ChildContent>
+            </RadzenPanelMenu>
+        </RadzenSidebar>
+    </AuthorizeView>
     <RadzenBody>
         <RadzenRow class="rz-mx-auto rz-px-4 rz-pt-2 rz-pt-md-4 rz-pt-lg-6 rz-pt-xl-12 rz-pb-2 rz-pb-lg-12" Style="max-width: 1440px;">
             <RadzenColumn>
@@ -86,8 +88,11 @@
                     <Authorized>
                         @Body
                     </Authorized>
+                    <Authorizing>
+                        Logging to Console..
+                    </Authorizing>
                     <NotAuthorized>
-                        <p>You're not authorized.</p>
+                        <GuestPage></GuestPage>
                     </NotAuthorized>
                 </AuthorizeView>
             </RadzenColumn>
@@ -95,8 +100,12 @@
     </RadzenBody>
     <RadzenFooter>
         <RadzenStack AlignItems="AlignItems.Center" Gap="0">
-            <RadzenText Text="ZiziBot Console v1.0.0" TextStyle="TextStyle.Caption" style="color: var(--rz-text-disabled-color);" TagName="TagName.P" TextAlign="TextAlign.Center"/>
-            <RadzenText Text="Ⓒ 2017 - 2023 WinTenDev" TextStyle="TextStyle.Caption" class="rz-mb-0" style="color: var(--rz-text-disabled-color);" TagName="TagName.P" TextAlign="TextAlign.Center"/>
+            <RadzenText TextStyle="TextStyle.Caption" style="color: var(--rz-text-disabled-color);" TagName="TagName.P" TextAlign="TextAlign.Center">
+                ZiziBot Console - v@(VersionNumber)
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.Caption" class="rz-mb-0" style="color: var(--rz-text-disabled-color);" TagName="TagName.P" TextAlign="TextAlign.Center">
+                Ⓒ 2017 - 2023 WinTenDev
+            </RadzenText>
         </RadzenStack>
     </RadzenFooter>
 </RadzenLayout>
@@ -137,6 +146,10 @@
     public ILogger<MainLayout> Logger { get; set; }
 
     public bool SidebarExpanded { get; set; } = true;
+
+    private ClaimsPrincipal? ClaimsPrincipal { get; set; }
+
+    public string VersionNumber => VersionUtil.GetVersion();
 
     private List<ConsoleMenuModel> MenuDataCollection { get; set; } = new();
 
@@ -202,7 +215,7 @@
             return;
         }
 
-        ((CustomAuthenticationStateProvider)AuthenticationStateProvider).AuthenticateUser(bearerToken.Value);
+        ClaimsPrincipal = ((CustomAuthenticationStateProvider)AuthenticationStateProvider).AuthenticateUser(bearerToken.Value);
     }
 
     private List<ConsoleMenuModel> PopulateMenu()

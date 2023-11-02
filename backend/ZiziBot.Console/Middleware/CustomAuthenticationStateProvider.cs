@@ -20,13 +20,15 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         return await Task.FromResult(new AuthenticationState(user));
     }
 
-    public void AuthenticateUser(string bearerToken)
+    public ClaimsPrincipal? AuthenticateUser(string bearerToken)
     {
         var data = bearerToken.DecodeJwtToken();
 
         var identity = new ClaimsIdentity(data.Claims, "Custom Authentication");
-        var user = new ClaimsPrincipal(identity);
+        var claimsPrincipal = new ClaimsPrincipal(identity);
 
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
+
+        return claimsPrincipal;
     }
 }
