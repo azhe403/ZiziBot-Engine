@@ -24,7 +24,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         var data = bearerToken.DecodeJwtToken();
 
-        var identity = new ClaimsIdentity(data.Claims, "Custom Authentication");
+        var identity = new ClaimsIdentity(data.Claims, "TelegramAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(identity);
 
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));

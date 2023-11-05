@@ -72,16 +72,34 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
             return response.BadRequest("Authentication is not yet configured");
         }
 
+        var roles = new List<string>()
+        {
+            "Guest"
+        };
+
+        var findSudo = await _mongoDbContext.Sudoers.AsNoTracking()
+                                            .Where(x => x.Status == (int)EventStatus.Complete)
+                                            .Where(x => x.UserId == request.Model.Id)
+                                            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (findSudo != null)
+        {
+            roles.Add("Sudo");
+        }
+
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var claims = new[]
+        var claims = new List<Claim>()
         {
             new Claim(ClaimTypes.NameIdentifier, request.Model.Username),
             new Claim(ClaimTypes.Name, request.Model.FirstName),
-            // new Claim(ClaimTypes.Role, request.SessionUserRole.ToString()),
             new Claim(HeaderKey.UserId, request.Model.Id.ToString()),
             new Claim("photoUrl", request.Model.PhotoUrl ?? ""),
         };
+
+        roles.ForEach(role => {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        });
 
         var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);

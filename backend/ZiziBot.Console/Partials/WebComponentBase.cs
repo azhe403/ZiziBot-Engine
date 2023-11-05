@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace ZiziBot.Console.Partials;
 
@@ -18,4 +19,7 @@ public class WebComponentBase<T> : ReactiveInjectableComponentBase<T>  where T :
 
     [Inject]
     public required ILogger<T> Logger { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
 }
