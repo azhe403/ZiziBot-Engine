@@ -11,22 +11,33 @@ public class CheckPaymentOrderIdHandler : IApiRequestHandler<CheckPaymentOrderId
 {
     public async Task<ApiResponseBase<TrakteerParsedDto>> Handle(CheckPaymentOrderIdRequest request, CancellationToken cancellationToken)
     {
-        var parsedTrakteer = await request.OrderId.GetTrakteerUrl().ParseTrakteerWeb();
+        var parsedTrakteer = await request.OrderId.ParseTrakteerWeb();
 
-        if (!parsedTrakteer.IsValid)
+        if (parsedTrakteer.IsValid)
         {
             return new ApiResponseBase<TrakteerParsedDto>()
             {
                 StatusCode = HttpStatusCode.OK,
-                Message = "OrderId not found"
+                Message = "Get OrderId succeed",
+                Result = parsedTrakteer
+            };
+        }
+
+        var parsedSaweria = await request.OrderId.ParseSaweriaWeb();
+        if (parsedSaweria.IsValid)
+        {
+            return new ApiResponseBase<TrakteerParsedDto>()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Message = "Get OrderId succeed",
+                Result = parsedSaweria
             };
         }
 
         return new ApiResponseBase<TrakteerParsedDto>()
         {
             StatusCode = HttpStatusCode.OK,
-            Message = "Get OrderId succeed",
-            Result = parsedTrakteer
+            Message = "OrderId not found"
         };
     }
 }

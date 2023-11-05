@@ -1,4 +1,5 @@
 using System.Globalization;
+using CloudflareSolverRe;
 using Flurl;
 using Flurl.Http;
 using PickAll;
@@ -9,9 +10,14 @@ public static class WebParserUtil
 {
     public static async Task<TrakteerParsedDto> ParseTrakteerWeb(this string url)
     {
+        url = url.GetTrakteerUrl();
         var trakteerParsedDto = new TrakteerParsedDto();
         Log.Information("Parsing trakteer url: {Url}", url);
-        var document = await url.OpenUrl();
+        var document = await url.OpenUrl(new ClearanceHandler()
+        {
+            ClearanceDelay = 3000
+        });
+
         if (document == null)
         {
             Log.Error("Cannot load url: {Url}", url);
@@ -41,8 +47,8 @@ public static class WebParserUtil
             .Skip(1)
             .SkipLast(1);
 
-        var innerText = mainNode.Select(x => x.TextContent)
-            .Aggregate((s1, s2) => $"{s1}\n{s2}");
+        var innerText = mainNode?.Select(x => x.TextContent)
+                                .Aggregate((s1, s2) => $"{s1}\n{s2}");
 
         trakteerParsedDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
         trakteerParsedDto.PaymentUrl = url;
@@ -59,6 +65,34 @@ public static class WebParserUtil
 
         return trakteerParsedDto;
     }
+
+    public static async Task<TrakteerParsedDto> ParseSaweriaWeb(this string url)
+    {
+        url = url.GetSaweriaUrl();
+        var trakteerParsedDto = new TrakteerParsedDto();
+        Log.Information("Parsing trakteer url: {Url}", url);
+        var document = await url.OpenUrl();
+        if (document == null)
+        {
+            Log.Error("Cannot load url: {Url}", url);
+            return trakteerParsedDto;
+        }
+
+        Log.Debug("Web title of Url: {Url} => {Title}", url, document.Title);
+
+        var container = document.QuerySelector("div.pr-container");
+
+        if (container == null)
+        {
+            Log.Information("Not found container for url: {Url}", url);
+            return trakteerParsedDto;
+        }
+
+        Log.Debug("Found container: {Container} in Url: {Url}", container?.ClassName, url);
+
+        return default;
+    }
+
 
     public static async Task<TrakteerApiDto> GetTrakteerApi(this string url)
     {
