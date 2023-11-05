@@ -51,6 +51,7 @@ public static class LoggingExtension
 
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .MinimumLevel.Debug()
                 .Enrich.WithDemystifiedStackTraces();
 
