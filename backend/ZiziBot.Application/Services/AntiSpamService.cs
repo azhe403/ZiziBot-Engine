@@ -12,6 +12,8 @@ public class AntiSpamService
     private readonly ApiKeyService _apiKeyService;
     private readonly CacheService _cacheService;
 
+    private readonly string defaultStaleTime = "10m";
+
     public AntiSpamService(ILogger<AntiSpamService> logger, MongoDbContextBase mongoDbContext, ApiKeyService apiKeyService, CacheService cacheService)
     {
         _logger = logger;
@@ -48,6 +50,7 @@ public class AntiSpamService
     {
         var cacheData = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.BAN_ESS + userId,
+            staleAfter: defaultStaleTime,
             action: async () => {
                 var globalBanEntities = await _mongoDbContext.GlobalBan
                     .Where(entity => entity.UserId == userId && entity.Status == (int)EventStatus.Complete)
@@ -64,6 +67,7 @@ public class AntiSpamService
     {
         var cacheData = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.BAN_CAS + userId,
+            staleAfter: defaultStaleTime,
             action: async () => {
                 var url = UrlConst.ANTISPAM_COMBOT_API.SetQueryParam("userId", userId);
                 var antispamApiDto = await url.GetJsonAsync<CombotAntispamApiDto>();
@@ -81,6 +85,7 @@ public class AntiSpamService
     {
         var cacheData = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.BAN_SW + userId,
+            staleAfter: defaultStaleTime,
             action: async () => {
                 SpamWatchResult spamwatchResult = new();
 
