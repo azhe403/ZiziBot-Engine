@@ -1,16 +1,15 @@
 @page "/BotUser"
+@attribute [Authorize(Roles = "Sudo")]
+
 @using ZiziBot.DataSource.MongoDb.Entities
 @using ZiziBot.Contracts.Constants
-@attribute [Authorize(Roles = "Sudo")]
 @inherits WebComponentBase<BotUserViewModel>
 
-<PageTitle>Bot User</PageTitle>
+<TitleControl Value="Bot Users"></TitleControl>
 
 <RadzenRow>
     <RadzenColumn Size="12">
         <RadzenRow>
-            <h3>BotUser</h3>
-
             @if (ViewModel.BotUsers.IsEmpty())
             {
                 <h2>Loading Users..</h2>
