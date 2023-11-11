@@ -1,6 +1,5 @@
 @using System.Security.Claims
 @using ZiziBot.Types.Types
-@using ZiziBot.Console.Pages
 @using System.Net
 @inherits LayoutComponentBase
 
@@ -328,6 +327,12 @@
                     {
                         Text = "Feature Assignment",
                         Path = "feature-assignment",
+                        Icon = "extension"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Mirror Subscription",
+                        Path = "mirror-subscription",
                         Icon = "extension"
                     },
                     new(() => MenuDataCollection)

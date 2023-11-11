@@ -1,6 +1,5 @@
 ﻿using MongoFramework.Linq;
 using ZiziBot.Contracts.Enums;
-using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Console.ViewModels;
 

@@ -27,7 +27,7 @@
                                 <RadzenButton Text="Add Note" class="rz-align-right" Click="OnOpenAddDialog"></RadzenButton>
                             </RadzenColumn>
                         </RadzenRow>
-                        <RadzenListBox AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="                                                                NoteId" Data="ListNote" Change="OnSelectedItemChanged" TextProperty="Query" ValueProperty="Id" Style="width: 100%; height: calc(100% - 32px);">
+                        <RadzenListBox AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="NoteId" Data="ListNote" Change="OnSelectedItemChanged" TextProperty="Query" ValueProperty="Id" Style="width: 100%; height: calc(100% - 32px);">
                             <Template>
                                 <RadzenRow class="w-100">
                                     <RadzenColumn>
