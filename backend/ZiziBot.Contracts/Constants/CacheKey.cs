@@ -12,6 +12,9 @@ public static class CacheKey
     public const string SUDO = "sudo/";
     public const string LIST_CHAT_ADMIN = "chat/admin/";
 
+    public const string ACTIVE_USERNAMES_CHAT = "active-usernames/chat/";
+    public const string ACTIVE_USERNAMES_USER = "active-usernames/user/";
+
     public const string API_DOC = "api-doc";
 
     public const string BADWORD = "badword";

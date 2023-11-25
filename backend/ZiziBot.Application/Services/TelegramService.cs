@@ -26,7 +26,12 @@ public class TelegramService
     public ITelegramBotClient Bot { get; set; }
     public Message? SentMessage { get; set; }
 
-    public TelegramService(ILogger<TelegramService> logger, CacheService cacheService, MongoDbContextBase mongoDbContext, MediatorService mediatorService)
+    public TelegramService(
+        ILogger<TelegramService> logger,
+        CacheService cacheService,
+        MongoDbContextBase mongoDbContext,
+        MediatorService mediatorService
+    )
     {
         _logger = logger;
         _cacheService = cacheService;
@@ -391,7 +396,6 @@ public class TelegramService
                     customChatId: customChatId,
                     customFileName: customFileName
                 );
-
             }
         }
 
@@ -486,23 +490,36 @@ public class TelegramService
     public async Task AnswerJoinRequestAsync(ChatJoinRequest joinRequest)
     {
         var result = await Bot.ApproveChatJoinRequest(_request.ChatId, joinRequest.From.Id);
-
     }
 
     public async Task<string[]> GetChatUsernames()
     {
-        var chat = await Bot.GetChatAsync(_request.ChatId);
-        var activeUsernames = chat.ActiveUsernames;
+        var cache = await _cacheService.GetOrSetAsync(
+            cacheKey: CacheKey.ACTIVE_USERNAMES_CHAT + _request.ChatId,
+            action: async () =>
+            {
+                var chat = await Bot.GetChatAsync(_request.ChatId);
+                var activeUsernames = chat.ActiveUsernames;
 
-        return activeUsernames ?? Array.Empty<string>();
+                return activeUsernames ?? Array.Empty<string>();
+            });
+
+        return cache;
     }
 
     public async Task<string[]> GetUserUsernames()
     {
-        var chat = await Bot.GetChatAsync(_request.UserId);
-        var activeUsernames = chat.ActiveUsernames;
+        var cache = await _cacheService.GetOrSetAsync(
+            cacheKey: CacheKey.ACTIVE_USERNAMES_USER + _request.UserId,
+            action: async () =>
+            {
+                var chat = await Bot.GetChatAsync(_request.UserId);
+                var activeUsernames = chat.ActiveUsernames;
 
-        return activeUsernames ?? Array.Empty<string>();
+                return activeUsernames ?? Array.Empty<string>();
+            });
+
+        return cache;
     }
 
     public async Task<string[]> GetAllUsernames()
@@ -566,7 +583,8 @@ public class TelegramService
     {
         var cacheValue = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.LIST_CHAT_ADMIN + _request.ChatId,
-            action: async () => {
+            action: async () =>
+            {
                 var chatAdmins = await Bot.GetChatAdministratorsAsync(_request.ChatId);
                 return chatAdmins.ToList();
             }
@@ -596,5 +614,4 @@ public class TelegramService
         return isAdmin;
     }
     #endregion
-
 }
