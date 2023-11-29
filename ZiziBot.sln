@@ -59,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.Attributes", "backe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.Types", "backend\ZiziBot.Types\ZiziBot.Types.csproj", "{C8C3B334-D515-4CC3-A515-8554BCC8B5DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiziBot.Services", "backend\ZiziBot.Services\ZiziBot.Services.csproj", "{41FE421C-80A8-48E9-BA15-D4B127D7B8E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.Services", "backend\ZiziBot.Services\ZiziBot.Services.csproj", "{41FE421C-80A8-48E9-BA15-D4B127D7B8E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
