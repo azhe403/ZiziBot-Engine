@@ -20,7 +20,8 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
 
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
-        if (request.Source != ResponseSource.Bot)
+        if (request.Source != ResponseSource.Bot ||
+            request.ChatId == 0)
         {
             _logger.LogDebug("Find Note stop because Source: {Source}", request.Source);
 

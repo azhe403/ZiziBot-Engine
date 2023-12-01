@@ -1,0 +1,16 @@
+﻿@inject IJSRuntime JsRuntime
+
+<h2>@Value</h2>
+
+@code {
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JsRuntime.InvokeVoidAsync("BlazorSetTitle", Value);
+    }
+
+}

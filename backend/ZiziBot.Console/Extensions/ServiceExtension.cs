@@ -11,6 +11,7 @@ public static class ServiceExtension
         services.AddRazorPages();
         services.AddServerSideBlazor();
         services.AddBlazoredLocalStorage();
+        services.AddAuthorizationCore();
         services.AddRadzenComponents();
         services.AddReactiveViewModels();
 

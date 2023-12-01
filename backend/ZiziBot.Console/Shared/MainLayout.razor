@@ -1,65 +1,376 @@
+@using System.Security.Claims
+@using ZiziBot.Types.Types
+@using System.Net
 @inherits LayoutComponentBase
 
-<RadzenDialog />
-<RadzenNotification />
-<RadzenTooltip />
-<RadzenContextMenu />
+<RadzenDialog/>
+<RadzenNotification/>
+<RadzenTooltip/>
+<RadzenContextMenu/>
 
-<RadzenLayout style="grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body';">
+<RadzenLayout>
+    @* <RadzenHeader> *@
+    @*     <div class="rz-m-md-2"> *@
+    @*         <RadzenMenu Click="OnParentClicked"> *@
+    @*             <RadzenMenuItem Text="Home" Path="/" Icon="home"></RadzenMenuItem> *@
+    @*             <RadzenMenuItem Text="Group" Icon="group"> *@
+    @*                 <RadzenMenuItem Text="Feature Management" Path="menu" Icon="line_weight"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Settings" Path="menu" Icon="line_weight"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Security" Path="menu" Icon="security"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Group Staff" Path="notification" Icon="stop"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Night Mode" Path="notification" Icon="stop"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Thread Mapping" Path="textbox" Icon="map"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Welcome Message" Path="welcome-message" Icon="notifications_active"></RadzenMenuItem> *@
+    @*             </RadzenMenuItem> *@
+    @*             <RadzenMenuItem Text="Chat" Icon="chat"> *@
+    @*                 <RadzenMenuItem Text="Notes" Path="notes" Icon="notes"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Cities" Path="cities" Icon="map"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="RSS" Path="rss" Icon="rss_feed"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="TextArea" Path="textarea" Icon="description"></RadzenMenuItem> *@
+    @*             </RadzenMenuItem> *@
+    @*             <RadzenMenuItem Text="Additional" Icon="add"> *@
+    @*                 <RadzenMenuItem Text="Check AWB" Icon="check"></RadzenMenuItem> *@
+    @*             </RadzenMenuItem> *@
+    @*             <RadzenMenuItem Text="Administrator" Icon="admin_panel_settings"> *@
+    @*                 <RadzenMenuItem Text="App Settings" Path="" Icon="settings"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Badword" Path="badword" Icon="stop"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="BotUser" Path="BotUser" Icon="stop"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Commands Management" Path="commands-management" Icon="line_weight"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Hangfire Dashboard" Path="/hangfire-jobs" Icon="area_chart"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Log Viewer" Path="/log-viewer" Icon="text_snippet"></RadzenMenuItem> *@
+    @*             </RadzenMenuItem> *@
+    @*             <RadzenMenuItem Text="Help" Icon="help"> *@
+    @*                 <RadzenMenuItem Text="About" Path="about" Icon="info"></RadzenMenuItem> *@
+    @*                 <RadzenMenuItem Text="Feedback" Path="about" Icon="forum"></RadzenMenuItem> *@
+    @*             </RadzenMenuItem> *@
+    @*         </RadzenMenu> *@
+    @*     </div> *@
+    @* </RadzenHeader> *@
     <RadzenHeader>
-        <div class="rz-m-md-2">
-            <RadzenMenu Click="OnParentClicked">
-                <RadzenMenuItem Text="Home" Path="/" Icon="home"></RadzenMenuItem>
-                <RadzenMenuItem Text="Group" Icon="group">
-                    <RadzenMenuItem Text="Feature Management" Path="menu" Icon="line_weight"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Settings" Path="menu" Icon="line_weight"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Security" Path="menu" Icon="security"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Badword" Path="dialog" Icon="stop"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Group Staff" Path="notification" Icon="stop"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Night Mode" Path="notification" Icon="stop"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Thread Mapping" Path="textbox" Icon="map"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Welcome Message" Path="welcome-message" Icon="notifications_active"></RadzenMenuItem>
-                </RadzenMenuItem>
-                <RadzenMenuItem Text="Chat" Icon="chat">
-                    <RadzenMenuItem Text="Notes" Path="notes" Icon="notes"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Cities" Path="cities" Icon="map"></RadzenMenuItem>
-                    <RadzenMenuItem Text="RSS" Path="rss" Icon="rss_feed"></RadzenMenuItem>
-                    <RadzenMenuItem Text="TextArea" Path="textarea" Icon="description"></RadzenMenuItem>
-                </RadzenMenuItem>
-                <RadzenMenuItem Text="Additional" Icon="add">
-                    <RadzenMenuItem Text="Check AWB" Icon="check"></RadzenMenuItem>
-                </RadzenMenuItem>
-                <RadzenMenuItem Text="Administrator" Icon="admin_panel_settings">
-                    <RadzenMenuItem Text="App Settings" Path="" Icon="settings"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Commands Management" Path="commands-management" Icon="line_weight"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Hangfire Dashboard" Path="/hangfire-jobs" Icon="area_chart"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Log Viewer" Path="/log-viewer" Icon="text_snippet"></RadzenMenuItem>
-                </RadzenMenuItem>
-                <RadzenMenuItem Text="Help" Icon="help">
-                    <RadzenMenuItem Text="About" Path="about" Icon="info"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Feedback" Path="about" Icon="forum"></RadzenMenuItem>
-                </RadzenMenuItem>
-            </RadzenMenu>
-        </div>
+        <RadzenRow>
+            <RadzenColumn>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+                    <RadzenSidebarToggle Click="@(() => SidebarExpanded = !SidebarExpanded)"/>
+                    <RadzenLabel Text="ZiziBot Console"/>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    @* <RadzenIcon Icon="account_circle"></RadzenIcon> *@
+                    <RadzenButton Icon="account_circle" Text="@ClaimsPrincipal?.Identity?.Name"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
     </RadzenHeader>
+    <AuthorizeView>
+        <RadzenSidebar @bind-Expanded="@SidebarExpanded">
+            <RadzenPanelMenu Click="OnParentClicked" Style="width:300px" DisplayStyle="MenuItemDisplayStyle.IconAndText">
+                <ChildContent>
+                    @foreach (var item in PopulateMenu())
+                    {
+                        <RadzenPanelMenuItem Text="@item.Text" Expanded="true">
+                            <ChildContent>
+                                @foreach (var subItem in item.Items)
+                                {
+                                    <RadzenPanelMenuItem Text="@subItem.Text" Path="@subItem.Path" Icon="@subItem.Icon"/>
+                                }
+                            </ChildContent>
+                        </RadzenPanelMenuItem>
+                    }
+                </ChildContent>
+            </RadzenPanelMenu>
+        </RadzenSidebar>
+    </AuthorizeView>
     <RadzenBody>
         <RadzenRow class="rz-mx-auto rz-px-4 rz-pt-2 rz-pt-md-4 rz-pt-lg-6 rz-pt-xl-12 rz-pb-2 rz-pb-lg-12" Style="max-width: 1440px;">
-            <RadzenColumn Size="12">
+            <RadzenColumn>
                 <AuthorizeView>
                     <Authorized>
                         @Body
                     </Authorized>
                     <NotAuthorized>
-                        <p>You're not authorized.</p>
+                        <GuestPage></GuestPage>
                     </NotAuthorized>
                 </AuthorizeView>
             </RadzenColumn>
         </RadzenRow>
-        <RadzenFooter>
-            <RadzenStack AlignItems="AlignItems.Center" Gap="0">
-                <RadzenText Text="ZiziBot Console v1.0.0" TextStyle="TextStyle.Caption" style="color: var(--rz-text-disabled-color);" TagName="TagName.P" TextAlign="TextAlign.Center" />
-                <RadzenText Text="Ⓒ 2017 - 2023 WinTenDev" TextStyle="TextStyle.Caption" class="rz-mb-0" style="color: var(--rz-text-disabled-color);" TagName="TagName.P" TextAlign="TextAlign.Center" />
-            </RadzenStack>
-        </RadzenFooter>
     </RadzenBody>
+    <RadzenFooter>
+        <RadzenStack AlignItems="AlignItems.Center" Gap="0">
+            <RadzenText TextStyle="TextStyle.Caption" style="color: var(--rz-text-disabled-color);" TagName="TagName.P" TextAlign="TextAlign.Center">
+                ZiziBot Console - v@(VersionNumber)
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.Caption" class="rz-mb-0" style="color: var(--rz-text-disabled-color);" TagName="TagName.P" TextAlign="TextAlign.Center">
+                Ⓒ 2017 - 2023 WinTenDev
+            </RadzenText>
+        </RadzenStack>
+    </RadzenFooter>
 </RadzenLayout>
+
+@code{
+
+    [Inject]
+    protected IJSRuntime JSRuntime { get; set; }
+
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; }
+
+    [Inject]
+    protected DialogService DialogService { get; set; }
+
+    [Inject]
+    protected TooltipService TooltipService { get; set; }
+
+    [Inject]
+    protected ContextMenuService ContextMenuService { get; set; }
+
+    [Inject]
+    protected NotificationService NotificationService { get; set; }
+
+    [Inject]
+    protected AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+    [Inject]
+    protected ProtectedLocalStorage ProtectedLocalStorage { get; set; }
+
+    [Inject]
+    protected CustomAuthenticationStateProvider CustomAuthenticationStateProvider { get; set; }
+
+    [Inject]
+    public IMediator Mediator { get; set; }
+
+    [Inject]
+    public ILogger<MainLayout> Logger { get; set; }
+
+    public bool SidebarExpanded { get; set; } = true;
+
+    private ClaimsPrincipal? ClaimsPrincipal { get; set; }
+
+    public string VersionNumber => VersionUtil.GetVersion();
+
+    private List<ConsoleMenuModel> MenuDataCollection { get; set; } = new();
+
+    private void SidebarToggleClick()
+    {
+        SidebarExpanded = !SidebarExpanded;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+            return;
+
+        var sessionDto = NavigationManager.QueryString<TelegramSessionDto>();
+        var validate = await sessionDto?.ValidateAsync<TelegramSessionDtoValidator, TelegramSessionDto>();
+        if (validate.IsValid)
+        {
+            var webResponse = await Mediator.Send(new CheckConsoleSessionRequest()
+            {
+                Model = sessionDto
+            });
+
+            if (webResponse.StatusCode != HttpStatusCode.OK)
+            {
+                NotificationService.Notify(NotificationSeverity.Warning, "Sesi tidak valid, Silahkan coba lagi");
+                Logger.LogDebug("Session is invalid, continue..");
+                return;
+            }
+
+            await ProtectedLocalStorage.SetAsync("bearer_token", webResponse.Result?.BearerToken);
+            NotificationService.Notify(NotificationSeverity.Success,
+                $"Selamat datang, {sessionDto.FirstName} {sessionDto.LastName}");
+
+            await JSRuntime.InvokeVoidAsync("eval",
+                $"document.cookie='bearer_token={webResponse.Result?.BearerToken}; path=/hangfire-jobs; expires=Fri, 31 Dec 2024;'");
+            NavigationManager.NavigateTo("/", replace: true);
+        }
+
+        Logger.LogDebug("URL contains no session payload, continue..");
+        await ValidateBearer();
+    }
+
+    private void OnParentClicked(MenuItemEventArgs args)
+    {
+        Logger.LogDebug($"{args.Text} clicked from parent");
+    }
+
+    private void OnChildClicked(MenuItemEventArgs args)
+    {
+        Logger.LogDebug($"{args.Text} from child clicked");
+    }
+
+    private async Task ValidateBearer()
+    {
+        var bearerToken = await ProtectedLocalStorage.GetAsync<string>("bearer_token");
+
+        if (bearerToken.Value == null)
+        {
+            Logger.LogWarning("Bearer empty");
+
+            return;
+        }
+
+        ClaimsPrincipal = ((CustomAuthenticationStateProvider)AuthenticationStateProvider).AuthenticateUser(bearerToken.Value);
+    }
+
+    private List<ConsoleMenuModel> PopulateMenu()
+    {
+        MenuDataCollection = new List<ConsoleMenuModel>
+        {
+            new(() => MenuDataCollection)
+            {
+                Text = "Home",
+                Items = new List<ConsoleMenuModel>()
+                {
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Home",
+                        Icon = "home",
+                        Path = "/"
+                    }
+                },
+            },
+            new(() => MenuDataCollection)
+            {
+                Text = "Group Management",
+                Items = new List<ConsoleMenuModel>()
+                {
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Welcome Message",
+                        Path = "welcome-message",
+                        Icon = "emoji_people"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Group Staff",
+                        Path = "group-staff",
+                        Icon = "admin_panel_settings"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Night Mode",
+                        Path = "night-mode",
+                        Icon = "mode_night"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Feature Management",
+                        Path = "feature-management",
+                        Icon = "extension"
+                    }
+                },
+            },
+            new(() => MenuDataCollection)
+            {
+                Text = "Chat Management",
+                Items = new List<ConsoleMenuModel>()
+                {
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Settings",
+                        Path = "settings",
+                        Icon = "settings"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Notes",
+                        Path = "notes",
+                        Icon = "notes"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Cities",
+                        Path = "cities",
+                        Icon = "place"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "RSS",
+                        Path = "rss",
+                        Icon = "rss_feed"
+                    }
+                }
+            },
+            new(() => MenuDataCollection)
+            {
+                Text = "Administrator",
+                Items = new List<ConsoleMenuModel>()
+                {
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "App Settings",
+                        Path = "app-settings",
+                        Icon = "settings"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Bot User",
+                        Path = "botUser",
+                        Icon = "people"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "BadWord",
+                        Path = "badword",
+                        Icon = "stop"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Command Management",
+                        Path = "command-management",
+                        Icon = "keyboard_command_key"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Feature Assignment",
+                        Path = "feature-assignment",
+                        Icon = "extension"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Mirror Subscription",
+                        Path = "mirror-subscription",
+                        Icon = "extension"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Hangfire Dashboard",
+                        Path = "hangfire-jobs",
+                        Icon = "area_chart"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Log Viewer",
+                        Path = "log-viewer",
+                        Icon = "text_snippet"
+                    }
+                }
+            },
+            new(() => MenuDataCollection)
+            {
+                Text = "Help",
+                Items = new List<ConsoleMenuModel>()
+                {
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "About",
+                        Path = "about",
+                        Icon = "info"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "feedback",
+                        Path = "feedback",
+                        Icon = "forum"
+                    }
+                }
+            }
+        };
+
+        return MenuDataCollection;
+    }
+
+}

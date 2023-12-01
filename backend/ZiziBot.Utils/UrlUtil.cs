@@ -13,4 +13,24 @@ public static class UrlUtil
     {
         return Url.Parse(url).PathSegments.ElementAtOrDefault(index) ?? defaultValue;
     }
+
+    public static string GetTrakteerUrl(this string orderId)
+    {
+        if (!orderId.StartsWith("https://trakteer.id/payment-status"))
+        {
+            orderId = Url.Combine("https://trakteer.id/payment-status", orderId);
+        }
+
+        return orderId;
+    }
+
+    public static string GetSaweriaUrl(this string orderId)
+    {
+        if (!orderId.StartsWith("https://saweria.co/receipt"))
+        {
+            orderId = Url.Combine("https://saweria.co/receipt", orderId);
+        }
+
+        return orderId;
+    }
 }

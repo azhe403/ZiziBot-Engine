@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -11,9 +11,9 @@
         <PackageReference Include="CacheTower.Providers.Redis" Version="0.14.0"/>
         <PackageReference Include="CacheTower.Serializers.NewtonsoftJson" Version="0.14.0"/>
         <PackageReference Include="FirebaseDatabase.net" Version="4.2.0"/>
-        <PackageReference Include="Google.Apis.Auth" Version="1.62.1"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1"/>
+        <PackageReference Include="Google.Apis.Auth" Version="1.64.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
