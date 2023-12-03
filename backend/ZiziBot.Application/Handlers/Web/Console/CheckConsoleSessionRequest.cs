@@ -78,9 +78,9 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
         };
 
         var findSudo = await _mongoDbContext.Sudoers.AsNoTracking()
-                                            .Where(x => x.Status == (int)EventStatus.Complete)
-                                            .Where(x => x.UserId == request.Model.Id)
-                                            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.UserId == request.Model.Id)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (findSudo != null)
         {
@@ -91,8 +91,9 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new List<Claim>()
         {
-            new Claim(ClaimTypes.NameIdentifier, request.Model.Username),
-            new Claim(ClaimTypes.Name, request.Model.FirstName),
+            new Claim(ClaimTypes.NameIdentifier, request.Model.Username ?? ""),
+            new Claim(ClaimTypes.Name, request.Model.FirstName ?? ""),
+            new Claim(ClaimTypes.Surname, request.Model.LastName ?? ""),
             new Claim(HeaderKey.UserId, request.Model.Id.ToString()),
             new Claim("photoUrl", request.Model.PhotoUrl ?? ""),
         };
