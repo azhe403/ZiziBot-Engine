@@ -1,6 +1,8 @@
 using Hangfire;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using MoreLinq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -17,13 +19,13 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 {
     private readonly ILogger<FetchRssHandler> _logger;
     private readonly MongoDbContextBase _mongoDbContext;
-    private readonly IRecurringJobManager _recurringJobManager;
+    private readonly AppSettingRepository _appSettingRepository;
 
-    public FetchRssHandler(ILogger<FetchRssHandler> logger, MongoDbContextBase mongoDbContext, IRecurringJobManager recurringJobManager)
+    public FetchRssHandler(ILogger<FetchRssHandler> logger, MongoDbContextBase mongoDbContext, AppSettingRepository appSettingRepository)
     {
         _logger = logger;
         _mongoDbContext = mongoDbContext;
-        _recurringJobManager = recurringJobManager;
+        _appSettingRepository = appSettingRepository;
     }
 
     public async Task<bool> Handle(FetchRssRequest request, CancellationToken cancellationToken)
@@ -56,23 +58,43 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 return false;
             }
 
-            var botSettings = await _mongoDbContext.BotSettings
-                .FirstOrDefaultAsync(settings =>
-                        settings.Name == "Main" &&
-                        settings.Status == (int)EventStatus.Complete,
-                    cancellationToken: cancellationToken);
+            var botSettings = await _appSettingRepository.GetBotMain();
 
             var botClient = new TelegramBotClient(botSettings.Token);
 
-            var rssText = $"{latestArticle.Title}\n{latestArticle.Link}";
+            var htmlContent = await latestArticle.Content.HtmlForTelegram();
+
+            var messageText = HtmlMessage.Empty
+                .Url(feed.Link, feed.Title).Br()
+                .Url(latestArticle.Link, latestArticle.Title).Br()
+                .Text(htmlContent.Truncate(2000));
+
+            if (request.RssUrl.IsGithubReleaseUrl())
+            {
+                var assets = await request.RssUrl.GetGithubAssetLatest();
+
+
+                if (assets != null)
+                {
+                    messageText.Br().Br()
+                        .BoldBr("Assets");
+
+                    assets.Assets.ForEach(asset => {
+                        messageText.Url(asset.Url, asset.Name).Br();
+                    });
+                }
+            }
+
+            var truncatedMessageText = messageText.ToString();
 
             try
             {
                 await botClient.SendTextMessageAsync(
                     chatId: request.ChatId,
                     messageThreadId: request.ThreadId,
-                    text: rssText,
+                    text: truncatedMessageText,
                     parseMode: ParseMode.Html,
+                    disableWebPagePreview: true,
                     cancellationToken: cancellationToken
                 );
             }
@@ -83,8 +105,9 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: request.ChatId,
-                        text: rssText,
+                        text: truncatedMessageText,
                         parseMode: ParseMode.Html,
+                        disableWebPagePreview: true,
                         cancellationToken: cancellationToken
                     );
                 }
@@ -118,7 +141,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                     e.Status = (int)EventStatus.InProgress;
                     e.LastErrorMessage = exception.Message;
 
-                    _recurringJobManager.RemoveIfExists(e.CronJobId);
+                    RecurringJob.RemoveIfExists(e.CronJobId);
                 });
             }
             else

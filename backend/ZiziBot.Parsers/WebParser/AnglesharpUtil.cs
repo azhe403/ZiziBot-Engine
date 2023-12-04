@@ -28,4 +28,17 @@ public static class AnglesharpUtil
 
         return document;
     }
+
+    public static async Task<IDocument> OpenHtml(this string htmlString)
+    {
+        var config = Configuration.Default;
+
+        //Create a new context for evaluating webpages with the given config
+        var context = BrowsingContext.New(config);
+
+        //Parse the document from the content of a response to a virtual request
+        var document = await context.OpenAsync(req => req.Content(htmlString));
+
+        return document;
+    }
 }

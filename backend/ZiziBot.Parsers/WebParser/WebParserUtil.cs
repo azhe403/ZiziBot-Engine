@@ -48,7 +48,7 @@ public static class WebParserUtil
             .SkipLast(1);
 
         var innerText = mainNode?.Select(x => x.TextContent)
-                                .Aggregate((s1, s2) => $"{s1}\n{s2}");
+            .Aggregate((s1, s2) => $"{s1}\n{s2}");
 
         trakteerParsedDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
         trakteerParsedDto.PaymentUrl = url;
@@ -92,7 +92,6 @@ public static class WebParserUtil
 
         return default;
     }
-
 
     public static async Task<TrakteerApiDto> GetTrakteerApi(this string url)
     {
@@ -140,5 +139,16 @@ public static class WebParserUtil
             Title = x.Description,
             Url = x.Url.UrlDecode()
         });
+    }
+
+    public static Task<string> HtmlForTelegram(this string htmlString)
+    {
+        var htmlCleaned = htmlString.Replace("<br>", "").Replace("</br>", "")
+            .Replace("<p>", "\n").Replace("</p>", "")
+            .Replace("<ul>", "").Replace("</ul>", "")
+            .Replace("<li>", "- ").Replace("</li>", "")
+            .RegexReplace("<h.|<.h.>", "");
+
+        return Task.FromResult(htmlCleaned);
     }
 }
