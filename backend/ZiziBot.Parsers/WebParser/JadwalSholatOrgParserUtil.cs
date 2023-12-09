@@ -11,37 +11,35 @@ public static class JadwalSholatOrgParserUtil
     {
         var document = await WebUrl.OpenUrl();
 
-        var cities = document?.QuerySelectorAll("option")
-            .Cast<IHtmlOptionElement>()
-            .Select(x => new City()
-            {
-                CityId = x.Value.Convert<int>(),
-                CityCode = x.Text.ToLower().RegexReplace("[^a-zA-Z]", ""),
-                CityName = x.Text
-            });
+        var cities = document?.QuerySelector<IHtmlSelectElement>("select[name=kota]")?.Options.Select(x => new City()
+        {
+            CityId = x.Value.Convert<int>(),
+            CityCode = x.Text.ToLower().RegexReplace("[^a-zA-Z]", ""),
+            CityName = x.Text
+        });
 
         return cities;
     }
 
-    public static async Task<IEnumerable<List<ShalatTime>?>> FetchSchedules(int cityId)
+    public static async Task<IEnumerable<IEnumerable<ShalatTime>?>> FetchSchedules(int cityId)
     {
         var year = DateTime.UtcNow.Year;
         var months = Enumerable.Range(1, 12);
 
-        var monthTask = await months.Select(x => FetchSchedules(cityId, year, x)).WhenAll(1);
+        var monthTask = await months.Select(x => FetchSchedules(cityId, x, year)).WhenAll(1);
 
         return monthTask;
     }
 
-    public static async Task<List<ShalatTime>?> FetchSchedules(int cityId, int year)
+    public static async Task<IEnumerable<ShalatTime>?> FetchSchedules(int cityId, int month)
     {
-        var month = DateTime.UtcNow.Month;
+        var year = DateTime.UtcNow.Year;
 
-        return await FetchSchedules(cityId, year, month);
+        return await FetchSchedules(cityId, month, year);
     }
 
 
-    public static async Task<List<ShalatTime>?> FetchSchedules(int cityId, int year, int month)
+    public static async Task<IEnumerable<ShalatTime>?> FetchSchedules(int cityId, int month, int year)
     {
         var webUrl = $"{WebUrl}?id={cityId}&m={month}&y={year}";
         var document = await webUrl.OpenUrl();
@@ -69,8 +67,7 @@ public static class JadwalSholatOrgParserUtil
                 };
 
                 return time;
-            })
-            .ToList();
+            });
 
         return shalatTimes;
     }

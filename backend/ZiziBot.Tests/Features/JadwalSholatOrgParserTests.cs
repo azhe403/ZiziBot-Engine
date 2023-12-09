@@ -23,24 +23,21 @@ public class JadwalSholatOrgParserTests
     }
 
     [Theory]
-    [InlineData(1)]
-    public async Task Fetch_CustomMonth_Test(int cityId)
+    [InlineData(1, 2)]
+    [InlineData(1, 10)]
+    public async Task Fetch_CustomMonth_Test(int cityId, int month)
     {
-        var year = DateTime.UtcNow.Year;
-
-        var shalatTimes = await JadwalSholatOrgParserUtil.FetchSchedules(cityId, year);
+        var shalatTimes = await JadwalSholatOrgParserUtil.FetchSchedules(cityId, month);
 
         shalatTimes.Should().NotBeNullOrEmpty();
     }
 
     [Theory]
-    [InlineData(1)]
-    public async Task Fetch_CustomMonth_CustomYear_Test(int cityId)
+    [InlineData(1, 2, 2022)]
+    [InlineData(1, 12, 2023)]
+    public async Task Fetch_CustomMonth_CustomYear_Test(int cityId, int month, int year)
     {
-        var year = DateTime.UtcNow.Year;
-        var month = DateTime.UtcNow.Month;
-
-        var shalatTimes = await JadwalSholatOrgParserUtil.FetchSchedules(cityId, year, month);
+        var shalatTimes = await JadwalSholatOrgParserUtil.FetchSchedules(cityId, month, year);
 
         shalatTimes.Should().NotBeNullOrEmpty();
     }
