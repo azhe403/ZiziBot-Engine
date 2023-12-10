@@ -141,9 +141,9 @@ public static class WebParserUtil
         });
     }
 
-    public static Task<string> HtmlForTelegram(this string htmlString)
+    public static Task<string?> HtmlForTelegram(this string? htmlString)
     {
-        var htmlCleaned = htmlString.Replace("<br>", "").Replace("</br>", "")
+        var htmlCleaned = htmlString?.Replace("<br>", "").Replace("</br>", "")
             .Replace("<p>", "\n").Replace("</p>", "")
             .Replace("<ul>", "").Replace("</ul>", "")
             .Replace("<li>", "- ").Replace("</li>", "")
