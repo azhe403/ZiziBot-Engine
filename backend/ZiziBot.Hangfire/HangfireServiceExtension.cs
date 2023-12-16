@@ -20,8 +20,8 @@ public static class HangfireServiceExtension
         {
             "default",
             "data",
-            "rss",
-            "shalat-time"
+            CronJobKey.Queue_Rss,
+            CronJobKey.Queue_ShalatTime
         };
 
         JobStorage.Current = hangfireConfig.CurrentStorage switch
@@ -31,7 +31,8 @@ public static class HangfireServiceExtension
         };
 
         services.AddHangfire(
-            configuration => {
+            configuration =>
+            {
                 configuration
                     .UseSimpleAssemblyNameTypeSerializer()
                     .UseRecommendedSerializerSettings()
@@ -43,7 +44,8 @@ public static class HangfireServiceExtension
         );
 
         services.AddHangfireServer(
-            optionsAction: (provider, options) => {
+            optionsAction: (provider, options) =>
+            {
                 options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
                 options.ServerTimeout = TimeSpan.FromMinutes(10);
                 options.Queues = queues;

@@ -21,7 +21,7 @@ public static class JadwalSholatOrgParserUtil
         return cities;
     }
 
-    public static async Task<IEnumerable<IEnumerable<ShalatTime>?>> FetchSchedules(int cityId)
+    public static async Task<IEnumerable<IEnumerable<ShalatTime>?>> FetchSchedulesFullYear(int cityId)
     {
         var year = DateTime.UtcNow.Year;
         var months = Enumerable.Range(1, 12);
@@ -29,6 +29,16 @@ public static class JadwalSholatOrgParserUtil
         var monthTask = await months.Select(x => FetchSchedules(cityId, x, year)).WhenAll(1);
 
         return monthTask;
+    }
+
+    public static async Task<IEnumerable<ShalatTime>?> FetchSchedules(int cityId)
+    {
+        var year = DateTime.UtcNow.Year;
+        var month = DateTime.UtcNow.Month;
+
+        var tableRows = await FetchSchedules(cityId, month, year);
+
+        return tableRows;
     }
 
     public static async Task<IEnumerable<ShalatTime>?> FetchSchedules(int cityId, int month)
@@ -45,7 +55,7 @@ public static class JadwalSholatOrgParserUtil
         var document = await webUrl.OpenUrl();
 
         var tableRows = document?.QuerySelectorAll<IHtmlTableRowElement>("table[class=table_adzan] > tbody > tr");
-        var times = tableRows?.Skip(2).Select(x => x.Cells.Select(y => y.TextContent)).ToList();
+        var times = tableRows?.Skip(2).Select(x => x.Cells.Select(y => y.TextContent.RegexMatchIf("[0-9][0-9]:[0-9][0-9]+", y.TextContent.Contains(':')))).ToList();
         var header = times?.First();
 
         var shalatTimes = times?.Skip(1)

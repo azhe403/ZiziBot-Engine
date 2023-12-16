@@ -164,4 +164,14 @@ public static class StringUtil
     {
         return Regex.Replace(input, pattern, replacement);
     }
+
+    public static string RegexMatch(this string input, string pattern)
+    {
+        return Regex.Match(input, pattern).Value;
+    }
+
+    public static string RegexMatchIf(this string input, string pattern, bool condition)
+    {
+        return condition ? input.RegexMatch(pattern) : input;
+    }
 }
