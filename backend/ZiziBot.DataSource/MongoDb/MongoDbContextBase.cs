@@ -52,6 +52,9 @@ public class MongoDbContextBase : MongoDbContext
     public MongoDbSet<BinderByteCheckAwbEntity> BinderByteCheckAwb { get; set; }
     public MongoDbSet<TonjooAwbEntity> TonjooAwb { get; set; }
 
+    public MongoDbSet<JadwalSholatOrg_CityEntity> JadwalSholatOrg_City { get; set; }
+    public MongoDbSet<JadwalSholatOrg_ScheduleEntity> JadwalSholatOrg_Schedule { get; set; }
+
     public MongoDbContextBase(string connectionStr) : base(MongoDbConnection.FromConnectionString(connectionStr))
     {
     }
