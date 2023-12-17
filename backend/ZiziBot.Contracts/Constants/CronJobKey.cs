@@ -7,4 +7,5 @@ public static class CronJobKey
 
     public const string JadwalSholatOrg_FetchCity = "jadwal-sholat-org_fetch-city";
     public const string JadwalSholatOrg_FetchSchedule = "jadwal-sholat-org_fetch-schedule";
+    public const string JadwalSholatOrg_FetchAll = "jadwal-sholat-org_fetch-all";
 }

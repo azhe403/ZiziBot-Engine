@@ -14,6 +14,12 @@ public class JadwalSholatOrgSinkService
         _mongoDbContext = mongoDbContext;
     }
 
+    public async Task FeedAll()
+    {
+        await FeedCity();
+        await FeedSchedule();
+    }
+
     public async Task FeedCity()
     {
         var trxId = Guid.NewGuid().ToString();
