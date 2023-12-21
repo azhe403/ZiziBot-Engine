@@ -16,6 +16,7 @@ public class MirrorUserController : ApiControllerBase
     }
 
     [HttpGet("find")]
+    [HttpGet("check-mirror-user")]
     [AccessFilter(checkHeader: false)]
     public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto request)
     {
