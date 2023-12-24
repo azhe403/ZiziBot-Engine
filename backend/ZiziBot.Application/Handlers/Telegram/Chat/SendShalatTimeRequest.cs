@@ -30,13 +30,13 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
         var botMain = await _appSettingRepository.GetBotMain();
         var botClient = new TelegramBotClient(botMain.Token);
 
-        var defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
+        const string defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
 
         var cityList = await _chatSettingRepository.GetCity(request.ChatId);
 
-        if (!cityList.Any())
+        if (cityList.NotEmpty())
         {
-            _logger.LogInformation("City list is empty");
+            _logger.LogInformation("City list is empty for ChatId: {ChatId}", request.ChatId);
             return false;
         }
 
@@ -44,25 +44,25 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
 
         foreach (var cityEntity in cityList)
         {
-            var currentTime = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm");
-            var shalatTime = await _fathimahApiService.GetShalatTime(DateTime.Now, cityEntity.CityId);
-            var currentShalat = shalatTime.Schedule.ShalatDict.FirstOrDefault(pair => pair.Value == currentTime);
-
-            if (currentShalat.IsNull())
-            {
-                _logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'", cityEntity.CityName, currentTime);
-                continue;
-            }
-
-            var message = defaultMessage.ResolveVariable(new List<(string placeholder, string value)>
-            {
-                ("Shalat", currentShalat.Key),
-                ("Date", DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss")),
-                ("City", cityEntity.CityName)
-            });
-
             try
             {
+                var currentTime = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm");
+                var shalatTime = await _fathimahApiService.GetShalatTime(DateTime.Now, cityEntity.CityId);
+                var currentShalat = shalatTime.Schedule.ShalatDict.FirstOrDefault(pair => pair.Value == currentTime);
+
+                if (currentShalat.IsNull())
+                {
+                    _logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'", cityEntity.CityName, currentTime);
+                    continue;
+                }
+
+                var message = defaultMessage.ResolveVariable(new List<(string placeholder, string value)>
+                {
+                    ("Shalat", currentShalat.Key),
+                    ("Date", DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss")),
+                    ("City", cityEntity.CityName)
+                });
+
                 await botClient.SendTextMessageAsync(request.ChatId, message, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
