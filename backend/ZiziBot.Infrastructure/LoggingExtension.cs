@@ -94,24 +94,23 @@ public static class LoggingExtension
 
     public static IApplicationBuilder ConfigureFlurlLogging(this IApplicationBuilder app)
     {
-        FlurlHttp.Configure(
-            settings => {
-                settings.BeforeCall = flurlCall => {
-                    var request = flurlCall.Request;
+        FlurlHttp.Clients.WithDefaults(settings => {
+                settings.BeforeCall(call => {
+                    var request = call.Request;
                     Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
-                };
+                });
 
-                settings.AfterCall = flurlCall => {
+                settings.AfterCall(flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
-                    Log.Information(
-                        "FlurlHttp: {Method} {Url} {StatusCode}. Elapsed: {Elapsed}",
+
+                    Log.Information("FlurlHttp: {Method} {Url}: {StatusCode}. Elapsed: {Elapsed}",
                         request.Verb,
                         request.Url,
                         response?.StatusCode,
                         flurlCall.Duration
                     );
-                };
+                });
             }
         );
 
