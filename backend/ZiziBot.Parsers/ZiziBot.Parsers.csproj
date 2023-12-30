@@ -13,8 +13,8 @@
         <PackageReference Include="CloudflareSolverRe" Version="1.0.6"/>
         <PackageReference Include="CodeHollow.FeedReader" Version="1.2.6" />
         <PackageReference Include="CSVFile" Version="3.1.2"/>
-        <PackageReference Include="Flurl.Http" Version="3.2.4" />
-        <PackageReference Include="Markdig" Version="0.33.0"/>
+        <PackageReference Include="Flurl.Http" Version="4.0.0"/>
+        <PackageReference Include="Markdig" Version="0.34.0"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Octokit" Version="9.0.0"/>
         <PackageReference Include="PickAll" Version="1.3.1" />
