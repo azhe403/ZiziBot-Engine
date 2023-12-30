@@ -79,9 +79,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                     messageText.Br().Br()
                         .BoldBr("Assets");
 
-                    assets.Assets.ForEach(asset => {
-                        messageText.Url(asset.Url, asset.Name).Br();
-                    });
+                    assets.Assets.ForEach(asset => { messageText.Url(asset.BrowserDownloadUrl, asset.Name).Br(); });
                 }
             }
 
@@ -135,7 +133,8 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                     .Where(entity => entity.Status == (int)EventStatus.Complete)
                     .ToListAsync(cancellationToken);
 
-                findRssSetting.ForEach(e => {
+                findRssSetting.ForEach(e =>
+                {
                     _logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}", e.ChatId, e.RssUrl);
 
                     e.Status = (int)EventStatus.InProgress;
