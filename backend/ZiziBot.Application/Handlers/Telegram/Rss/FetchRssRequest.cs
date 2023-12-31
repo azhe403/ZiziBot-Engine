@@ -44,13 +44,12 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 return false;
             }
 
-            var latestHistory = await _mongoDbContext.RssHistory
-                .FirstOrDefaultAsync(history =>
-                        history.ChatId == request.ChatId &&
-                        history.ThreadId == request.ThreadId &&
-                        history.RssUrl == request.RssUrl &&
-                        history.Status == (int)EventStatus.Complete,
-                    cancellationToken: cancellationToken);
+            var latestHistory = await _mongoDbContext.RssHistory.AsNoTracking()
+                .Where(entity => entity.ChatId == request.ChatId)
+                .Where(entity => entity.ThreadId == request.ThreadId)
+                .Where(entity => entity.RssUrl == request.RssUrl)
+                .Where(entity => entity.Status == (int)EventStatus.Complete)
+                .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
             if (latestHistory != null)
             {
@@ -65,9 +64,11 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
             var htmlContent = await latestArticle.Content.HtmlForTelegram();
 
             var messageText = HtmlMessage.Empty
-                .Url(feed.Link, feed.Title).Br()
-                .Url(latestArticle.Link, latestArticle.Title).Br()
-                .Text(htmlContent.Truncate(2000));
+                .Url(feed.Link, feed.Title.Trim()).Br()
+                .Url(latestArticle.Link, latestArticle.Title.Trim()).Br();
+
+            if (!request.RssUrl.IsGithubCommitsUrl())
+                messageText.Text(htmlContent.Truncate(2000));
 
             if (request.RssUrl.IsGithubReleaseUrl())
             {
@@ -133,8 +134,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                     .Where(entity => entity.Status == (int)EventStatus.Complete)
                     .ToListAsync(cancellationToken);
 
-                findRssSetting.ForEach(e =>
-                {
+                findRssSetting.ForEach(e => {
                     _logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}", e.ChatId, e.RssUrl);
 
                     e.Status = (int)EventStatus.InProgress;
