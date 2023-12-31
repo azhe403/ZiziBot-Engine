@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using NanoidDotNet;
 
@@ -157,5 +158,20 @@ public static class StringUtil
         }
 
         return source.Substring(0, count);
+    }
+
+    public static string RegexReplace(this string input, string pattern, string replacement)
+    {
+        return Regex.Replace(input, pattern, replacement);
+    }
+
+    public static string RegexMatch(this string input, string pattern)
+    {
+        return Regex.Match(input, pattern).Value;
+    }
+
+    public static string RegexMatchIf(this string input, string pattern, bool condition)
+    {
+        return condition ? input.RegexMatch(pattern) : input;
     }
 }

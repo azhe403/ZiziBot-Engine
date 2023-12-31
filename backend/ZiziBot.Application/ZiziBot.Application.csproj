@@ -11,7 +11,7 @@
         <PackageReference Include="CacheTower" Version="0.14.0"/>
         <PackageReference Include="CloudCraic.Hosting.BackgroundQueue" Version="1.0.7" />
         <PackageReference Include="FirebaseDatabase.net" Version="4.2.0" />
-        <PackageReference Include="Flurl.Http" Version="3.2.4" />
+        <PackageReference Include="Flurl.Http" Version="4.0.0"/>
         <PackageReference Include="Google.Cloud.Firestore" Version="3.4.0"/>
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
         <PackageReference Include="MediatR" Version="12.2.0"/>
@@ -20,7 +20,7 @@
         <PackageReference Include="morelinq" Version="4.1.0"/>
         <PackageReference Include="Nut.MediatR.Behaviors" Version="0.8.0"/>
         <PackageReference Include="Nut.MediatR.Behaviors.FluentValidation" Version="0.8.0"/>
-        <PackageReference Include="Octokit.Webhooks" Version="2.0.6"/>
+        <PackageReference Include="Octokit.Webhooks" Version="2.1.0"/>
         <PackageReference Include="Serilog" Version="3.1.1"/>
         <PackageReference Include="SerilogTimings" Version="3.0.1" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3"/>

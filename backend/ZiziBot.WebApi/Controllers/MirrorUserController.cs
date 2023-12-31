@@ -16,6 +16,7 @@ public class MirrorUserController : ApiControllerBase
     }
 
     [HttpGet("find")]
+    [HttpGet("check-user")]
     [AccessFilter(checkHeader: false)]
     public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto request)
     {
@@ -43,7 +44,7 @@ public class MirrorUserController : ApiControllerBase
         return await SendRequest(request);
     }
 
-    [HttpGet("check-order-id")]
+    [HttpGet("check-order")]
     [AccessFilter(checkHeader: true)]
     public async Task<IActionResult> Index([FromQuery] string orderId)
     {

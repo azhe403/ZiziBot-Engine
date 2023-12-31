@@ -39,14 +39,14 @@ public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUser
         if (user == null)
         {
             response.StatusCode = HttpStatusCode.NotFound;
-            response.Message = "User not found";
+            response.Message = "Mirror User not found";
 
             return response;
         }
         else
         {
             response.StatusCode = HttpStatusCode.OK;
-            response.Message = "User found";
+            response.Message = "Mirror User found";
             response.Result = new GetMirrorUserDto
             {
                 UserId = request.UserId,
