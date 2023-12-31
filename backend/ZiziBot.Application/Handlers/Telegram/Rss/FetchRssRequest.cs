@@ -75,7 +75,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 var assets = await request.RssUrl.GetGithubAssetLatest();
 
 
-                if (assets != null)
+                if (assets?.Assets.NotEmpty() ?? false)
                 {
                     messageText.Br().Br()
                         .BoldBr("Assets");
