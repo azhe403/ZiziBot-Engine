@@ -29,7 +29,7 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
         var cityInfoAll = await _fathimahApiService.GetAllCityAsync();
         var cityInfo = cityInfoAll.Cities
             .WhereIf(request.CityId > 0, kota => kota.Id == request.CityId)
-            .WhereIf(request.CityName.IsNotNullOrEmpty(), kota => kota.Name.Contains(request.CityName, StringComparison.OrdinalIgnoreCase))
+            .WhereIf(request.CityName.IsNotNullOrEmpty(), kota => kota.Lokasi.Contains(request.CityName, StringComparison.OrdinalIgnoreCase))
             .FirstOrDefault();
 
         if (cityInfo == null)
@@ -37,7 +37,7 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
             return await _telegramService.SendMessageText("Kota tidak ditemukan");
         }
 
-        var city = await _mongoDbContext.City
+        var city = await _mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.CityId == cityInfo.Id)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -45,7 +45,7 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
 
         var cityMsg = HtmlMessage.Empty
             .Bold("ID Kota: ").CodeBr(cityInfo.Id.ToString())
-            .Bold("Kota: ").CodeBr(cityInfo.Name);
+            .Bold("Kota: ").CodeBr(cityInfo.Lokasi);
 
         if (city != null)
         {
@@ -55,12 +55,12 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
         }
         else
         {
-            _mongoDbContext.City.Add(new CityEntity()
+            _mongoDbContext.BangHasan_ShalatCity.Add(new BangHasan_ShalatCityEntity()
             {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 CityId = cityInfo.Id,
-                CityName = cityInfo.Name,
+                CityName = cityInfo.Lokasi,
                 Status = (int)EventStatus.Complete
             });
 

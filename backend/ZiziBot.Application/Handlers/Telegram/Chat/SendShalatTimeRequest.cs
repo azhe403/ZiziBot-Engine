@@ -32,7 +32,7 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
 
         const string defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
 
-        var cityList = await _chatSettingRepository.GetCity(request.ChatId);
+        var cityList = await _chatSettingRepository.GetShalatCity(request.ChatId);
 
         if (cityList.NotEmpty())
         {

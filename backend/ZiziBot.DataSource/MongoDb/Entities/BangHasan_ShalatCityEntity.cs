@@ -1,7 +1,7 @@
 namespace ZiziBot.DataSource.MongoDb.Entities;
 
-[Table("City")]
-public class CityEntity : EntityBase
+[Table("BangHasan.ShalatCity")]
+public class BangHasan_ShalatCityEntity : EntityBase
 {
     public int CityId { get; set; }
     public string CityName { get; set; }

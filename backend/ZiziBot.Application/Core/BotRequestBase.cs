@@ -73,4 +73,5 @@ public class BotRequestBase : IRequest<BotResponseBase>
     };
 
     public TimeSpan DeleteAfter { get; set; } = TimeSpan.FromMinutes(1);
+    public string SessionId { get; set; } = Guid.NewGuid().ToString();
 }

@@ -1,13 +1,13 @@
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Types.Vendor.FathimahApi;
+using ZiziBot.Types.Vendor.FathimahApi.v2;
 
 namespace ZiziBot.Services;
 
 public class FathimahApiService
 {
-    private const string BaseUrl = "https://api.banghasan.com";
+    private const string BaseUrl = "https://api.myquran.com/v2";
 
     private readonly ILogger<FathimahApiService> _logger;
     private readonly CacheService _cacheService;
@@ -20,12 +20,12 @@ public class FathimahApiService
 
     public async Task<CityResponse> GetAllCityAsync()
     {
-        const string path = "sholat/format/json/kota";
+        const string path = "sholat/kota/semua";
 
         _logger.LogInformation("Get City");
 
         var apis = await _cacheService.GetOrSetAsync(
-            cacheKey: $"vendor/api-banghasan-com/shalat/list-kota",
+            cacheKey: $"vendor/banghasan/{path}",
             expireAfter: "1d",
             staleAfter: "1h",
             action: async () => {
@@ -45,13 +45,12 @@ public class FathimahApiService
 
     public async Task<ShalatTimeResponse> GetShalatTime(DateTime dateTime, long cityId)
     {
-        var dateStr = dateTime.ToString("yyyy-MM-dd");
-        var path = $"sholat/format/json/jadwal/kota/{cityId}/tanggal/{dateStr}";
+        var path = $"sholat/jadwal/{cityId}/{dateTime.Year}/{dateTime.Month}/{dateTime.Day}";
 
-        _logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateStr);
+        _logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateTime);
 
         var apis = await _cacheService.GetOrSetAsync(
-            cacheKey: $"vendor/api-banghasan-com/shalat/kota/{cityId}",
+            cacheKey: $"vendor/banghasan/{path}",
             expireAfter: "1d",
             staleAfter: "1h",
             action: async () => {
