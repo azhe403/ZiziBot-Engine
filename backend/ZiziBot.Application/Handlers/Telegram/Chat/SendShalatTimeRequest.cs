@@ -34,7 +34,7 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
 
         var cityList = await _chatSettingRepository.GetShalatCity(request.ChatId);
 
-        if (cityList.NotEmpty())
+        if (cityList.IsEmpty())
         {
             _logger.LogInformation("City list is empty for ChatId: {ChatId}", request.ChatId);
             return false;
