@@ -11,7 +11,7 @@ public class ForwardChannelPostRequest : BotRequestBase
 {
 }
 
-public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostRequest, BotResponseBase>
+public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRequest>
 {
     private readonly ILogger<ForwardChannelPostHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -27,7 +27,7 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
     public async Task<BotResponseBase> Handle(ForwardChannelPostRequest request, CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
-        _logger.LogInformation("Forwarding channel post to ..");
+        _logger.LogInformation("Prepare forwarding channel post..");
         var channel = request.ChannelPostAny;
 
         var channelId = channel?.Chat.Id;
@@ -41,46 +41,48 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
             .ToListAsync(cancellationToken: cancellationToken);
 
         await channelMaps.ForEachAsync(async channelMap => {
-            var channelPost = await _mongoDbContext.ChannelPost
+            var channelPost = await _mongoDbContext.ChannelPost.AsNoTracking()
                 .Where(x => x.DestinationChatId == channelMap.ChatId)
                 .Where(x => x.DestinationThreadId == channelMap.ThreadId)
                 .Where(x => x.SourceMessageId == channel!.MessageId)
                 .Where(x => x.Status == (int)EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-            if (channelPost == null)
-            {
-                _logger.LogDebug("No channel post found from {ChannelId} to {ChatId}:{ThreadId} ..", channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
-
-                return;
-            }
+            var channelPostX = await _mongoDbContext.ChannelPost.AsNoTracking()
+                .Where(x => x.DestinationChatId == channelMap.ChatId)
+                .Where(x => x.DestinationThreadId == channelMap.ThreadId)
+                .Where(x => x.SourceMessageId == channel!.MessageId)
+                .Where(x => x.Status == (int)EventStatus.Complete)
+                .ToListAsync(cancellationToken: cancellationToken);
 
             try
             {
                 if (request.ChannelPost != null)
                 {
-                    _logger.LogDebug("Sending channel post from {ChannelId} to {ChatId}:{ThreadId} ..", channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
-                    var send = channel!.Type switch
+                    _logger.LogDebug("Sending channel post from ChannelId: {ChannelId} to ChatId: {ChatId}, ThreadId: {ThreadId} ..",
+                        channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
+
+                    var send = channel.Type switch
                     {
                         MessageType.Text => await _telegramService.SendMessageText(
-                            text: channel.Text,
+                            text: textCaption,
                             threadId: channelMap.ThreadId.Convert<int>(),
                             chatId: channelMap.ChatId),
                         MessageType.Document => await _telegramService.SendMediaAsync(
                             fileId: fileId,
-                            caption: channel.Caption,
+                            caption: textCaption,
                             mediaType: CommonMediaType.Document,
                             threadId: channelMap.ThreadId.Convert<int>(),
                             customChatId: channelMap.ChatId),
                         MessageType.Photo => await _telegramService.SendMediaAsync(
                             fileId: fileId,
-                            caption: channel.Caption,
+                            caption: textCaption,
                             mediaType: CommonMediaType.Photo,
                             threadId: channelMap.ThreadId.Convert<int>(),
                             customChatId: channelMap.ChatId),
                         MessageType.Video => await _telegramService.SendMediaAsync(
                             fileId: fileId,
-                            caption: channel.Caption,
+                            caption: textCaption,
                             mediaType: CommonMediaType.Video,
                             threadId: channelMap.ThreadId.Convert<int>(),
                             customChatId: channelMap.ChatId),
@@ -93,25 +95,34 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
                         SourceMessageId = channel.MessageId,
                         DestinationChatId = channelMap.ChatId,
                         DestinationThreadId = channelMap.ThreadId,
-                        DestinationMessageId = send.SentMessage.MessageId,
+                        DestinationMessageId = send.SentMessage!.MessageId,
                         Text = channel.Text ?? channel.Caption ?? string.Empty,
                         FileId = fileId,
+                        FileUniqueId = fileUniqueId,
                         MediaType = (int)channel.Type,
                         Status = (int)EventStatus.Complete
                     });
-
                 }
 
                 if (request.ChannelPostEdited != null)
                 {
-                    _logger.LogDebug("Updating channel post to {ChannelId} to {ChatId}:{ThreadId} ..", channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
+                    if (channelPost == null)
+                    {
+                        _logger.LogDebug("No channel post found from ChannelId: {ChannelId} for ChatId: {ChatId}, ThreadId: {ThreadId} ..",
+                            channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
+
+                        return;
+                    }
+
+                    _logger.LogDebug("Updating channel post to ChannelId: {ChannelId} to ChatId: {ChatId}, ThreadId: {ThreadId} ..",
+                        channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
 
                     if (channel.Type == MessageType.Text)
                     {
                         var edit = await _telegramService.Bot.EditMessageTextAsync(
                             chatId: channelMap.ChatId,
                             messageId: channelPost.DestinationMessageId.Convert<int>(),
-                            text: channel.Text,
+                            text: textCaption,
                             entities: channel.Entities,
                             parseMode: ParseMode.Html,
                             cancellationToken: cancellationToken
@@ -126,9 +137,11 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
                             await _telegramService.Bot.EditMessageCaptionAsync(
                                 chatId: channelMap.ChatId,
                                 messageId: channelPost.DestinationMessageId.Convert<int>(),
-                                caption: channel.Caption,
+                                caption: textCaption,
                                 cancellationToken: cancellationToken
                             );
+
+                            channelPost.Text = textCaption;
                         }
 
                         if (channelPost.FileUniqueId != fileUniqueId)
@@ -149,6 +162,7 @@ public class ForwardChannelPostHandler : IRequestHandler<ForwardChannelPostReque
                                 cancellationToken: cancellationToken
                             );
 
+                            channelPost.FileId = fileId;
                             channelPost.FileUniqueId = fileUniqueId;
                         }
                     }

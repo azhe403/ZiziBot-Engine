@@ -8,7 +8,7 @@ public class ConnectChannelPostRequest : BotRequestBase
     public long ChannelId { get; set; }
 }
 
-public class ConnectChannelPostHandler : IRequestHandler<ConnectChannelPostRequest, BotResponseBase>
+public class ConnectChannelPostHandler : IBotRequestHandler<ConnectChannelPostRequest>
 {
     private readonly ILogger<ConnectChannelPostHandler> _logger;
     private readonly TelegramService _telegramService;
@@ -32,7 +32,8 @@ public class ConnectChannelPostHandler : IRequestHandler<ConnectChannelPostReque
             return await _telegramService.EditMessageText("Spesifikasikan ChannelId yang ingin ditautkan");
         }
 
-        var channelMap = await _mongoDbContext.ChannelMap.Where(entity => entity.ChannelId == request.ChannelId)
+        var channelMap = await _mongoDbContext.ChannelMap.AsNoTracking()
+            .Where(entity => entity.ChannelId == request.ChannelId)
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
