@@ -467,6 +467,20 @@ public class TelegramService
     #endregion
 
     #region Chat
+    public async Task<Chat?> GetChatAsync(long chatId)
+    {
+        try
+        {
+            var channel = await Bot.GetChatAsync(chatId);
+
+            return channel;
+        }
+        catch (Exception e)
+        {
+            return default;
+        }
+    }
+
     public async Task PinChatMessageAsync(int messageId)
     {
         await Bot.UnpinChatMessageAsync(_request.ChatId, messageId);

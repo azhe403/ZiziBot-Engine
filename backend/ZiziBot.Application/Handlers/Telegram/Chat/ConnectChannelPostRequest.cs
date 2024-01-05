@@ -29,7 +29,15 @@ public class ConnectChannelPostHandler : IBotRequestHandler<ConnectChannelPostRe
 
         if (request.ChannelId == 0)
         {
-            return await _telegramService.EditMessageText("Spesifikasikan ChannelId yang ingin ditautkan");
+            return await _telegramService.EditMessageText("Spesifikasikan ChannelId yang ingin ditautkan" +
+                                                          "\nContoh: <code>/fch -1001139107957</code>");
+        }
+
+        var channel = await _telegramService.GetChatAsync(request.ChannelId);
+        if (channel is null)
+        {
+            return await _telegramService.EditMessageText("ChannelId tidak ditemukan. " +
+                                                          "\nPastikan Bot sudah ditambahkan ke Channel tersebut");
         }
 
         var channelMap = await _mongoDbContext.ChannelMap.AsNoTracking()
