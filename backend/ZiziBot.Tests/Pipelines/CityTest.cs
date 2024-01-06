@@ -43,10 +43,10 @@ public class CityTest
         var cityInfoAll = await _fathimahApiService.GetAllCityAsync();
 
         var cityInfo = cityInfoAll.Cities
-            .WhereIf(cityName.IsNotNullOrEmpty(), kota => kota.Name.Contains(cityName, StringComparison.OrdinalIgnoreCase))
+            .WhereIf(cityName.IsNotNullOrEmpty(), kota => kota.Lokasi.Contains(cityName, StringComparison.OrdinalIgnoreCase))
             .FirstOrDefault();
 
-        var city = await _mongoDbContext.City
+        var city = await _mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == chatId)
             .Where(entity => entity.CityId == cityInfo.Id)
             .Where(entity => entity.Status == (int)EventStatus.Complete)

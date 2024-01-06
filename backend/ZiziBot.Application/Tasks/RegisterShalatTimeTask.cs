@@ -16,7 +16,7 @@ public class RegisterShalatTimeTask : IStartupTask
 
     public async Task ExecuteAsync()
     {
-        var cities = await _mongoDbContext.City
+        var cities = await _mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .Select(entity => entity.ChatId)
             .Distinct()

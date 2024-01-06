@@ -466,6 +466,28 @@ public class TelegramService
     }
     #endregion
 
+    #region Chat
+    public async Task<Chat?> GetChatAsync(long chatId)
+    {
+        try
+        {
+            var channel = await Bot.GetChatAsync(chatId);
+
+            return channel;
+        }
+        catch (Exception e)
+        {
+            return default;
+        }
+    }
+
+    public async Task PinChatMessageAsync(int messageId)
+    {
+        await Bot.UnpinChatMessageAsync(_request.ChatId, messageId);
+        await Bot.PinChatMessageAsync(_request.ChatId, messageId);
+    }
+    #endregion
+
     #region Member
     public async Task<int> GetMemberCount()
     {
@@ -496,8 +518,7 @@ public class TelegramService
     {
         var cache = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.ACTIVE_USERNAMES_CHAT + _request.ChatId,
-            action: async () =>
-            {
+            action: async () => {
                 var chat = await Bot.GetChatAsync(_request.ChatId);
                 var activeUsernames = chat.ActiveUsernames;
 
@@ -511,8 +532,7 @@ public class TelegramService
     {
         var cache = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.ACTIVE_USERNAMES_USER + _request.UserId,
-            action: async () =>
-            {
+            action: async () => {
                 var chat = await Bot.GetChatAsync(_request.UserId);
                 var activeUsernames = chat.ActiveUsernames;
 
@@ -583,8 +603,7 @@ public class TelegramService
     {
         var cacheValue = await _cacheService.GetOrSetAsync(
             cacheKey: CacheKey.LIST_CHAT_ADMIN + _request.ChatId,
-            action: async () =>
-            {
+            action: async () => {
                 var chatAdmins = await Bot.GetChatAdministratorsAsync(_request.ChatId);
                 return chatAdmins.ToList();
             }

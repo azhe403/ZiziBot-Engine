@@ -7,7 +7,6 @@ namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
 public class GetShalatTimeBotRequest : BotRequestBase
 {
-
 }
 
 public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, BotResponseBase>
@@ -23,7 +22,6 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
         _telegramService = telegramService;
         _mongoDbContext = mongoDbContext;
         _fathimahApiService = fathimahApiService;
-
     }
 
     public async Task<BotResponseBase> Handle(GetShalatTimeBotRequest request, CancellationToken cancellationToken)
@@ -31,7 +29,7 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
         _logger.LogInformation("Get Shalat Time list for ChatId: {ChatId}", request.ChatId);
         _telegramService.SetupResponse(request);
 
-        var cityList = await _mongoDbContext.City
+        var cityList = await _mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.CityName)
@@ -51,9 +49,7 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
                     .TextBr("====================================");
 
                 var shalatTime = await _fathimahApiService.GetShalatTime(city.CityId);
-                shalatTime.Schedule.ShalatDict.ForEach(shalat => {
-                    htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value).Br();
-                });
+                shalatTime.Schedule.ShalatDict.ForEach(shalat => { htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value).Br(); });
 
                 htmlMessage.Br();
             }

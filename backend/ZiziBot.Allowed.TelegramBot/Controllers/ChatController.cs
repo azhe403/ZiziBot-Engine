@@ -34,6 +34,23 @@ public class ChatController : CommandController
         });
     }
 
+    [Command("pin")]
+    public async Task PinMessage(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new PinMessageRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            MinimumRole = RoleLevel.ChatAdminOrPrivate,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
+
     [UpdateCommand(UpdateType.ChatJoinRequest)]
     public async Task JoinRequest(UpdateData data)
     {

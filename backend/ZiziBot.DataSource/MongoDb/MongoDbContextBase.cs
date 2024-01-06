@@ -37,12 +37,10 @@ public class MongoDbContextBase : MongoDbContext
 
     public MongoDbSet<ChatGptSessionEntity> ChatGptSession { get; set; }
     public MongoDbSet<ChatSettingEntity> ChatSetting { get; set; }
-    public MongoDbSet<CityEntity> City { get; set; }
     public MongoDbSet<NoteEntity> Note { get; set; }
     public MongoDbSet<RssSettingEntity> RssSetting { get; set; }
     public MongoDbSet<RssHistoryEntity> RssHistory { get; set; }
     public MongoDbSet<WebhookChatEntity> WebhookChat { get; set; }
-
 
     public MongoDbSet<WordFilterEntity> WordFilter { get; set; }
 
@@ -51,6 +49,8 @@ public class MongoDbContextBase : MongoDbContext
 
     public MongoDbSet<BinderByteCheckAwbEntity> BinderByteCheckAwb { get; set; }
     public MongoDbSet<TonjooAwbEntity> TonjooAwb { get; set; }
+
+    public MongoDbSet<BangHasan_ShalatCityEntity> BangHasan_ShalatCity { get; set; }
 
     public MongoDbSet<JadwalSholatOrg_CityEntity> JadwalSholatOrg_City { get; set; }
     public MongoDbSet<JadwalSholatOrg_ScheduleEntity> JadwalSholatOrg_Schedule { get; set; }

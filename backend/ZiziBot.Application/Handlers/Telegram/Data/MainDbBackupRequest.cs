@@ -8,7 +8,6 @@ namespace ZiziBot.Application.Handlers.Telegram.Data;
 
 public class MainDbBackupRequest : IRequest<bool>
 {
-
 }
 
 public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
@@ -42,7 +41,7 @@ public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
         await _mongoDbContext.ExportAllAsync<ApiKeyEntity>();
         await _mongoDbContext.ExportAllAsync<BotCommandEntity>();
         await _mongoDbContext.ExportAllAsync<BotSettingsEntity>();
-        await _mongoDbContext.ExportAllAsync<CityEntity>();
+        await _mongoDbContext.ExportAllAsync<BangHasan_ShalatCityEntity>();
         await _mongoDbContext.ExportAllAsync<ChannelMapEntity>();
         await _mongoDbContext.ExportAllAsync<ChannelPostEntity>();
         // await _mirrorDbContext.ExportAllAsync<BinderByteCheckAwbEntity>();

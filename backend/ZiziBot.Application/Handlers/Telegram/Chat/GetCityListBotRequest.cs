@@ -27,7 +27,7 @@ public class GetCityListHandler : IRequestHandler<GetCityListBotRequest, BotResp
 
         _logger.LogDebug("Getting city list from chat {ChatId}", request.ChatId);
 
-        var cityList = await _mongoDbContext.City
+        var cityList = await _mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.CityName)

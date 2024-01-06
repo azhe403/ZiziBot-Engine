@@ -8,10 +8,11 @@ public class FathimahApiServiceTests
     private readonly FathimahApiService _fathimahApiService;
 
     public static readonly object[][] ShalatCity =
-    {
-        new object[] { DateTime.Now, 712 },
-        new object[] { new DateTime(2017, 3, 1), 712 },
-    };
+    [
+        [DateTime.Now, 1203],
+        [DateTime.Now.AddMonths(-2).AddDays(10).AddYears(-1), 1203],
+        [new DateTime(2022, 3, 1), 1203]
+    ];
 
     public FathimahApiServiceTests(FathimahApiService fathimahApiService)
     {
@@ -23,7 +24,7 @@ public class FathimahApiServiceTests
     {
         var allCity = await _fathimahApiService.GetAllCityAsync();
 
-        allCity.Status.Should().Be("ok");
+        allCity.Status.Should().Be(true);
         allCity.Cities.Should().NotBeEmpty();
     }
 
@@ -32,6 +33,6 @@ public class FathimahApiServiceTests
     {
         var shalatTime = await _fathimahApiService.GetShalatTime(dateTime, cityId);
 
-        shalatTime.Status.Should().Be("ok");
+        shalatTime.Status.Should().Be(true);
     }
 }
