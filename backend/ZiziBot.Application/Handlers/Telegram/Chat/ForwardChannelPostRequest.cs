@@ -4,6 +4,7 @@ using SharpX.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -31,14 +32,23 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
         var channel = request.ChannelPostAny;
 
         var channelId = channel?.Chat.Id;
-        var textCaption = channel.Text ?? channel.Caption ?? string.Empty;
+        var textCaption = channel?.Text ?? channel?.Caption ?? string.Empty;
         var fileId = channel.GetFileId();
+        var messageLink = channel.GetMessageLink();
         var fileUniqueId = channel.GetFileUniqueId();
 
         var channelMaps = await _mongoDbContext.ChannelMap
             .Where(entity => entity.ChannelId == channelId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
+
+        var replyMarkup = new InlineKeyboardMarkup(new[]
+        {
+            new[]
+            {
+                InlineKeyboardButton.WithUrl("↗️ Source", messageLink)
+            }
+        });
 
         await channelMaps.ForEachAsync(async channelMap => {
             var channelPost = await _mongoDbContext.ChannelPost.AsNoTracking()
@@ -47,13 +57,6 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
                 .Where(x => x.SourceMessageId == channel!.MessageId)
                 .Where(x => x.Status == (int)EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
-
-            var channelPostX = await _mongoDbContext.ChannelPost.AsNoTracking()
-                .Where(x => x.DestinationChatId == channelMap.ChatId)
-                .Where(x => x.DestinationThreadId == channelMap.ThreadId)
-                .Where(x => x.SourceMessageId == channel!.MessageId)
-                .Where(x => x.Status == (int)EventStatus.Complete)
-                .ToListAsync(cancellationToken: cancellationToken);
 
             try
             {
@@ -67,24 +70,28 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
                         MessageType.Text => await _telegramService.SendMessageText(
                             text: textCaption,
                             threadId: channelMap.ThreadId.Convert<int>(),
+                            replyMarkup: replyMarkup,
                             chatId: channelMap.ChatId),
                         MessageType.Document => await _telegramService.SendMediaAsync(
                             fileId: fileId,
                             caption: textCaption,
                             mediaType: CommonMediaType.Document,
                             threadId: channelMap.ThreadId.Convert<int>(),
+                            replyMarkup: replyMarkup,
                             customChatId: channelMap.ChatId),
                         MessageType.Photo => await _telegramService.SendMediaAsync(
                             fileId: fileId,
                             caption: textCaption,
                             mediaType: CommonMediaType.Photo,
                             threadId: channelMap.ThreadId.Convert<int>(),
+                            replyMarkup: replyMarkup,
                             customChatId: channelMap.ChatId),
                         MessageType.Video => await _telegramService.SendMediaAsync(
                             fileId: fileId,
                             caption: textCaption,
                             mediaType: CommonMediaType.Video,
                             threadId: channelMap.ThreadId.Convert<int>(),
+                            replyMarkup: replyMarkup,
                             customChatId: channelMap.ChatId),
                         _ => throw new ArgumentOutOfRangeException()
                     };
@@ -125,6 +132,7 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
                             text: textCaption,
                             entities: channel.Entities,
                             parseMode: ParseMode.Html,
+                            replyMarkup: replyMarkup,
                             cancellationToken: cancellationToken
                         );
 
@@ -138,6 +146,7 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
                                 chatId: channelMap.ChatId,
                                 messageId: channelPost.DestinationMessageId.Convert<int>(),
                                 caption: textCaption,
+                                replyMarkup: replyMarkup,
                                 cancellationToken: cancellationToken
                             );
 
@@ -159,6 +168,7 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
                                 chatId: channelMap.ChatId,
                                 messageId: channelPost.DestinationMessageId.Convert<int>(),
                                 media: media,
+                                replyMarkup: replyMarkup,
                                 cancellationToken: cancellationToken
                             );
 
