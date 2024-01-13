@@ -8,6 +8,8 @@ public static class TelegramUtil
 {
     public static string GetFullName(this User? user)
     {
+        if (user is null) return string.Empty;
+
         var fullName = (user.FirstName + " " + user.LastName).Trim();
         return fullName;
     }
@@ -19,8 +21,19 @@ public static class TelegramUtil
         return mention;
     }
 
-    public static string? GetFileId(this Message message)
+    public static string? GetMessageLink(this Message? message)
     {
+        if (message is null) return default;
+
+        return message.Chat.Username is not null
+            ? "https://t.me/" + message.Chat.Username + "/" + message.MessageId
+            : "https://t.me/c/" + message.Chat.Id + "/" + message.MessageId;
+    }
+
+    public static string? GetFileId(this Message? message)
+    {
+        if (message is null) return default;
+
         var fileId = message.Type switch
         {
             MessageType.Photo => message.Photo?.LastOrDefault()?.FileId,
@@ -36,8 +49,10 @@ public static class TelegramUtil
         return fileId;
     }
 
-    public static string? GetFileUniqueId(this Message message)
+    public static string? GetFileUniqueId(this Message? message)
     {
+        if (message is null) return default;
+
         var fileId = message.Type switch
         {
             MessageType.Photo => message.Photo?.LastOrDefault()?.FileUniqueId,
@@ -70,7 +85,7 @@ public static class TelegramUtil
 
     public static T GetInlineQueryAt<T>(this string query, int index)
     {
-        dynamic value = query.Split(" ").ElementAtOrDefault(index);
+        dynamic value = query.Split(" ").ElementAtOrDefault(index) ?? string.Empty;
 
         return Convert.ChangeType(value, typeof(T));
     }
