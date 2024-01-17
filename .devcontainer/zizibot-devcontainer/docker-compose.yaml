@@ -1,12 +1,10 @@
+version: "3"
 services:
-  app:
-    build:
-      context: .
-      dockerfile: src/ZiziBot.Engine/Dockerfile
-    depends_on:
-      - mongo
+  dotnet-container:
+    image: mcr.microsoft.com/devcontainers/dotnet:8.0
+    command: sleep infinity
 
-  mongo:
+  mongo-db:
     image: mongo:latest
     restart: always
     environment:
