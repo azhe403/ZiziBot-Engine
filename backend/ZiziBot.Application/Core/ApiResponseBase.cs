@@ -41,4 +41,13 @@ public class ApiResponseBase<TResult>
 
         return this;
     }
+
+    public ApiResponseBase<TResult> NotFound(string message, TResult? result = default)
+    {
+        StatusCode = HttpStatusCode.NotFound;
+        Message = message;
+        Result = result;
+
+        return this;
+    }
 }

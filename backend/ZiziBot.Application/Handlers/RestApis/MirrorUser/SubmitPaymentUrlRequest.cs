@@ -23,19 +23,20 @@ public class SubmitPaymentUrlValidation : AbstractValidator<SubmitPaymentUrlRequ
     }
 }
 
-public class SubmitPaymentUrlRequestHandler : IRequestHandler<SubmitPaymentUrlRequest, ApiResponseBase<bool>>
+public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUrlRequest, bool>
 {
     private readonly MongoDbContextBase _mongoDbContext;
+    private readonly MirrorPaymentService _mirrorPaymentService;
+    private readonly ApiResponseBase<bool> _response = new();
 
-    public SubmitPaymentUrlRequestHandler(MongoDbContextBase mongoDbContext)
+    public SubmitPaymentUrlRequestHandler(MongoDbContextBase mongoDbContext, MirrorPaymentService mirrorPaymentService)
     {
         _mongoDbContext = mongoDbContext;
+        _mirrorPaymentService = mirrorPaymentService;
     }
 
     public async Task<ApiResponseBase<bool>> Handle(SubmitPaymentUrlRequest request, CancellationToken cancellationToken)
     {
-        var response = new ApiResponseBase<bool>();
-
         var mirrorApproval = await _mongoDbContext.MirrorApproval
             .FirstOrDefaultAsync(x =>
                     x.PaymentUrl == request.Body.Payload &&
@@ -44,14 +45,14 @@ public class SubmitPaymentUrlRequestHandler : IRequestHandler<SubmitPaymentUrlRe
 
         if (mirrorApproval != null)
         {
-            return response.BadRequest("Pembayaran sudah terverifikasi sebelumnya.");
+            return _response.BadRequest("Pembayaran sudah terverifikasi sebelumnya.");
         }
 
         var trakteerParsedDto = await request.Body.Payload.ParseTrakteerWeb();
 
         if (!trakteerParsedDto.IsValid)
         {
-            return response.BadRequest("Tautan Pembayaran tidak valid. Contoh: https://trakteer.id/payment-status/123456");
+            return _response.BadRequest("Tautan Pembayaran tidak valid. Contoh: https://trakteer.id/payment-status/123456");
         }
 
         _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
@@ -106,7 +107,7 @@ public class SubmitPaymentUrlRequestHandler : IRequestHandler<SubmitPaymentUrlRe
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        return response.Success("Pembayaran berhasil diverifikasi.", true);
+        return _response.Success("Pembayaran berhasil diverifikasi.", true);
     }
 
 }

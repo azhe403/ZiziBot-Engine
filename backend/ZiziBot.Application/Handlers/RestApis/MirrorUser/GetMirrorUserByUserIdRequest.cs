@@ -1,6 +1,3 @@
-using System.Net;
-using MongoFramework.Linq;
-
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
 public class GetMirrorUserByUserIdRequestDto : ApiRequestBase<GetMirrorUserDto>
@@ -16,46 +13,33 @@ public class GetMirrorUserDto
     public DateTime? MemberSince { get; set; }
 }
 
-public class GetMirrorUserByUserIdRequestHandler : IRequestHandler<GetMirrorUserByUserIdRequestDto, ApiResponseBase<GetMirrorUserDto>>
+public class GetMirrorUserByUserIdRequestHandler : IApiRequestHandler<GetMirrorUserByUserIdRequestDto, GetMirrorUserDto>
 {
     private readonly MongoDbContextBase _mongoDbContext;
+    private readonly MirrorUserRepository _mirrorUserRepository;
+    private readonly ApiResponseBase<GetMirrorUserDto> _response = new();
 
-    public GetMirrorUserByUserIdRequestHandler(MongoDbContextBase mongoDbContext)
+    public GetMirrorUserByUserIdRequestHandler(MongoDbContextBase mongoDbContext, MirrorUserRepository mirrorUserRepository)
     {
         _mongoDbContext = mongoDbContext;
+        _mirrorUserRepository = mirrorUserRepository;
     }
 
     public async Task<ApiResponseBase<GetMirrorUserDto>> Handle(GetMirrorUserByUserIdRequestDto request, CancellationToken cancellationToken)
     {
-        ApiResponseBase<GetMirrorUserDto> response = new();
-
-        var user = await _mongoDbContext.MirrorUsers
-            .Where(x =>
-                x.UserId == request.UserId &&
-                x.Status == (int)EventStatus.Complete
-            )
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        var user = await _mirrorUserRepository.GetByUserId(request.UserId);
 
         if (user == null)
         {
-            response.StatusCode = HttpStatusCode.NotFound;
-            response.Message = "Mirror User not found";
-
-            return response;
+            return _response.NotFound("Mirror User not found");
         }
-        else
+
+        return _response.Success("Mirror User found", new GetMirrorUserDto
         {
-            response.StatusCode = HttpStatusCode.OK;
-            response.Message = "Mirror User found";
-            response.Result = new GetMirrorUserDto
-            {
-                UserId = request.UserId,
-                HasSubscription = user.ExpireDate > DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE),
-                SubscriptionUntil = user.ExpireDate.AddHours(Env.DEFAULT_TIMEZONE),
-                MemberSince = user.CreatedDate.AddHours(Env.DEFAULT_TIMEZONE)
-            };
-
-            return response;
-        }
+            UserId = request.UserId,
+            HasSubscription = user.ExpireDate > DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE),
+            SubscriptionUntil = user.ExpireDate.AddHours(Env.DEFAULT_TIMEZONE),
+            MemberSince = user.CreatedDate.AddHours(Env.DEFAULT_TIMEZONE)
+        });
     }
 }
