@@ -12,12 +12,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Blazored.LocalStorage" Version="4.4.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0"/>
-        <PackageReference Include="Radzen.Blazor" Version="4.23.4"/>
-        <PackageReference Include="ReactiveUI.Blazor" Version="19.5.31"/>
-        <PackageReference Include="ReactiveUI.Fody" Version="19.5.31"/>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.5.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.1"/>
+        <PackageReference Include="Radzen.Blazor" Version="4.24.*"/>
+        <PackageReference Include="ReactiveUI.Blazor" Version="19.5.41"/>
+        <PackageReference Include="ReactiveUI.Fody" Version="19.5.41"/>
         <PackageReference Include="Scrutor" Version="4.2.2"/>
     </ItemGroup>
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Serilog.Sinks.AspNetCore.SignalR.Interfaces;
+using IHub = Serilog.Sinks.AspNetCore.SignalR.Interfaces.IHub;
 
 namespace ZiziBot.Infrastructure.LoggerSink;
 

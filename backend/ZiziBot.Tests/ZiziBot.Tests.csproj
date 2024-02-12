@@ -9,8 +9,8 @@
         <PackageReference Include="FluentAssertions" Version="6.12.0"/>
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
         <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-        <PackageReference Include="xunit" Version="2.6.4"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0"/>
+        <PackageReference Include="xunit" Version="2.6.6"/>
         <PackageReference Include="Xunit.DependencyInjection" Version="8.9.1"/>
         <PackageReference Include="Xunit.DependencyInjection.SkippableFact" Version="8.1.0"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
