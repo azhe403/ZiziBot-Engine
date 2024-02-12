@@ -7,18 +7,24 @@ public class CheckPaymentOrderIdRequest : ApiRequestBase<TrakteerParsedDto>
 
 public class CheckPaymentOrderIdHandler : IApiRequestHandler<CheckPaymentOrderIdRequest, TrakteerParsedDto>
 {
+    private readonly MirrorPaymentService _mirrorPaymentService;
     private readonly ApiResponseBase<TrakteerParsedDto> _response = new();
+
+    public CheckPaymentOrderIdHandler(MirrorPaymentService mirrorPaymentService)
+    {
+        _mirrorPaymentService = mirrorPaymentService;
+    }
 
     public async Task<ApiResponseBase<TrakteerParsedDto>> Handle(CheckPaymentOrderIdRequest request, CancellationToken cancellationToken)
     {
-        var parsedTrakteer = await request.OrderId.ParseTrakteerWeb();
+        var parsedTrakteer = await _mirrorPaymentService.ParseSaweriaWeb(request.OrderId);
 
         if (parsedTrakteer.IsValid)
         {
             return _response.Success("Get OrderId succeed", parsedTrakteer);
         }
 
-        var parsedSaweria = await request.OrderId.ParseSaweriaWeb();
+        var parsedSaweria = await _mirrorPaymentService.ParseSaweriaWeb(request.OrderId);
 
         return parsedSaweria.IsValid
             ? _response.Success("Get OrderId succeed", parsedSaweria)

@@ -48,7 +48,7 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
             return _response.BadRequest("Pembayaran sudah terverifikasi sebelumnya.");
         }
 
-        var trakteerParsedDto = await request.Body.Payload.ParseTrakteerWeb();
+        var trakteerParsedDto = await _mirrorPaymentService.ParseTrakteerWeb(request.Body.Payload);
 
         if (!trakteerParsedDto.IsValid)
         {
