@@ -5,6 +5,7 @@ namespace ZiziBot.Application.Core;
 
 public class ApiResponseBase<TResult>
 {
+    [JsonIgnore]
     public HttpStatusCode StatusCode { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
