@@ -11,6 +11,7 @@ global using ZiziBot.Application.Handlers.Telegram.Rss;
 global using ZiziBot.Application.Handlers.Telegram.WebHook.GitHub;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Application.Utils;
+global using ZiziBot.Attributes;
 global using ZiziBot.Contracts.Allowed.Models;
 global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Constants;
