@@ -1,5 +1,4 @@
-﻿@using ZiziBot.Types.Types
-
+@using ZiziBot.Types.Types
 <div style="display: @DisplayClassLoading">
     <p>@Configuration.Title</p>
 
@@ -16,9 +15,12 @@
 </div>
 
 <div style="display: @DisplayClassChildContent">
-    <CascadingValue Value="@Configuration">
-        @ChildContent
-    </CascadingValue>
+    @if (Configuration.IsLoading == false)
+    {
+        <CascadingValue Value="@Configuration">
+            @ChildContent
+        </CascadingValue>
+    }
 </div>
 
 @code{
