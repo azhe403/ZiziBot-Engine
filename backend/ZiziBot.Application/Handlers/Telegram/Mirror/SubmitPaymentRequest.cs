@@ -15,19 +15,22 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
     private readonly ILogger<SubmitPaymentBotRequestHandler> _logger;
     private readonly TelegramService _telegramService;
     private readonly MongoDbContextBase _mongoDbContext;
+    private readonly MirrorPaymentService _mirrorPaymentService;
     private readonly AppSettingRepository _appSettingRepository;
 
     public SubmitPaymentBotRequestHandler(
         ILogger<SubmitPaymentBotRequestHandler> logger,
         TelegramService telegramService,
         AppSettingRepository appSettingRepository,
-        MongoDbContextBase mongoDbContext
+        MongoDbContextBase mongoDbContext,
+        MirrorPaymentService mirrorPaymentService
     )
     {
         _logger = logger;
         _telegramService = telegramService;
         _appSettingRepository = appSettingRepository;
         _mongoDbContext = mongoDbContext;
+        _mirrorPaymentService = mirrorPaymentService;
     }
 
     public async Task<BotResponseBase> Handle(SubmitPaymentBotRequest request, CancellationToken cancellationToken)
@@ -72,7 +75,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
         }
 
         await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
-        var trakteerParsedDto = await guidOrderId.GetTrakteerApi();
+        var trakteerParsedDto = await _mirrorPaymentService.GetTrakteerApi(guidOrderId);
 
         var orderId = trakteerParsedDto.OrderId;
         var orderDate = trakteerParsedDto.OrderDate;
@@ -83,7 +86,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
 
         if (!trakteerParsedDto.IsValid)
         {
-            var saweriaParsedDto = await guidOrderId.GetSaweriaApi();
+            var saweriaParsedDto = await _mirrorPaymentService.GetSaweriaApi(guidOrderId);
 
             orderId = saweriaParsedDto.OrderId;
             orderDate = saweriaParsedDto.OrderDate;

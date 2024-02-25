@@ -3,11 +3,13 @@ using CloudflareSolverRe;
 using Flurl;
 using Flurl.Http;
 using PickAll;
+using Url = Flurl.Url;
 
 namespace ZiziBot.Parsers.WebParser;
 
 public static class WebParserUtil
 {
+    [Obsolete("Use ParseTrakteerWeb from MirrorPaymentService")]
     public static async Task<TrakteerParsedDto> ParseTrakteerWeb(this string url)
     {
         url = url.GetTrakteerUrl();
@@ -66,6 +68,7 @@ public static class WebParserUtil
         return trakteerParsedDto;
     }
 
+    [Obsolete("Use ParseSaweriaWeb from MirrorPaymentService")]
     public static async Task<TrakteerParsedDto> ParseSaweriaWeb(this string url)
     {
         url = url.GetSaweriaUrl();
@@ -93,6 +96,7 @@ public static class WebParserUtil
         return default;
     }
 
+    [Obsolete("Use GetTrakteerApi from MirrorPaymentService")]
     public static async Task<TrakteerApiDto> GetTrakteerApi(this string url)
     {
         if (!url.StartsWith("https://trakteer.id/payment-status"))
@@ -109,6 +113,7 @@ public static class WebParserUtil
         return data;
     }
 
+    [Obsolete("Use GetSaweriaApi from MirrorPaymentService")]
     public static async Task<SaweriaParsedDto> GetSaweriaApi(this string url)
     {
         if (!url.StartsWith("https://saweria.co/receipt"))
@@ -141,14 +146,26 @@ public static class WebParserUtil
         });
     }
 
-    public static Task<string?> HtmlForTelegram(this string? htmlString)
+    public static async Task<string?> HtmlForTelegram(this string? htmlString)
     {
-        var htmlCleaned = htmlString?.Replace("<br>", "").Replace("</br>", "")
+        if (htmlString.IsNullOrEmpty()) return htmlString;
+
+        var doc = await htmlString.OpenHtml();
+
+        foreach (var element in doc!.QuerySelectorAll("img, svg, body, head"))
+        {
+            element.Remove();
+        }
+
+        htmlString = doc.DocumentElement.OuterHtml;
+
+        var htmlCleaned = htmlString.Replace("<br>", "").Replace("</br>", "")
             .Replace("<p>", "\n").Replace("</p>", "")
             .Replace("<ul>", "").Replace("</ul>", "")
             .Replace("<li>", "- ").Replace("</li>", "")
-            .RegexReplace("<h.|<.h.>", "");
+            .RegexReplace("<h.|<.h.>", "")
+            .Trim();
 
-        return Task.FromResult(htmlCleaned);
+        return htmlCleaned;
     }
 }
