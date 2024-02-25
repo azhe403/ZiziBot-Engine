@@ -10,6 +10,7 @@ public sealed class ConsoleMenuModel : INotifyPropertyChanged
     public string? Text { get; init; }
     public string? Icon { get; init; }
     public string? Path { get; init; }
+    public string? Roles { get; set; }
 
     public IEnumerable<ConsoleMenuModel>? Items { get; init; }
 
