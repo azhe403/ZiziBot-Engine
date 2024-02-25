@@ -1,25 +1,18 @@
-@page "/mirror-subscription"
+@page "/admin/mirror-subscription"
 @attribute [Authorize(Roles = "Sudo")]
-
-@using ZiziBot.DataSource.MongoDb.Entities
 @using ZiziBot.Contracts.Constants
 @inherits WebComponentBase<MirrorSubscriptionViewModel>
 
-@* <PageTitle>Mirror Subscription</PageTitle> *@
-@* <RadzenRow> *@
-@*     <RadzenColumn Size="12"> *@
-@*         <RadzenText Text="Mirror Subscription" TextStyle="TextStyle.H3" TagName="TagName.H1" /> *@
-@*     </RadzenColumn> *@
-@* </RadzenRow> *@
-
 <TitleControl Value="Mirror Subscription"></TitleControl>
-
-<RadzenButton Text="Get Statistics"></RadzenButton>
 
 <Loading Configuration="ViewModel.Loading"/>
 
 <RadzenTabs @bind-SelectedIndex=@selectedIndex>
     <Tabs>
+        <RadzenTabsItem Text="Overview">
+            <RadzenStack>
+            </RadzenStack>
+        </RadzenTabsItem>
         <RadzenTabsItem Text="Mirror User">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="5px" Wrap="FlexWrap.Wrap">
                 <RadzenButton Style="padding: 2px;" Click="LoadData" Text="Refresh"></RadzenButton>

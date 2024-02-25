@@ -1,4 +1,4 @@
-﻿using MongoFramework.Linq;
+using MongoFramework.Linq;
 using ZiziBot.Contracts.Enums;
 using ZiziBot.Types.Types;
 
@@ -11,9 +11,9 @@ public class MirrorSubscriptionViewModel : ReactiveObject, IActivatableViewModel
     public LoadingConfiguration Loading { get; set; } = new();
 
     [Reactive]
-    public List<MirrorUserEntity> MirrorUsers { get; set; }
+    public List<MirrorUserEntity>? MirrorUsers { get; set; }
 
-    public List<MirrorApprovalEntity> MirrorApprovals { get; set; }
+    public List<MirrorApprovalEntity>? MirrorApprovals { get; set; }
 
     public MirrorSubscriptionViewModel(MongoDbContextBase mongoDbContextBase)
     {

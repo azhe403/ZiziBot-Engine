@@ -1,6 +1,6 @@
+@using System.Net
 @using System.Security.Claims
 @using ZiziBot.Types.Types
-@using System.Net
 @inherits LayoutComponentBase
 
 <RadzenDialog/>
@@ -9,43 +9,6 @@
 <RadzenContextMenu/>
 
 <RadzenLayout>
-    @* <RadzenHeader> *@
-    @*     <div class="rz-m-md-2"> *@
-    @*         <RadzenMenu Click="OnParentClicked"> *@
-    @*             <RadzenMenuItem Text="Home" Path="/" Icon="home"></RadzenMenuItem> *@
-    @*             <RadzenMenuItem Text="Group" Icon="group"> *@
-    @*                 <RadzenMenuItem Text="Feature Management" Path="menu" Icon="line_weight"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Settings" Path="menu" Icon="line_weight"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Security" Path="menu" Icon="security"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Group Staff" Path="notification" Icon="stop"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Night Mode" Path="notification" Icon="stop"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Thread Mapping" Path="textbox" Icon="map"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Welcome Message" Path="welcome-message" Icon="notifications_active"></RadzenMenuItem> *@
-    @*             </RadzenMenuItem> *@
-    @*             <RadzenMenuItem Text="Chat" Icon="chat"> *@
-    @*                 <RadzenMenuItem Text="Notes" Path="notes" Icon="notes"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Cities" Path="cities" Icon="map"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="RSS" Path="rss" Icon="rss_feed"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="TextArea" Path="textarea" Icon="description"></RadzenMenuItem> *@
-    @*             </RadzenMenuItem> *@
-    @*             <RadzenMenuItem Text="Additional" Icon="add"> *@
-    @*                 <RadzenMenuItem Text="Check AWB" Icon="check"></RadzenMenuItem> *@
-    @*             </RadzenMenuItem> *@
-    @*             <RadzenMenuItem Text="Administrator" Icon="admin_panel_settings"> *@
-    @*                 <RadzenMenuItem Text="App Settings" Path="" Icon="settings"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Badword" Path="badword" Icon="stop"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="BotUser" Path="BotUser" Icon="stop"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Commands Management" Path="commands-management" Icon="line_weight"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Hangfire Dashboard" Path="/hangfire-jobs" Icon="area_chart"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Log Viewer" Path="/log-viewer" Icon="text_snippet"></RadzenMenuItem> *@
-    @*             </RadzenMenuItem> *@
-    @*             <RadzenMenuItem Text="Help" Icon="help"> *@
-    @*                 <RadzenMenuItem Text="About" Path="about" Icon="info"></RadzenMenuItem> *@
-    @*                 <RadzenMenuItem Text="Feedback" Path="about" Icon="forum"></RadzenMenuItem> *@
-    @*             </RadzenMenuItem> *@
-    @*         </RadzenMenu> *@
-    @*     </div> *@
-    @* </RadzenHeader> *@
     <RadzenHeader>
         <RadzenRow>
             <RadzenColumn>
@@ -62,25 +25,26 @@
             </RadzenColumn>
         </RadzenRow>
     </RadzenHeader>
-    <AuthorizeView>
-        <RadzenSidebar @bind-Expanded="@SidebarExpanded">
-            <RadzenPanelMenu Click="OnParentClicked" Style="width:300px" DisplayStyle="MenuItemDisplayStyle.IconAndText">
-                <ChildContent>
-                    @foreach (var item in PopulateMenu())
-                    {
+    <RadzenSidebar @bind-Expanded="@SidebarExpanded">
+        <RadzenPanelMenu Click="OnParentClicked" Style="width:300px" DisplayStyle="MenuItemDisplayStyle.IconAndText">
+            <ChildContent>
+                @foreach (var item in PopulateMenu())
+                {
+                    <AuthorizeView Roles="@item.Roles">
                         <RadzenPanelMenuItem Text="@item.Text" Expanded="true">
                             <ChildContent>
                                 @foreach (var subItem in item.Items)
                                 {
-                                    <RadzenPanelMenuItem Text="@subItem.Text" Path="@subItem.Path" Icon="@subItem.Icon"/>
+                                    var path = item.Path != null ? $"{item.Path}/{subItem.Path}" : subItem.Path;
+                                    <RadzenPanelMenuItem Text="@subItem.Text" Path="@path" Icon="@subItem.Icon"/>
                                 }
                             </ChildContent>
                         </RadzenPanelMenuItem>
-                    }
-                </ChildContent>
-            </RadzenPanelMenu>
-        </RadzenSidebar>
-    </AuthorizeView>
+                    </AuthorizeView>
+                }
+            </ChildContent>
+        </RadzenPanelMenu>
+    </RadzenSidebar>
     <RadzenBody>
         <RadzenRow class="rz-mx-auto rz-px-4 rz-pt-2 rz-pt-md-4 rz-pt-lg-6 rz-pt-xl-12 rz-pb-2 rz-pb-lg-12" Style="max-width: 1440px;">
             <RadzenColumn>
@@ -282,8 +246,8 @@
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "Cities",
-                        Path = "cities",
+                        Text = "Shalat Time",
+                        Path = "shalat-time",
                         Icon = "place"
                     },
                     new(() => MenuDataCollection)
@@ -291,12 +255,20 @@
                         Text = "RSS",
                         Path = "rss",
                         Icon = "rss_feed"
+                    },
+                    new(() => MenuDataCollection)
+                    {
+                        Text = "Webhook",
+                        Path = "webhook",
+                        Icon = "webhook"
                     }
                 }
             },
             new(() => MenuDataCollection)
             {
                 Text = "Administrator",
+                Path = "admin",
+                Roles = "Sudo",
                 Items = new List<ConsoleMenuModel>()
                 {
                     new(() => MenuDataCollection)
@@ -307,8 +279,14 @@
                     },
                     new(() => MenuDataCollection)
                     {
+                        Text = "Sudo Management",
+                        Path = "sudo",
+                        Icon = "shield"
+                    },
+                    new(() => MenuDataCollection)
+                    {
                         Text = "Bot User",
-                        Path = "botUser",
+                        Path = "bot-users",
                         Icon = "people"
                     },
                     new(() => MenuDataCollection)
@@ -325,8 +303,8 @@
                     },
                     new(() => MenuDataCollection)
                     {
-                        Text = "Feature Assignment",
-                        Path = "feature-assignment",
+                        Text = "Feature Management",
+                        Path = "feature-management",
                         Icon = "extension"
                     },
                     new(() => MenuDataCollection)

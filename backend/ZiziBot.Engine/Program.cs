@@ -24,9 +24,6 @@ app.PrintAbout();
 
 await app.RunMigrationsAsync();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
 app.UseAuthorization();
 
 app.UseStaticFiles();
