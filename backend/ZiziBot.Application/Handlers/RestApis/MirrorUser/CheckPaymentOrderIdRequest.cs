@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
 public class CheckPaymentOrderIdRequest : ApiRequestBase<TrakteerParsedDto>
@@ -9,35 +7,27 @@ public class CheckPaymentOrderIdRequest : ApiRequestBase<TrakteerParsedDto>
 
 public class CheckPaymentOrderIdHandler : IApiRequestHandler<CheckPaymentOrderIdRequest, TrakteerParsedDto>
 {
+    private readonly MirrorPaymentService _mirrorPaymentService;
+    private readonly ApiResponseBase<TrakteerParsedDto> _response = new();
+
+    public CheckPaymentOrderIdHandler(MirrorPaymentService mirrorPaymentService)
+    {
+        _mirrorPaymentService = mirrorPaymentService;
+    }
+
     public async Task<ApiResponseBase<TrakteerParsedDto>> Handle(CheckPaymentOrderIdRequest request, CancellationToken cancellationToken)
     {
-        var parsedTrakteer = await request.OrderId.ParseTrakteerWeb();
+        var parsedTrakteer = await _mirrorPaymentService.ParseSaweriaWeb(request.OrderId);
 
         if (parsedTrakteer.IsValid)
         {
-            return new ApiResponseBase<TrakteerParsedDto>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Get OrderId succeed",
-                Result = parsedTrakteer
-            };
+            return _response.Success("Get OrderId succeed", parsedTrakteer);
         }
 
-        var parsedSaweria = await request.OrderId.ParseSaweriaWeb();
-        if (parsedSaweria.IsValid)
-        {
-            return new ApiResponseBase<TrakteerParsedDto>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Get OrderId succeed",
-                Result = parsedSaweria
-            };
-        }
+        var parsedSaweria = await _mirrorPaymentService.ParseSaweriaWeb(request.OrderId);
 
-        return new ApiResponseBase<TrakteerParsedDto>()
-        {
-            StatusCode = HttpStatusCode.OK,
-            Message = "OrderId not found"
-        };
+        return parsedSaweria.IsValid
+            ? _response.Success("Get OrderId succeed", parsedSaweria)
+            : _response.BadRequest("OrderId not found");
     }
 }

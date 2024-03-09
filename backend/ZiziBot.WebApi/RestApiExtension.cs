@@ -105,6 +105,7 @@ public static class RestApiExtension
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options => {
                 // options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
+                options.SchemaFilter<SwaggerIgnoreFilter>();
             }
         );
 
@@ -151,6 +152,11 @@ public static class RestApiExtension
         app.UseAuthorization();
 
         app.ConfigureRateLimiter();
+
+        app.UseSwagger();
+        app.UseSwaggerUI(options => {
+            options.DefaultModelsExpandDepth(-1);
+        });
 
         return app;
     }

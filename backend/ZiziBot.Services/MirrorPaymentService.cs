@@ -1,16 +1,14 @@
-using System.Globalization;
+﻿using System.Globalization;
 using CloudflareSolverRe;
 using Flurl;
 using Flurl.Http;
-using PickAll;
-using Url = Flurl.Url;
+using ZiziBot.Contracts.Dtos;
 
-namespace ZiziBot.Parsers.WebParser;
+namespace ZiziBot.Services;
 
-public static class WebParserUtil
+public class MirrorPaymentService
 {
-    [Obsolete("Use ParseTrakteerWeb from MirrorPaymentService")]
-    public static async Task<TrakteerParsedDto> ParseTrakteerWeb(this string url)
+    public async Task<TrakteerParsedDto> ParseTrakteerWeb(string url)
     {
         url = url.GetTrakteerUrl();
         var trakteerParsedDto = new TrakteerParsedDto();
@@ -38,9 +36,9 @@ public static class WebParserUtil
 
         Log.Debug("Found container: {Container} in Url: {Url}", container?.ClassName, url);
 
-        var cendolCount = document.QuerySelector(".subtotal-left__unit > span:nth-child(2)")?.TextContent;
-        var adminFees = document.QuerySelector("div.subtotal-left__others:nth-child(4) > span:nth-child(2)")?.TextContent;
-        var subtotal = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-right")?.TextContent;
+        var cendolCount = document.QuerySelector(".subtotal-left__unit > span:nth-child(2)")?.TextContent ?? "0";
+        var adminFees = document.QuerySelector("div.subtotal-left__others:nth-child(4) > span:nth-child(2)")?.TextContent ?? "0";
+        var subtotal = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-right")?.TextContent ?? "0";
         var orderDate = document.QuerySelector("div.pr-detail__item:nth-child(1) > div:nth-child(2)")?.TextContent.Replace("WIB", string.Empty).Trim();
         var paymentMethod = document.QuerySelector(".pr-detail__wrapper > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)")?.TextContent;
         var orderId = document.QuerySelector(".pr-detail__wrapper > div:nth-child(2) > div:nth-child(2)")?.TextContent;
@@ -68,8 +66,7 @@ public static class WebParserUtil
         return trakteerParsedDto;
     }
 
-    [Obsolete("Use ParseSaweriaWeb from MirrorPaymentService")]
-    public static async Task<TrakteerParsedDto> ParseSaweriaWeb(this string url)
+    public async Task<TrakteerParsedDto> ParseSaweriaWeb(string url)
     {
         url = url.GetSaweriaUrl();
         var trakteerParsedDto = new TrakteerParsedDto();
@@ -96,8 +93,7 @@ public static class WebParserUtil
         return default;
     }
 
-    [Obsolete("Use GetTrakteerApi from MirrorPaymentService")]
-    public static async Task<TrakteerApiDto> GetTrakteerApi(this string url)
+    public async Task<TrakteerApiDto> GetTrakteerApi(string url)
     {
         if (!url.StartsWith("https://trakteer.id/payment-status"))
         {
@@ -113,8 +109,7 @@ public static class WebParserUtil
         return data;
     }
 
-    [Obsolete("Use GetSaweriaApi from MirrorPaymentService")]
-    public static async Task<SaweriaParsedDto> GetSaweriaApi(this string url)
+    public async Task<SaweriaParsedDto> GetSaweriaApi(string url)
     {
         if (!url.StartsWith("https://saweria.co/receipt"))
         {
@@ -129,43 +124,5 @@ public static class WebParserUtil
         data.PaymentUrl = url;
 
         return data;
-    }
-
-    public static async Task<IEnumerable<WebSearch>> WebSearchText(string search)
-    {
-        var ctx = await new SearchContext()
-            .WithEvents()
-            .With<Google>()
-            .With<Uniqueness>()
-            .SearchAsync(search);
-
-        return ctx.Select(x => new WebSearch()
-        {
-            Title = x.Description,
-            Url = x.Url.UrlDecode()
-        });
-    }
-
-    public static async Task<string?> HtmlForTelegram(this string? htmlString)
-    {
-        if (htmlString.IsNullOrEmpty()) return htmlString;
-
-        var doc = await htmlString.OpenHtml();
-
-        foreach (var element in doc!.QuerySelectorAll("img, svg, body, head"))
-        {
-            element.Remove();
-        }
-
-        htmlString = doc.DocumentElement.OuterHtml;
-
-        var htmlCleaned = htmlString.Replace("<br>", "").Replace("</br>", "")
-            .Replace("<p>", "\n").Replace("</p>", "")
-            .Replace("<ul>", "").Replace("</ul>", "")
-            .Replace("<li>", "- ").Replace("</li>", "")
-            .RegexReplace("<h.|<.h.>", "")
-            .Trim();
-
-        return htmlCleaned;
     }
 }

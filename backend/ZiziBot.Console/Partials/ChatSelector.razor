@@ -4,7 +4,14 @@
 
 @if (SelectorMode == SelectorMode.List)
 {
-    <RadzenListBox @bind-Value="SelectedChatId" Change="OnValueChanged" Data="ListChat" LoadData="OnLoadData" Style="width: 100%; height: calc(100% - 32px);" TextProperty="ChatTitle" TValue="long" ValueProperty="ChatId">
+<RadzenListBox @bind-Value="SelectedChatId"
+               Change="OnValueChanged"
+               Data="ListChat"
+               LoadData="OnLoadData"
+               Style="width: 100%; height: calc(100% - 32px);"
+               TextProperty="ChatTitle"
+               TValue="long"
+               ValueProperty="ChatId">
         <Template>
             @((context as ChatInfoDto).ChatTitle)
         </Template>
@@ -12,7 +19,14 @@
 }
 else
 {
-    <RadzenDropDown @bind-Value="SelectedChatId" Change="OnValueChanged" Data="ListChat" LoadData="OnLoadData" Style="width: 100%; height: calc(100% - 32px);" TextProperty="ChatTitle" TValue="long" ValueProperty="ChatId">
+<RadzenDropDown @bind-Value="SelectedChatId"
+                Change="OnValueChanged"
+                Data="ListChat"
+                LoadData="OnLoadData"
+                Style="width: 100%;"
+                TextProperty="ChatTitle"
+                TValue="long"
+                ValueProperty="ChatId">
         <Template>
             @((context as ChatInfoDto).ChatTitle)
         </Template>

@@ -1,4 +1,3 @@
-using System.Net;
 using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
@@ -8,9 +7,10 @@ public class DeleteMirrorUserRequestDto : ApiRequestBase<bool>
     public long UserId { get; set; }
 }
 
-public class DeleteMirrorUserRequestHandler : IRequestHandler<DeleteMirrorUserRequestDto, ApiResponseBase<bool>>
+public class DeleteMirrorUserRequestHandler : IApiRequestHandler<DeleteMirrorUserRequestDto, bool>
 {
     private readonly MongoDbContextBase _mongoDbContext;
+    private readonly ApiResponseBase<bool> _response = new();
 
     public DeleteMirrorUserRequestHandler(MongoDbContextBase mongoDbContext)
     {
@@ -20,17 +20,19 @@ public class DeleteMirrorUserRequestHandler : IRequestHandler<DeleteMirrorUserRe
     public async Task<ApiResponseBase<bool>> Handle(DeleteMirrorUserRequestDto request, CancellationToken cancellationToken)
     {
         var mirrorUser = await _mongoDbContext.MirrorUsers
-            .FirstOrDefaultAsync(user => user.UserId == request.UserId, cancellationToken: cancellationToken);
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.UserId == request.UserId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (mirrorUser == null)
+        {
+            return _response.BadRequest("Mirror User not found");
+        }
 
         mirrorUser.Status = (int)EventStatus.Deleted;
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        return new ApiResponseBase<bool>
-        {
-            StatusCode = HttpStatusCode.OK,
-            Message = "User saved",
-            Result = true
-        };
+        return _response.Success("Mirror User deleted", true);
     }
 }

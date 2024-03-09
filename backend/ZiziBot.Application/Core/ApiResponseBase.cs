@@ -5,6 +5,7 @@ namespace ZiziBot.Application.Core;
 
 public class ApiResponseBase<TResult>
 {
+    [JsonIgnore]
     public HttpStatusCode StatusCode { get; set; }
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -36,6 +37,15 @@ public class ApiResponseBase<TResult>
     public ApiResponseBase<TResult> BadRequest(string message, TResult? result = default)
     {
         StatusCode = HttpStatusCode.BadRequest;
+        Message = message;
+        Result = result;
+
+        return this;
+    }
+
+    public ApiResponseBase<TResult> NotFound(string message, TResult? result = default)
+    {
+        StatusCode = HttpStatusCode.NotFound;
         Message = message;
         Result = result;
 

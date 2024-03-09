@@ -27,6 +27,7 @@ public class DeleteWelcomeMessageRequestModel
     public long ChatId { get; set; }
 
     [BindNever]
+    [SwaggerIgnore]
     public ObjectId ObjectId => ObjectId.Parse(Id);
 }
 

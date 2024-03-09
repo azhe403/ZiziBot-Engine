@@ -1,4 +1,3 @@
-using System.Net;
 using MongoDB.Bson;
 using MongoFramework.Linq;
 
@@ -19,9 +18,10 @@ public class GetMirrorUserResponseDto
     public DateTime LastUpdate { get; set; }
 }
 
-public class GetMirrorUsersRequestHandler : IRequestHandler<GetMirrorUsersRequestDto, ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>>>
+public class GetMirrorUsersRequestHandler : IApiRequestHandler<GetMirrorUsersRequestDto, IEnumerable<GetMirrorUserResponseDto>>
 {
     private readonly MongoDbContextBase _mongoDbContext;
+    private readonly ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>> _response = new();
 
     public GetMirrorUsersRequestHandler(MongoDbContextBase mongoDbContext)
     {
@@ -45,11 +45,6 @@ public class GetMirrorUsersRequestHandler : IRequestHandler<GetMirrorUsersReques
             LastUpdate = mirrorUser.UpdatedDate
         });
 
-        return new ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>>
-        {
-            StatusCode = HttpStatusCode.OK,
-            Message = "Users found",
-            Result = mirrorUsers
-        };
+        return _response.Success("Users found", mirrorUsers);
     }
 }

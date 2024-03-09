@@ -41,22 +41,40 @@ public class ScanMessageProcessor<TRequest> : IRequestPreProcessor<TRequest> whe
 
         _telegramService.SetupResponse(request);
 
-        var isPassed = true;
+        var hasBadword = false;
         var matchPattern = string.Empty;
 
         var words = await _wordFilterRepository.GetAll();
 
-        request.MessageTexts.ForEach(m => {
-            words.ForEach(e => {
-                if (m != e.Word)
-                    return;
+        var messageTexts = request.Message?.Text?.Split(new[] { ' ', '\n', ':', ';', ',' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-                isPassed = false;
-                matchPattern = e.Word;
-            });
+        messageTexts?.ForEach(source => {
+            foreach (var dto in words)
+            {
+                if (source == dto.Word)
+                    hasBadword = true;
+
+                if (dto.Word.StartsWith('*'))
+                    if (source.StartsWith(dto.Word))
+                        hasBadword = true;
+
+                if (dto.Word.EndsWith('*'))
+                    if (source.EndsWith(dto.Word))
+                        hasBadword = true;
+
+                if (dto.Word.StartsWith('*') && dto.Word.EndsWith('*'))
+                    if (source.Contains(dto.Word))
+                        hasBadword = true;
+
+                if (hasBadword)
+                {
+                    matchPattern = dto.Word;
+                    break;
+                }
+            }
         });
 
-        if (isPassed)
+        if (!hasBadword)
             return;
 
         var htmlMessage = HtmlMessage.Empty

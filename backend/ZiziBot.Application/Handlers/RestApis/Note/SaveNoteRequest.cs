@@ -23,6 +23,7 @@ public class SaveNoteRequestModel
     public int DataType { get; set; } = -1;
 
     [BindNever]
+    [SwaggerIgnore]
     public ObjectId ObjectId => Id != null ? new ObjectId(Id) : ObjectId.Empty;
 }
 

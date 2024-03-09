@@ -1,4 +1,3 @@
-using System.Net;
 using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
@@ -11,9 +10,10 @@ public class PostMirrorUserRequestDto : ApiRequestBase<bool>
     public string? AdditionalNote { get; set; }
 }
 
-public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserRequestDto, ApiResponseBase<bool>>
+public class PostMirrorUserRequestHandler : IApiRequestHandler<PostMirrorUserRequestDto, bool>
 {
     private readonly MongoDbContextBase _mongoDbContext;
+    private readonly ApiResponseBase<bool> _response = new();
 
     public PostMirrorUserRequestHandler(MongoDbContextBase mongoDbContext)
     {
@@ -44,11 +44,6 @@ public class PostMirrorUserRequestHandler : IRequestHandler<PostMirrorUserReques
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        return new ApiResponseBase<bool>
-        {
-            StatusCode = HttpStatusCode.OK,
-            Message = "User saved",
-            Result = true
-        };
+        return _response.Success("Mirror User saved", true);
     }
 }

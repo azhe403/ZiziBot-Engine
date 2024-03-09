@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 
-namespace ZiziBot.Console.Pages;
+namespace ZiziBot.Console.Pages.Admin;
 
 public partial class LogViewer
 {
@@ -33,21 +33,20 @@ public partial class LogViewer
     protected override async Task OnInitializedAsync()
     {
         var hubConnection = new HubConnectionBuilder()
-                            .WithUrl(NavigationManager.ToAbsoluteUri("/api/logging"), options => {
-                                options.HttpMessageHandlerFactory = factory => {
-                                    if (factory is HttpClientHandler clientHandler)
-                                    {
-                                        clientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
-                                            HostEnvironment.IsDevelopment();
-                                    }
+            .WithUrl(NavigationManager.ToAbsoluteUri("/api/logging"), options => {
+                options.HttpMessageHandlerFactory = factory => {
+                    if (factory is HttpClientHandler clientHandler)
+                    {
+                        clientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+                            HostEnvironment.IsDevelopment();
+                    }
 
-                                    return factory;
-                                };
-                            })
-                            .Build();
+                    return factory;
+                };
+            })
+            .Build();
 
-        hubConnection.On<Log>("SendLogAsObject", async (data) =>
-        {
+        hubConnection.On<Log>("SendLogAsObject", async (data) => {
             Logs.Insert(0, data);
             LogsFiltered = Logs.Take(100).ToList();
 

@@ -7,6 +7,7 @@ namespace ZiziBot.WebApi.Controllers;
 public class WebhookController : ApiControllerBase
 {
     [HttpPost("{targetId}")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [AccessFilter(checkHeader: false)]
     public async Task<IActionResult> ProcessingPayload(PostWebhookPayloadRequest request)
     {
