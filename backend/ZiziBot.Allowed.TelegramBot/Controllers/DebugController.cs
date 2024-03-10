@@ -49,6 +49,22 @@ public class DebugController : CommandController
         });
     }
 
+    [Command("si")]
+    public async Task GetSystemInfo(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new GetSystemInfoRequest()
+        {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            MinimumRole = RoleLevel.Sudo,
+            CleanupTargets = new[]
+            {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
+
     [Command("fid")]
     public async Task GetFileId(MessageData data)
     {
