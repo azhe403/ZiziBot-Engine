@@ -1,6 +1,5 @@
 ﻿using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
@@ -11,6 +10,7 @@ public class ScanMessageProcessor<TRequest> : IRequestPreProcessor<TRequest> whe
     private readonly AppSettingRepository _appSettingRepository;
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly WordFilterRepository _wordFilterRepository;
+    private static readonly char[] Separator = new[] { ' ', '\n', ':', ';', ',' };
 
     public ScanMessageProcessor(
         ILogger<ScanMessageProcessor<TRequest>> logger,
@@ -46,9 +46,10 @@ public class ScanMessageProcessor<TRequest> : IRequestPreProcessor<TRequest> whe
 
         var words = await _wordFilterRepository.GetAll();
 
-        var messageTexts = request.Message?.Text?.Split(new[] { ' ', '\n', ':', ';', ',' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var messageTexts = request.Message?.Text?.Split(Separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
-        messageTexts?.ForEach(source => {
+        foreach (var source in messageTexts)
+        {
             foreach (var dto in words)
             {
                 if (source == dto.Word)
@@ -66,13 +67,18 @@ public class ScanMessageProcessor<TRequest> : IRequestPreProcessor<TRequest> whe
                     if (source.Contains(dto.Word))
                         hasBadword = true;
 
-                if (hasBadword)
-                {
-                    matchPattern = dto.Word;
-                    break;
-                }
+                if (!hasBadword)
+                    continue;
+
+                _logger.LogDebug("Scan message: Match word: {Word} with a source: {Source}", dto.Word, source);
+
+                matchPattern = dto.Word;
+                break;
             }
-        });
+
+            if (hasBadword)
+                break;
+        }
 
         if (!hasBadword)
             return;
