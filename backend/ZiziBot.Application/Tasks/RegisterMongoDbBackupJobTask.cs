@@ -8,7 +8,7 @@ public class RegisterMongoDbBackupJobTask : IStartupTask
 
     public async Task ExecuteAsync()
     {
-        RecurringJob.AddOrUpdate<MediatorService>("mongodb-backup", service => service.Send(new MainDbBackupRequest()), Cron.Daily, queue: "data");
+        RecurringJob.AddOrUpdate<MediatorService>("mongodb-backup", service => service.Send(new MongoDbBackupRequest()), Cron.Daily, queue: "data");
 
         await Task.Delay(1);
     }

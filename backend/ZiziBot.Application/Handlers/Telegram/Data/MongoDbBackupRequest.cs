@@ -6,24 +6,24 @@ using File = System.IO.File;
 
 namespace ZiziBot.Application.Handlers.Telegram.Data;
 
-public class MainDbBackupRequest : IRequest<bool>
+public class MongoDbBackupRequest : IRequest<bool>
 {
 }
 
-public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
+public class MongoDbBackupHandler : IRequestHandler<MongoDbBackupRequest, bool>
 {
-    private readonly ILogger<MainDbBackupHandler> _logger;
+    private readonly ILogger<MongoDbBackupHandler> _logger;
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
-    public MainDbBackupHandler(ILogger<MainDbBackupHandler> logger, MongoDbContextBase mongoDbContext, AppSettingRepository appSettingRepository)
+    public MongoDbBackupHandler(ILogger<MongoDbBackupHandler> logger, MongoDbContextBase mongoDbContext, AppSettingRepository appSettingRepository)
     {
         _logger = logger;
         _mongoDbContext = mongoDbContext;
         _appSettingRepository = appSettingRepository;
     }
 
-    public async Task<bool> Handle(MainDbBackupRequest request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(MongoDbBackupRequest request, CancellationToken cancellationToken)
     {
         var botMain = await _appSettingRepository.GetBotMain();
 
@@ -78,6 +78,8 @@ public class MainDbBackupHandler : IRequestHandler<MainDbBackupRequest, bool>
             messageThreadId: config.BackupDB,
             cancellationToken: cancellationToken
         );
+
+        PathConst.BACKUP.GetFiles(pattern: "MongoDB*zip", predicate: x => DateTime.UtcNow.AddMonths(-2) > x.CreationTime).DeleteFile();
 
         return true;
     }
