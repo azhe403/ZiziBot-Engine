@@ -11,9 +11,8 @@
         <PackageReference Include="CacheTower.Providers.Redis" Version="0.14.0"/>
         <PackageReference Include="CacheTower.Serializers.NewtonsoftJson" Version="0.14.0"/>
         <PackageReference Include="FirebaseDatabase.net" Version="4.2.0"/>
-        <PackageReference Include="Google.Apis.Auth" Version="1.66.0"/>
+        <PackageReference Include="Google.Apis.Auth" Version="1.67.0"/>
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
