@@ -6,7 +6,7 @@ namespace ZiziBot.Application.Handlers.Telegram.Group;
 
 public class NewChatMembersBotRequest : BotRequestBase
 {
-    public User[] NewUser { get; set; } = null!;
+    public required User[] NewUser { get; set; }
 }
 
 [UsedImplicitly]
@@ -15,12 +15,19 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
     private readonly ILogger<NewChatMembersHandler> _logger;
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly TelegramService _telegramService;
+    private ChatSettingRepository _chatSettingRepository;
 
-    public NewChatMembersHandler(ILogger<NewChatMembersHandler> logger, MongoDbContextBase mongoDbContext, TelegramService telegramService)
+    public NewChatMembersHandler(
+        ILogger<NewChatMembersHandler> logger,
+        MongoDbContextBase mongoDbContext,
+        TelegramService telegramService,
+        ChatSettingRepository chatSettingRepository
+    )
     {
         _logger = logger;
         _mongoDbContext = mongoDbContext;
         _telegramService = telegramService;
+        _chatSettingRepository = chatSettingRepository;
     }
 
     public async Task<BotResponseBase> Handle(NewChatMembersBotRequest request, CancellationToken cancellationToken)
@@ -28,16 +35,24 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
         _telegramService.SetupResponse(request);
         _logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.ChatId);
 
+        await _chatSettingRepository.CreateActivity(new ChatActivityDto
+        {
+            ChatId = request.ChatIdentifier,
+            ActivityType = ChatActivityType.NewChatMember,
+            Chat = request.Chat,
+            User = request.User
+        });
+
         var chatTitle = request.ChatTitle;
         var newMemberCount = request.NewUser.Length;
         var allNewMember = request.NewUser.Select(user => user.GetFullMention()).Aggregate((s, next) => s + ", " + next);
         var greet = TimeUtil.GetTimeGreet();
         var memberCount = await _telegramService.GetMemberCount();
 
-        var messageTemplate = $"Hai {allNewMember}\n" +
-                              $"Selamat datang di Kontrakan {request.ChatTitle}";
+        var messageTemplate = "Hai {AllNewMember}\n" +
+                              "Selamat datang di Kontrakan {ChatTitle}";
 
-        var welcomeMessage = await _mongoDbContext.WelcomeMessage
+        var welcomeMessage = await _mongoDbContext.WelcomeMessage.AsNoTracking()
             .Where(x => x.ChatId == request.ChatIdentifier)
             .Where(x => x.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);

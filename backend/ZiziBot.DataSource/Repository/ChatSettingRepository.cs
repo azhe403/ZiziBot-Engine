@@ -23,6 +23,7 @@ public class ChatSettingRepository
 
     public async Task<List<ChatInfoDto>?> GetChatByBearerToken(string bearerToken)
     {
+
         #region Check Dashboard Session
         var dashboardSession = await _mongoDbContext.DashboardSessions
             .Where(entity => entity.BearerToken == bearerToken)
@@ -140,5 +141,18 @@ public class ChatSettingRepository
             .ToListAsync();
 
         return cityList;
+    }
+
+    public async Task CreateActivity(ChatActivityDto dto)
+    {
+        _mongoDbContext.ChatActivity.Add(new ChatActivityEntity
+        {
+            ChatId = dto.ChatId,
+            ActivityType = dto.ActivityType,
+            Chat = dto.Chat,
+            User = dto.User,
+        });
+
+        await _mongoDbContext.SaveChangesAsync();
     }
 }
