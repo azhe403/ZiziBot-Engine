@@ -41,7 +41,7 @@ public class HangfireAuthorizationFilter : IDashboardAsyncAuthorizationFilter
 
     private async Task<bool> CheckSession(string sessionId)
     {
-        var dashboardSessions = await _mongoDbContext.DashboardSessions
+        var dashboardSessions = await _mongoDbContext.DashboardSessions.AsNoTracking()
             .Where(entity => entity.BearerToken == sessionId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();

@@ -31,8 +31,7 @@ public static class HangfireServiceExtension
         };
 
         services.AddHangfire(
-            configuration =>
-            {
+            configuration => {
                 configuration
                     .UseSimpleAssemblyNameTypeSerializer()
                     .UseRecommendedSerializerSettings()
@@ -44,8 +43,7 @@ public static class HangfireServiceExtension
         );
 
         services.AddHangfireServer(
-            optionsAction: (provider, options) =>
-            {
+            optionsAction: (provider, options) => {
                 options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
                 options.ServerTimeout = TimeSpan.FromMinutes(10);
                 options.Queues = queues;
@@ -69,7 +67,7 @@ public static class HangfireServiceExtension
         var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
 
         app.UseHangfireDashboard(
-            pathMatch: "/hangfire-jobs",
+            pathMatch: UrlConst.HANGFIRE_URL_PATH,
             options: new DashboardOptions()
             {
                 DashboardTitle = "Zizi Dev - Hangfire Dashboard",
