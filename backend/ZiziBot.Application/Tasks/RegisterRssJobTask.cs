@@ -30,8 +30,9 @@ public class RegisterRssJobTasks : IStartupTask
             {
                 ResetStatus = true
             }),
-            queue: "rss",
-            cronExpression: TimeUtil.DayInterval(1));
+            queue: CronJobKey.Queue_Rss,
+            cronExpression: TimeUtil.DayInterval(1)
+        );
 
         _logger.LogDebug("Registering RSS Jobs Completed");
     }

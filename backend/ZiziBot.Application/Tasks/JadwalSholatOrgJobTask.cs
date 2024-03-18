@@ -16,29 +16,18 @@ public class JadwalSholatOrgJobTask : IStartupTask
 
     public async Task ExecuteAsync()
     {
-        // RecurringJob.AddOrUpdate<JadwalSholatOrgSinkService>(
-        //     recurringJobId: CronJobKey.JadwalSholatOrg_FetchCity,
-        //     queue: "shalat-time",
-        //     methodCall: service => service.FeedCity(),
-        //     cronExpression: TimeUtil.MonthInterval(1));
-        //
-        // RecurringJob.AddOrUpdate<JadwalSholatOrgSinkService>(
-        //     recurringJobId: CronJobKey.JadwalSholatOrg_FetchSchedule,
-        //     queue: "shalat-time",
-        //     methodCall: service => service.FeedSchedule(),
-        //     cronExpression: TimeUtil.MonthInterval(1));
-
         RecurringJob.AddOrUpdate<JadwalSholatOrgSinkService>(
             recurringJobId: CronJobKey.JadwalSholatOrg_FetchAll,
-            queue: "shalat-time",
             methodCall: service => service.FeedAll(),
-            cronExpression: TimeUtil.MonthInterval(1));
+            queue: CronJobKey.Queue_ShalatTime,
+            cronExpression: TimeUtil.MonthInterval(1)
+        );
 
-        var checkCity = await _mongoDbContextBase.JadwalSholatOrg_City
+        var checkCity = await _mongoDbContextBase.JadwalSholatOrg_City.AsNoTracking()
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .CountAsync();
 
-        var checkSchedule = await _mongoDbContextBase.JadwalSholatOrg_Schedule
+        var checkSchedule = await _mongoDbContextBase.JadwalSholatOrg_Schedule.AsNoTracking()
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .CountAsync();
 
@@ -48,8 +37,6 @@ public class JadwalSholatOrgJobTask : IStartupTask
             return;
         }
 
-        // RecurringJob.TriggerJob(CronJobKey.JadwalSholatOrg_FetchCity);
-        // RecurringJob.TriggerJob(CronJobKey.JadwalSholatOrg_FetchSchedule);
         RecurringJob.TriggerJob(CronJobKey.JadwalSholatOrg_FetchAll);
     }
 }
