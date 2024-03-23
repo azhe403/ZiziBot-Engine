@@ -16,16 +16,14 @@ public static class HangfireServiceExtension
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
         var hangfireConfig = serviceProvider.GetRequiredService<IOptionsSnapshot<HangfireConfig>>().Value;
 
-        var queues = new[]
-        {
+        var queues = new[] {
             "default",
             "data",
             CronJobKey.Queue_Rss,
             CronJobKey.Queue_ShalatTime
         };
 
-        JobStorage.Current = hangfireConfig.CurrentStorage switch
-        {
+        JobStorage.Current = hangfireConfig.CurrentStorage switch {
             CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
             _ => new InMemoryStorage(new InMemoryStorageOptions())
         };
@@ -49,8 +47,7 @@ public static class HangfireServiceExtension
                 options.Queues = queues;
             },
             storage: JobStorage.Current,
-            additionalProcesses: new IBackgroundProcess[]
-            {
+            additionalProcesses: new IBackgroundProcess[] {
                 new ProcessMonitor(TimeSpan.FromSeconds(3))
             }
         );
@@ -65,12 +62,13 @@ public static class HangfireServiceExtension
         var serviceProvider = app.ApplicationServices;
         var authorizationFilters = serviceProvider.GetServices<IDashboardAuthorizationFilter>();
         var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
+        var appSettingRepository = serviceProvider.GetRequiredService<AppSettingRepository>();
+        var config = appSettingRepository.GetConfigSection<HangfireConfig>();
 
         app.UseHangfireDashboard(
             pathMatch: UrlConst.HANGFIRE_URL_PATH,
-            options: new DashboardOptions()
-            {
-                DashboardTitle = "Zizi Dev - Hangfire Dashboard",
+            options: new DashboardOptions() {
+                DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
                 IgnoreAntiforgeryToken = false,
                 Authorization = authorizationFilters,
                 AsyncAuthorization = asyncAuthorizationFilters
@@ -93,10 +91,8 @@ public static class HangfireServiceExtension
         var mongoStorage = new MongoStorage(
             mongoClient: mongoClient,
             databaseName: mongoUrlBuilder.DatabaseName,
-            storageOptions: new MongoStorageOptions()
-            {
-                MigrationOptions = new MongoMigrationOptions
-                {
+            storageOptions: new MongoStorageOptions() {
+                MigrationOptions = new MongoMigrationOptions {
                     MigrationStrategy = new MigrateMongoMigrationStrategy(),
                     BackupStrategy = new CollectionMongoBackupStrategy()
                 },
@@ -110,8 +106,7 @@ public static class HangfireServiceExtension
 
     private static void UseMediatR(this IGlobalConfiguration configuration)
     {
-        var jsonSettings = new JsonSerializerSettings
-        {
+        var jsonSettings = new JsonSerializerSettings {
             TypeNameHandling = TypeNameHandling.All
         };
 
