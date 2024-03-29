@@ -15,7 +15,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
     private readonly ILogger<NewChatMembersHandler> _logger;
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly TelegramService _telegramService;
-    private ChatSettingRepository _chatSettingRepository;
+    private readonly ChatSettingRepository _chatSettingRepository;
 
     public NewChatMembersHandler(
         ILogger<NewChatMembersHandler> logger,
@@ -35,17 +35,29 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
         _telegramService.SetupResponse(request);
         _logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.ChatId);
 
-        await _chatSettingRepository.CreateActivity(new ChatActivityDto
-        {
+        var create = await _chatSettingRepository.CreateActivity(new ChatActivityDto {
             ChatId = request.ChatIdentifier,
             ActivityType = ChatActivityType.NewChatMember,
             Chat = request.Chat,
-            User = request.User
+            User = request.User,
+            Status = EventStatus.Complete,
+            TransactionId = request.TransactionId
         });
+
+        if (create)
+        {
+            var message = HtmlMessage.Empty;
+            message.Bold("Anti-RAID mode.").Br()
+                .Text("Terdeteksi banyak anggota baru masuk ke grub dalam beberapa waktu terakhir. " +
+                      "Untuk alasan keamanan, anggota baru yang masuk dalam {COOLDOWN_TIME} akan disenyapkan.").Br();
+
+            return await _telegramService.SendMessageAsync(message.ToString());
+        }
 
         var chatTitle = request.ChatTitle;
         var newMemberCount = request.NewUser.Length;
-        var allNewMember = request.NewUser.Select(user => user.GetFullMention()).Aggregate((s, next) => s + ", " + next);
+        var allNewMember = request.NewUser.Select(user => user.GetFullMention())
+            .Aggregate((s, next) => s + ", " + next);
         var greet = TimeUtil.GetTimeGreet();
         var memberCount = await _telegramService.GetMemberCount();
 
@@ -62,8 +74,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
             messageTemplate = welcomeMessage.Text;
         }
 
-        var messageText = messageTemplate.ResolveVariable(new List<(string placeholder, string value)>()
-        {
+        var messageText = messageTemplate.ResolveVariable(new List<(string placeholder, string value)>() {
             ("AllNewMember", allNewMember),
             // ("AllNoUsername", allNoUsername),
             // ("AllNewBot", allNewBot),
