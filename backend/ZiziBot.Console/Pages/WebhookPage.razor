@@ -1,15 +1,15 @@
 @page "/webhook"
 @using System.Reactive.Threading.Tasks
-
-@using System.Reactive.Threading.Tasks
 @inherits WebComponentBase<WebhookViewModel>
 
 <TitleControl Value="Webhook Chat"></TitleControl>
 
+<Loading Configuration="@ViewModel.Loading"/>
+
 <RadzenRow>
     <RadzenColumn Size="12">
         <RadzenRow>
-            @if (ViewModel.ListWebhookChaEmpty())
+            @if (ViewModel.ListWebhookChat.IsEmpty())
             {
                 <h2>Loading..</h2>
             }
