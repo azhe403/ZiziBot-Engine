@@ -19,18 +19,24 @@ public class CreateNoteValidator : AbstractValidator<CreateNoteBotRequest>
     {
         RuleFor(x => x.Query).NotNull().When(x => x.Content != null).WithMessage("Masukkan Query untuk Note nya");
         RuleFor(x => x.Query).MinimumLength(2).WithMessage("Panjang Query minimal 2 karakter");
-        RuleFor(x => x.Content).NotNull().When(x => x.FileId == null).WithMessage("Balas sebuah pesan yang mengandung Teks");
+        RuleFor(x => x.Content).NotNull().When(x => x.FileId == null)
+            .WithMessage("Balas sebuah pesan yang mengandung Teks");
     }
 }
 
 public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotResponseBase>
 {
     private readonly TelegramService _telegramService;
+    private readonly NoteService _noteService;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public CreateNoteHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
+    public CreateNoteHandler(
+        TelegramService telegramService,
+        NoteService noteService,
+        MongoDbContextBase mongoDbContext)
     {
         _telegramService = telegramService;
+        _noteService = noteService;
         _mongoDbContext = mongoDbContext;
     }
 
@@ -61,6 +67,13 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
                 cancellationToken: cancellationToken
             );
 
+        var btnFromMessage = request.Message.GetRawReplyMarkup();
+
+        if (request.RawButton.IsNullOrEmpty())
+        {
+            request.RawButton = btnFromMessage;
+        }
+
         if (note != null)
         {
             if (request.RefreshNote ?? false)
@@ -72,10 +85,12 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
                 note.RawButton = request.RawButton;
                 note.DataType = request.DataType;
                 note.Status = (int)EventStatus.Complete;
+                note.TransactionId = request.TransactionId;
             }
             else
             {
-                htmlMessage.Text("Catatan sudah ada, silahkan gunakan nama lainnya. Atau gunakan perintah /renote untuk memperbarui catatan");
+                htmlMessage.Text(
+                    "Catatan sudah ada, silahkan gunakan nama lainnya. Atau gunakan perintah /renote untuk memperbarui catatan");
                 return await _telegramService.SendMessageText(htmlMessage.ToString());
             }
         }
@@ -83,8 +98,7 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
         {
             await _telegramService.SendMessageText("Sedang membuat catatan...");
 
-            _mongoDbContext.Note.Add(new NoteEntity()
-            {
+            _mongoDbContext.Note.Add(new NoteEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 Query = request.Query,
@@ -92,11 +106,15 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
                 FileId = request.FileId,
                 RawButton = request.RawButton,
                 DataType = request.DataType,
-                Status = (int)EventStatus.Complete
+                Status = (int)EventStatus.Complete,
+                TransactionId = request.TransactionId
             });
         }
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
+
+        await _telegramService.EditMessageText("Memperbarui cache..");
+        await _noteService.GetAllByChat(request.ChatIdentifier, true);
 
         return await _telegramService.EditMessageText("Catatan berhasil disimpan");
     }

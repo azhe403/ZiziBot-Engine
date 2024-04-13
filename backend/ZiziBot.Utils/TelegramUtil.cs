@@ -34,8 +34,7 @@ public static class TelegramUtil
     {
         if (message is null) return default;
 
-        var fileId = message.Type switch
-        {
+        var fileId = message.Type switch {
             MessageType.Photo => message.Photo?.LastOrDefault()?.FileId,
             MessageType.Audio => message.Audio?.FileId,
             MessageType.Video => message.Video?.FileId,
@@ -53,8 +52,7 @@ public static class TelegramUtil
     {
         if (message is null) return default;
 
-        var fileId = message.Type switch
-        {
+        var fileId = message.Type switch {
             MessageType.Photo => message.Photo?.LastOrDefault()?.FileUniqueId,
             MessageType.Audio => message.Audio?.FileUniqueId,
             MessageType.Video => message.Video?.FileUniqueId,
@@ -70,8 +68,7 @@ public static class TelegramUtil
 
     public static string? GetFileName(this Message message)
     {
-        var fileName = message.Type switch
-        {
+        var fileName = message.Type switch {
             MessageType.Photo => message.Photo?.LastOrDefault()?.FileUniqueId + ".jpg",
             MessageType.Audio => message.Audio?.FileName,
             MessageType.Video => message.Video?.FileName,
@@ -92,8 +89,7 @@ public static class TelegramUtil
 
     public static DateTime GetMessageDate(this Update update)
     {
-        var date = update.Type switch
-        {
+        var date = update.Type switch {
             UpdateType.EditedMessage => update.EditedMessage?.EditDate.GetValueOrDefault(),
             UpdateType.EditedChannelPost => update.EditedChannelPost?.EditDate.GetValueOrDefault(),
             UpdateType.Message => update.Message?.Date,
@@ -110,8 +106,7 @@ public static class TelegramUtil
 
     public static DateTime GetMessageEditDate(this Update update)
     {
-        var date = update.Type switch
-        {
+        var date = update.Type switch {
             UpdateType.EditedMessage => update.EditedMessage?.EditDate,
             UpdateType.EditedChannelPost => update.EditedChannelPost?.EditDate,
             _ => DateTime.UtcNow
@@ -131,17 +126,18 @@ public static class TelegramUtil
 
         entities.ForEach((entity, idx) => {
             var oldValue = entityValues.ElementAt(idx);
-            var newValue = entity.Type switch
-            {
+            var newValue = entity.Type switch {
                 MessageEntityType.Bold => "<b>" + oldValue + "</b>",
                 MessageEntityType.Code => "<code>" + oldValue + "</code>",
-                MessageEntityType.CustomEmoji => "<tg-emoji emoji-id=\"" + entity.CustomEmojiId + "\">" + oldValue + "</tg-emoji>",
+                MessageEntityType.CustomEmoji => "<tg-emoji emoji-id=\"" + entity.CustomEmojiId + "\">" + oldValue +
+                                                 "</tg-emoji>",
                 MessageEntityType.Italic => "<i>" + oldValue + "</i>",
                 MessageEntityType.Pre => "<pre>" + oldValue + "</pre>",
                 MessageEntityType.Strikethrough => "<s>" + oldValue + "</s>",
                 MessageEntityType.Spoiler => "<tg-spoiler>" + oldValue + "</tg-spoiler>",
                 MessageEntityType.TextLink => "<a href=\"" + entity.Url + "\">" + oldValue + "</a>",
-                MessageEntityType.TextMention => "<a href=\"tg://user?id=" + entity.User?.Id + "\">" + oldValue + "</a>",
+                MessageEntityType.TextMention => "<a href=\"tg://user?id=" + entity.User?.Id + "\">" + oldValue +
+                                                 "</a>",
                 MessageEntityType.Underline => "<u>" + oldValue + "</u>",
                 _ => oldValue
             };
@@ -150,5 +146,17 @@ public static class TelegramUtil
         });
 
         return htmlText;
+    }
+
+    public static string GetRawReplyMarkup(this Message? message)
+    {
+        var replyMarkup = message?.ReplyToMessage?.ReplyMarkup ?? message?.ReplyMarkup;
+
+        if (replyMarkup is null) return string.Empty;
+
+        var rawBtn = replyMarkup.InlineKeyboard.SelectMany(row =>
+                row.Where(x => x.Url.IsNotNullOrEmpty()).Select(col => $"{col.Text}|{col.Url}"))
+            .Aggregate((a, b) => a + "\n" + b);
+        return rawBtn;
     }
 }
