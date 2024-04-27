@@ -12,9 +12,10 @@ public static class UrlConst
     public const string ANTISPAM_COMBOT_API = "https://api.cas.chat/check";
     public const string ANTISPAM_SPAMWATCH_API = "https://api.spamwat.ch/banlist";
 
-    public const string BOT_API_SPEC = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/main/api.min.json";
+    public const string BOT_API_SPEC =
+        "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/main/api.min.json";
 
-    public const string API_TRAKTEER_PARSER = "https://php-code.azhe.my.id/trakteer.php";
+    public const string API_TRAKTEER_PARSER = "https://api.winten.my.id/trakteer.php";
     public const string API_SAWERIA_PARSER = "https://api.winten.my.id/saweria.php";
 
     public const string DOC_MIRROR_VERIFY_DONATION = "https://docs.mirror.winten.my.id/verifikasi-donasi";
