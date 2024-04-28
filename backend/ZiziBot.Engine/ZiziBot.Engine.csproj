@@ -4,11 +4,13 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.4"/>
+        <PackageReference Include="NewRelic.Agent" Version="10.23.1"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
 
@@ -27,6 +29,12 @@
         <None Update=".env">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
     </ItemGroup>
 
     <!--  SPA Config  -->
