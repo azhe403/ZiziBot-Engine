@@ -1,6 +1,6 @@
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace ZiziBot.Utils;
+namespace ZiziBot.Parsers;
 
 public static class ReplyMarkupUtil
 {
@@ -76,8 +76,7 @@ public static class ReplyMarkupUtil
                         x => {
                             var btn = x.Split("|");
 
-                            return new TelegramButtonUrl()
-                            {
+                            return new TelegramButtonUrl() {
                                 Text = btn.ElementAtOrDefault(0)?.Trim(),
                                 Url = btn.ElementAtOrDefault(1)?.Trim()
                             };
@@ -144,7 +143,8 @@ public static class ReplyMarkupUtil
         return new InlineKeyboardMarkup(listButton.ToInlineKeyboardButton());
     }
 
-    public static InlineKeyboardMarkup ToButtonMarkup(this IEnumerable<IEnumerable<InlineKeyboardButton>> listKeyboardButton)
+    public static InlineKeyboardMarkup ToButtonMarkup(
+        this IEnumerable<IEnumerable<InlineKeyboardButton>> listKeyboardButton)
     {
         return new InlineKeyboardMarkup(listKeyboardButton);
     }

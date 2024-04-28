@@ -84,7 +84,7 @@ public static class TelegramUtil
     {
         dynamic value = query.Split(" ").ElementAtOrDefault(index) ?? string.Empty;
 
-        return Convert.ChangeType(value, typeof(T));
+        return (T)Convert.ChangeType(value, typeof(T));
     }
 
     public static DateTime GetMessageDate(this Update update)

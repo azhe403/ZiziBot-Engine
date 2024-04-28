@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ZiziBot.Types.Vendor.FathimahApi;
+namespace ZiziBot.Types.Vendor.FathimahApi.v1;
 
 public class CityResponse
 {
