@@ -1,4 +1,4 @@
-﻿namespace ZiziBot.Contracts.Attributes;
+﻿namespace ZiziBot.Attributes;
 
 public class StartupTaskAttribute : Attribute
 {

@@ -29,7 +29,7 @@ public static class AnglesharpUtil
         return document;
     }
 
-    public static async Task<IDocument> OpenHtml(this string htmlString)
+    public static async Task<IDocument?> OpenHtml(this string htmlString)
     {
         var config = Configuration.Default;
 
@@ -47,7 +47,8 @@ public static class AnglesharpUtil
         return document?.QuerySelector(selector) as TElement;
     }
 
-    public static IEnumerable<TElement>? QuerySelectorAll<TElement>(this IDocument? document, string selector) where TElement : class
+    public static IEnumerable<TElement>? QuerySelectorAll<TElement>(this IDocument? document, string selector)
+        where TElement : class
     {
         return document?.QuerySelectorAll(selector).Cast<TElement>();
     }

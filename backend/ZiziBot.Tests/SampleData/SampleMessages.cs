@@ -6,7 +6,7 @@ namespace ZiziBot.Tests.SampleData;
 public static class SampleMessages
 {
 
-    private static readonly long[] chatIds =
+    private static readonly long[] ChatIds =
     {
         -1001710313973,
         -1001929269823,
@@ -32,7 +32,7 @@ public static class SampleMessages
         ForwardDate = DateTime.UtcNow,
         Chat = new Chat
         {
-            Id = chatIds.RandomPick(),
+            Id = ChatIds.RandomPick(),
             Title = "Sample - Grub Name"
         },
         From = new User

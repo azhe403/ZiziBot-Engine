@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ZiziBot.Cli;
+namespace ZiziBot.Cli.Extensions;
 
 public static class ServiceExtension
 {

@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using Serilog;
 
 namespace ZiziBot.Utils;
 
@@ -42,5 +43,24 @@ public static class DirUtil
         ZipFile.CreateFromDirectory(dirSource, zipFileName);
 
         return zipFileName;
+    }
+
+    public static List<FileInfo> GetFiles(this string dirPath, string pattern = "*.*", Func<FileInfo, bool>? predicate = null)
+    {
+        return Directory.EnumerateFiles(dirPath, pattern, SearchOption.AllDirectories).Select(x => new FileInfo(x))
+            .WhereIf(predicate != null, predicate)
+            .ToList();
+    }
+
+    public static int DeleteFile(this List<FileInfo> listFile)
+    {
+        foreach (var fileInfo in listFile)
+        {
+            Log.Debug("Delete file: {FullName}", fileInfo.FullName);
+
+            fileInfo.Delete();
+        }
+
+        return listFile.Count;
     }
 }

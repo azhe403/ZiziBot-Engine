@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace ZiziBot.Console.Partials;
 
-public class WebComponentBase<T> : ReactiveInjectableComponentBase<T>  where T : class, INotifyPropertyChanged
+public class WebComponentBase<T> : ReactiveInjectableComponentBase<T> where T : class, INotifyPropertyChanged
 {
+    [Inject]
+    public IJSRuntime JSRuntime { get; set; }
+
     [Inject]
     public required IMediator Mediator { get; set; }
 
@@ -22,4 +25,11 @@ public class WebComponentBase<T> : ReactiveInjectableComponentBase<T>  where T :
 
     [CascadingParameter]
     public Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; }
+
+    [Inject]
+    protected NotificationService NotificationService { get; set; }
+
 }

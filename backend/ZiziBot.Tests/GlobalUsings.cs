@@ -7,6 +7,7 @@ global using ZiziBot.Application.Handlers.Telegram.Data;
 global using ZiziBot.Application.Handlers.Telegram.Group;
 global using ZiziBot.Application.Handlers.Telegram.Mirror;
 global using ZiziBot.Application.Handlers.Telegram.Note;
+global using ZiziBot.Application.Handlers.Telegram.Rss;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Enums;

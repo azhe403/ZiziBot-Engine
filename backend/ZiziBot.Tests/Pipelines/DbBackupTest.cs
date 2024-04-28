@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using FluentAssertions;
+using Xunit;
 
 namespace ZiziBot.Tests.Pipelines;
 
@@ -16,6 +17,8 @@ public class DbBackupTest
     [Fact]
     public async Task ExportMongoDbTest()
     {
-        await _mediatorService.Send(new MainDbBackupRequest());
+        var result = await _mediatorService.Send(new MongoDbBackupRequest());
+
+        result.Should().BeTrue();
     }
 }

@@ -19,6 +19,8 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public Message? ChannelPostEdited => Update?.EditedChannelPost;
     public Message? ChannelPostAny => ChannelPost ?? ChannelPostEdited;
 
+    public Chat? Chat => Message?.Chat ?? default;
+
     public ForumTopicCreated? ForumTopicCreated => Message?.ForumTopicCreated;
     public ForumTopicEdited? ForumTopicEdited => Message?.ForumTopicEdited;
     public string? EditedTopicName => ReplyToMessage?.ForumTopicEdited?.Name ?? ForumTopicEdited?.Name;

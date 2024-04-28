@@ -34,6 +34,7 @@ public class AdditionalController : CommandController
     }
 
     [Command("webhook")]
+    [Command("wh")]
     public async Task CreateWebhook(MessageData data)
     {
         await _mediatorService.EnqueueAsync(new CreateWebhookBotRequest()

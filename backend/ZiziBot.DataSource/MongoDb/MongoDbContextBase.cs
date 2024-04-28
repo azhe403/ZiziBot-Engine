@@ -37,6 +37,7 @@ public class MongoDbContextBase : MongoDbContext
 
     public MongoDbSet<ChatGptSessionEntity> ChatGptSession { get; set; }
     public MongoDbSet<ChatSettingEntity> ChatSetting { get; set; }
+    public MongoDbSet<ChatActivityEntity> ChatActivity { get; set; }
     public MongoDbSet<NoteEntity> Note { get; set; }
     public MongoDbSet<RssSettingEntity> RssSetting { get; set; }
     public MongoDbSet<RssHistoryEntity> RssHistory { get; set; }
