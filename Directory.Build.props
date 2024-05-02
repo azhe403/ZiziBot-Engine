@@ -2,21 +2,23 @@
     <PropertyGroup>
         <BaseIntermediateOutputPath>.obj\</BaseIntermediateOutputPath>
         <BaseOutputPath>.bin\</BaseOutputPath>
-        <Version>223.9.8667.29262</Version>
     </PropertyGroup>
-
+    <PropertyGroup>
+        <Version>224.5.8888.45698</Version>
+        <Company>WinTenDev</Company>
+        <Authors>azhe403</Authors>
+        <Product>ZiziBot</Product>
+    </PropertyGroup>
     <!-- Store Build Date -->
-    <ItemGroup>
+    <ItemGroup Condition="'$(Configuration)' == 'Release'">
         <AssemblyAttribute Include="ZiziBot.Attributes.BuildStampAttribute">
             <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+        <AssemblyAttribute Include="ZiziBot.Attributes.BuildStampAttribute">
+            <_Parameter1>20231020144910</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
     <!-- Store Build Date -->
-
-    <Target Name="PostClean" AfterTargets="Clean" Condition=" '$(Configuration)' == 'Debug'">
-        <!-- bin -->
-        <RemoveDir Directories="$(BaseOutputPath)"/>
-        <!-- obj -->
-        <RemoveDir Directories="$(BaseIntermediateOutputPath)"/>
-    </Target>
 </Project>
