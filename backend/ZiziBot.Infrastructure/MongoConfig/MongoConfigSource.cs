@@ -30,7 +30,7 @@ public class MongoConfigSource : IConfigurationSource
 
     private void SeedAppSettings()
     {
-        var listAppSettings = new List<SeedSettingDto> {
+        var seedAppSettings = new List<SeedSettingDto> {
             new() {
                 Root = "Engine",
                 KeyPair = new Dictionary<string, object>() {
@@ -107,6 +107,9 @@ public class MongoConfigSource : IConfigurationSource
                 KeyPair = new Dictionary<string, object>() {
                     { "ApprovalChannelId", "-969706112" },
                     { "TrakteerVerificationApi", "" },
+                    { "SaweriaVerificationApi", "" },
+                    { "UseCustomTrakteerApi", false },
+                    { "UseCustomSaweriaApi", false },
                     { "PaymentExpirationDays", 3 }
                 }
             },
@@ -138,7 +141,7 @@ public class MongoConfigSource : IConfigurationSource
             .Where(x => x.Status == (int)EventStatus.Complete)
             .ToList();
 
-        var allSeeds = listAppSettings
+        var allSeeds = seedAppSettings
             .SelectMany(x => x.KeyPair)
             .ToList();
 
@@ -147,7 +150,7 @@ public class MongoConfigSource : IConfigurationSource
 
         var transactionId = Guid.NewGuid().ToString();
 
-        listAppSettings.ForEach(dto => {
+        seedAppSettings.ForEach(dto => {
                 foreach (var config in dto.KeyPair)
                 {
                     var prefix = dto.Root;
