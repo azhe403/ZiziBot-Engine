@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace ZiziBot.Services;
 
-public class CacheService
+public class CacheService : ICacheService
 {
     private readonly ILogger<CacheService> _logger;
     private readonly CacheConfig _cacheConfig;
@@ -47,14 +47,17 @@ public class CacheService
 
         try
         {
-            _logger.LogDebug("Loading Cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
+            _logger.LogDebug("Loading Cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}",
+                cacheKey, staleAfterSpan, expireAfterSpan);
 
             var cacheSettings = new CacheSettings(expireAfterSpan, staleAfterSpan);
 
             var cache = await _cacheStack.GetOrSetAsync<T>(
                 cacheKey: cacheKey.Trim(),
                 valueFactory: async (_) => {
-                    _logger.LogDebug("Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
+                    _logger.LogDebug(
+                        "Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}",
+                        cacheKey, staleAfterSpan, expireAfterSpan);
 
                     return await action();
                 },
@@ -78,7 +81,7 @@ public class CacheService
         }
     }
 
-    private async Task EvictAsync(string cacheKey)
+    public async Task EvictAsync(string cacheKey)
     {
         try
         {

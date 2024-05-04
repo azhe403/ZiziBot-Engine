@@ -8,6 +8,7 @@ global using ZiziBot.Contracts.Enums;
 global using ZiziBot.DataSource.MongoDb;
 global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.DataSource.Sqlite.Entities;
+global using ZiziBot.Interfaces;
 global using ZiziBot.Parsers;
 global using ZiziBot.Services;
 global using ZiziBot.Types.Vendor.BinderByte;

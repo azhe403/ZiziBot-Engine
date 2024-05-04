@@ -54,8 +54,8 @@ public static class ServiceExtension
         );
 
         services.Scan(selector => selector.FromAssembliesOf(typeof(FirebaseService))
-            .AddClasses(filter => filter.InNamespaceOf<FirebaseService>())
-            .AsSelf()
+            .AddClasses(filter => filter.InNamespaceOf<CacheService>())
+            .AsSelfWithInterfaces()
             .WithScopedLifetime());
 
         return services;

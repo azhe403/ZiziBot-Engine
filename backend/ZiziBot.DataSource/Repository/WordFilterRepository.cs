@@ -5,9 +5,9 @@ namespace ZiziBot.DataSource.Repository;
 public class WordFilterRepository
 {
     private readonly MongoDbContextBase _mongoDbContext;
-    private readonly CacheService _cacheService;
+    private readonly ICacheService _cacheService;
 
-    public WordFilterRepository(MongoDbContextBase mongoDbContext, CacheService cacheService)
+    public WordFilterRepository(MongoDbContextBase mongoDbContext, ICacheService cacheService)
     {
         _mongoDbContext = mongoDbContext;
         _cacheService = cacheService;
@@ -27,8 +27,7 @@ public class WordFilterRepository
             action: async () => {
                 var data = await _mongoDbContext.WordFilter
                     .Where(x => x.Status == (int)EventStatus.Complete)
-                    .Select(entity => new WordFilterDto()
-                    {
+                    .Select(entity => new WordFilterDto() {
                         Id = entity.Id.ToString(),
                         ChatId = entity.ChatId,
                         UserId = entity.UserId,
