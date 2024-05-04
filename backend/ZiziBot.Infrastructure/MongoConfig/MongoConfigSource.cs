@@ -145,30 +145,31 @@ public class MongoConfigSource : IConfigurationSource
             .SelectMany(x => x.KeyPair)
             .ToList();
 
-        if (appSettings.Count == allSeeds.Count)
-            return;
+        var appSettingsDictionary = appSettings.ToDictionary(x => x.Name, x => x.Value.ToString());
+        var diffSeedAppSetting = seedAppSettings
+            .SelectMany(s => s.KeyPair, (s, kv) => new {
+                Root = s.Root,
+                Key = $"{s.Root}:{kv.Key}",
+                Value = kv.Value.ToString()
+            })
+            .Where(kv => !appSettingsDictionary.ContainsKey(kv.Key))
+            .ToList();
 
         var transactionId = Guid.NewGuid().ToString();
 
-        seedAppSettings.ForEach(dto => {
-                foreach (var config in dto.KeyPair)
-                {
-                    var prefix = dto.Root;
-                    var field = $"{prefix}:{config.Key}";
+        diffSeedAppSetting.ForEach(seed => {
+                var appSetting = _dbContext.AppSettings.FirstOrDefault(settings => settings.Name == seed.Key);
 
-                    var appSetting = _dbContext.AppSettings.FirstOrDefault(settings => settings.Name == field);
+                if (appSetting != null) return;
 
-                    if (appSetting != null) continue;
-
-                    _dbContext.AppSettings.Add(new AppSettingsEntity() {
-                        Name = field,
-                        Field = field,
-                        Value = $"{config.Value}",
-                        DefaultValue = $"{config.Value}",
-                        TransactionId = transactionId,
-                        Status = (int)EventStatus.Complete
-                    });
-                }
+                _dbContext.AppSettings.Add(new AppSettingsEntity() {
+                    Name = seed.Key,
+                    Field = seed.Key,
+                    Value = $"{seed.Value}",
+                    DefaultValue = $"{seed.Value}",
+                    TransactionId = transactionId,
+                    Status = (int)EventStatus.Complete
+                });
             }
         );
 
