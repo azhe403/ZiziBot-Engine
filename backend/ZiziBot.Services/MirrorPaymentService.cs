@@ -6,15 +6,16 @@ using ZiziBot.Contracts.Dtos;
 
 namespace ZiziBot.Services;
 
-public class MirrorPaymentService
+public class MirrorPaymentService(
+    AppSettingRepository appSettingRepository
+)
 {
     public async Task<TrakteerParsedDto> ParseTrakteerWeb(string url)
     {
         url = url.GetTrakteerUrl();
         var trakteerParsedDto = new TrakteerParsedDto();
         Log.Information("Parsing trakteer url: {Url}", url);
-        var document = await url.OpenUrl(new ClearanceHandler()
-        {
+        var document = await url.OpenUrl(new ClearanceHandler() {
             ClearanceDelay = 3000
         });
 
@@ -37,10 +38,16 @@ public class MirrorPaymentService
         Log.Debug("Found container: {Container} in Url: {Url}", container?.ClassName, url);
 
         var cendolCount = document.QuerySelector(".subtotal-left__unit > span:nth-child(2)")?.TextContent ?? "0";
-        var adminFees = document.QuerySelector("div.subtotal-left__others:nth-child(4) > span:nth-child(2)")?.TextContent ?? "0";
-        var subtotal = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-right")?.TextContent ?? "0";
-        var orderDate = document.QuerySelector("div.pr-detail__item:nth-child(1) > div:nth-child(2)")?.TextContent.Replace("WIB", string.Empty).Trim();
-        var paymentMethod = document.QuerySelector(".pr-detail__wrapper > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)")?.TextContent;
+        var adminFees = document.QuerySelector("div.subtotal-left__others:nth-child(4) > span:nth-child(2)")
+            ?.TextContent ?? "0";
+        var subtotal =
+            document.QuerySelector(
+                "#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-right")?.TextContent ??
+            "0";
+        var orderDate = document.QuerySelector("div.pr-detail__item:nth-child(1) > div:nth-child(2)")?.TextContent
+            .Replace("WIB", string.Empty).Trim();
+        var paymentMethod = document
+            .QuerySelector(".pr-detail__wrapper > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)")?.TextContent;
         var orderId = document.QuerySelector(".pr-detail__wrapper > div:nth-child(2) > div:nth-child(2)")?.TextContent;
 
         var mainNode = container?.ChildNodes
@@ -56,7 +63,8 @@ public class MirrorPaymentService
         trakteerParsedDto.CendolCount = cendolCount.Replace("Cendol", string.Empty).Trim().Convert<int>();
         trakteerParsedDto.AdminFees = adminFees.Replace("Rp", "").Trim().Convert<int>();
         trakteerParsedDto.Subtotal = subtotal.Replace("Rp", "").Trim().Convert<int>();
-        trakteerParsedDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
+        trakteerParsedDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm",
+            CultureInfo.InvariantCulture);
         trakteerParsedDto.PaymentMethod = paymentMethod;
         trakteerParsedDto.OrderId = orderId;
         trakteerParsedDto.RawText = innerText;
@@ -100,8 +108,7 @@ public class MirrorPaymentService
             url = Url.Combine("https://trakteer.id/payment-status", url);
         }
 
-        var data = await UrlConst.API_TRAKTEER_PARSER.SetQueryParam("url", url, true)
-            .GetJsonAsync<TrakteerApiDto>();
+        var data = await GetTrakteerApi().SetQueryParam("url", url, true).GetJsonAsync<TrakteerApiDto>();
 
         data.IsValid = data.OrderId != null;
         data.PaymentUrl = url;
@@ -116,13 +123,34 @@ public class MirrorPaymentService
             url = Url.Combine("https://saweria.co/receipt", url);
         }
 
-        var data = await UrlConst.API_SAWERIA_PARSER.SetQueryParam("oid", url, true)
-            .GetJsonAsync<SaweriaParsedDto>();
+        var data = await GetSaweriaApi().SetQueryParam("oid", url, true).GetJsonAsync<SaweriaParsedDto>();
 
         data.IsValid = data.OrderId != null;
         data.CendolCount = data.Total / 5000;
         data.PaymentUrl = url;
 
         return data;
+    }
+
+    private string GetTrakteerApi()
+    {
+        var config = appSettingRepository.GetRequiredConfigSection<MirrorConfig>();
+        var urlApi = UrlConst.API_TRAKTEER_PARSER;
+
+        if (config.UseCustomTrakteerApi)
+            urlApi = config.TrakteerVerificationApi;
+
+        return urlApi;
+    }
+
+    private string GetSaweriaApi()
+    {
+        var config = appSettingRepository.GetRequiredConfigSection<MirrorConfig>();
+        var urlApi = UrlConst.API_SAWERIA_PARSER;
+
+        if (config.UseCustomSaweriaApi)
+            urlApi = config.SaweriaVerificationApi;
+
+        return urlApi;
     }
 }
