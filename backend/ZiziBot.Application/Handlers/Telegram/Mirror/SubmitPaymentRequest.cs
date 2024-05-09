@@ -41,10 +41,8 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
         var transactionId = string.Empty;
         var userId = request.UserId;
 
-        var replyMarkup = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
+        var replyMarkup = new InlineKeyboardMarkup(new[] {
+            new[] {
                 InlineKeyboardButton.WithUrl("Bagaimana cara mendapatkan OrderId?", UrlConst.DOC_MIRROR_VERIFY_DONATION)
             }
         });
@@ -108,7 +106,8 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
 
         if (orderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
         {
-            return await _telegramService.EditMessageText("Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
+            return await _telegramService.EditMessageText(
+                "Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
         }
 
         var mirrorApproval = await _mongoDbContext.MirrorApproval
@@ -125,8 +124,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
             return await _telegramService.EditMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
-        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
-        {
+        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity() {
             UserId = request.UserId,
             PaymentUrl = paymentUrl,
             RawText = trakteerParsedDto.RawText,
@@ -149,10 +147,10 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
 
         if (mirrorUser == null)
         {
-            _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
+            _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId,
+                expireDate);
 
-            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity()
-            {
+            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
                 UserId = userId,
                 ExpireDate = expireDate,
                 Status = (int)EventStatus.Complete,
@@ -161,7 +159,8 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
         }
         else
         {
-            _logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
+            _logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId,
+                expireDate);
 
             expireDate = mirrorUser.ExpireDate < DateTime.Now
                 ? expireDate // If expired, will be started from now
@@ -174,18 +173,20 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        htmlMessage.Bold("Langganan berhasil disimpan").Br()
+        htmlMessage.Bold("Langganan Mirror").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
             .Bold("Pengguna: ").UserMention(request.User).Br()
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
             .Bold("Sumber: ").Code(donationSource).Br()
-            .Bold("Langganan sampai: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss zzz")).Br();
+            .Bold("Masa Aktif: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss zzz"))
+            .Br();
 
         await _telegramService.EditMessageText(htmlMessage.ToString());
 
         htmlMessage.Bold("OrderID: ").CodeBr(orderId)
             .Bold("Url: ").Text(paymentUrl);
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId, threadId: 0);
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId,
+            threadId: 0);
     }
 }

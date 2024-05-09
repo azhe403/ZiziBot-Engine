@@ -68,8 +68,7 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
             }
 
             await _telegramService.SendMessageText("Sedang menambahkan pengguna...");
-            _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
-            {
+            _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity() {
                 UserId = request.UserId,
                 RawText = request.ReplyToMessage.Text,
                 OrderId = messageId,
@@ -106,10 +105,10 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
 
         if (mirrorUser == null)
         {
-            _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
+            _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId,
+                expireDate);
 
-            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity()
-            {
+            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
                 UserId = userId,
                 ExpireDate = expireDate,
                 Status = (int)EventStatus.Complete,
@@ -118,11 +117,13 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
         }
         else
         {
-            _logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
+            _logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId,
+                expireDate);
 
             expireDate = mirrorUser.ExpireDate < DateTime.Now
                 ? expireDate // If expired, will be started from now
-                : mirrorUser.ExpireDate.AddMonths(cendolCount); // If not expired, it will be extended from current expire date
+                : mirrorUser.ExpireDate
+                    .AddMonths(cendolCount); // If not expired, it will be extended from current expire date
 
             mirrorUser.ExpireDate = expireDate;
             mirrorUser.Status = (int)EventStatus.Complete;
@@ -131,15 +132,16 @@ public class SavePaymentRequestHandler : IRequestHandler<SavePaymentBotRequestMo
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        htmlMessage.Bold("Pengguna berhasil disimpan").Br()
+        htmlMessage.Bold("Langganan Mirror").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
-            .Bold("Langganan sampai: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss")).Br();
+            .Bold("Masa Aktif: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss")).Br();
 
         await _telegramService.EditMessageText(htmlMessage.ToString());
 
         var mirrorConfig = await _appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId, threadId: 0);
+        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId,
+            threadId: 0);
     }
 }
