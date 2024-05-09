@@ -1,26 +1,20 @@
+using System.Net;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.Interfaces;
 
 namespace ZiziBot.Application.Services;
 
-public class AntiSpamService
+public class AntiSpamService(
+    ILogger<AntiSpamService> logger,
+    ICacheService cacheService,
+    MongoDbContextBase mongoDbContext,
+    ApiKeyService apiKeyService
+)
 {
-    private readonly ILogger<AntiSpamService> _logger;
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly ApiKeyService _apiKeyService;
-    private readonly CacheService _cacheService;
-
-    private readonly string defaultStaleTime = "10m";
-
-    public AntiSpamService(ILogger<AntiSpamService> logger, MongoDbContextBase mongoDbContext, ApiKeyService apiKeyService, CacheService cacheService)
-    {
-        _logger = logger;
-        _mongoDbContext = mongoDbContext;
-        _apiKeyService = apiKeyService;
-        _cacheService = cacheService;
-    }
+    private const string DefaultStaleTime = "10m";
 
     public async Task<AntiSpamDto> CheckSpamAsync(long chatId, long userId)
     {
@@ -34,79 +28,98 @@ public class AntiSpamService
         var taskCheckSpamWatch = CheckSpamWatchAntiSpamAsync(chatId, userId);
         await Task.WhenAll(taskCheckEss, taskCheckCombotAntiSpam, taskCheckSpamWatch);
 
-        antispamDto.IsBanEss = await taskCheckEss;
-        antispamDto.IsBanCasFed = (await taskCheckCombotAntiSpam).IsBanned;
-        antispamDto.IsBanSwFed = (await taskCheckSpamWatch).IsBanned;
+        antispamDto.IsBanEss = (await taskCheckEss).IsBanEss;
+        antispamDto.IsBanCasFed = (await taskCheckCombotAntiSpam).IsBanCasFed;
+        antispamDto.IsBanSwFed = (await taskCheckSpamWatch).IsBanSwFed;
 
-        antispamDto.CasRecord = (await taskCheckCombotAntiSpam).Result;
-        antispamDto.SpamWatchRecord = (await taskCheckSpamWatch).BanRecord;
+        antispamDto.CasRecord = (await taskCheckCombotAntiSpam).CasRecord;
+        antispamDto.SpamWatchRecord = (await taskCheckSpamWatch).SpamWatchRecord;
 
         antispamDto.IsBanAny = antispamDto.IsBanEss || antispamDto.IsBanCasFed || antispamDto.IsBanSwFed;
 
         return antispamDto;
     }
 
-    private async Task<bool> CheckEssAsync(long chatId, long userId)
+    private async Task<AntiSpamDto> CheckEssAsync(long chatId, long userId)
     {
-        var cacheData = await _cacheService.GetOrSetAsync(
+        var cacheData = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.BAN_ESS + userId,
-            staleAfter: defaultStaleTime,
+            staleAfter: DefaultStaleTime,
             action: async () => {
-                var globalBanEntities = await _mongoDbContext.GlobalBan
+                var antiSpamDto = new AntiSpamDto();
+                var globalBanEntities = await mongoDbContext.GlobalBan
                     .Where(entity => entity.UserId == userId && entity.Status == (int)EventStatus.Complete)
                     .ToListAsync();
 
-                return globalBanEntities.Any();
+                antiSpamDto.IsBanEss = globalBanEntities.Count != 0;
+                return antiSpamDto;
             }
         );
 
         return cacheData;
     }
 
-    private async Task<CombotAntispamApiDto> CheckCombotAntiSpamAsync(long chatId, long userId)
+    private async Task<AntiSpamDto> CheckCombotAntiSpamAsync(long chatId, long userId)
     {
-        var cacheData = await _cacheService.GetOrSetAsync(
+        var cacheData = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.BAN_CAS + userId,
-            staleAfter: defaultStaleTime,
+            staleAfter: DefaultStaleTime,
             action: async () => {
-                var url = UrlConst.ANTISPAM_COMBOT_API.SetQueryParam("userId", userId);
-                var antispamApiDto = await url.GetJsonAsync<CombotAntispamApiDto>();
+                var antiSpamDto = new AntiSpamDto();
+                try
+                {
+                    var url = UrlConst.ANTISPAM_COMBOT_API.SetQueryParam("userId", userId);
+                    var antispamApiDto = await url.AllowAnyHttpStatus().GetJsonAsync<CombotAntispamApiDto>();
 
-                _logger.LogDebug("Combot AntiSpam for {UserId}: {@Dto}", userId, antispamApiDto);
+                    logger.LogDebug("Combot AntiSpam for {UserId}: {@Dto}", userId, antispamApiDto);
+                    antiSpamDto.IsBanCasFed = antispamApiDto.IsBanned;
+                    antiSpamDto.CasRecord = antispamApiDto.Result;
+                }
+                catch (Exception exception)
+                {
+                    logger.LogError(exception, "Fail to check Combot AntiSpam for {UserId}", userId);
+                }
 
-                return antispamApiDto;
+                return antiSpamDto;
             }
         );
 
         return cacheData;
     }
 
-    private async Task<SpamWatchResult> CheckSpamWatchAntiSpamAsync(long chatId, long userId)
+    private async Task<AntiSpamDto> CheckSpamWatchAntiSpamAsync(long chatId, long userId)
     {
-        var cacheData = await _cacheService.GetOrSetAsync(
+        var cacheData = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.BAN_SW + userId,
-            staleAfter: defaultStaleTime,
+            staleAfter: DefaultStaleTime,
             action: async () => {
                 SpamWatchResult spamwatchResult = new();
+                var antiSpamDto = new AntiSpamDto();
 
-                var url = UrlConst.ANTISPAM_SPAMWATCH_API.AppendPathSegment(userId);
+                try
+                {
+                    var url = UrlConst.ANTISPAM_SPAMWATCH_API.AppendPathSegment(userId);
+                    var apiKey = await apiKeyService.GetApiKeyAsync("INTERNAL", "SPAMWATCH");
 
-                var apiKey = await _apiKeyService.GetApiKeyAsync("INTERNAL", "SPAMWATCH");
+                    if (apiKey == null)
+                        return new();
 
-                if (apiKey == null)
-                    return spamwatchResult;
+                    var spamwatchDto = await url.AllowAnyHttpStatus()
+                        .WithOAuthBearerToken(apiKey.ApiKey)
+                        .GetJsonAsync<SpamwatchDto>();
 
-                var spamwatchDto = await url
-                    .WithOAuthBearerToken(apiKey.ApiKey)
-                    .AllowHttpStatus("404")
-                    .GetJsonAsync<SpamwatchDto>();
+                    spamwatchResult.IsBanned = spamwatchDto.Code == (int)HttpStatusCode.OK;
+                    spamwatchResult.BanRecord = spamwatchDto;
+                    antiSpamDto.SpamWatchRecord = spamwatchDto;
 
-                spamwatchResult.IsBanned = spamwatchDto.Code == 200;
-                spamwatchResult.BanRecord = spamwatchDto;
+                    logger.LogDebug("Spamwatch AntiSpam for {UserId}: {@Dto}", userId, spamwatchDto);
+                }
+                catch (Exception exception)
+                {
+                    logger.LogError(exception, "Fail to check Spamwatch AntiSpam for {UserId}", userId);
+                }
 
-                _logger.LogDebug("Spamwatch AntiSpam for {UserId}: {@Dto}", userId, spamwatchDto);
-
-                return spamwatchResult;
+                return antiSpamDto;
             }
         );
 
