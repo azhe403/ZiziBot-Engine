@@ -6,4 +6,5 @@ public class ApiKeyEntity : EntityBase
     public string Name { get; set; }
     public string ApiKey { get; set; }
     public string Category { get; set; }
+    public string Note { get; set; }
 }

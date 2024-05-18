@@ -20,7 +20,9 @@ public class MongoConfigSource : IConfigurationSource
     {
         SeedAppSettings();
 
-        var appSettingsList = _dbContext.AppSettings.ToList();
+        var appSettingsList = _dbContext.AppSettings.AsNoTracking()
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .ToList();
 
         return appSettingsList
             .Select(x => new KeyValuePair<string, string?>(x.Name, x.Value))
@@ -137,12 +139,8 @@ public class MongoConfigSource : IConfigurationSource
             }
         };
 
-        var appSettings = _dbContext.AppSettings
+        var appSettings = _dbContext.AppSettings.AsNoTracking()
             .Where(x => x.Status == (int)EventStatus.Complete)
-            .ToList();
-
-        var allSeeds = seedAppSettings
-            .SelectMany(x => x.KeyPair)
             .ToList();
 
         var appSettingsDictionary = appSettings.ToDictionary(x => x.Name, x => x.Value.ToString());
@@ -158,15 +156,19 @@ public class MongoConfigSource : IConfigurationSource
         var transactionId = Guid.NewGuid().ToString();
 
         diffSeedAppSetting.ForEach(seed => {
-                var appSetting = _dbContext.AppSettings.FirstOrDefault(settings => settings.Name == seed.Key);
+                var appSetting = _dbContext.AppSettings.AsNoTracking()
+                    .Where(x => x.Status == (int)EventStatus.Complete)
+                    .FirstOrDefault(settings => settings.Name == seed.Key);
 
                 if (appSetting != null) return;
 
                 _dbContext.AppSettings.Add(new AppSettingsEntity() {
+                    Root = seed.Root,
                     Name = seed.Key,
                     Field = seed.Key,
-                    Value = $"{seed.Value}",
                     DefaultValue = $"{seed.Value}",
+                    InitialValue = $"{seed.Value}",
+                    Value = $"{seed.Value}",
                     TransactionId = transactionId,
                     Status = (int)EventStatus.Complete
                 });
