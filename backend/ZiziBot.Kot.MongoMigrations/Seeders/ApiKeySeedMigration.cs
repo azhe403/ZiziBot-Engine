@@ -16,17 +16,18 @@ public class ApiKeySeedMigration : MongoMigration
         _mongoDbContext = mongoDbContext;
     }
 
-    public override async Task DownAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
+    public override async Task DownAsync(IMongoDatabase db, IClientSessionHandle session,
+        CancellationToken cancellationToken)
     {
         await Task.Delay(1, cancellationToken);
     }
 
-    public override async Task UpAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
+    public override async Task UpAsync(IMongoDatabase db, IClientSessionHandle session,
+        CancellationToken cancellationToken)
     {
-        _mongoDbContext.ApiKey.Add(new ApiKeyEntity()
-        {
-            Name = "SAMPLE_API_KEY",
-            Category = "INTERNAL",
+        _mongoDbContext.ApiKey.Add(new ApiKeyEntity() {
+            Name = ApiKeyVendor.Internal,
+            Category = ApiKeyCategory.Internal,
             ApiKey = Guid.NewGuid().ToString(),
             Status = (int)EventStatus.InProgress
         });

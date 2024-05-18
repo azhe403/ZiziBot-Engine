@@ -4,29 +4,25 @@ public class OcrBotRequest : BotRequestBase
 {
 }
 
-public class OcrRequestHandler : IBotRequestHandler<OcrBotRequest>
+public class OcrRequestHandler(
+    TelegramService telegramService,
+    OptiicDevService optiicDevService,
+    OcrSpaceService ocrSpaceService
+) : IBotRequestHandler<OcrBotRequest>
 {
-    private readonly TelegramService _telegramService;
-    private readonly OptiicDevService _optiicDevService;
-
-    public OcrRequestHandler(TelegramService telegramService, OptiicDevService optiicDevService)
-    {
-        _telegramService = telegramService;
-        _optiicDevService = optiicDevService;
-    }
-
     public async Task<BotResponseBase> Handle(OcrBotRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        await _telegramService.SendMessageText("🔎 Sedang melakukan OCR");
+        await telegramService.SendMessageText("🔎 Sedang melakukan OCR");
 
         try
         {
-            var localFile = await _telegramService.DownloadFileAsync("ocr/");
-            var ocrResult = await _optiicDevService.ScanImageAsync(localFile);
+            var localFile = await telegramService.DownloadFileAsync("ocr/");
+            // var ocrResult = await _optiicDevService.ScanImageAsync(localFile);
+            var result = await ocrSpaceService.ParseImage(localFile);
 
-            return await _telegramService.EditMessageText(ocrResult.Text);
+            return await telegramService.EditMessageText(result);
         }
         catch (Exception exception)
         {
@@ -34,7 +30,7 @@ public class OcrRequestHandler : IBotRequestHandler<OcrBotRequest>
                 .Bold("Terjadi kesalahan ketika menjalankan OCR").Br()
                 .Bold("Error: ").Text(exception.Message.Split(":").FirstOrDefault());
 
-            return await _telegramService.EditMessageText(htmlMessage.ToString());
+            return await telegramService.EditMessageText(htmlMessage.ToString());
         }
     }
 }

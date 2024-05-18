@@ -3,8 +3,9 @@ namespace ZiziBot.DataSource.MongoDb.Entities;
 [Table("ApiKey")]
 public class ApiKeyEntity : EntityBase
 {
-    public string Name { get; set; }
+    public ApiKeyVendor Name { get; set; }
+    public ApiKeyCategory Category { get; set; }
     public string ApiKey { get; set; }
-    public string Category { get; set; }
+    public DateTime LastUsedDate { get; set; }
     public string Note { get; set; }
 }

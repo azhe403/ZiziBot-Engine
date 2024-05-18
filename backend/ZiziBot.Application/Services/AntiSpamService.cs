@@ -99,13 +99,13 @@ public class AntiSpamService(
                 try
                 {
                     var url = UrlConst.ANTISPAM_SPAMWATCH_API.AppendPathSegment(userId);
-                    var apiKey = await apiKeyService.GetApiKeyAsync("INTERNAL", "SPAMWATCH");
+                    var apiKey = await apiKeyService.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.SpamWatch);
 
-                    if (apiKey == null)
-                        return new();
+                    if (apiKey.IsNotNullOrEmpty())
+                        return antiSpamDto;
 
                     var spamwatchDto = await url.AllowAnyHttpStatus()
-                        .WithOAuthBearerToken(apiKey.ApiKey)
+                        .WithOAuthBearerToken(apiKey)
                         .GetJsonAsync<SpamwatchDto>();
 
                     spamwatchResult.IsBanned = spamwatchDto.Code == (int)HttpStatusCode.OK;

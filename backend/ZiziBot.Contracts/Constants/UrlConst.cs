@@ -8,6 +8,7 @@ public static class UrlConst
     public static readonly string TG_APPLY_USERNAME = "https://t.me/WinTenDev/29";
 
     public const string OCR_URL_API = "https://api.optiic.dev/process";
+    public const string OCR_SPACE_URL_API = "https://api.ocr.space/parse/image";
 
     public const string ANTISPAM_COMBOT_API = "https://api.cas.chat/check";
     public const string ANTISPAM_SPAMWATCH_API = "https://api.spamwat.ch/banlist";

@@ -2,6 +2,6 @@ namespace ZiziBot.Contracts.Enums;
 
 public enum ApiKeyCategory
 {
-    Internal,
-    External
+    Internal = 1,
+    External = 2
 }
