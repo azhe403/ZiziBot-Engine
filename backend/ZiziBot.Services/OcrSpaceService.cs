@@ -22,6 +22,6 @@ public class OcrSpaceService(IApiKeyService apiKeyService)
 
         var json = await response.GetJsonAsync<OcrSpaceRoot>();
 
-        return json.ParsedResults.Select(x => x.ParsedText).StrJoin("\n");
+        return json.ParsedResults.Select(x => x.ParsedText).StrJoin("\n").Trim();
     }
 }

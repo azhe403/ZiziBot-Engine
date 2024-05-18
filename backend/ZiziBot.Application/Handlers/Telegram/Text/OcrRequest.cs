@@ -22,6 +22,11 @@ public class OcrRequestHandler(
             // var ocrResult = await _optiicDevService.ScanImageAsync(localFile);
             var result = await ocrSpaceService.ParseImage(localFile);
 
+            if (result.IsNullOrEmpty())
+            {
+                return await telegramService.EditMessageText("Sepertinya tidak ada teks di sana");
+            }
+
             return await telegramService.EditMessageText(result);
         }
         catch (Exception exception)
