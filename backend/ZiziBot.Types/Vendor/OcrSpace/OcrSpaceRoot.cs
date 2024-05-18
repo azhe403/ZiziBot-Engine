@@ -2,7 +2,7 @@
 
 public class OcrSpaceRoot
 {
-    public List<ParsedResult> ParsedResults { get; set; }
+    public List<ParsedResult>? ParsedResults { get; set; }
     public int OcrExitCode { get; set; }
     public bool IsErroredOnProcessing { get; set; }
     public int ProcessingTimeInMilliseconds { get; set; }

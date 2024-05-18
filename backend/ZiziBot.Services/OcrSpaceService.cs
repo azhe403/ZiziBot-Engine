@@ -6,7 +6,7 @@ namespace ZiziBot.Services;
 
 public class OcrSpaceService(IApiKeyService apiKeyService)
 {
-    public async Task<string> ParseImage(string fileName)
+    public async Task<string?> ParseImage(string fileName)
     {
         var apiKey = await apiKeyService.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.OcrSpace);
 
@@ -22,6 +22,6 @@ public class OcrSpaceService(IApiKeyService apiKeyService)
 
         var json = await response.GetJsonAsync<OcrSpaceRoot>();
 
-        return json.ParsedResults.Select(x => x.ParsedText).StrJoin("\n").Trim();
+        return json.ParsedResults?.Select(x => x.ParsedText).StrJoin("\n").Trim();
     }
 }

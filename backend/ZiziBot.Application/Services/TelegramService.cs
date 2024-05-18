@@ -70,6 +70,11 @@ public class TelegramService
     public async Task<string> DownloadFileAsync(string prefixName)
     {
         var fileId = (_request.ReplyToMessage ?? _request.Message)?.GetFileId();
+        if (fileId.IsNullOrEmpty())
+        {
+            throw new ArgumentException("File not detected in this message");
+        }
+
         var filePath = PathConst.TEMP_PATH + prefixName + (_request.ReplyToMessage ?? _request.Message)?.GetFileName();
 
         await using Stream fileStream = File.OpenWrite(filePath.EnsureDirectory());
@@ -82,8 +87,7 @@ public class TelegramService
     {
         _stopwatch.Stop();
 
-        return new BotResponseBase
-        {
+        return new BotResponseBase {
             ChatId = _request.ChatId,
             SentMessage = SentMessage,
             ResponseSource = ResponseSource.Bot,
@@ -92,12 +96,15 @@ public class TelegramService
     }
 
     #region Response
-    public async Task<BotResponseBase> SendMessageText(HtmlMessage text, IReplyMarkup? replyMarkup = null, long chatId = -1)
+
+    public async Task<BotResponseBase> SendMessageText(HtmlMessage text, IReplyMarkup? replyMarkup = null,
+        long chatId = -1)
     {
         return await SendMessageText(text.ToString(), replyMarkup, chatId);
     }
 
-    public async Task<BotResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1, int threadId = -1)
+    public async Task<BotResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1,
+        int threadId = -1)
     {
         if (text.IsNullOrEmpty())
             return Complete();
@@ -151,8 +158,7 @@ public class TelegramService
         _logger.LogDebug("Scheduling delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds",
             SentMessage.MessageId, _request.ChatId, _request.DeleteAfter.TotalSeconds);
 
-        _mediatorService.Schedule(new DeleteMessageBotRequestModel
-        {
+        _mediatorService.Schedule(new DeleteMessageBotRequestModel {
             BotToken = _request.BotToken,
             Message = _request.Message,
             MessageId = SentMessage.MessageId,
@@ -162,8 +168,7 @@ public class TelegramService
 
         if (_request.CleanupTargets.Contains(CleanupTarget.FromSender))
         {
-            _mediatorService.Schedule(new DeleteMessageBotRequestModel
-            {
+            _mediatorService.Schedule(new DeleteMessageBotRequestModel {
                 BotToken = _request.BotToken,
                 Message = _request.Message,
                 MessageId = _request.MessageId,
@@ -172,7 +177,8 @@ public class TelegramService
             });
         }
 
-        _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", SentMessage.MessageId, _request.DeleteAfter.TotalSeconds);
+        _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds",
+            SentMessage.MessageId, _request.DeleteAfter.TotalSeconds);
 
         return Complete();
     }
@@ -181,7 +187,8 @@ public class TelegramService
     {
         text += "\n\n" + GetExecStamp();
 
-        await Bot.EditMessageTextAsync(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
+        await Bot.EditMessageTextAsync(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup,
+            parseMode: ParseMode.Html);
 
         return Complete();
     }
@@ -199,7 +206,8 @@ public class TelegramService
         var targetChatId = customChatId == -1 ? _request.ChatId : customChatId;
         var targetThreadId = threadId ?? _request.MessageThreadId;
 
-        _logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId, targetChatId);
+        _logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId,
+            targetChatId);
         InputFile inputFile = InputFile.FromFileId(fileId);
 
         switch (mediaType)
@@ -327,8 +335,10 @@ public class TelegramService
 
         await Task.Delay(1);
 
-        _logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId, targetChatId);
-        _logger.LogDebug("Updating media caption in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId, targetMessageId);
+        _logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId,
+            targetChatId);
+        _logger.LogDebug("Updating media caption in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId,
+            targetMessageId);
 
         Bot.EditMessageCaptionAsync(
             chatId: targetChatId,
@@ -338,8 +348,7 @@ public class TelegramService
             replyMarkup: replyMarkup as InlineKeyboardMarkup
         ).SafeFireAndForget(e => _logger.LogWarning(e, "Error updating media caption"));
 
-        InputMedia media = mediaType switch
-        {
+        InputMedia media = mediaType switch {
             CommonMediaType.Photo => new InputMediaPhoto(new InputFileId(fileId)),
             CommonMediaType.Audio => new InputMediaAudio(new InputFileId(fileId)),
             CommonMediaType.Video => new InputMediaVideo(new InputFileId(fileId)),
@@ -347,7 +356,8 @@ public class TelegramService
             _ => throw new ArgumentOutOfRangeException(nameof(mediaType), mediaType, null)
         };
 
-        _logger.LogDebug("Updating media file in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId, targetMessageId);
+        _logger.LogDebug("Updating media file in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId,
+            targetMessageId);
         Bot.EditMessageMediaAsync(
             chatId: targetChatId,
             messageId: targetMessageId,
@@ -440,10 +450,12 @@ public class TelegramService
     {
         await Bot.LeaveChatAsync(_request.ChatId);
     }
+
     #endregion
 
 
     #region Command
+
     public string? GetCommand(bool withoutSlash = false, bool withoutUsername = true)
     {
         var cmd = string.Empty;
@@ -464,9 +476,11 @@ public class TelegramService
     {
         return GetCommand() == command;
     }
+
     #endregion
 
     #region Chat
+
     public async Task<Chat?> GetChatAsync(long chatId)
     {
         try
@@ -486,9 +500,11 @@ public class TelegramService
         await Bot.UnpinChatMessageAsync(_request.ChatId, messageId);
         await Bot.PinChatMessageAsync(_request.ChatId, messageId);
     }
+
     #endregion
 
     #region Member
+
     public async Task<int> GetMemberCount()
     {
         var memberCount = await Bot.GetChatMemberCountAsync(_request.ChatId);
@@ -498,8 +514,7 @@ public class TelegramService
     public async Task MuteMemberAsync(long userId, TimeSpan duration)
     {
         var untilDate = DateTime.UtcNow + duration;
-        await Bot.RestrictChatMemberAsync(chatId: _request.ChatId, userId: userId, permissions: new ChatPermissions()
-        {
+        await Bot.RestrictChatMemberAsync(chatId: _request.ChatId, userId: userId, permissions: new ChatPermissions() {
             CanSendAudios = false,
             CanSendPhotos = false,
             CanSendVideos = false,
@@ -560,9 +575,11 @@ public class TelegramService
 
         return usernames.Any();
     }
+
     #endregion
 
     #region Role
+
     public async Task PromoteMember(long userId)
     {
         _logger.LogInformation("Promoting user {UserId} in chat {ChatId}", userId, _request.ChatId);
@@ -632,5 +649,6 @@ public class TelegramService
         var isAdmin = chatAdmins.Exists(x => x.User.Id == _request.UserId && x.Status == ChatMemberStatus.Creator);
         return isAdmin;
     }
+
     #endregion
 }
