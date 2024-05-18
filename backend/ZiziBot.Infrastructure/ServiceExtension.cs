@@ -33,8 +33,8 @@ public static class ServiceExtension
         );
 
         services.Scan(selector =>
-            selector.FromAssembliesOf(typeof(RegisterRssJobTasks))
-                .AddClasses(filter => filter.InNamespaceOf<RegisterRssJobTasks>())
+            selector.FromAssembliesOf(typeof(RegisterRssJobTask))
+                .AddClasses(filter => filter.InNamespaceOf<RegisterRssJobTask>())
                 .As<IStartupTask>()
                 .WithTransientLifetime()
         );

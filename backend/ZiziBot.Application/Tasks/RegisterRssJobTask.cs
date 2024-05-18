@@ -3,37 +3,30 @@ using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Tasks;
 
-public class RegisterRssJobTasks : IStartupTask
+public class RegisterRssJobTask(
+    ILogger<RegisterRssJobTask> logger,
+    AppSettingRepository appSettingRepository,
+    MediatorService mediatorService
+) : IStartupTask
 {
-    private readonly ILogger<RegisterRssJobTasks> _logger;
-    private readonly MediatorService _mediatorService;
-
     public bool SkipAwait { get; set; } = true;
-
-    public RegisterRssJobTasks(ILogger<RegisterRssJobTasks> logger, MediatorService mediatorService)
-    {
-        _logger = logger;
-        _mediatorService = mediatorService;
-    }
 
     public async Task ExecuteAsync()
     {
-        _logger.LogInformation("Registering RSS Jobs");
-        await _mediatorService.Send(new RegisterRssJobAllRequest()
-        {
-            ResetStatus = false
+        logger.LogInformation("Registering RSS Jobs");
+        await mediatorService.Send(new RegisterRssJobAllRequest() {
+            ResetStatus = await appSettingRepository.GetFlagValue(Flag.RSS_RESET_AT_STARTUP)
         });
 
         RecurringJob.AddOrUpdate<MediatorService>(
             recurringJobId: "rss-reset",
-            methodCall: mediatorService => mediatorService.Send(new RegisterRssJobAllRequest()
-            {
+            methodCall: mediatorService => mediatorService.Send(new RegisterRssJobAllRequest() {
                 ResetStatus = true
             }),
             queue: CronJobKey.Queue_Rss,
             cronExpression: TimeUtil.DayInterval(1)
         );
 
-        _logger.LogDebug("Registering RSS Jobs Completed");
+        logger.LogDebug("Registering RSS Jobs Completed");
     }
 }

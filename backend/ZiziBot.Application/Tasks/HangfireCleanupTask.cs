@@ -2,7 +2,7 @@ using Hangfire;
 
 namespace ZiziBot.Application.Tasks;
 
-public class HangfireCleanupPrevJobs : IStartupTask
+public class HangfireCleanupTask : IStartupTask
 {
     public bool SkipAwait { get; set; } = true;
 
@@ -13,6 +13,7 @@ public class HangfireCleanupPrevJobs : IStartupTask
         var servers = api.Servers();
 
         #region Requeue orphan jobs
+
         var orphanJobs = processingJobs
             .Where(job => servers.All(server => server.Name != job.Value.ServerId));
 
@@ -20,9 +21,11 @@ public class HangfireCleanupPrevJobs : IStartupTask
         {
             BackgroundJob.Requeue(orphanJob.Key);
         }
+
         #endregion
 
         #region Remove Enqueued
+
         var toDelete = new List<string>();
 
         foreach (var queue in api.Queues())
@@ -37,6 +40,7 @@ public class HangfireCleanupPrevJobs : IStartupTask
         {
             BackgroundJob.Delete(jobId);
         }
+
         #endregion
 
         return Task.CompletedTask;
