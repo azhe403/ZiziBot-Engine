@@ -1,4 +1,6 @@
 ﻿using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
@@ -23,8 +25,7 @@ public class AdditionalRepository
 
     public async Task SaveAwbInfo(TonjooAwbDetail detail)
     {
-        _mongoDbContextBase.TonjooAwb.Add(new TonjooAwbEntity()
-        {
+        _mongoDbContextBase.TonjooAwb.Add(new TonjooAwbEntity() {
             Awb = detail.Code,
             Courier = detail.Kurir.FirstOrDefault("N/A").ToLower(),
             Detail = detail,

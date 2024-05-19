@@ -1,4 +1,6 @@
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 

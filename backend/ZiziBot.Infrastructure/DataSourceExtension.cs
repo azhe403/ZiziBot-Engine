@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Infrastructure;
 
@@ -9,6 +10,7 @@ public static class DataSourceExtension
         var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
         services.AddTransient<MongoDbContextBase>(provider => new MongoDbContextBase(mongodbConnectionString));
+        services.AddTransient<MongoEfContext>(p => new MongoEfContext());
 
         return services;
     }
