@@ -28,13 +28,13 @@ public static class ServiceExtension
         services.Scan(selector =>
             selector.FromAssembliesOf(typeof(TelegramService))
                 .AddClasses(filter => filter.InNamespaceOf<TelegramService>())
-                .AsSelf()
+                .AsSelfWithInterfaces()
                 .WithTransientLifetime()
         );
 
         services.Scan(selector =>
-            selector.FromAssembliesOf(typeof(RegisterRssJobTasks))
-                .AddClasses(filter => filter.InNamespaceOf<RegisterRssJobTasks>())
+            selector.FromAssembliesOf(typeof(RegisterRssJobTask))
+                .AddClasses(filter => filter.InNamespaceOf<RegisterRssJobTask>())
                 .As<IStartupTask>()
                 .WithTransientLifetime()
         );
@@ -53,9 +53,9 @@ public static class ServiceExtension
                 .WithTransientLifetime()
         );
 
-        services.Scan(selector => selector.FromAssembliesOf(typeof(FirebaseService))
-            .AddClasses(filter => filter.InNamespaceOf<FirebaseService>())
-            .AsSelf()
+        services.Scan(selector => selector.FromAssembliesOf(typeof(CacheService))
+            .AddClasses(filter => filter.InNamespaceOf<CacheService>())
+            .AsSelfWithInterfaces()
             .WithScopedLifetime());
 
         return services;

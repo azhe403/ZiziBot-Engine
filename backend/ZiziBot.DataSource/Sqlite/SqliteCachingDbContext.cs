@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.Sqlite.Entities;
 
 namespace ZiziBot.DataSource.Sqlite;
 

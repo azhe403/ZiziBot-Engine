@@ -1,40 +1,34 @@
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.Interfaces;
 
 namespace ZiziBot.Application.Services;
 
-public class ApiKeyService
+public class ApiKeyService(
+    ILogger<ApiKeyService> logger,
+    MongoDbContextBase mongoDbContext
+) : IApiKeyService
 {
-    private readonly ILogger<ApiKeyService> _logger;
-    private readonly MongoDbContextBase _mongoDbContext;
+    private readonly ILogger<ApiKeyService> _logger = logger;
 
-    public ApiKeyService(ILogger<ApiKeyService> logger, MongoDbContextBase mongoDbContext)
+    public async Task<string> GetApiKeyAsync(ApiKeyCategory category, ApiKeyVendor name)
     {
-        _logger = logger;
-        _mongoDbContext = mongoDbContext;
-    }
+        var apiKey = await mongoDbContext.ApiKey
+            .OrderBy(entity => entity.LastUsedDate)
+            .Where(entity => entity.Category == category)
+            .Where(entity => entity.Name == name)
+            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .FirstOrDefaultAsync();
 
-    public async Task<ApiKeyEntity?> GetApiKeyAsync(string category, string name)
-    {
-        var apiKey = await _mongoDbContext.ApiKey
-            .FirstOrDefaultAsync(entity =>
-                entity.Category == category &&
-                entity.Name == name &&
-                entity.Status == (int)EventStatus.Complete
-            );
+        if (apiKey != null)
+        {
+            apiKey.LastUsedDate = DateTime.UtcNow;
+            apiKey.TransactionId = Guid.NewGuid().ToString();
+            await mongoDbContext.SaveChangesAsync();
 
-        return apiKey;
-    }
+            return apiKey.ApiKey;
+        }
 
-    public async Task<List<ApiKeyEntity>?> GetApiKeysAsync(string category, string name)
-    {
-        var apiKey = await _mongoDbContext.ApiKey
-            .Where(entity =>
-                entity.Category == category &&
-                entity.Name == name &&
-                entity.Status == (int)EventStatus.Complete
-            ).ToListAsync();
-
-        return apiKey;
+        return string.Empty;
     }
 }

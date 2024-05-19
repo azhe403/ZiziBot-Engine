@@ -20,7 +20,9 @@ public class MongoConfigSource : IConfigurationSource
     {
         SeedAppSettings();
 
-        var appSettingsList = _dbContext.AppSettings.ToList();
+        var appSettingsList = _dbContext.AppSettings.AsNoTracking()
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .ToList();
 
         return appSettingsList
             .Select(x => new KeyValuePair<string, string?>(x.Name, x.Value))
@@ -30,7 +32,7 @@ public class MongoConfigSource : IConfigurationSource
 
     private void SeedAppSettings()
     {
-        var listAppSettings = new List<SeedSettingDto> {
+        var seedAppSettings = new List<SeedSettingDto> {
             new() {
                 Root = "Engine",
                 KeyPair = new Dictionary<string, object>() {
@@ -107,6 +109,9 @@ public class MongoConfigSource : IConfigurationSource
                 KeyPair = new Dictionary<string, object>() {
                     { "ApprovalChannelId", "-969706112" },
                     { "TrakteerVerificationApi", "" },
+                    { "SaweriaVerificationApi", "" },
+                    { "UseCustomTrakteerApi", false },
+                    { "UseCustomSaweriaApi", false },
                     { "PaymentExpirationDays", 3 }
                 }
             },
@@ -134,38 +139,39 @@ public class MongoConfigSource : IConfigurationSource
             }
         };
 
-        var appSettings = _dbContext.AppSettings
+        var appSettings = _dbContext.AppSettings.AsNoTracking()
             .Where(x => x.Status == (int)EventStatus.Complete)
             .ToList();
 
-        var allSeeds = listAppSettings
-            .SelectMany(x => x.KeyPair)
+        var appSettingsDictionary = appSettings.ToDictionary(x => x.Name, x => x.Value.ToString());
+        var diffSeedAppSetting = seedAppSettings
+            .SelectMany(s => s.KeyPair, (s, kv) => new {
+                Root = s.Root,
+                Key = $"{s.Root}:{kv.Key}",
+                Value = kv.Value.ToString()
+            })
+            .Where(kv => !appSettingsDictionary.ContainsKey(kv.Key))
             .ToList();
-
-        if (appSettings.Count == allSeeds.Count)
-            return;
 
         var transactionId = Guid.NewGuid().ToString();
 
-        listAppSettings.ForEach(dto => {
-                foreach (var config in dto.KeyPair)
-                {
-                    var prefix = dto.Root;
-                    var field = $"{prefix}:{config.Key}";
+        diffSeedAppSetting.ForEach(seed => {
+                var appSetting = _dbContext.AppSettings.AsNoTracking()
+                    .Where(x => x.Status == (int)EventStatus.Complete)
+                    .FirstOrDefault(settings => settings.Name == seed.Key);
 
-                    var appSetting = _dbContext.AppSettings.FirstOrDefault(settings => settings.Name == field);
+                if (appSetting != null) return;
 
-                    if (appSetting != null) continue;
-
-                    _dbContext.AppSettings.Add(new AppSettingsEntity() {
-                        Name = field,
-                        Field = field,
-                        Value = $"{config.Value}",
-                        DefaultValue = $"{config.Value}",
-                        TransactionId = transactionId,
-                        Status = (int)EventStatus.Complete
-                    });
-                }
+                _dbContext.AppSettings.Add(new AppSettingsEntity() {
+                    Root = seed.Root,
+                    Name = seed.Key,
+                    Field = seed.Key,
+                    DefaultValue = $"{seed.Value}",
+                    InitialValue = $"{seed.Value}",
+                    Value = $"{seed.Value}",
+                    TransactionId = transactionId,
+                    Status = (int)EventStatus.Complete
+                });
             }
         );
 

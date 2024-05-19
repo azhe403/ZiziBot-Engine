@@ -18,7 +18,7 @@ builder.Services.AddConsole();
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
-app.ConfigureFlurlLogging();
+app.ConfigureFlurl();
 
 app.PrintAbout();
 

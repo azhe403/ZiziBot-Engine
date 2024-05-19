@@ -9,9 +9,9 @@
 
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.4"/>
-        <PackageReference Include="NewRelic.Agent" Version="10.23.1"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.5"/>
+        <PackageReference Include="NewRelic.Agent" Version="10.24.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.1"/>
     </ItemGroup>
 
     <ItemGroup>

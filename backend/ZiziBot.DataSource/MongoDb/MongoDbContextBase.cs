@@ -2,6 +2,7 @@ using System.Reflection;
 using MongoFramework;
 using MongoFramework.Infrastructure;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.DataSource.MongoDb;
 

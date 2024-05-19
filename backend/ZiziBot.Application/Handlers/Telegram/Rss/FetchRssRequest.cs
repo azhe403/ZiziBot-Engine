@@ -21,7 +21,8 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
-    public FetchRssHandler(ILogger<FetchRssHandler> logger, MongoDbContextBase mongoDbContext, AppSettingRepository appSettingRepository)
+    public FetchRssHandler(ILogger<FetchRssHandler> logger, MongoDbContextBase mongoDbContext,
+        AppSettingRepository appSettingRepository)
     {
         _logger = logger;
         _mongoDbContext = mongoDbContext;
@@ -40,7 +41,8 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             if (latestArticle == null)
             {
-                _logger.LogInformation("No article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
+                _logger.LogInformation("No article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId,
+                    request.RssUrl);
                 return false;
             }
 
@@ -53,7 +55,8 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             if (latestHistory != null)
             {
-                _logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
+                _logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId,
+                    request.RssUrl);
                 return false;
             }
 
@@ -67,7 +70,8 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 .Url(feed.Link, feed.Title.Trim()).Br()
                 .Url(latestArticle.Link, latestArticle.Title.Trim()).Br();
 
-            if (!request.RssUrl.IsGithubCommitsUrl())
+            if (!request.RssUrl.IsGithubCommitsUrl() &&
+                await _appSettingRepository.GetFlagValue(Flag.RSS_INCLUDE_CONTENT))
                 messageText.Text(htmlContent.Truncate(2000));
 
             if (request.RssUrl.IsGithubReleaseUrl())
@@ -99,9 +103,9 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
             }
             catch (Exception exception)
             {
-                _logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
                 if (exception.Message.Contains("thread not found"))
                 {
+                    _logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
                     await botClient.SendTextMessageAsync(
                         chatId: request.ChatId,
                         text: truncatedMessageText,
@@ -112,8 +116,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 }
             }
 
-            _mongoDbContext.RssHistory.Add(new RssHistoryEntity()
-            {
+            _mongoDbContext.RssHistory.Add(new RssHistoryEntity() {
                 ChatId = request.ChatId,
                 ThreadId = request.ThreadId,
                 RssUrl = request.RssUrl,
@@ -145,7 +148,8 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
             }
             else
             {
-                _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", request.ChatId, request.RssUrl);
+                _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}",
+                    request.ChatId, request.RssUrl);
             }
         }
 

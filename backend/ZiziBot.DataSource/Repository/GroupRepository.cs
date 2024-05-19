@@ -1,5 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
@@ -29,8 +31,7 @@ public class GroupRepository
         if (listChatSetting == null)
             return default;
 
-        var data = new WelcomeMessageDto()
-        {
+        var data = new WelcomeMessageDto() {
             Id = query.Id.ToString(),
             ChatId = query.ChatId,
             ChatTitle = listChatSetting.ChatTitle,

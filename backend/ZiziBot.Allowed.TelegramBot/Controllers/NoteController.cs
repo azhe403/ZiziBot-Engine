@@ -16,16 +16,15 @@ public class NotesController : CommandController
     }
 
     [Command("notes")]
+    [Command("tags")]
     public async Task GetNotes(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new GetNoteBotRequestModel()
-        {
+        await _mediatorService.EnqueueAsync(new GetNoteBotRequestModel() {
             BotToken = data.Options.Token,
             Message = data.Message,
             ReplyMessage = true,
             DeleteAfter = TimeSpan.FromHours(1),
-            CleanupTargets = new[]
-            {
+            CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -39,8 +38,7 @@ public class NotesController : CommandController
         var query = data.Params.GetCommandParamAt<string>(0, separator: "\n");
         var rawButton = data.Params.TrimStart(query);
 
-        await _mediatorService.EnqueueAsync(new CreateNoteBotRequest()
-        {
+        await _mediatorService.EnqueueAsync(new CreateNoteBotRequest() {
             BotToken = data.Options.Token,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
             Message = data.Message,
@@ -52,8 +50,7 @@ public class NotesController : CommandController
             DataType = data.Message.ReplyToMessage != null ? (int)data.Message.ReplyToMessage.Type : -1,
             RefreshNote = data.Message.Text?.StartsWith("/renote"),
             DeleteAfter = TimeSpan.FromHours(1),
-            CleanupTargets = new[]
-            {
+            CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -63,15 +60,13 @@ public class NotesController : CommandController
     [Command("dnote")]
     public async Task DeleteNote(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new DeleteNoteRequest()
-        {
+        await _mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = data.Options.Token,
             Message = data.Message,
             Note = data.Params,
             ReplyMessage = true,
             DeleteAfter = TimeSpan.FromMinutes(1),
-            CleanupTargets = new[]
-            {
+            CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

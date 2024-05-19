@@ -1,10 +1,12 @@
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Flurl.Http;
+using Flurl.Http.Configuration;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Sentry;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.AspNetCore.SignalR.Extensions;
@@ -15,7 +17,8 @@ namespace ZiziBot.Infrastructure;
 public static class LoggingExtension
 {
     // ReSharper disable InconsistentNaming
-    private const string TEMPLATE_BASE = $"[{{Level:u3}}] {{MemoryUsage}} {{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_BASE =
+        $"[{{Level:u3}}] {{MemoryUsage}} {{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
 
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
@@ -86,21 +89,26 @@ public static class LoggingExtension
                 });
             }
 
-            config.WriteTo.Async(configuration => configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
+            config.WriteTo.Async(configuration =>
+                configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
         });
 
         return hostBuilder;
     }
 
-    public static IApplicationBuilder ConfigureFlurlLogging(this IApplicationBuilder app)
+    public static IApplicationBuilder ConfigureFlurl(this IApplicationBuilder app)
     {
-        FlurlHttp.Clients.WithDefaults(settings => {
-                settings.BeforeCall(call => {
+        FlurlHttp.Clients.WithDefaults(builder => {
+                builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions() {
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString
+                });
+
+                builder.BeforeCall(call => {
                     var request = call.Request;
                     Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
                 });
 
-                settings.AfterCall(flurlCall => {
+                builder.AfterCall(flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
 

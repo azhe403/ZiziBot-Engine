@@ -6,6 +6,9 @@ namespace ZiziBot.Contracts.Configs;
 public class MirrorConfig
 {
     public long ApprovalChannelId { get; set; }
-    public string TrakteerVerificationApi { get; set; }
     public int PaymentExpirationDays { get; set; }
+    public bool UseCustomTrakteerApi { get; set; }
+    public bool UseCustomSaweriaApi { get; set; }
+    public string TrakteerVerificationApi { get; set; }
+    public string SaweriaVerificationApi { get; set; }
 }

@@ -16,6 +16,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
+        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
+        <ProjectReference Include="..\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj"/>
         <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
         <ProjectReference Include="..\ZiziBot.Types\ZiziBot.Types.csproj"/>
         <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>

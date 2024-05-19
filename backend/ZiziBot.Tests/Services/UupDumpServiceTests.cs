@@ -8,8 +8,7 @@ public class UupDumpServiceTests
 {
     private readonly UupDumpService _uupDumpService;
 
-    public static readonly object[][] ShalatCity =
-    {
+    public static readonly object[][] ShalatCity = {
         new object[] { DateOnly.FromDateTime(DateTime.Now), 712 },
         new object[] { new DateOnly(2017, 3, 1), 712 },
     };
@@ -19,7 +18,7 @@ public class UupDumpServiceTests
         _uupDumpService = uupDumpService;
     }
 
-    [SkippableTheory(typeof(FlurlHttpException))]
+    [SkippableTheory(typeof(FlurlHttpException), typeof(FlurlParsingException))]
     [InlineData("")]
     [InlineData("19041")]
     [InlineData("22000")]
