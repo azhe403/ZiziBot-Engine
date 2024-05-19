@@ -4,15 +4,16 @@ public static class ErrorUtil
 {
     public static bool IsIgnorable(this string message)
     {
-        var ignorableMessages = new List<string>()
-        {
+        var ignorableMessages = new List<string>() {
             "a connection attempt failed",
             "bot was blocked",
             "chat not found",
+            "cannot begin with",
             "connection could not be established",
             "error occurred while parsing",
             "message can't be deleted",
             "message to delete not found",
+            "multiple root elements",
             "name or service not known",
             "no such host is known",
             "not match",
