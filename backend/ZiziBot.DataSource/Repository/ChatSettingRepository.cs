@@ -159,16 +159,15 @@ public class ChatSettingRepository
 
         await _mongoDbContext.SaveChangesAsync();
 
-        var window = TimeSpan.FromMinutes(5);
-        const int limit = 7;
         var chatActivityEntities = await _mongoDbContext.ChatActivity.AsNoTracking()
             .Where(x => x.Status == (int)EventStatus.Complete)
             .Where(x => x.ActivityType == ChatActivityType.NewChatMember)
-            .Where(x => x.CreatedDate > DateTime.UtcNow.Add(-window))
+            .Where(x => x.CreatedDate > DateTime.UtcNow.Add(-ValueConst.RAID_SLIDING_WINDOW))
             .ToListAsync();
 
-        _logger.LogInformation("Chat Activity Count: {Count} in a window {Window}", chatActivityEntities.Count, window);
+        _logger.LogInformation("Chat Activity Count: {Count} in a window {Window}", chatActivityEntities.Count,
+            ValueConst.RAID_SLIDING_WINDOW);
 
-        return chatActivityEntities.Count > limit;
+        return chatActivityEntities.Count > ValueConst.RAID_WINDOW_LIMIT;
     }
 }
