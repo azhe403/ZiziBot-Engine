@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Web.Note;
 
@@ -40,8 +41,7 @@ public class CreateNoteHandler : IRequestHandler<SaveNoteRequest, WebResponseBas
     {
         WebResponseBase<bool> response = new();
 
-        var save = await _noteService.Save(new NoteEntity()
-        {
+        var save = await _noteService.Save(new NoteEntity() {
             Id = request.ObjectId,
             ChatId = request.ChatId,
             Query = request.Query,

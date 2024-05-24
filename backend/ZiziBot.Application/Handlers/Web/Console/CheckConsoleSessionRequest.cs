@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Web.Console;
 
@@ -20,7 +21,8 @@ public class CheckConsoleSessionResponseDto
     public string BearerToken { get; set; }
 }
 
-public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionRequest, WebResponseBase<CheckConsoleSessionResponseDto>>
+public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionRequest,
+    WebResponseBase<CheckConsoleSessionResponseDto>>
 {
     private readonly ILogger<CheckConsoleSessionHandler> _logger;
     private readonly MongoDbContextBase _mongoDbContext;
@@ -37,7 +39,8 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
         _appSettingRepository = appSettingRepository;
     }
 
-    public async Task<WebResponseBase<CheckConsoleSessionResponseDto>> Handle(CheckConsoleSessionRequest request, CancellationToken cancellationToken)
+    public async Task<WebResponseBase<CheckConsoleSessionResponseDto>> Handle(CheckConsoleSessionRequest request,
+        CancellationToken cancellationToken)
     {
         WebResponseBase<CheckConsoleSessionResponseDto> response = new();
 
@@ -61,8 +64,10 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
         var checkAuthorization = loginWidget.CheckAuthorization(sessionData);
         if (checkAuthorization != WebAuthorization.Valid)
         {
-            _logger.LogDebug("Session is not valid for SessionId: {SessionId}. Result: {Result}", request.Model.SessionId, checkAuthorization);
-            return response.Unauthorized($"Sesi tidak valid, silakan kirim ulang perintah '/console' di Bot untuk membuat sesi baru.");
+            _logger.LogDebug("Session is not valid for SessionId: {SessionId}. Result: {Result}",
+                request.Model.SessionId, checkAuthorization);
+            return response.Unauthorized(
+                $"Sesi tidak valid, silakan kirim ulang perintah '/console' di Bot untuk membuat sesi baru.");
         }
 
         var jwtConfig = await _appSettingRepository.GetConfigSectionAsync<JwtConfig>();
@@ -72,8 +77,7 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
             return response.BadRequest("Authentication is not yet configured");
         }
 
-        var roles = new List<string>()
-        {
+        var roles = new List<string>() {
             "Guest"
         };
 
@@ -89,8 +93,7 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var claims = new List<Claim>()
-        {
+        var claims = new List<Claim>() {
             new Claim(ClaimTypes.NameIdentifier, request.Model.Username ?? ""),
             new Claim(ClaimTypes.Name, request.Model.FirstName ?? ""),
             new Claim(ClaimTypes.Surname, request.Model.LastName ?? ""),
@@ -98,15 +101,13 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
             new Claim("photoUrl", request.Model.PhotoUrl ?? ""),
         };
 
-        roles.ForEach(role => {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        });
+        roles.ForEach(role => { claims.Add(new Claim(ClaimTypes.Role, role)); });
 
-        var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
+        var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims,
+            expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        _mongoDbContext.DashboardSessions.Add(new DashboardSessionEntity()
-        {
+        _mongoDbContext.DashboardSessions.Add(new DashboardSessionEntity() {
             TelegramUserId = request.Model.Id,
             FirstName = request.Model.FirstName,
             LastName = request.Model.LastName,
@@ -121,8 +122,7 @@ public class CheckConsoleSessionHandler : IRequestHandler<CheckConsoleSessionReq
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        return response.Success("Session saved successfully", new CheckConsoleSessionResponseDto()
-        {
+        return response.Success("Session saved successfully", new CheckConsoleSessionResponseDto() {
             IsSessionValid = true,
             BearerToken = stringToken
         });

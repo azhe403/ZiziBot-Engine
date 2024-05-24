@@ -1,6 +1,7 @@
 ﻿using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
@@ -12,7 +13,8 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
     private readonly TelegramService _telegramService;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public UpsertBotUserHandler(ILogger<UpsertBotUserHandler<TRequest, TResponse>> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
+    public UpsertBotUserHandler(ILogger<UpsertBotUserHandler<TRequest, TResponse>> logger,
+        TelegramService telegramService, MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
@@ -40,8 +42,7 @@ public class UpsertBotUserHandler<TRequest, TResponse> : IRequestPostProcessor<T
         {
             _logger.LogDebug("Adding User with UserId: {UserId}", request.UserId);
 
-            _mongoDbContext.BotUser.Add(new BotUserEntity()
-            {
+            _mongoDbContext.BotUser.Add(new BotUserEntity() {
                 UserId = request.UserId,
                 Username = request.User?.Username,
                 FirstName = request.User?.FirstName,

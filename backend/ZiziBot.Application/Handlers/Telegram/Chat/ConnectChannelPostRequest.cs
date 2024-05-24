@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -14,7 +15,8 @@ public class ConnectChannelPostHandler : IBotRequestHandler<ConnectChannelPostRe
     private readonly TelegramService _telegramService;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public ConnectChannelPostHandler(ILogger<ConnectChannelPostHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
+    public ConnectChannelPostHandler(ILogger<ConnectChannelPostHandler> logger, TelegramService telegramService,
+        MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
@@ -49,8 +51,7 @@ public class ConnectChannelPostHandler : IBotRequestHandler<ConnectChannelPostRe
 
         if (channelMap == null)
         {
-            _mongoDbContext.ChannelMap.Add(new ChannelMapEntity()
-            {
+            _mongoDbContext.ChannelMap.Add(new ChannelMapEntity() {
                 ChannelId = request.ChannelId,
                 ThreadId = request.MessageThreadId,
                 ChatId = request.ChatIdentifier,

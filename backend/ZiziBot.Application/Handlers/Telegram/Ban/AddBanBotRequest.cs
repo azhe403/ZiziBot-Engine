@@ -1,4 +1,5 @@
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Ban;
 
@@ -42,8 +43,7 @@ public class AddBanBotHandler : IRequestHandler<AddBanBotRequest, BotResponseBas
 
         if (globalBan == null)
         {
-            _mongoDbContext.GlobalBan.Add(new GlobalBanEntity()
-            {
+            _mongoDbContext.GlobalBan.Add(new GlobalBanEntity() {
                 UserId = userId.GetValueOrDefault(),
                 ChatId = request.ChatIdentifier,
                 Status = (int)EventStatus.Complete,

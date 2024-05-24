@@ -1,3 +1,5 @@
+using ZiziBot.DataSource.MongoDb.Entities;
+
 namespace ZiziBot.Application.Handlers.Telegram.Permission;
 
 public class AddSudoBotRequestModel : BotRequestBase
@@ -11,7 +13,8 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoBotRequestModel, Bot
     private readonly TelegramService _telegramService;
     private readonly SudoService _sudoService;
 
-    public AddSudoRequestHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext, SudoService sudoService)
+    public AddSudoRequestHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext,
+        SudoService sudoService)
     {
         _telegramService = telegramService;
         _sudoService = sudoService;
@@ -23,8 +26,7 @@ public class AddSudoRequestHandler : IRequestHandler<AddSudoBotRequestModel, Bot
 
         await _telegramService.SendMessageText("Adding sudo user...");
 
-        var serviceResult = await _sudoService.SaveSudo(new SudoerEntity()
-        {
+        var serviceResult = await _sudoService.SaveSudo(new SudoerEntity() {
             UserId = request.CustomUserId == 0 ? request.UserId : request.CustomUserId,
             PromotedBy = request.UserId,
             PromotedFrom = request.ChatIdentifier,

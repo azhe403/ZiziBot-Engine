@@ -1,4 +1,5 @@
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -14,7 +15,8 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly FathimahApiService _fathimahApiService;
 
-    public AddCityHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext, FathimahApiService fathimahApiService)
+    public AddCityHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext,
+        FathimahApiService fathimahApiService)
     {
         _telegramService = telegramService;
         _mongoDbContext = mongoDbContext;
@@ -29,7 +31,8 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
         var cityInfoAll = await _fathimahApiService.GetAllCityAsync();
         var cityInfo = cityInfoAll.Cities
             .WhereIf(request.CityId > 0, kota => kota.Id == request.CityId)
-            .WhereIf(request.CityName.IsNotNullOrEmpty(), kota => kota.Lokasi.Contains(request.CityName, StringComparison.OrdinalIgnoreCase))
+            .WhereIf(request.CityName.IsNotNullOrEmpty(),
+                kota => kota.Lokasi.Contains(request.CityName, StringComparison.OrdinalIgnoreCase))
             .FirstOrDefault();
 
         if (cityInfo == null)
@@ -55,8 +58,7 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
         }
         else
         {
-            _mongoDbContext.BangHasan_ShalatCity.Add(new BangHasan_ShalatCityEntity()
-            {
+            _mongoDbContext.BangHasan_ShalatCity.Add(new BangHasan_ShalatCityEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 CityId = cityInfo.Id,

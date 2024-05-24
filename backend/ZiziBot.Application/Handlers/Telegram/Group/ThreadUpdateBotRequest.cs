@@ -1,4 +1,5 @@
 ﻿using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -40,8 +41,7 @@ public class ThreadUpdateHandler : IBotRequestHandler<ThreadUpdateBotRequest>
 
         if (findTopic == null)
         {
-            var entity = new GroupTopicEntity()
-            {
+            var entity = new GroupTopicEntity() {
                 ChatId = request.ChatIdentifier,
                 ThreadId = request.MessageThreadId,
                 Status = (int)EventStatus.Complete

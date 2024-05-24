@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MongoDB.Bson;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
@@ -43,7 +44,8 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
         _mongoDbContext = mongoDbContext;
     }
 
-    public async Task<ApiResponseBase<object>> Handle(SaveWelcomeMessageRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<object>> Handle(SaveWelcomeMessageRequest request,
+        CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<object>();
 
@@ -60,8 +62,7 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
             var welcomeMessage = await _mongoDbContext.WelcomeMessage
                 .FirstOrDefaultAsync(x => x.ChatId == request.Model.ChatId, cancellationToken);
 
-            _mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity
-            {
+            _mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity {
                 ChatId = request.Model.ChatId,
                 Text = request.Model.Text,
                 RawButton = request.Model.RawButton,

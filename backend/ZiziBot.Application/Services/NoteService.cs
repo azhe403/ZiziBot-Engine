@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Services;
 
@@ -28,8 +29,7 @@ public class NoteService
                     .OrderBy(entity => entity.Query)
                     .ToListAsync();
 
-                var noteDto = noteEntities.Select(entity => new NoteDto
-                {
+                var noteDto = noteEntities.Select(entity => new NoteDto {
                     Id = entity.Id.ToString() ?? string.Empty,
                     ChatId = entity.ChatId,
                     Query = entity.Query,

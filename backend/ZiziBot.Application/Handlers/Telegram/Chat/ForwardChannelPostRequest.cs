@@ -5,6 +5,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -18,7 +19,8 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
     private readonly TelegramService _telegramService;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public ForwardChannelPostHandler(ILogger<ForwardChannelPostHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
+    public ForwardChannelPostHandler(ILogger<ForwardChannelPostHandler> logger, TelegramService telegramService,
+        MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
@@ -42,10 +44,8 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        var replyMarkup = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
+        var replyMarkup = new InlineKeyboardMarkup(new[] {
+            new[] {
                 InlineKeyboardButton.WithUrl("↗️ Source", messageLink)
             }
         });
@@ -62,11 +62,11 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
             {
                 if (request.ChannelPost != null)
                 {
-                    _logger.LogDebug("Sending channel post from ChannelId: {ChannelId} to ChatId: {ChatId}, ThreadId: {ThreadId} ..",
+                    _logger.LogDebug(
+                        "Sending channel post from ChannelId: {ChannelId} to ChatId: {ChatId}, ThreadId: {ThreadId} ..",
                         channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
 
-                    var send = channel.Type switch
-                    {
+                    var send = channel.Type switch {
                         MessageType.Text => await _telegramService.SendMessageText(
                             text: textCaption,
                             threadId: channelMap.ThreadId.Convert<int>(),
@@ -96,8 +96,7 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
                         _ => throw new ArgumentOutOfRangeException()
                     };
 
-                    _mongoDbContext.ChannelPost.Add(new ChannelPostEntity()
-                    {
+                    _mongoDbContext.ChannelPost.Add(new ChannelPostEntity() {
                         SourceChannelId = channelMap.ChannelId,
                         SourceMessageId = channel.MessageId,
                         DestinationChatId = channelMap.ChatId,
@@ -115,13 +114,15 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
                 {
                     if (channelPost == null)
                     {
-                        _logger.LogDebug("No channel post found from ChannelId: {ChannelId} for ChatId: {ChatId}, ThreadId: {ThreadId} ..",
+                        _logger.LogDebug(
+                            "No channel post found from ChannelId: {ChannelId} for ChatId: {ChatId}, ThreadId: {ThreadId} ..",
                             channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
 
                         return;
                     }
 
-                    _logger.LogDebug("Updating channel post to ChannelId: {ChannelId} to ChatId: {ChatId}, ThreadId: {ThreadId} ..",
+                    _logger.LogDebug(
+                        "Updating channel post to ChannelId: {ChannelId} to ChatId: {ChatId}, ThreadId: {ThreadId} ..",
                         channelMap.ChannelId, channelMap.ChatId, channelMap.ThreadId);
 
                     if (channel.Type == MessageType.Text)
@@ -155,8 +156,7 @@ public class ForwardChannelPostHandler : IBotRequestHandler<ForwardChannelPostRe
 
                         if (channelPost.FileUniqueId != fileUniqueId)
                         {
-                            InputMedia media = (int)channel.Type switch
-                            {
+                            InputMedia media = (int)channel.Type switch {
                                 (int)CommonMediaType.Photo => new InputMediaPhoto(new InputFileId(fileId)),
                                 (int)CommonMediaType.Audio => new InputMediaAudio(new InputFileId(fileId)),
                                 (int)CommonMediaType.Video => new InputMediaVideo(new InputFileId(fileId)),

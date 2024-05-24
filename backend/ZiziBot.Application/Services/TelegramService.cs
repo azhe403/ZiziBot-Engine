@@ -97,14 +97,22 @@ public class TelegramService
 
     #region Response
 
-    public async Task<BotResponseBase> SendMessageText(HtmlMessage text, IReplyMarkup? replyMarkup = null,
-        long chatId = -1)
+    public async Task<BotResponseBase> SendMessageText(
+        HtmlMessage text,
+        IReplyMarkup? replyMarkup = null,
+        long chatId = -1
+    )
     {
         return await SendMessageText(text.ToString(), replyMarkup, chatId);
     }
 
-    public async Task<BotResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1,
-        int threadId = -1)
+    public async Task<BotResponseBase> SendMessageText(
+        string? text,
+        IReplyMarkup? replyMarkup = null,
+        long chatId = -1,
+        int threadId = -1,
+        TimeSpan deleteAfter = default
+    )
     {
         if (text.IsNullOrEmpty())
             return Complete();
@@ -152,17 +160,17 @@ public class TelegramService
 
         _logger.LogInformation("Message sent to chat {ChatId}", _request.ChatId);
 
-        if (_request.CleanupTargets.Contains(CleanupTarget.None))
+        if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfter == default)
             return Complete();
 
-        _logger.LogDebug("Scheduling delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds",
+        _logger.LogDebug("Schedule delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds",
             SentMessage.MessageId, _request.ChatId, _request.DeleteAfter.TotalSeconds);
 
         _mediatorService.Schedule(new DeleteMessageBotRequestModel {
             BotToken = _request.BotToken,
             Message = _request.Message,
             MessageId = SentMessage.MessageId,
-            DeleteAfter = _request.DeleteAfter,
+            DeleteAfter = deleteAfter == default ? deleteAfter : _request.DeleteAfter,
             Source = ResponseSource.Hangfire
         });
 
@@ -376,7 +384,8 @@ public class TelegramService
         long customChatId = -1,
         int threadId = -1,
         int customMessageId = -1,
-        string? customFileName = null
+        string? customFileName = null,
+        TimeSpan deleteAfter = default
     )
     {
         if (SentMessage != null)
@@ -393,7 +402,8 @@ public class TelegramService
                     text: text,
                     replyMarkup: replyMarkup,
                     chatId: customChatId,
-                    threadId: threadId
+                    threadId: threadId,
+                    deleteAfter: deleteAfter
                 );
             }
             else
