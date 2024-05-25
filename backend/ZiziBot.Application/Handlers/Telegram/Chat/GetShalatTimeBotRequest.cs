@@ -16,7 +16,8 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly FathimahApiService _fathimahApiService;
 
-    public GetShalatTimeHandler(ILogger<GetShalatTimeHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext, FathimahApiService fathimahApiService)
+    public GetShalatTimeHandler(ILogger<GetShalatTimeHandler> logger, TelegramService telegramService,
+        MongoDbContextBase mongoDbContext, FathimahApiService fathimahApiService)
     {
         _logger = logger;
         _telegramService = telegramService;
@@ -40,7 +41,8 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
         if (cityList.Any())
         {
             htmlMessage.Bold("Daftar Waktu Shalat").Br()
-                .TextBr(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("dddd, dd MMMM yyyy HH:mm:ss", new CultureInfo(request.UserLanguageCode)))
+                .TextBr(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("dddd, dd MMMM yyyy HH:mm:ss",
+                    new CultureInfo(request.UserLanguageCode)))
                 .TextBr("====================================").Br();
 
             foreach (var city in cityList)
@@ -48,8 +50,10 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
                 htmlMessage.Code(city.CityId.ToString()).Text(" - ").Text(city.CityName).Br()
                     .TextBr("====================================");
 
-                var shalatTime = await _fathimahApiService.GetShalatTime(city.CityId);
-                shalatTime.Schedule.ShalatDict.ForEach(shalat => { htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value).Br(); });
+                var shalatTime = await _fathimahApiService.GetShalatTime(city.CityId, true);
+                shalatTime.Schedule.ShalatDict.ForEach(shalat => {
+                    htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value).Br();
+                });
 
                 htmlMessage.Br();
             }

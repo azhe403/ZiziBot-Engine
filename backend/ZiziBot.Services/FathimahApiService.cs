@@ -38,12 +38,12 @@ public class FathimahApiService
         return apis;
     }
 
-    public async Task<ShalatTimeResponse> GetShalatTime(long cityId)
+    public async Task<ShalatTimeResponse> GetShalatTime(long cityId, bool evictBefore = false)
     {
-        return await GetShalatTime(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE), cityId);
+        return await GetShalatTime(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE), cityId, evictBefore);
     }
 
-    public async Task<ShalatTimeResponse> GetShalatTime(DateTime dateTime, long cityId)
+    public async Task<ShalatTimeResponse> GetShalatTime(DateTime dateTime, long cityId, bool evictBefore = false)
     {
         var path = $"sholat/jadwal/{cityId}/{dateTime.Year}/{dateTime.Month}/{dateTime.Day}";
 
@@ -52,6 +52,7 @@ public class FathimahApiService
         var apis = await _cacheService.GetOrSetAsync(
             cacheKey: $"vendor/banghasan/{path}",
             expireAfter: "1d",
+            evictBefore: evictBefore,
             staleAfter: "1h",
             action: async () => {
                 var apis = await BaseUrl

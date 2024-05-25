@@ -29,7 +29,7 @@ public class CityData
     [Newtonsoft.Json.JsonIgnore]
     public Dictionary<string, string> ShalatDict => Jadwal
         .ToDictionary(letterCasing: LetterCasing.Title)
-        .Where(pair => pair.Key != "Tanggal")
+        .Where(pair => pair.Key != "Tanggal" & pair.Key != "Date")
         .ToDictionary(pair => pair.Key, pair => pair.Value);
 }
 
