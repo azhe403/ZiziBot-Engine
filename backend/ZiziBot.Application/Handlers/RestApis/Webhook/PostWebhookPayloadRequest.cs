@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.Application.Handlers.RestApis.Webhook.GitLab;
+using ZiziBot.Application.Handlers.RestApis.Webhook.Partial;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
 
@@ -84,7 +84,8 @@ public class PostWebhookPayloadHandler(
                 break;
         }
 
-        var webhookRequest = webhookSource switch {
+        IWebhookRequestBase<bool>? webhookRequest = webhookSource switch {
+            WebhookSource.GitHub => content.Deserialize<GitHubEventRequest>(),
             WebhookSource.GitLab => content.Deserialize<GitLabEventRequest>(),
             _ => default
         };
@@ -104,7 +105,8 @@ public class PostWebhookPayloadHandler(
             text: webhookResponse.FormattedHtml,
             messageThreadId: webhookChat.MessageThreadId,
             parseMode: ParseMode.Html,
-            disableWebPagePreview: true
+            disableWebPagePreview: true,
+            cancellationToken: cancellationToken
         );
 
         mongoEfContext.WebhookHistory.Add(new WebhookHistoryEntity {
@@ -113,6 +115,7 @@ public class PostWebhookPayloadHandler(
             ChatId = webhookChat.ChatId,
             MessageId = sentMessage.MessageId,
             WebhookSource = WebhookSource.GitHub,
+            Elapsed = stopwatch.Elapsed,
             Payload = content,
             Status = EventStatus.Complete
         });

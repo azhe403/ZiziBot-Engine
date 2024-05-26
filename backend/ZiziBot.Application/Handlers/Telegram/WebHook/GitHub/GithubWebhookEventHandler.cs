@@ -22,30 +22,30 @@ public class GithubWebhookEventHandler(
     ChatSettingRepository chatSettingRepository
 ) : GithubWebhookEventProcessor
 {
-    protected override async Task ProcessPushWebhookAsync(WebhookHeaders headers, PushEvent pushEvent)
-    {
-        logger.LogInformation("Push event received");
-
-        var commits = pushEvent.Commits.ToList();
-        var commitCount = commits.Count;
-        var repository = pushEvent.Repository;
-        var branchName = pushEvent.Ref.Split('/').Last();
-        var treeUrl = repository.HtmlUrl.AppendPathSegment($"tree/{branchName}");
-        var commitsStr = "commit".ToQuantity(commitCount);
-
-        var htmlMessage = HtmlMessage.Empty
-            .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(repository.HtmlUrl, $"{repository.FullName}")
-            .Text(":").Url(treeUrl, $"{branchName}")
-            .Br().Br();
-
-        commits.ForEach(commit => {
-            htmlMessage.Url(commit.Url.ToString(), commit.Id[..7])
-                .Text(": ")
-                .TextBr($"{commit.Message} by {commit.Author.Name}");
-        });
-
-        await SendMessage(htmlMessage.ToString());
-    }
+    // protected override async Task ProcessPushWebhookAsync(WebhookHeaders headers, PushEvent pushEvent)
+    // {
+    //     logger.LogInformation("Push event received");
+    //
+    //     var commits = pushEvent.Commits.ToList();
+    //     var commitCount = commits.Count;
+    //     var repository = pushEvent.Repository;
+    //     var branchName = pushEvent.Ref.Split('/').Last();
+    //     var treeUrl = repository.HtmlUrl.AppendPathSegment($"tree/{branchName}");
+    //     var commitsStr = "commit".ToQuantity(commitCount);
+    //
+    //     var htmlMessage = HtmlMessage.Empty
+    //         .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(repository.HtmlUrl, $"{repository.FullName}")
+    //         .Text(":").Url(treeUrl, $"{branchName}")
+    //         .Br().Br();
+    //
+    //     commits.ForEach(commit => {
+    //         htmlMessage.Url(commit.Url.ToString(), commit.Id[..7])
+    //             .Text(": ")
+    //             .TextBr($"{commit.Message} by {commit.Author.Name}");
+    //     });
+    //
+    //     await SendMessage(htmlMessage.ToString());
+    // }
 
     protected override Task ProcessPullRequestWebhookAsync(WebhookHeaders headers, PullRequestEvent pullRequestEvent,
         PullRequestAction action)

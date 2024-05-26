@@ -2,7 +2,7 @@
 using Humanizer;
 using ZiziBot.Types.Vendor.GitLab;
 
-namespace ZiziBot.Application.Handlers.RestApis.Webhook.GitLab;
+namespace ZiziBot.Application.Handlers.RestApis.Webhook.Partial;
 
 public class GitLabEventRequest : GitLabEvent, IWebhookRequestBase<bool>
 {

@@ -10,5 +10,6 @@ public class WebhookHistoryEntity : EntityBase
     public required int MessageId { get; set; }
     public int MessageThreadId { get; set; }
     public required WebhookSource WebhookSource { get; set; }
+    public TimeSpan Elapsed { get; set; }
     public required string Payload { get; set; }
 }
