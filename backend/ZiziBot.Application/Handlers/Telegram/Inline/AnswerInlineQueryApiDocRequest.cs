@@ -11,27 +11,30 @@ public class AnswerInlineQueryApiDocBotRequestModel : BotRequestBase
     public string? Query { get; set; }
 }
 
-public class AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlineQueryApiDocBotRequestModel, BotResponseBase>
+public class
+    AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlineQueryApiDocBotRequestModel, BotResponseBase>
 {
     private readonly ILogger<AnswerInlineQueryApiDocRequestHandler> _logger;
     private readonly TelegramService _telegramService;
     private readonly CacheService _cacheService;
 
-    public AnswerInlineQueryApiDocRequestHandler(ILogger<AnswerInlineQueryApiDocRequestHandler> logger, TelegramService telegramService, CacheService cacheService)
+    public AnswerInlineQueryApiDocRequestHandler(ILogger<AnswerInlineQueryApiDocRequestHandler> logger,
+        TelegramService telegramService, CacheService cacheService)
     {
         _logger = logger;
         _telegramService = telegramService;
         _cacheService = cacheService;
     }
 
-    public async Task<BotResponseBase> Handle(AnswerInlineQueryApiDocBotRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(AnswerInlineQueryApiDocBotRequestModel request,
+        CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
         _logger.LogInformation("Find api doc for Query: {query}", request.Query);
 
         var cache = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.API_DOC,
+            cacheKey: CacheKey.GLOBAL_API_DOC,
             action: async () => {
                 var api = await UrlConst.BOT_API_SPEC.GetJsonAsync<TgBotApiDoc>(cancellationToken: cancellationToken);
                 return api;
@@ -39,7 +42,8 @@ public class AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlin
 
         var filtered = cache.MethodsAndTypes
             .AsQueryable()
-            .WhereIf(!string.IsNullOrWhiteSpace(request.Query), x => x.Key.Contains(request.Query, StringComparison.OrdinalIgnoreCase))
+            .WhereIf(!string.IsNullOrWhiteSpace(request.Query),
+                x => x.Key.Contains(request.Query, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         _logger.LogInformation("Found api-doc about: {count} result(s)", filtered.Count);
@@ -58,29 +62,25 @@ public class AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlin
                         .Text(field.Description, true).Br().Br();
                 });
 
-                var replyMarkup = new InlineKeyboardMarkup(new[]
-                {
-                    new[]
-                    {
+                var replyMarkup = new InlineKeyboardMarkup(new[] {
+                    new[] {
                         InlineKeyboardButton.WithUrl("Open doc", method.Href.ToString())
                     },
-                    new[]
-                    {
+                    new[] {
                         InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Pencarian baru", $"api-doc"),
-                        InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Pencarian lanjut", $"api-doc {request.Query}")
+                        InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Pencarian lanjut",
+                            $"api-doc {request.Query}")
                     }
                 });
 
                 var fields = new InlineQueryResultArticle(
-                    id: CacheKey.API_DOC + method.Name,
+                    id: CacheKey.GLOBAL_API_DOC + method.Name,
                     title: method.Name,
-                    inputMessageContent: new InputTextMessageContent(htmlContent.ToString())
-                    {
+                    inputMessageContent: new InputTextMessageContent(htmlContent.ToString()) {
                         ParseMode = ParseMode.Html,
                         DisableWebPagePreview = true
                     }
-                )
-                {
+                ) {
                     Description = description,
                     ReplyMarkup = replyMarkup
                 };
@@ -94,5 +94,4 @@ public class AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlin
 
         return await _telegramService.AnswerInlineQueryAsync(inlineQueryResults);
     }
-
 }

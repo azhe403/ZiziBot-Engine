@@ -20,7 +20,7 @@ public class NoteService
     public async Task<List<NoteDto>> GetAllByChat(long chatId, bool evictBefore = false)
     {
         var cache = await _cacheService.GetOrSetAsync(
-            cacheKey: $"notes/{chatId}",
+            cacheKey: CacheKey.CHAT_NOTES + chatId,
             evictBefore: evictBefore,
             action: async () => {
                 var noteEntities = await _mongoDbContext.Note

@@ -19,9 +19,9 @@ public static class HttpContextUtil
     public static WebhookSource GetWebHookSource(this HttpRequest httpRequest)
     {
         var headers = httpRequest.Headers;
-        var source = headers switch
-        {
-            { } when headers.Any(pair => pair.Key.Contains("GitHub", StringComparison.InvariantCultureIgnoreCase)) => WebhookSource.GitHub,
+        var source = headers switch {
+            _ when headers.Any(pair => pair.Key.Contains("GitHub", StringComparison.InvariantCultureIgnoreCase)) =>
+                WebhookSource.GitHub,
             _ => WebhookSource.Unknown
         };
 
@@ -30,9 +30,9 @@ public static class HttpContextUtil
 
     public static WebhookSource GetWebHookSource(this string userAgent)
     {
-        var source = userAgent switch
-        {
-            { } when userAgent.Contains("GitHub", StringComparison.InvariantCultureIgnoreCase) => WebhookSource.GitHub,
+        var source = userAgent switch {
+            _ when userAgent.Contains("GitHub", StringComparison.InvariantCultureIgnoreCase) => WebhookSource.GitHub,
+            _ when userAgent.Contains("GitLab", StringComparison.InvariantCultureIgnoreCase) => WebhookSource.GitLab,
             _ => WebhookSource.Unknown
         };
 

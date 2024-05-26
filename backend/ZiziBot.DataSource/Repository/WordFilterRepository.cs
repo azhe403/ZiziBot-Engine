@@ -25,7 +25,7 @@ public class WordFilterRepository
     public async Task<List<WordFilterDto>> GetAll()
     {
         var cache = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.BADWORD,
+            cacheKey: CacheKey.CHAT_BADWORD,
             action: async () => {
                 var data = await _mongoDbContext.WordFilter
                     .Where(x => x.Status == (int)EventStatus.Complete)

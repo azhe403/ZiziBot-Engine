@@ -43,7 +43,7 @@ public class AntiSpamService(
     private async Task<AntiSpamDto> CheckEssAsync(long chatId, long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.BAN_ESS + userId,
+            cacheKey: CacheKey.USER_BAN_ESS + userId,
             staleAfter: DefaultStaleTime,
             action: async () => {
                 var antiSpamDto = new AntiSpamDto();
@@ -62,7 +62,7 @@ public class AntiSpamService(
     private async Task<AntiSpamDto> CheckCombotAntiSpamAsync(long chatId, long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.BAN_CAS + userId,
+            cacheKey: CacheKey.USER_BAN_CAS + userId,
             staleAfter: DefaultStaleTime,
             action: async () => {
                 var antiSpamDto = new AntiSpamDto();
@@ -90,7 +90,7 @@ public class AntiSpamService(
     private async Task<AntiSpamDto> CheckSpamWatchAntiSpamAsync(long chatId, long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.BAN_SW + userId,
+            cacheKey: CacheKey.USER_BAN_SW + userId,
             staleAfter: DefaultStaleTime,
             action: async () => {
                 SpamWatchResult spamwatchResult = new();

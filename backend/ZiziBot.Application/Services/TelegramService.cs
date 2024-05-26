@@ -542,7 +542,7 @@ public class TelegramService
     public async Task<string[]> GetChatUsernames()
     {
         var cache = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.ACTIVE_USERNAMES_CHAT + _request.ChatId,
+            cacheKey: CacheKey.CHAT_ACTIVE_USERNAMES + _request.ChatId,
             action: async () => {
                 var chat = await Bot.GetChatAsync(_request.ChatId);
                 var activeUsernames = chat.ActiveUsernames;
@@ -556,7 +556,7 @@ public class TelegramService
     public async Task<string[]> GetUserUsernames()
     {
         var cache = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.ACTIVE_USERNAMES_USER + _request.UserId,
+            cacheKey: CacheKey.USER_ACTIVE_USERNAMES + _request.UserId,
             action: async () => {
                 var chat = await Bot.GetChatAsync(_request.UserId);
                 var activeUsernames = chat.ActiveUsernames;
@@ -629,7 +629,7 @@ public class TelegramService
     public async Task<List<ChatMember>> GetChatAdministrator()
     {
         var cacheValue = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.LIST_CHAT_ADMIN + _request.ChatId,
+            cacheKey: CacheKey.CHAT_ADMIN + _request.ChatId,
             action: async () => {
                 var chatAdmins = await Bot.GetChatAdministratorsAsync(_request.ChatId);
                 return chatAdmins.ToList();
