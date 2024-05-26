@@ -1,5 +1,10 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
+using ZiziBot.Application.Handlers.RestApis.Webhook.GitLab;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
@@ -19,25 +24,31 @@ public class PostWebhookPayloadRequest : ApiRequestBase<PostWebhookPayloadRespon
 
     [FromQuery(Name = "isDebug")]
     public bool IsDebug { get; set; }
-
-    public WebhookSource WebhookSource => UserAgent.GetWebHookSource();
 }
 
 public class PostWebhookPayloadResponseDto
 {
     public TimeSpan Duration { get; set; }
+    public object Result { get; set; }
 }
 
 public class PostWebhookPayloadHandler(
+    IMediator mediator,
+    MongoEfContext mongoEfContext,
     AppSettingRepository appSettingRepository,
     ChatSettingRepository chatSettingRepository,
     GithubWebhookEventProcessor githubWebhookEventProcessor)
     : IRequestHandler<PostWebhookPayloadRequest, ApiResponseBase<PostWebhookPayloadResponseDto>>
 {
-    public async Task<ApiResponseBase<PostWebhookPayloadResponseDto>> Handle(PostWebhookPayloadRequest request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<PostWebhookPayloadResponseDto>> Handle(
+        PostWebhookPayloadRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var stopwatch = Stopwatch.StartNew();
+        var webhookSource = request.UserAgent.GetWebHookSource();
+        var webhookHeader = WebhookHeader.Parse(request.Headers);
+        var content = $"{request.Content}";
         var response = new ApiResponseBase<PostWebhookPayloadResponseDto>() {
             TransactionId = request.HttpContextAccessor?.HttpContext?.TraceIdentifier ?? string.Empty
         };
@@ -58,7 +69,7 @@ public class PostWebhookPayloadHandler(
         {
         }
 
-        switch (request.WebhookSource)
+        switch (webhookSource)
         {
             case WebhookSource.GitHub:
                 githubWebhookEventProcessor.RouteId = webhookChat.RouteId;
@@ -67,19 +78,51 @@ public class PostWebhookPayloadHandler(
 
                 await githubWebhookEventProcessor.ProcessWebhookAsync(request.Headers, request.Content.ToString());
                 break;
-            case WebhookSource.GitLab:
             case WebhookSource.Unknown:
             default:
                 response.BadRequest("Webhook source is unknown");
                 break;
         }
 
-        response.Result = new PostWebhookPayloadResponseDto() {
-            Duration = stopwatch.Elapsed
+        var webhookRequest = webhookSource switch {
+            WebhookSource.GitLab => content.Deserialize<GitLabEventRequest>(),
+            _ => default
         };
+
+        if (webhookRequest == null)
+        {
+            return response.BadRequest("Webhook can't be processed");
+        }
+
+        var botSetting = await appSettingRepository.GetBotMain();
+        var botClient = new TelegramBotClient(botSetting.Token);
+
+        var webhookResponse = await mediator.Send(webhookRequest, cancellationToken);
+
+        var sentMessage = await botClient.SendTextMessageAsync(
+            chatId: webhookChat.ChatId,
+            text: webhookResponse.FormattedHtml,
+            messageThreadId: webhookChat.MessageThreadId,
+            parseMode: ParseMode.Html,
+            disableWebPagePreview: true
+        );
+
+        mongoEfContext.WebhookHistory.Add(new WebhookHistoryEntity {
+            RouteId = webhookChat.RouteId,
+            TransactionId = $"{request.TransactionId}",
+            ChatId = webhookChat.ChatId,
+            MessageId = sentMessage.MessageId,
+            WebhookSource = WebhookSource.GitHub,
+            Payload = content,
+            Status = EventStatus.Complete
+        });
+
+        await mongoEfContext.SaveChangesAsync(cancellationToken);
 
         stopwatch.Stop();
 
-        return response.Success("Webhook payload processed");
+        return response.Success("Webhook payload processed", new PostWebhookPayloadResponseDto() {
+            Duration = stopwatch.Elapsed
+        });
     }
 }
