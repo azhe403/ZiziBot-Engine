@@ -47,8 +47,6 @@ public class PostWebhookPayloadHandler(
             return response.BadRequest("Webhook payload is empty");
         }
 
-        var botSetting = await appSettingRepository.GetBotMain();
-
         var webhookChat = await chatSettingRepository.GetWebhookRouteById(request.targetId);
 
         if (webhookChat == null)
@@ -64,9 +62,8 @@ public class PostWebhookPayloadHandler(
         {
             case WebhookSource.GitHub:
                 githubWebhookEventProcessor.RouteId = webhookChat.RouteId;
-                githubWebhookEventProcessor.ChatId = webhookChat.ChatId;
-                githubWebhookEventProcessor.ThreadId = webhookChat.MessageThreadId;
-                githubWebhookEventProcessor.Token = botSetting.Token;
+                githubWebhookEventProcessor.Payload = request.Content.ToString();
+                githubWebhookEventProcessor.TransactionId = $"{request.TransactionId}";
 
                 await githubWebhookEventProcessor.ProcessWebhookAsync(request.Headers, request.Content.ToString());
                 break;
