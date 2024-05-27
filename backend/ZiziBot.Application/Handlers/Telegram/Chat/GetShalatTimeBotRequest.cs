@@ -9,28 +9,19 @@ public class GetShalatTimeBotRequest : BotRequestBase
 {
 }
 
-public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, BotResponseBase>
+public class GetShalatTimeHandler(
+    ILogger<GetShalatTimeHandler> logger,
+    TelegramService telegramService,
+    MongoDbContextBase mongoDbContext,
+    FathimahApiService fathimahApiService
+) : IRequestHandler<GetShalatTimeBotRequest, BotResponseBase>
 {
-    private readonly ILogger<GetShalatTimeHandler> _logger;
-    private readonly TelegramService _telegramService;
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly FathimahApiService _fathimahApiService;
-
-    public GetShalatTimeHandler(ILogger<GetShalatTimeHandler> logger, TelegramService telegramService,
-        MongoDbContextBase mongoDbContext, FathimahApiService fathimahApiService)
-    {
-        _logger = logger;
-        _telegramService = telegramService;
-        _mongoDbContext = mongoDbContext;
-        _fathimahApiService = fathimahApiService;
-    }
-
     public async Task<BotResponseBase> Handle(GetShalatTimeBotRequest request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Get Shalat Time list for ChatId: {ChatId}", request.ChatId);
-        _telegramService.SetupResponse(request);
+        logger.LogInformation("Get Shalat Time list for ChatId: {ChatId}", request.ChatId);
+        telegramService.SetupResponse(request);
 
-        var cityList = await _mongoDbContext.BangHasan_ShalatCity
+        var cityList = await mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.CityName)
@@ -50,10 +41,8 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
                 htmlMessage.Code(city.CityId.ToString()).Text(" - ").Text(city.CityName).Br()
                     .TextBr("====================================");
 
-                var shalatTime = await _fathimahApiService.GetShalatTime(city.CityId, true);
-                shalatTime.Schedule.ShalatDict.ForEach(shalat => {
-                    htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value).Br();
-                });
+                var shalatTime = await fathimahApiService.GetShalatTime(city.CityId, true);
+                shalatTime.Schedule?.ShalatDict?.ForEach(shalat => { htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value).Br(); });
 
                 htmlMessage.Br();
             }
@@ -63,6 +52,6 @@ public class GetShalatTimeHandler : IRequestHandler<GetShalatTimeBotRequest, Bot
             htmlMessage.BoldBr("Belum ada Kota yg ditambahkan untuk Obrolan ini.");
         }
 
-        return await _telegramService.SendMessageText(htmlMessage);
+        return await telegramService.SendMessageText(htmlMessage);
     }
 }

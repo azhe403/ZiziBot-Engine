@@ -9,38 +9,29 @@ public class AddCityBotRequest : BotRequestBase
     public string? CityName { get; set; }
 }
 
-internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBase>
+internal class AddCityHandler(
+    TelegramService telegramService,
+    MongoDbContextBase mongoDbContext,
+    FathimahApiService fathimahApiService
+) : IRequestHandler<AddCityBotRequest, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly FathimahApiService _fathimahApiService;
-
-    public AddCityHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext,
-        FathimahApiService fathimahApiService)
-    {
-        _telegramService = telegramService;
-        _mongoDbContext = mongoDbContext;
-        _fathimahApiService = fathimahApiService;
-    }
-
     public async Task<BotResponseBase> Handle(AddCityBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        var cityInfoAll = await _fathimahApiService.GetAllCityAsync();
+        var cityInfoAll = await fathimahApiService.GetAllCityAsync();
         var cityInfo = cityInfoAll.Cities
             .WhereIf(request.CityId > 0, kota => kota.Id == request.CityId)
-            .WhereIf(request.CityName.IsNotNullOrEmpty(),
-                kota => kota.Lokasi.Contains(request.CityName, StringComparison.OrdinalIgnoreCase))
+            .WhereIf(request.CityName.IsNotNullOrEmpty(), kota => kota.Lokasi.Like(request.CityName))
             .FirstOrDefault();
 
         if (cityInfo == null)
         {
-            return await _telegramService.SendMessageText("Kota tidak ditemukan");
+            return await telegramService.SendMessageText("Kota tidak ditemukan");
         }
 
-        var city = await _mongoDbContext.BangHasan_ShalatCity
+        var city = await mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.CityId == cityInfo.Id)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -58,7 +49,7 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
         }
         else
         {
-            _mongoDbContext.BangHasan_ShalatCity.Add(new BangHasan_ShalatCityEntity() {
+            mongoDbContext.BangHasan_ShalatCity.Add(new BangHasan_ShalatCityEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 CityId = cityInfo.Id,
@@ -66,13 +57,13 @@ internal class AddCityHandler : IRequestHandler<AddCityBotRequest, BotResponseBa
                 Status = (int)EventStatus.Complete
             });
 
-            await _mongoDbContext.SaveChangesAsync(cancellationToken);
+            await mongoDbContext.SaveChangesAsync(cancellationToken);
 
             htmlMessage.Text("Kota berhasil disimpan")
                 .Br()
                 .Append(cityMsg);
         }
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString());
+        return await telegramService.SendMessageText(htmlMessage.ToString());
     }
 }

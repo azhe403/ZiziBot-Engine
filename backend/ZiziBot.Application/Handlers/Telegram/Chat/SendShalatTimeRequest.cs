@@ -9,56 +9,45 @@ public class SendShalatTimeRequest : IRequest<bool>
     public long ChatId { get; set; }
 }
 
-public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool>
+public class SendShalatTimeHandler(
+    ILogger<SendShalatTimeHandler> logger,
+    AppSettingRepository appSettingRepository,
+    FathimahApiService fathimahApiService,
+    ChatSettingRepository chatSettingRepository
+) : IRequestHandler<SendShalatTimeRequest, bool>
 {
-    private readonly ILogger<SendShalatTimeHandler> _logger;
-    private readonly AppSettingRepository _appSettingRepository;
-    private readonly FathimahApiService _fathimahApiService;
-    private readonly ChatSettingRepository _chatSettingRepository;
-
-    public SendShalatTimeHandler(ILogger<SendShalatTimeHandler> logger, AppSettingRepository appSettingRepository,
-        FathimahApiService fathimahApiService, ChatSettingRepository chatSettingRepository)
-    {
-        _logger = logger;
-        _appSettingRepository = appSettingRepository;
-        _fathimahApiService = fathimahApiService;
-        _chatSettingRepository = chatSettingRepository;
-    }
-
     public async Task<bool> Handle(SendShalatTimeRequest request, CancellationToken cancellationToken)
     {
-        var botMain = await _appSettingRepository.GetBotMain();
+        var botMain = await appSettingRepository.GetBotMain();
         var botClient = new TelegramBotClient(botMain.Token);
 
         const string defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
 
-        var cityList = await _chatSettingRepository.GetShalatCity(request.ChatId);
+        var cityList = await chatSettingRepository.GetShalatCity(request.ChatId);
 
         if (cityList.IsEmpty())
         {
-            _logger.LogInformation("City list is empty for ChatId: {ChatId}", request.ChatId);
+            logger.LogInformation("City list is empty for ChatId: {ChatId}", request.ChatId);
             return false;
         }
 
-        _logger.LogDebug("Found about {Count} city(es) for ChatId: {ChatId}", cityList.Count, request.ChatId);
+        logger.LogDebug("Found about {Count} city(es) for ChatId: {ChatId}", cityList.Count, request.ChatId);
 
         foreach (var cityEntity in cityList)
         {
             try
             {
-                var currentTime = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm");
-                var shalatTime = await _fathimahApiService.GetShalatTime(DateTime.Now, cityEntity.CityId);
-                var currentShalat = shalatTime.Schedule.ShalatDict.FirstOrDefault(pair => pair.Value == currentTime);
+                var currentShalat = await fathimahApiService.GetCurrentShalatTime(cityEntity.CityId);
 
-                if (currentShalat.IsNull())
+                if (currentShalat?.IsNull() ?? false)
                 {
-                    _logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'", cityEntity.CityName, currentTime);
+                    logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'",
+                        cityEntity.CityName, DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm"));
                     continue;
                 }
 
-                var message = defaultMessage.ResolveVariable(new List<(string placeholder, string value)>
-                {
-                    ("Shalat", currentShalat.Key),
+                var message = defaultMessage.ResolveVariable(new List<(string placeholder, string value)> {
+                    ("Shalat", currentShalat?.Key),
                     ("Date", DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss")),
                     ("City", cityEntity.CityName)
                 });
@@ -69,12 +58,12 @@ public class SendShalatTimeHandler : IRequestHandler<SendShalatTimeRequest, bool
             {
                 if (exception.Message.IsIgnorable())
                 {
-                    _logger.LogDebug(exception, "Failed to send Salat Time notification to ChatId: {ChatId}", request.ChatId);
+                    logger.LogDebug(exception, "Failed to send Salat Time notification to ChatId: {ChatId}", request.ChatId);
                     break;
                 }
                 else
                 {
-                    _logger.LogError(exception, "Error occured send Salat Time notification to ChatId: {ChatId}", request.ChatId);
+                    logger.LogError(exception, "Error occured send Salat Time notification to ChatId: {ChatId}", request.ChatId);
                 }
             }
         }
