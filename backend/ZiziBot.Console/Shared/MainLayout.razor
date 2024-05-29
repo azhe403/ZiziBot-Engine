@@ -124,11 +124,11 @@
             }
 
             await ProtectedLocalStorage.SetAsync("bearer_token", webResponse.Result?.BearerToken);
-            NotificationService.Notify(NotificationSeverity.Success,
-                $"Selamat datang, {sessionDto.FirstName} {sessionDto.LastName}");
+            NotificationService.Notify(NotificationSeverity.Success, $"Selamat datang, {sessionDto.FirstName} {sessionDto.LastName}");
 
-            await JSRuntime.InvokeVoidAsync("eval",
-                $"document.cookie='bearer_token={webResponse.Result?.BearerToken}; path=/hangfire-jobs; expires=Fri, 31 Dec 2024;'");
+            var expireDate = DateTime.UtcNow.AddMonths(1);
+
+            await JSRuntime.InvokeVoidAsync("eval", $"document.cookie='bearer_token={webResponse.Result?.BearerToken}; expires={expireDate:ddd, dd MMM yyyy}'");
             NavigationManager.NavigateTo("/", replace: true);
         }
 
