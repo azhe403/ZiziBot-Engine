@@ -15,5 +15,7 @@ public class HangfireConfig
 public enum CurrentStorage
 {
     InMemory,
-    MongoDb
+    MongoDb,
+    Sqlite,
+    LiteDb
 }

@@ -1,4 +1,6 @@
+using Hangfire.LiteDB;
 using Hangfire.Server;
+using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,8 +25,10 @@ public static class HangfireServiceExtension
             CronJobKey.Queue_ShalatTime
         };
 
-        JobStorage.Current = hangfireConfig.CurrentStorage switch {
+        JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
             CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
+            CurrentStorage.Sqlite => new SQLiteStorage(PathConst.HANGFIRE_SQLITE_PATH.EnsureDirectory()),
+            CurrentStorage.LiteDb => new LiteDbStorage(PathConst.HANGFIRE_LITEDB_PATH.EnsureDirectory()),
             _ => new InMemoryStorage(new InMemoryStorageOptions())
         };
 
@@ -34,9 +38,9 @@ public static class HangfireServiceExtension
                     .UseSimpleAssemblyNameTypeSerializer()
                     .UseRecommendedSerializerSettings()
                     .UseDarkDashboard()
+                    .UseStorage(jobStorage)
+                    .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
                     .UseMediatR();
-
-                configuration.UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3));
             }
         );
 
@@ -46,7 +50,7 @@ public static class HangfireServiceExtension
                 options.ServerTimeout = TimeSpan.FromMinutes(10);
                 options.Queues = queues;
             },
-            storage: JobStorage.Current,
+            storage: jobStorage,
             additionalProcesses: new IBackgroundProcess[] {
                 new ProcessMonitor(TimeSpan.FromSeconds(3))
             }
@@ -104,12 +108,14 @@ public static class HangfireServiceExtension
         return mongoStorage;
     }
 
-    private static void UseMediatR(this IGlobalConfiguration configuration)
+    private static IGlobalConfiguration UseMediatR(this IGlobalConfiguration configuration)
     {
         var jsonSettings = new JsonSerializerSettings {
             TypeNameHandling = TypeNameHandling.All
         };
 
         configuration.UseSerializerSettings(jsonSettings);
+
+        return configuration;
     }
 }
