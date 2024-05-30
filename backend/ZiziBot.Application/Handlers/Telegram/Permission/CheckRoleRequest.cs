@@ -22,12 +22,9 @@ public class CheckRoleHandler<TRequest> : IRequestPreProcessor<TRequest> where T
 
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
-
         _logger.LogDebug("Checking Role {Name} for UserId: {UserId} in ChatId: {ChatId}", typeof(TRequest), request.UserId, request.ChatId);
 
-        var isRoleMeet = request.MinimumRole switch
-        {
+        var isRoleMeet = request.MinimumRole switch {
             RoleLevel.Sudo => await _sudoService.IsSudoAsync(request.UserId),
             RoleLevel.ChatAdmin => await _telegramService.CheckAdministration(),
             RoleLevel.ChatCreator => await _telegramService.CheckChatCreator(),

@@ -15,12 +15,13 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse>(
 {
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
-
         if (request.ChatType == ChatType.Private ||
             request.IsChannel ||
+            request.Source != ResponseSource.Bot ||
             request.InlineQuery != null)
             return;
+
+        telegramService.SetupResponse(request);
 
         mongoDbContext.ChatAdmin
             .RemoveRange(

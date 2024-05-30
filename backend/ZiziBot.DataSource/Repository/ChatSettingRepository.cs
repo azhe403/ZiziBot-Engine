@@ -146,7 +146,7 @@ public class ChatSettingRepository
         return cityList;
     }
 
-    public async Task<bool> CreateActivity(ChatActivityDto dto)
+    public async Task<bool> MeasureActivity(ChatActivityDto dto)
     {
         _mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
             ChatId = dto.ChatId,

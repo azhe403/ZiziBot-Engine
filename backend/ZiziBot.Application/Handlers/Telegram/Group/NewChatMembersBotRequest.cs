@@ -35,7 +35,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
         _telegramService.SetupResponse(request);
         _logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.ChatId);
 
-        var create = await _chatSettingRepository.CreateActivity(new ChatActivityDto {
+        var create = await _chatSettingRepository.MeasureActivity(new ChatActivityDto {
             ChatId = request.ChatIdentifier,
             ActivityType = ChatActivityType.NewChatMember,
             Chat = request.Chat,

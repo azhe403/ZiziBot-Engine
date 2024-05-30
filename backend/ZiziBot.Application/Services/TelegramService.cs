@@ -160,7 +160,15 @@ public class TelegramService
 
         _logger.LogInformation("Message sent to chat {ChatId}", _request.ChatId);
 
-        if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfter == default)
+        _mediatorService.EnqueueAsync(new CreateChatActivityRequest() {
+            ActivityType = ChatActivityType.BotSendMessage,
+            SentMessage = SentMessage,
+            Source = ResponseSource.Hangfire
+        });
+
+        var deleteAfterExec = deleteAfter != default ? deleteAfter : _request.DeleteAfter;
+
+        if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfterExec == default)
             return Complete();
 
         _logger.LogDebug("Schedule delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds",
@@ -170,9 +178,8 @@ public class TelegramService
             BotToken = _request.BotToken,
             Message = _request.Message,
             MessageId = SentMessage.MessageId,
-            DeleteAfter = deleteAfter == default ? deleteAfter : _request.DeleteAfter,
             Source = ResponseSource.Hangfire
-        });
+        }, delayExecution: deleteAfterExec);
 
         if (_request.CleanupTargets.Contains(CleanupTarget.FromSender))
         {
@@ -182,7 +189,7 @@ public class TelegramService
                 MessageId = _request.MessageId,
                 DeleteAfter = _request.DeleteAfter,
                 Source = ResponseSource.Hangfire
-            });
+            }, delayExecution: deleteAfterExec);
         }
 
         _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds",
@@ -193,10 +200,18 @@ public class TelegramService
 
     public async Task<BotResponseBase> EditMessageText(string text, InlineKeyboardMarkup? replyMarkup = null)
     {
+        if (SentMessage == null)
+            return Complete();
+
         text += "\n\n" + GetExecStamp();
 
         await Bot.EditMessageTextAsync(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup,
             parseMode: ParseMode.Html);
+
+        _mediatorService.EnqueueAsync(new CreateChatActivityRequest() {
+            ActivityType = ChatActivityType.BotEditMessage,
+            SentMessage = SentMessage,
+        });
 
         return Complete();
     }

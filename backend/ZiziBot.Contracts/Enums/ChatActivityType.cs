@@ -5,11 +5,15 @@ public enum ChatActivityType
     BanUser,
     UnbanUser,
 
+    NewChatMember,
+    KickMember,
+
     DeleteMessage,
     ForwardMessage,
     PinMessage,
     UnpinMessage,
 
-    NewChatMember,
-    KickMember
+    BotSendMessage,
+    BotEditMessage,
+    BotSentWebHook
 }

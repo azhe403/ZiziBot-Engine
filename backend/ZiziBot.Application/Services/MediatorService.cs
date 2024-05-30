@@ -44,10 +44,10 @@ public class MediatorService
         return botResponse.Complete();
     }
 
-    public BotResponseBase Schedule(BotRequestBase request)
+    public BotResponseBase Schedule(BotRequestBase request, TimeSpan delayExecution = default)
     {
         BotResponseBase botResponse = new();
-        BackgroundJob.Schedule<MediatorService>(x => x.Send(request), request.DeleteAfter);
+        BackgroundJob.Schedule<MediatorService>(x => x.Send(request), delayExecution);
         return botResponse.Complete();
     }
 

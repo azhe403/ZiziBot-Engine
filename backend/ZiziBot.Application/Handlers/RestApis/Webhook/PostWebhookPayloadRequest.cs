@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.Application.Handlers.RestApis.Webhook.Partial;
 using ZiziBot.DataSource.MongoEf;
@@ -33,7 +35,9 @@ public class PostWebhookPayloadResponseDto
 }
 
 public class PostWebhookPayloadHandler(
+    ILogger<PostWebhookPayloadHandler> logger,
     IMediator mediator,
+    MediatorService mediatorService,
     MongoEfContext mongoEfContext,
     AppSettingRepository appSettingRepository,
     ChatSettingRepository chatSettingRepository,
@@ -100,14 +104,29 @@ public class PostWebhookPayloadHandler(
 
         var webhookResponse = await mediator.Send(webhookRequest, cancellationToken);
 
-        var sentMessage = await botClient.SendTextMessageAsync(
-            chatId: webhookChat.ChatId,
-            text: webhookResponse.FormattedHtml,
-            messageThreadId: webhookChat.MessageThreadId,
-            parseMode: ParseMode.Html,
-            disableWebPagePreview: true,
-            cancellationToken: cancellationToken
-        );
+        Message sentMessage = new();
+
+        try
+        {
+            sentMessage = await botClient.SendTextMessageAsync(
+                chatId: webhookChat.ChatId,
+                text: webhookResponse.FormattedHtml,
+                messageThreadId: webhookChat.MessageThreadId,
+                parseMode: ParseMode.Html,
+                disableWebPagePreview: true, cancellationToken: cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Trying send GitHub Webhook without thread to ChatId: {ChatId}", webhookChat.ChatId);
+            if (exception.Message.Contains("thread not found"))
+            {
+                sentMessage = await botClient.SendTextMessageAsync(
+                    chatId: webhookChat.ChatId,
+                    text: webhookResponse.FormattedHtml,
+                    parseMode: ParseMode.Html,
+                    disableWebPagePreview: true, cancellationToken: cancellationToken);
+            }
+        }
 
         mongoEfContext.WebhookHistory.Add(new WebhookHistoryEntity {
             RouteId = webhookChat.RouteId,
@@ -121,6 +140,11 @@ public class PostWebhookPayloadHandler(
         });
 
         await mongoEfContext.SaveChangesAsync(cancellationToken);
+
+        mediatorService.EnqueueAsync(new CreateChatActivityRequest() {
+            ActivityType = ChatActivityType.BotSentWebHook,
+            SentMessage = sentMessage,
+        });
 
         stopwatch.Stop();
 
