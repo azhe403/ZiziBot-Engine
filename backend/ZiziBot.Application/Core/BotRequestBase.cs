@@ -14,7 +14,11 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public ChatJoinRequest? ChatJoinRequest => Update?.ChatJoinRequest;
 
     public Message? Message { get; set; }
-    public Message? ReplyToMessage => Message?.ReplyToMessage?.Type is not (MessageType.ForumTopicCreated or MessageType.ForumTopicEdited) ? Message?.ReplyToMessage : default;
+
+    public Message? ReplyToMessage => Message?.ReplyToMessage?.Type is not (MessageType.ForumTopicCreated or MessageType.ForumTopicEdited)
+        ? Message?.ReplyToMessage
+        : default;
+
     public Message? ChannelPost => Update?.ChannelPost;
     public Message? ChannelPostEdited => Update?.EditedChannelPost;
     public Message? ChannelPostAny => ChannelPost ?? ChannelPostEdited;
@@ -28,7 +32,10 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public string? TopicName => EditedTopicName ?? CreatedTopicName;
 
     public CallbackQuery? CallbackQuery { get; set; }
+
     public InlineQuery? InlineQuery { get; set; }
+    public string InlineCommand => InlineQuery?.Query.GetInlineQueryAt<string>(0) ?? string.Empty;
+    public string? InlineParam => InlineQuery?.Query.Replace(InlineCommand, "").Trim();
 
     public DateTime MessageDate => Message?.Date ?? Message?.EditDate ?? DateTime.UtcNow;
 
@@ -69,8 +76,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
 
     public ResponseSource Source { get; set; } = ResponseSource.Bot;
 
-    public CleanupTarget[] CleanupTargets { get; set; } = new[]
-    {
+    public CleanupTarget[] CleanupTargets { get; set; } = new[] {
         CleanupTarget.None
     };
 

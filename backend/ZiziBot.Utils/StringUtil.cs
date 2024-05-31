@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using NanoidDotNet;
@@ -197,6 +198,8 @@ public static class StringUtil
 
     public static T? Deserialize<T>(this string input)
     {
-        return JsonSerializer.Deserialize<T>(input);
+        return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions() {
+            NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals
+        });
     }
 }

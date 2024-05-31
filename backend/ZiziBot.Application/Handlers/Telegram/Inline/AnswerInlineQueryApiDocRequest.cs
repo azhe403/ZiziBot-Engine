@@ -12,28 +12,20 @@ public class AnswerInlineQueryApiDocBotRequestModel : BotRequestBase
 }
 
 public class
-    AnswerInlineQueryApiDocRequestHandler : IRequestHandler<AnswerInlineQueryApiDocBotRequestModel, BotResponseBase>
+    AnswerInlineQueryApiDocRequestHandler(
+        ILogger<AnswerInlineQueryApiDocRequestHandler> logger,
+        TelegramService telegramService,
+        CacheService cacheService)
+    : IRequestHandler<AnswerInlineQueryApiDocBotRequestModel, BotResponseBase>
 {
-    private readonly ILogger<AnswerInlineQueryApiDocRequestHandler> _logger;
-    private readonly TelegramService _telegramService;
-    private readonly CacheService _cacheService;
-
-    public AnswerInlineQueryApiDocRequestHandler(ILogger<AnswerInlineQueryApiDocRequestHandler> logger,
-        TelegramService telegramService, CacheService cacheService)
-    {
-        _logger = logger;
-        _telegramService = telegramService;
-        _cacheService = cacheService;
-    }
-
     public async Task<BotResponseBase> Handle(AnswerInlineQueryApiDocBotRequestModel request,
         CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        _logger.LogInformation("Find api doc for Query: {query}", request.Query);
+        logger.LogInformation("Find api doc for Query: {query}", request.Query);
 
-        var cache = await _cacheService.GetOrSetAsync(
+        var cache = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.GLOBAL_API_DOC,
             action: async () => {
                 var api = await UrlConst.BOT_API_SPEC.GetJsonAsync<TgBotApiDoc>(cancellationToken: cancellationToken);
@@ -46,7 +38,7 @@ public class
                 x => x.Key.Contains(request.Query, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        _logger.LogInformation("Found api-doc about: {count} result(s)", filtered.Count);
+        logger.LogInformation("Found api-doc about: {count} result(s)", filtered.Count);
 
         var inlineQueryResults = filtered
             .Take(50)
@@ -92,6 +84,6 @@ public class
         var learnMoreContent = $"Silakan mauskkan nama method/typw";
 
 
-        return await _telegramService.AnswerInlineQueryAsync(inlineQueryResults);
+        return await telegramService.AnswerInlineQueryAsync(inlineQueryResults);
     }
 }

@@ -12,7 +12,7 @@ public class InlineQueryController : CommandController
     private readonly ILogger<InlineQueryController> _logger;
     private readonly MediatorService _mediatorService;
 
-    public InlineQueryController(ILogger<InlineQueryController> logger,MediatorService mediatorService)
+    public InlineQueryController(ILogger<InlineQueryController> logger, MediatorService mediatorService)
     {
         _logger = logger;
         _mediatorService = mediatorService;
@@ -23,28 +23,27 @@ public class InlineQueryController : CommandController
     {
         var inlineCmd = data.InlineQuery.Query.GetInlineQueryAt<string>(0);
 
-        var result = inlineCmd switch
-        {
-            "api-doc" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryApiDocBotRequestModel()
-            {
+        var result = inlineCmd switch {
+            "api-doc" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryApiDocBotRequestModel() {
                 BotToken = data.Options.Token,
                 InlineQuery = data.InlineQuery,
                 Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
             }),
-            "uup" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryUupBotRequestModel()
-            {
+            "uup" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryUupBotRequestModel() {
                 BotToken = data.Options.Token,
                 InlineQuery = data.InlineQuery,
                 Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
             }),
-            "search" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryWebSearchBotRequestModel()
-            {
+            "search" => await _mediatorService.EnqueueAsync(new AnswerInlineQueryWebSearchBotRequestModel() {
                 BotToken = data.Options.Token,
                 InlineQuery = data.InlineQuery,
                 Query = data.InlineQuery.Query.Replace(inlineCmd, "").Trim()
             }),
-            _ => await _mediatorService.EnqueueAsync(new AnswerInlineQueryGuideBotRequestModel()
-            {
+            "subdl" => await _mediatorService.EnqueueAsync(new AnswerInlineQuerySubdlRequest() {
+                BotToken = data.Options.Token,
+                InlineQuery = data.InlineQuery
+            }),
+            _ => await _mediatorService.EnqueueAsync(new AnswerInlineQueryGuideBotRequestModel() {
                 BotToken = data.Options.Token,
                 InlineQuery = data.InlineQuery
             })
