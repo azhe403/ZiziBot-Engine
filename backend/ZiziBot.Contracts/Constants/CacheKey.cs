@@ -5,17 +5,16 @@ namespace ZiziBot.Contracts.Constants;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class CacheKey
 {
-    public const string BAN_ESS = "ban/ess/";
-    public const string BAN_CAS = "ban/cas/";
-    public const string BAN_SW = "ban/sw/";
+    public const string GLOBAL_SUDO = "global/sudo/";
+    public const string GLOBAL_API_DOC = "global/api-doc";
 
-    public const string SUDO = "sudo/";
-    public const string LIST_CHAT_ADMIN = "chat/admin/";
+    public const string USER_BAN_ESS = "user/ban/ess/";
+    public const string USER_BAN_CAS = "user/ban/cas/";
+    public const string USER_BAN_SW = "user/ban/sw/";
+    public const string USER_ACTIVE_USERNAMES = "user/active-usernames/";
 
-    public const string ACTIVE_USERNAMES_CHAT = "active-usernames/chat/";
-    public const string ACTIVE_USERNAMES_USER = "active-usernames/user/";
-
-    public const string API_DOC = "api-doc";
-
-    public const string BADWORD = "badword";
+    public const string CHAT_ADMIN = "chat/admin/";
+    public const string CHAT_NOTES = "chat/notes/";
+    public const string CHAT_ACTIVE_USERNAMES = "chat/active-usernames/";
+    public const string CHAT_BADWORD = "chat/badword";
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MongoDB.Bson;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 
@@ -56,8 +57,7 @@ public class CreateNoteHandler : IRequestHandler<SaveNoteRequest, ApiResponseBas
             return response.BadRequest("You don't have permission to create note for this Chat");
         }
 
-        var save = await _noteService.Save(new NoteEntity()
-        {
+        var save = await _noteService.Save(new NoteEntity() {
             Id = request.Model.ObjectId,
             ChatId = request.Model.ChatId,
             Query = request.Model.Query,

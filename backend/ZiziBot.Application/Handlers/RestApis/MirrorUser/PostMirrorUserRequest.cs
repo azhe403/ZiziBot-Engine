@@ -1,4 +1,5 @@
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
@@ -20,7 +21,8 @@ public class PostMirrorUserRequestHandler : IApiRequestHandler<PostMirrorUserReq
         _mongoDbContext = mongoDbContext;
     }
 
-    public async Task<ApiResponseBase<bool>> Handle(PostMirrorUserRequestDto request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<bool>> Handle(PostMirrorUserRequestDto request,
+        CancellationToken cancellationToken)
     {
         var mirrorUser = await _mongoDbContext.MirrorUsers
             .FirstOrDefaultAsync(entity =>
@@ -30,8 +32,7 @@ public class PostMirrorUserRequestHandler : IApiRequestHandler<PostMirrorUserReq
 
         if (mirrorUser == null)
         {
-            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity()
-            {
+            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
                 UserId = request.UserId,
                 ExpireDate = DateTime.UtcNow.AddDays(request.AddDays),
                 Status = (int)EventStatus.Complete

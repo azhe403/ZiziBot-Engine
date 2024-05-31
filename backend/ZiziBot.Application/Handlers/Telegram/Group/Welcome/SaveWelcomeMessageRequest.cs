@@ -1,10 +1,10 @@
 ﻿using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group.Welcome;
 
 public class SaveWelcomeMessageRequest : BotRequestBase
 {
-
 }
 
 public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageRequest, BotResponseBase>
@@ -13,7 +13,8 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly GroupRepository _groupRepository;
 
-    public SaveWelcomeMessageHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext, GroupRepository groupRepository)
+    public SaveWelcomeMessageHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext,
+        GroupRepository groupRepository)
     {
         _telegramService = telegramService;
         _mongoDbContext = mongoDbContext;
@@ -38,8 +39,7 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
 
         if (welcomeMessage == null)
         {
-            _mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity()
-            {
+            _mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.User!.Id,
                 Status = (int)EventStatus.Complete,

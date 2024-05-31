@@ -9,32 +9,23 @@ public class AnswerInlineQueryWebSearchBotRequestModel : BotRequestBase
     public string? Query { get; set; }
 }
 
-public class AnswerInlineQueryWebSearchRequestHandler : IRequestHandler<AnswerInlineQueryWebSearchBotRequestModel, BotResponseBase>
+public class AnswerInlineQueryWebSearchRequestHandler(TelegramService telegramService)
+    : IRequestHandler<AnswerInlineQueryWebSearchBotRequestModel, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-
-    public AnswerInlineQueryWebSearchRequestHandler(TelegramService telegramService)
-    {
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(AnswerInlineQueryWebSearchBotRequestModel request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         if (request.Query.IsNullOrEmpty())
         {
-            return await _telegramService.AnswerInlineQueryAsync(new List<InlineQueryResult>()
-            {
+            return await telegramService.AnswerInlineQueryAsync(new List<InlineQueryResult>() {
                 new InlineQueryResultArticle(
                     id: "guide-1",
                     title: "Ketikkan sebuah kueri untuk memulai pencarian..",
-                    inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText)
-                    {
+                    inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText) {
                         DisableWebPagePreview = true
                     }
-                )
-                {
+                ) {
                     ReplyMarkup = InlineDefaults.DefaultButtonMarkup
                 },
             });
@@ -43,19 +34,15 @@ public class AnswerInlineQueryWebSearchRequestHandler : IRequestHandler<AnswerIn
         var search = await WebParserUtil.WebSearchText(request.Query);
 
         var inlineResult = search.Select(x => {
-
             var htmlContent = HtmlMessage.Empty
                 .CodeBr(x.Title)
                 .TextBr(x.Url);
 
-            var replyMarkup = new InlineKeyboardMarkup(new[]
-            {
-                new[]
-                {
+            var replyMarkup = new InlineKeyboardMarkup(new[] {
+                new[] {
                     InlineKeyboardButton.WithUrl("↗️ Open", x.Url)
                 },
-                new[]
-                {
+                new[] {
                     InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Pencarian baru", $"search "),
                     InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Pencarian lanjut", $"search {request.Query}")
                 }
@@ -64,13 +51,11 @@ public class AnswerInlineQueryWebSearchRequestHandler : IRequestHandler<AnswerIn
             var fields = new InlineQueryResultArticle(
                 id: $"search-{Guid.NewGuid().ToString()}",
                 title: x.Title,
-                inputMessageContent: new InputTextMessageContent(htmlContent.ToString())
-                {
+                inputMessageContent: new InputTextMessageContent(htmlContent.ToString()) {
                     ParseMode = ParseMode.Html,
                     DisableWebPagePreview = false
                 }
-            )
-            {
+            ) {
                 Description = x.Url,
                 ReplyMarkup = replyMarkup
             };
@@ -78,7 +63,6 @@ public class AnswerInlineQueryWebSearchRequestHandler : IRequestHandler<AnswerIn
             return fields;
         });
 
-        return await _telegramService.AnswerInlineQueryAsync(inlineResult);
+        return await telegramService.AnswerInlineQueryAsync(inlineResult);
     }
-
 }

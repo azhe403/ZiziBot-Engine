@@ -35,7 +35,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
         _telegramService.SetupResponse(request);
         _logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.ChatId);
 
-        var create = await _chatSettingRepository.CreateActivity(new ChatActivityDto {
+        var create = await _chatSettingRepository.MeasureActivity(new ChatActivityDto {
             ChatId = request.ChatIdentifier,
             ActivityType = ChatActivityType.NewChatMember,
             Chat = request.Chat,
@@ -51,7 +51,10 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
                 .Text("Terdeteksi banyak anggota baru masuk ke grub dalam beberapa waktu terakhir. " +
                       "Untuk alasan keamanan, anggota baru yang masuk dalam {COOLDOWN_TIME} akan disenyapkan.").Br();
 
-            return await _telegramService.SendMessageAsync(message.ToString());
+            await _telegramService.SendMessageAsync(message.ToString());
+            await _telegramService.MuteMemberAsync(request.UserId, ValueConst.RAID_MODE_MUTE_DURATION);
+
+            return _telegramService.Complete();
         }
 
         var chatTitle = request.ChatTitle;

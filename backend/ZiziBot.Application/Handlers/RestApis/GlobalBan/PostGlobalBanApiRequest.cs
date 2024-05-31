@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 
@@ -33,7 +34,8 @@ public class PostGlobalBanApiHandler : IRequestHandler<PostGlobalBanApiRequest, 
         _mongoDbContext = mongoDbContext;
     }
 
-    public async Task<ApiResponseBase<bool>> Handle(PostGlobalBanApiRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<bool>> Handle(PostGlobalBanApiRequest request,
+        CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<bool>();
 
@@ -48,8 +50,7 @@ public class PostGlobalBanApiHandler : IRequestHandler<PostGlobalBanApiRequest, 
         }
         else
         {
-            _mongoDbContext.GlobalBan.Add(new GlobalBanEntity()
-            {
+            _mongoDbContext.GlobalBan.Add(new GlobalBanEntity() {
                 UserId = request.Model.UserId,
                 Reason = request.Model.Reason,
                 Status = (int)EventStatus.Complete

@@ -97,14 +97,22 @@ public class TelegramService
 
     #region Response
 
-    public async Task<BotResponseBase> SendMessageText(HtmlMessage text, IReplyMarkup? replyMarkup = null,
-        long chatId = -1)
+    public async Task<BotResponseBase> SendMessageText(
+        HtmlMessage text,
+        IReplyMarkup? replyMarkup = null,
+        long chatId = -1
+    )
     {
         return await SendMessageText(text.ToString(), replyMarkup, chatId);
     }
 
-    public async Task<BotResponseBase> SendMessageText(string? text, IReplyMarkup? replyMarkup = null, long chatId = -1,
-        int threadId = -1)
+    public async Task<BotResponseBase> SendMessageText(
+        string? text,
+        IReplyMarkup? replyMarkup = null,
+        long chatId = -1,
+        int threadId = -1,
+        TimeSpan deleteAfter = default
+    )
     {
         if (text.IsNullOrEmpty())
             return Complete();
@@ -152,19 +160,26 @@ public class TelegramService
 
         _logger.LogInformation("Message sent to chat {ChatId}", _request.ChatId);
 
-        if (_request.CleanupTargets.Contains(CleanupTarget.None))
+        _mediatorService.EnqueueAsync(new CreateChatActivityRequest() {
+            ActivityType = ChatActivityType.BotSendMessage,
+            SentMessage = SentMessage,
+            Source = ResponseSource.Hangfire
+        });
+
+        var deleteAfterExec = deleteAfter != default ? deleteAfter : _request.DeleteAfter;
+
+        if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfterExec == default)
             return Complete();
 
-        _logger.LogDebug("Scheduling delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds",
+        _logger.LogDebug("Schedule delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds",
             SentMessage.MessageId, _request.ChatId, _request.DeleteAfter.TotalSeconds);
 
         _mediatorService.Schedule(new DeleteMessageBotRequestModel {
             BotToken = _request.BotToken,
             Message = _request.Message,
             MessageId = SentMessage.MessageId,
-            DeleteAfter = _request.DeleteAfter,
             Source = ResponseSource.Hangfire
-        });
+        }, delayExecution: deleteAfterExec);
 
         if (_request.CleanupTargets.Contains(CleanupTarget.FromSender))
         {
@@ -174,7 +189,7 @@ public class TelegramService
                 MessageId = _request.MessageId,
                 DeleteAfter = _request.DeleteAfter,
                 Source = ResponseSource.Hangfire
-            });
+            }, delayExecution: deleteAfterExec);
         }
 
         _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds",
@@ -185,10 +200,18 @@ public class TelegramService
 
     public async Task<BotResponseBase> EditMessageText(string text, InlineKeyboardMarkup? replyMarkup = null)
     {
+        if (SentMessage == null)
+            return Complete();
+
         text += "\n\n" + GetExecStamp();
 
         await Bot.EditMessageTextAsync(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup,
             parseMode: ParseMode.Html);
+
+        _mediatorService.EnqueueAsync(new CreateChatActivityRequest() {
+            ActivityType = ChatActivityType.BotEditMessage,
+            SentMessage = SentMessage,
+        });
 
         return Complete();
     }
@@ -376,7 +399,8 @@ public class TelegramService
         long customChatId = -1,
         int threadId = -1,
         int customMessageId = -1,
-        string? customFileName = null
+        string? customFileName = null,
+        TimeSpan deleteAfter = default
     )
     {
         if (SentMessage != null)
@@ -393,7 +417,8 @@ public class TelegramService
                     text: text,
                     replyMarkup: replyMarkup,
                     chatId: customChatId,
-                    threadId: threadId
+                    threadId: threadId,
+                    deleteAfter: deleteAfter
                 );
             }
             else
@@ -532,7 +557,7 @@ public class TelegramService
     public async Task<string[]> GetChatUsernames()
     {
         var cache = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.ACTIVE_USERNAMES_CHAT + _request.ChatId,
+            cacheKey: CacheKey.CHAT_ACTIVE_USERNAMES + _request.ChatId,
             action: async () => {
                 var chat = await Bot.GetChatAsync(_request.ChatId);
                 var activeUsernames = chat.ActiveUsernames;
@@ -546,7 +571,7 @@ public class TelegramService
     public async Task<string[]> GetUserUsernames()
     {
         var cache = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.ACTIVE_USERNAMES_USER + _request.UserId,
+            cacheKey: CacheKey.USER_ACTIVE_USERNAMES + _request.UserId,
             action: async () => {
                 var chat = await Bot.GetChatAsync(_request.UserId);
                 var activeUsernames = chat.ActiveUsernames;
@@ -619,7 +644,7 @@ public class TelegramService
     public async Task<List<ChatMember>> GetChatAdministrator()
     {
         var cacheValue = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.LIST_CHAT_ADMIN + _request.ChatId,
+            cacheKey: CacheKey.CHAT_ADMIN + _request.ChatId,
             action: async () => {
                 var chatAdmins = await Bot.GetChatAdministratorsAsync(_request.ChatId);
                 return chatAdmins.ToList();

@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using NanoidDotNet;
@@ -181,9 +183,23 @@ public static class StringUtil
         {
             return input;
         }
+
         var chars = input.ToCharArray();
         chars[0] = char.ToLowerInvariant(input[0]);
 
         return new(chars);
+    }
+
+    public static bool Like(this string? input, string what)
+    {
+        return !input.IsNullOrEmpty() &&
+               input.Contains(what, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    public static T? Deserialize<T>(this string input)
+    {
+        return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions() {
+            NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals
+        });
     }
 }

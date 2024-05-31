@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -13,7 +14,8 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookBotRequest, Bot
     private readonly TelegramService _telegramService;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public CreateWebhookHandler(ILogger<CreateWebhookHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
+    public CreateWebhookHandler(ILogger<CreateWebhookHandler> logger, TelegramService telegramService,
+        MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
@@ -40,8 +42,7 @@ public class CreateWebhookHandler : IRequestHandler<CreateWebhookBotRequest, Bot
 
         if (webhookChat == null)
         {
-            _mongoDbContext.WebhookChat.Add(new WebhookChatEntity()
-            {
+            _mongoDbContext.WebhookChat.Add(new WebhookChatEntity() {
                 ChatId = request.ChatIdentifier,
                 MessageThreadId = request.MessageThreadId,
                 RouteId = routeId,

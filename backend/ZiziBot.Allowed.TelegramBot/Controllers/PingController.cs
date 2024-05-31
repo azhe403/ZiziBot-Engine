@@ -18,15 +18,12 @@ public class PingController : CommandController
     [TextCommand("ping")]
     public async Task Ping(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(
-            new PingBotRequestModel()
-            {
+        await _mediatorService.EnqueueAsync(new PingBotRequestModel() {
                 BotToken = data.Options.Token,
                 Message = data.Message,
                 DeleteAfter = TimeSpan.FromMinutes(1),
                 ReplyMessage = true,
-                CleanupTargets = new[]
-                {
+                CleanupTargets = new[] {
                     CleanupTarget.FromBot,
                     CleanupTarget.FromSender
                 }
@@ -37,9 +34,7 @@ public class PingController : CommandController
     [CallbackQuery(CallbackConst.BOT)]
     public async Task PingCallback(CallbackQueryData data, PingCallbackQueryModel model)
     {
-        await _mediatorService.EnqueueAsync(
-            new PingCallbackBotRequestModel()
-            {
+        await _mediatorService.EnqueueAsync(new PingCallbackBotRequestModel() {
                 BotToken = data.Options.Token,
                 CallbackQuery = data.CallbackQuery,
                 ExecutionStrategy = ExecutionStrategy.Hangfire
@@ -51,9 +46,7 @@ public class PingController : CommandController
     [TextCommand()]
     public async Task Default(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(
-            new DefaultBotRequestModel()
-            {
+        await _mediatorService.EnqueueAsync(new DefaultBotRequestModel() {
                 BotToken = data.Options.Token,
                 Message = data.Message
             }

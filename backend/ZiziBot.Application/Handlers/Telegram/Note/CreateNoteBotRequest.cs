@@ -1,5 +1,6 @@
 using FluentValidation;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 

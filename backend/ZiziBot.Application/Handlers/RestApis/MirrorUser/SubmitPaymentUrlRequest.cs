@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
@@ -35,7 +36,8 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
         _mirrorPaymentService = mirrorPaymentService;
     }
 
-    public async Task<ApiResponseBase<bool>> Handle(SubmitPaymentUrlRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<bool>> Handle(SubmitPaymentUrlRequest request,
+        CancellationToken cancellationToken)
     {
         var mirrorApproval = await _mongoDbContext.MirrorApproval
             .FirstOrDefaultAsync(x =>
@@ -52,11 +54,11 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
 
         if (!trakteerParsedDto.IsValid)
         {
-            return _response.BadRequest("Tautan Pembayaran tidak valid. Contoh: https://trakteer.id/payment-status/123456");
+            return _response.BadRequest(
+                "Tautan Pembayaran tidak valid. Contoh: https://trakteer.id/payment-status/123456");
         }
 
-        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity()
-        {
+        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity() {
             UserId = request.SessionUserId,
             PaymentUrl = trakteerParsedDto.PaymentUrl,
             RawText = trakteerParsedDto.RawText,
@@ -85,8 +87,7 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
 
         if (mirrorUser == null)
         {
-            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity()
-            {
+            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
                 UserId = request.SessionUserId,
                 ExpireDate = expireDate,
                 Status = (int)EventStatus.Complete,
@@ -109,5 +110,4 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
 
         return _response.Success("Pembayaran berhasil diverifikasi.", true);
     }
-
 }

@@ -19,41 +19,42 @@ public class MediatorService
     }
 
     #region Execution
+
     public async Task<BotResponseBase> EnqueueAsync(BotRequestBase request)
     {
         BotResponseBase botResponse = new();
         _logger.LogDebug("Enqueueing request {request} in {Mode}", request, request.ExecutionStrategy);
 
-        if (request.ExecutionStrategy == ExecutionStrategy.Instant)
-        {
-            await _mediator.Send(request);
-            return botResponse.Complete();
-        }
-
         switch (request.ExecutionStrategy)
         {
             case ExecutionStrategy.Hangfire:
-                BackgroundJob.Enqueue<MediatorService>(x => x.Send(request));
+                var jobId = $"{request.Source}-{request.ChatId}-{request.MessageId}-{request.UserId}-{request.Command}";
+                BackgroundJob.Enqueue<MediatorService>(x => x.Send(jobId, request));
                 break;
             case ExecutionStrategy.Background:
                 _backgroundQueue.Enqueue(async token => await _mediator.Send(request, token));
                 break;
+            case ExecutionStrategy.Instant:
+                return await _mediator.Send(request);
             default:
-                throw new ArgumentOutOfRangeException(nameof(request.ExecutionStrategy), request.ExecutionStrategy, null);
+                throw new ArgumentOutOfRangeException(nameof(request.ExecutionStrategy), request.ExecutionStrategy,
+                    null);
         }
 
         return botResponse.Complete();
     }
 
-    public BotResponseBase Schedule(BotRequestBase request)
+    public BotResponseBase Schedule(BotRequestBase request, TimeSpan delayExecution = default)
     {
         BotResponseBase botResponse = new();
-        BackgroundJob.Schedule<MediatorService>(x => x.Send(request), request.DeleteAfter);
+        BackgroundJob.Schedule<MediatorService>(x => x.Send(request), delayExecution);
         return botResponse.Complete();
     }
+
     #endregion
 
     #region Bridge
+
     [DisplayName("{0}")]
     [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
     public async Task<TResponse?> Send<TResponse>(IRequest<TResponse> request)
@@ -67,6 +68,6 @@ public class MediatorService
     {
         return await _mediator.Send(request);
     }
-    #endregion
 
+    #endregion
 }

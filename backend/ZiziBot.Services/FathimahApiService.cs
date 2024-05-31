@@ -5,29 +5,24 @@ using ZiziBot.Types.Vendor.FathimahApi.v2;
 
 namespace ZiziBot.Services;
 
-public class FathimahApiService
+public class FathimahApiService(
+    ILogger<FathimahApiService> logger,
+    ICacheService cacheService
+)
 {
     private const string BaseUrl = "https://api.myquran.com/v2";
-
-    private readonly ILogger<FathimahApiService> _logger;
-    private readonly CacheService _cacheService;
-
-    public FathimahApiService(ILogger<FathimahApiService> logger, CacheService cacheService)
-    {
-        _logger = logger;
-        _cacheService = cacheService;
-    }
 
     public async Task<CityResponse> GetAllCityAsync()
     {
         const string path = "sholat/kota/semua";
 
-        _logger.LogInformation("Get City");
+        logger.LogInformation("Get City");
 
-        var apis = await _cacheService.GetOrSetAsync(
+        var apis = await cacheService.GetOrSetAsync(
             cacheKey: $"vendor/banghasan/{path}",
             expireAfter: "1d",
             staleAfter: "1h",
+            evictAfter: true,
             action: async () => {
                 var apis = await BaseUrl.AppendPathSegment(path).GetJsonAsync<CityResponse>();
 
@@ -38,20 +33,31 @@ public class FathimahApiService
         return apis;
     }
 
-    public async Task<ShalatTimeResponse> GetShalatTime(long cityId)
+    public async Task<KeyValuePair<string, string>?> GetCurrentShalatTime(long cityId)
     {
-        return await GetShalatTime(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE), cityId);
+        var currentTime = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm");
+        var shalatTime = await GetShalatTime(DateTime.Now, cityId);
+        var currentShalat = shalatTime.Schedule?.ShalatDict?.FirstOrDefault(pair => pair.Value == currentTime);
+
+        return currentShalat;
     }
 
-    public async Task<ShalatTimeResponse> GetShalatTime(DateTime dateTime, long cityId)
+    public async Task<ShalatTimeResponse> GetShalatTime(long cityId, bool evictBefore = false)
     {
-        var path = $"sholat/jadwal/{cityId}/{dateTime.Year}/{dateTime.Month}/{dateTime.Day}";
+        return await GetShalatTime(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE), cityId, evictBefore);
+    }
 
-        _logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateTime);
+    public async Task<ShalatTimeResponse> GetShalatTime(DateTime dateTime, long cityId, bool evictBefore = false)
+    {
+        var date = dateTime.ToString("yyyy-MM-dd");
+        var path = $"sholat/jadwal/{cityId}/{date}";
 
-        var apis = await _cacheService.GetOrSetAsync(
+        logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateTime);
+
+        var apis = await cacheService.GetOrSetAsync(
             cacheKey: $"vendor/banghasan/{path}",
             expireAfter: "1d",
+            evictBefore: evictBefore,
             staleAfter: "1h",
             action: async () => {
                 var apis = await BaseUrl

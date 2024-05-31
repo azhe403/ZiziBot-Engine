@@ -6,9 +6,10 @@ namespace ZiziBot.DataSource.MongoEf.Entities;
 public class WebhookHistoryEntity : EntityBase
 {
     public required string RouteId { get; set; }
-    public long ChatId { get; set; }
-    public int MessageId { get; set; }
+    public required long ChatId { get; set; }
+    public required int MessageId { get; set; }
     public int MessageThreadId { get; set; }
-    public WebhookSource WebhookSource { get; set; }
-    public string Payload { get; set; }
+    public required WebhookSource WebhookSource { get; set; }
+    public TimeSpan Elapsed { get; set; }
+    public required string Payload { get; set; }
 }

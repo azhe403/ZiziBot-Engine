@@ -30,14 +30,10 @@ public class PingRequestHandler : IRequestHandler<PingBotRequestModel, BotRespon
         if (await _sudoService.IsSudoAsync(request.UserId))
         {
             replyMarkup = new InlineKeyboardMarkup(
-                new[]
-                {
-                    new[]
-                    {
-                        new InlineKeyboardButton("WebHook Info")
-                        {
-                            CallbackData = new PingCallbackQueryModel()
-                            {
+                new[] {
+                    new[] {
+                        new InlineKeyboardButton("WebHook Info") {
+                            CallbackData = new PingCallbackQueryModel() {
                                 Path = CallbackConst.BOT,
                                 Data = "webhook-info"
                             }

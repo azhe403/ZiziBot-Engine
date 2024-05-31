@@ -8,44 +8,47 @@ using Octokit.Webhooks.Events.DeploymentStatus;
 using Octokit.Webhooks.Events.PullRequest;
 using Octokit.Webhooks.Events.Star;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.WebHook.GitHub;
 
-public class GithubWebhookEventHandler : GithubWebhookEventProcessor
+public class GithubWebhookEventHandler(
+    ILogger<GithubWebhookEventHandler> logger,
+    MongoEfContext mongoEfContext,
+    AppSettingRepository appSettingRepository,
+    ChatSettingRepository chatSettingRepository
+) : GithubWebhookEventProcessor
 {
-    private readonly ILogger<GithubWebhookEventHandler> _logger;
+    // protected override async Task ProcessPushWebhookAsync(WebhookHeaders headers, PushEvent pushEvent)
+    // {
+    //     logger.LogInformation("Push event received");
+    //
+    //     var commits = pushEvent.Commits.ToList();
+    //     var commitCount = commits.Count;
+    //     var repository = pushEvent.Repository;
+    //     var branchName = pushEvent.Ref.Split('/').Last();
+    //     var treeUrl = repository.HtmlUrl.AppendPathSegment($"tree/{branchName}");
+    //     var commitsStr = "commit".ToQuantity(commitCount);
+    //
+    //     var htmlMessage = HtmlMessage.Empty
+    //         .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(repository.HtmlUrl, $"{repository.FullName}")
+    //         .Text(":").Url(treeUrl, $"{branchName}")
+    //         .Br().Br();
+    //
+    //     commits.ForEach(commit => {
+    //         htmlMessage.Url(commit.Url.ToString(), commit.Id[..7])
+    //             .Text(": ")
+    //             .TextBr($"{commit.Message} by {commit.Author.Name}");
+    //     });
+    //
+    //     await SendMessage(htmlMessage.ToString());
+    // }
 
-    public GithubWebhookEventHandler(ILogger<GithubWebhookEventHandler> logger)
-    {
-        _logger = logger;
-    }
-
-    protected override async Task ProcessPushWebhookAsync(WebhookHeaders headers, PushEvent pushEvent)
-    {
-        _logger.LogInformation("Push event received");
-
-        var commits = pushEvent.Commits.ToList();
-        var commitCount = commits.Count;
-        var repository = pushEvent.Repository;
-        var branchName = pushEvent.Ref.Split('/').Last();
-        var treeUrl = repository.HtmlUrl.AppendPathSegment($"tree/{branchName}");
-        var commitsStr = "commit".ToQuantity(commitCount);
-
-        var htmlMessage = HtmlMessage.Empty
-            .Url(pushEvent.Compare, $"🏗 {commitsStr}").Bold($" to ").Url(repository.HtmlUrl, $"{repository.FullName}").Text(":").Url(treeUrl, $"{branchName}")
-            .Br().Br();
-
-        commits.ForEach(commit => {
-            htmlMessage.Url(commit.Url.ToString(), commit.Id[..7])
-                .Text(": ")
-                .TextBr($"{commit.Message} by {commit.Author.Name}");
-        });
-
-        await SendMessage(htmlMessage.ToString());
-    }
-
-    protected override Task ProcessPullRequestWebhookAsync(WebhookHeaders headers, PullRequestEvent pullRequestEvent, PullRequestAction action)
+    protected override Task ProcessPullRequestWebhookAsync(WebhookHeaders headers, PullRequestEvent pullRequestEvent,
+        PullRequestAction action)
     {
         var htmlMessage = HtmlMessage.Empty;
         var repository = pullRequestEvent.Repository;
@@ -89,7 +92,8 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         return SendMessage(htmlMessage.ToString());
     }
 
-    protected override Task ProcessDeploymentStatusWebhookAsync(WebhookHeaders headers, DeploymentStatusEvent deploymentStatusEvent, DeploymentStatusAction action)
+    protected override Task ProcessDeploymentStatusWebhookAsync(WebhookHeaders headers,
+        DeploymentStatusEvent deploymentStatusEvent, DeploymentStatusAction action)
     {
         var htmlMessage = HtmlMessage.Empty;
         var repository = deploymentStatusEvent.Repository;
@@ -104,7 +108,8 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
         return SendMessage(htmlMessage.ToString());
     }
 
-    protected override Task ProcessDeploymentWebhookAsync(WebhookHeaders headers, DeploymentEvent deploymentEvent, DeploymentAction action)
+    protected override Task ProcessDeploymentWebhookAsync(WebhookHeaders headers, DeploymentEvent deploymentEvent,
+        DeploymentAction action)
     {
         var htmlMessage = HtmlMessage.Empty;
         var repository = deploymentEvent.Repository;
@@ -121,30 +126,48 @@ public class GithubWebhookEventHandler : GithubWebhookEventProcessor
 
     private async Task SendMessage(string message)
     {
-        var botClient = new TelegramBotClient(Token);
+        Message sentMessage = new();
+        var botSetting = await appSettingRepository.GetBotMain();
+        var webhookChat = await chatSettingRepository.GetWebhookRouteById(RouteId);
+        var botClient = new TelegramBotClient(botSetting.Token);
+
+        if (webhookChat == null)
+            return;
 
         try
         {
-            await botClient.SendTextMessageAsync(
-                chatId: ChatId,
+            sentMessage = await botClient.SendTextMessageAsync(
+                chatId: webhookChat.ChatId,
                 text: message.MdToHtml(),
-                messageThreadId: ThreadId,
+                messageThreadId: webhookChat.MessageThreadId,
                 parseMode: ParseMode.Html,
                 disableWebPagePreview: true
             );
         }
         catch (Exception exception)
         {
-            _logger.LogWarning("Trying send GitHub Webhook without thread to ChatId: {ChatId}", ChatId);
             if (exception.Message.Contains("thread not found"))
             {
-                await botClient.SendTextMessageAsync(
-                    chatId: ChatId,
+                logger.LogWarning("Trying send GitHub Webhook without thread to ChatId: {ChatId}", webhookChat.ChatId);
+                sentMessage = await botClient.SendTextMessageAsync(
+                    chatId: webhookChat.ChatId,
                     text: message.MdToHtml(),
                     parseMode: ParseMode.Html,
                     disableWebPagePreview: true
                 );
             }
         }
+
+        mongoEfContext.WebhookHistory.Add(new WebhookHistoryEntity {
+            RouteId = RouteId,
+            TransactionId = TransactionId,
+            ChatId = webhookChat.ChatId,
+            MessageId = sentMessage.MessageId,
+            WebhookSource = WebhookSource.GitHub,
+            Payload = Payload,
+            Status = EventStatus.Complete
+        });
+
+        await mongoEfContext.SaveChangesAsync();
     }
 }

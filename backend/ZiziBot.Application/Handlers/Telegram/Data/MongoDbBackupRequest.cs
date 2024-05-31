@@ -2,6 +2,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.DataSource.MongoDb.Entities;
 using File = System.IO.File;
 
 namespace ZiziBot.Application.Handlers.Telegram.Data;
@@ -16,7 +17,8 @@ public class MongoDbBackupHandler : IRequestHandler<MongoDbBackupRequest, bool>
     private readonly MongoDbContextBase _mongoDbContext;
     private readonly AppSettingRepository _appSettingRepository;
 
-    public MongoDbBackupHandler(ILogger<MongoDbBackupHandler> logger, MongoDbContextBase mongoDbContext, AppSettingRepository appSettingRepository)
+    public MongoDbBackupHandler(ILogger<MongoDbBackupHandler> logger, MongoDbContextBase mongoDbContext,
+        AppSettingRepository appSettingRepository)
     {
         _logger = logger;
         _mongoDbContext = mongoDbContext;
@@ -79,7 +81,9 @@ public class MongoDbBackupHandler : IRequestHandler<MongoDbBackupRequest, bool>
             cancellationToken: cancellationToken
         );
 
-        PathConst.BACKUP.GetFiles(pattern: "MongoDB*zip", predicate: x => DateTime.UtcNow.AddMonths(-2) > x.CreationTime).DeleteFile();
+        PathConst.BACKUP
+            .GetFiles(pattern: "MongoDB*zip", predicate: x => DateTime.UtcNow.AddMonths(-2) > x.CreationTime)
+            .DeleteFile();
 
         return true;
     }

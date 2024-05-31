@@ -1,9 +1,9 @@
+using System.Text.Json;
 using CacheTower.Providers.FileSystem;
 using CacheTower.Providers.Redis;
-using CacheTower.Serializers.NewtonsoftJson;
+using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace ZiziBot.Caching.Extensions;
@@ -21,8 +21,8 @@ public static class CacheTowerExtension
                     .WithCleanupFrequency(TimeSpan.FromDays(1))
                     .AddMemoryCacheLayer()
                     .ConfigureSqliteCacheLayer(cacheConfig)
-                    .ConfigureRedisCacheLayer(cacheConfig)
                     .ConfigureFileCacheLayer(cacheConfig)
+                    .ConfigureRedisCacheLayer(cacheConfig)
                     .ConfigureFirebaseCacheLayer(cacheConfig);
             }
         );
@@ -41,7 +41,9 @@ public static class CacheTowerExtension
         builder.AddRedisCacheLayer(
             connection: ConnectionMultiplexer.Connect(cacheConfig.RedisConnection),
             options: new RedisCacheLayerOptions(
-                new NewtonsoftJsonCacheSerializer(new JsonSerializerSettings() { Formatting = Formatting.Indented })
+                new SystemTextJsonCacheSerializer(new JsonSerializerOptions() {
+                    WriteIndented = true
+                })
             )
         );
 
@@ -56,20 +58,22 @@ public static class CacheTowerExtension
         builder.AddFileCacheLayer(
             new FileCacheLayerOptions(
                 DirectoryPath: PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
-                Serializer: new NewtonsoftJsonCacheSerializer(new JsonSerializerSettings() { Formatting = Formatting.Indented })
+                Serializer: new SystemTextJsonCacheSerializer(new JsonSerializerOptions() {
+                    WriteIndented = true
+                })
             )
         );
 
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureFirebaseCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    private static ICacheStackBuilder ConfigureFirebaseCacheLayer(this ICacheStackBuilder builder,
+        CacheConfig cacheConfig)
     {
         if (!cacheConfig.UseFirebase)
             return builder;
 
-        var firebaseOptions = new FirebaseCacheOptions
-        {
+        var firebaseOptions = new FirebaseCacheOptions {
             ProjectUrl = cacheConfig.FirebaseProjectUrl,
             ServiceAccountJson = cacheConfig.FirebaseServiceAccountJson
         };
@@ -79,7 +83,8 @@ public static class CacheTowerExtension
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureSqliteCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    private static ICacheStackBuilder ConfigureSqliteCacheLayer(this ICacheStackBuilder builder,
+        CacheConfig cacheConfig)
     {
         if (!cacheConfig.UseSqlite)
             return builder;

@@ -4,6 +4,7 @@ using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
 using MoreLinq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Services;
 
@@ -33,7 +34,8 @@ public class BinderByteService
         var sb = new StringBuilder();
 
         _binderByteConfig = await _appSettingRepository.GetConfigSectionAsync<BinderByteConfig>();
-        if (_binderByteConfig?.ApiKey == null || _binderByteConfig?.BaseUrl == null || _binderByteConfig.IsEnabled == false)
+        if (_binderByteConfig?.ApiKey == null || _binderByteConfig?.BaseUrl == null ||
+            _binderByteConfig.IsEnabled == false)
         {
             sb.Append("Cek Resi sepertinya belum dipersiapkan");
             return sb.ToString();
@@ -116,8 +118,7 @@ public class BinderByteService
 
     public async Task SaveAwbInfo(AwbInfo data)
     {
-        _mongoDbContext.BinderByteCheckAwb.Add(new BinderByteCheckAwbEntity()
-        {
+        _mongoDbContext.BinderByteCheckAwb.Add(new BinderByteCheckAwbEntity() {
             Awb = data.Summary.Awb,
             Courier = data.Summary.Courier,
             AwbInfo = data,

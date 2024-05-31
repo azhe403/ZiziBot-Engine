@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
@@ -51,8 +52,7 @@ public class SaveRssHandler : IRequestHandler<SaveRssRequest, ApiResponseBase<bo
 
         if (rss == null)
         {
-            _mongoDbContext.RssSetting.Add(new RssSettingEntity()
-            {
+            _mongoDbContext.RssSetting.Add(new RssSettingEntity() {
                 RssUrl = request.Body.Url,
                 ChatId = request.Body.ChatId,
                 Status = (int)EventStatus.Complete
@@ -60,7 +60,6 @@ public class SaveRssHandler : IRequestHandler<SaveRssRequest, ApiResponseBase<bo
         }
         else
         {
-
         }
 
         await _mongoDbContext.SaveChangesAsync(cancellationToken);

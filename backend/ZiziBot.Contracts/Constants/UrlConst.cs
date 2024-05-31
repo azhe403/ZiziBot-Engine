@@ -24,5 +24,7 @@ public static class UrlConst
     public const string API_BINDERBYTE = "https://api.binderbyte.com/v1/";
     public const string API_TONJOO_ONGKIR = "https://pluginongkoskirim.com";
 
+    public const string API_SUBDL_BASE = "https://api.subdl.com";
+
     public const string HANGFIRE_URL_PATH = "/admin/hangfire";
 }

@@ -1,6 +1,7 @@
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Behaviours;
 
@@ -11,7 +12,8 @@ public class EnsureChatSettingBehavior<TRequest, TResponse> : IRequestPostProces
     private readonly ILogger<EnsureChatSettingBehavior<TRequest, TResponse>> _logger;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public EnsureChatSettingBehavior(ILogger<EnsureChatSettingBehavior<TRequest, TResponse>> logger, MongoDbContextBase mongoDbContext)
+    public EnsureChatSettingBehavior(ILogger<EnsureChatSettingBehavior<TRequest, TResponse>> logger,
+        MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _mongoDbContext = mongoDbContext;
@@ -32,8 +34,7 @@ public class EnsureChatSettingBehavior<TRequest, TResponse> : IRequestPostProces
             _logger.LogDebug("Creating fresh ChatSetting for ChatId: {ChatId}", request.ChatId);
 
             _mongoDbContext.ChatSetting.Add(
-                new ChatSettingEntity()
-                {
+                new ChatSettingEntity() {
                     ChatId = request.ChatIdentifier,
                     ChatTitle = request.ChatTitle,
                     ChatType = request.ChatType,

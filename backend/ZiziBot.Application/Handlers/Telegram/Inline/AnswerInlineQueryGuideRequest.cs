@@ -5,69 +5,54 @@ namespace ZiziBot.Application.Handlers.Telegram.Inline;
 
 public class AnswerInlineQueryGuideBotRequestModel : BotRequestBase
 {
-
 }
 
-public class AnswerInlineQueryGuideRequestHandler : IRequestHandler<AnswerInlineQueryGuideBotRequestModel, BotResponseBase>
+public class AnswerInlineQueryGuideRequestHandler(TelegramService telegramService)
+    : IRequestHandler<AnswerInlineQueryGuideBotRequestModel, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-
-    public AnswerInlineQueryGuideRequestHandler(TelegramService telegramService)
-    {
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(AnswerInlineQueryGuideBotRequestModel request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        return await _telegramService.AnswerInlineQueryAsync(new List<InlineQueryResult>()
-        {
+        return await telegramService.AnswerInlineQueryAsync(new List<InlineQueryResult>() {
             new InlineQueryResultArticle(
                 id: "guide-1",
                 title: "Bagaimana cara menggunakannya?",
-                inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText)
-                {
+                inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText) {
                     DisableWebPagePreview = true
                 }
-            )
-            {
+            ) {
                 ReplyMarkup = InlineDefaults.DefaultButtonMarkup
             },
             new InlineQueryResultArticle(
                 id: "guide-2",
                 title: "Cobalah ketikkan 'ping'",
-                inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText)
-                {
+                inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText) {
                     DisableWebPagePreview = true
                 }
-            )
-            {
+            ) {
                 ReplyMarkup = InlineDefaults.DefaultButtonMarkup
             }
         });
     }
-
 }
 
 public static class InlineDefaults
 {
-    public static readonly InlineKeyboardMarkup DefaultButtonMarkup = new(new[]
-    {
-        new[]
-        {
+    public static readonly InlineKeyboardMarkup DefaultButtonMarkup = new(new[] {
+        new[] {
             InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Ping", $"ping "),
             InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Api doc", $"api-doc ")
         },
-        new[]
-        {
+        new[] {
             InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Web Search", $"search "),
             InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Windows UUPs", $"uup ")
         }
     });
 
     public const string InlineQueryDoc = "https://docs.zizibot.winten.my.id/features/inline-query";
+
     public static readonly string DefaultGuideText = $"Silakan pelajari selengkapnya" +
-                                                 $"\n{InlineQueryDoc}" +
-                                                 $"\n\nAtau tekan salah satu tombol dibawah ini";
+                                                     $"\n{InlineQueryDoc}" +
+                                                     $"\n\nAtau tekan salah satu tombol dibawah ini";
 }

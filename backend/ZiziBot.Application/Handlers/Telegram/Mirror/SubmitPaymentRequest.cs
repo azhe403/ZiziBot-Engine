@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 

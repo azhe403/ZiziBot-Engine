@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Services;
 
@@ -26,8 +27,7 @@ public class JadwalSholatOrgSinkService
         var cities = await JadwalSholatOrgParserUtil.GetCities();
         var removeCityIds = cities.Select(x => x.CityId);
 
-        var insertCities = cities?.Select(x => new JadwalSholatOrg_CityEntity()
-        {
+        var insertCities = cities?.Select(x => new JadwalSholatOrg_CityEntity() {
             CityId = x.CityId,
             CityCode = x.CityCode,
             CityName = x.CityName,
@@ -63,8 +63,7 @@ public class JadwalSholatOrgSinkService
         var trxId = Guid.NewGuid().ToString();
         var schedules = await JadwalSholatOrgParserUtil.FetchSchedules(cityId);
 
-        var insertSchedules = schedules?.Select(x => new JadwalSholatOrg_ScheduleEntity()
-        {
+        var insertSchedules = schedules?.Select(x => new JadwalSholatOrg_ScheduleEntity() {
             CityId = cityId,
             Date = x.Date,
             Fajr = x.Fajr,

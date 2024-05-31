@@ -1,4 +1,5 @@
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -30,8 +31,7 @@ public class SetAfkRequestHandler : IRequestHandler<SetAfkBotRequest, BotRespons
 
         if (afkEntity == null)
         {
-            _mongoDbContext.Afk.Add(new AfkEntity()
-            {
+            _mongoDbContext.Afk.Add(new AfkEntity() {
                 UserId = request.UserId,
                 ChatId = request.ChatIdentifier,
                 Reason = request.Reason,

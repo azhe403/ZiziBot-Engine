@@ -1,4 +1,5 @@
 ﻿using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
 
@@ -34,8 +35,7 @@ public class AddWordFilterHandler : IBotRequestHandler<AddWordFilterRequest>
 
         if (wordFilter == null)
         {
-            _mongoDbContext.WordFilter.Add(new WordFilterEntity()
-            {
+            _mongoDbContext.WordFilter.Add(new WordFilterEntity() {
                 Word = request.Word,
                 Status = (int)EventStatus.Complete,
                 TransactionId = request.TransactionId

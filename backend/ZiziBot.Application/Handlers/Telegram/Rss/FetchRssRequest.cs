@@ -5,6 +5,7 @@ using MongoFramework.Linq;
 using MoreLinq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 

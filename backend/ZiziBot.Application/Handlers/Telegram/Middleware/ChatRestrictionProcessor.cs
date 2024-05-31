@@ -10,7 +10,8 @@ public class ChatRestrictionProcessorBotRequest<TRequest> : IRequestPreProcessor
     private readonly AppSettingRepository _appSettingRepository;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public ChatRestrictionProcessorBotRequest(TelegramService telegramService, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext)
+    public ChatRestrictionProcessorBotRequest(TelegramService telegramService, AppSettingRepository appSettingRepository,
+        MongoDbContextBase mongoDbContext)
     {
         _telegramService = telegramService;
         _appSettingRepository = appSettingRepository;
@@ -22,6 +23,7 @@ public class ChatRestrictionProcessorBotRequest<TRequest> : IRequestPreProcessor
         if (request.IsChannel ||
             request.InlineQuery != null ||
             request.CallbackQuery != null ||
+            request.Source != ResponseSource.Bot ||
             request.IsPrivateChat)
             return;
 

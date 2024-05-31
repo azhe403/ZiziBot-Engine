@@ -32,8 +32,6 @@ public class MongoDbContextBase : MongoDbContext
     public MongoDbSet<WelcomeMessageEntity> WelcomeMessage { get; set; }
     public MongoDbSet<AfkEntity> Afk { get; set; }
     public MongoDbSet<WarnUserEntity> WarnUser { get; set; }
-
-    [Obsolete("Please use GroupAdmin from MongoDbContextBase")]
     public MongoDbSet<ChatAdminEntity> ChatAdmin { get; set; }
 
     public MongoDbSet<ChatGptSessionEntity> ChatGptSession { get; set; }

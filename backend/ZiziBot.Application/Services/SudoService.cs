@@ -1,4 +1,5 @@
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Services;
 
@@ -16,7 +17,7 @@ public class SudoService
     public async Task<bool> IsSudoAsync(long userId)
     {
         var cache = await _cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.SUDO + userId,
+            cacheKey: CacheKey.GLOBAL_SUDO + userId,
             action: async () => {
                 return await _mongoDbContext.Sudoers.AnyAsync(
                     x =>

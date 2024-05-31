@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
 public class GetSettingPanelBotRequestModel : BotRequestBase
 {
-
 }
 
 public class GetSettingPanelRequestHandler : IRequestHandler<GetSettingPanelBotRequestModel, BotResponseBase>
@@ -14,22 +14,24 @@ public class GetSettingPanelRequestHandler : IRequestHandler<GetSettingPanelBotR
     private readonly TelegramService _telegramService;
     private readonly MongoDbContextBase _mongoDbContext;
 
-    public GetSettingPanelRequestHandler(ILogger<GetSettingPanelRequestHandler> logger, TelegramService telegramService, MongoDbContextBase mongoDbContext)
+    public GetSettingPanelRequestHandler(ILogger<GetSettingPanelRequestHandler> logger, TelegramService telegramService,
+        MongoDbContextBase mongoDbContext)
     {
         _logger = logger;
         _telegramService = telegramService;
         _mongoDbContext = mongoDbContext;
     }
 
-    public async Task<BotResponseBase> Handle(GetSettingPanelBotRequestModel request, CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(GetSettingPanelBotRequestModel request,
+        CancellationToken cancellationToken)
     {
         _telegramService.SetupResponse(request);
 
-        var chat = await _mongoDbContext.ChatSetting.FirstOrDefaultAsync(x => x.ChatId == request.ChatIdentifier, cancellationToken);
+        var chat = await _mongoDbContext.ChatSetting.FirstOrDefaultAsync(x => x.ChatId == request.ChatIdentifier,
+            cancellationToken);
         if (chat == null)
         {
-            _mongoDbContext.ChatSetting.Add(new ChatSettingEntity()
-            {
+            _mongoDbContext.ChatSetting.Add(new ChatSettingEntity() {
                 ChatId = request.ChatIdentifier,
             });
 
