@@ -105,6 +105,8 @@ public static class LoggingExtension
 
                 builder.BeforeCall(call => {
                     var request = call.Request;
+                    call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
+
                     Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
                 });
 
