@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.Application.Handlers.RestApis.Webhook.Partial;
 using ZiziBot.DataSource.MongoDb.Entities;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
@@ -41,6 +40,7 @@ public class PostWebhookPayloadHandler(
     MediatorService mediatorService,
     MongoDbContextBase mongoDbContextBase,
     MongoEfContext mongoEfContext,
+    WebhookService webhookService,
     AppSettingRepository appSettingRepository,
     ChatSettingRepository chatSettingRepository,
     GithubWebhookEventProcessor githubWebhookEventProcessor)
@@ -90,21 +90,19 @@ public class PostWebhookPayloadHandler(
                 break;
         }
 
-        IWebhookRequestBase<bool>? webhookRequest = webhookSource switch {
-            WebhookSource.GitHub => content.Deserialize<GitHubEventRequest>(),
-            WebhookSource.GitLab => content.Deserialize<GitLabEventRequest>(),
+        var webhookResponse = webhookSource switch {
+            WebhookSource.GitHub => await webhookService.ParseGitHub(webhookHeader, content),
+            WebhookSource.GitLab => await webhookService.ParseGitLab(webhookHeader, content),
             _ => default
         };
 
-        if (webhookRequest == null)
+        if (webhookResponse == null)
         {
             return response.BadRequest("Webhook can't be processed");
         }
 
         var botSetting = await appSettingRepository.GetBotMain();
         var botClient = new TelegramBotClient(botSetting.Token);
-
-        var webhookResponse = await mediator.Send(webhookRequest, cancellationToken);
 
         Message sentMessage = new();
 
