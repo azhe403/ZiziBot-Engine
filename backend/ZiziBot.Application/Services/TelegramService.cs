@@ -461,13 +461,21 @@ public class TelegramService
 
     public async Task<BotResponseBase> AnswerInlineQueryAsync(IEnumerable<InlineQueryResult> results)
     {
-        if (_request.InlineQuery == null)
+        try
         {
-            return Complete();
+            if (_request.InlineQuery == null)
+            {
+                return Complete();
+            }
+
+            var reducedResults = results.Take(50);
+            await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, reducedResults, cacheTime: 60);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error answering inline query: {InlineQueryId}", _request.InlineQuery?.Id);
         }
 
-        var reducedResults = results.Take(50);
-        await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, reducedResults, cacheTime: 60);
         return Complete();
     }
 

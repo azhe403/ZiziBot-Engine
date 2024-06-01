@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Flurl;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -19,16 +20,22 @@ public class AnswerInlineQuerySubdlHandler(ILogger<AnswerInlineQuerySubdlHandler
         Popular popular = new();
         IEnumerable<InlineQueryResult>? inlineQueryResults = default;
 
+        logger.LogInformation("Find subdl for Query: {query}", request.InlineParam);
         if (request.InlineParam.IsNullOrEmpty())
         {
-            logger.LogInformation("Find subdl for Query: {query}", request.InlineParam);
             popular = await subdlService.FetchPopular();
+        }
+        else
+        {
+            popular = await subdlService.Search(request.InlineParam);
         }
 
         inlineQueryResults = popular.Results?.Select(x => {
-            var subtitleUrl = $"https://subdl.com/subtitle/{x.SdId}/{x.Slug}";
+            var slugOrPath = x.Slug.IsNullOrEmpty() ? x.Link : "subtitle".AppendPathSegments(x.SdId, x.Slug).ToString();
+            var subtitleUrl = $"https://subdl.com/".AppendPathSegments(slugOrPath);
             var htmlContent = HtmlMessage.Empty
                 .CodeBr(x.Name)
+                .Bold("Year : ").CodeBr(x.Year.ToString())
                 .TextBr(subtitleUrl);
 
             var replyMarkup = new InlineKeyboardMarkup(new[] {
@@ -38,15 +45,17 @@ public class AnswerInlineQuerySubdlHandler(ILogger<AnswerInlineQuerySubdlHandler
                 }
             });
 
+            var name = $"{x.Year} - {x.Name}";
             var fields = new InlineQueryResultArticle(
-                id: $"subdl/{x.SdId}/{x.Slug}",
-                title: x.Name,
+                id: "subdl-" + StringUtil.GetNanoId(),
+                title: name,
                 inputMessageContent: new InputTextMessageContent(htmlContent.ToString()) {
                     ParseMode = ParseMode.Html,
                     DisableWebPagePreview = false
                 }
             ) {
-                Description = x.Slug,
+                Description = subtitleUrl,
+                ThumbnailUrl = x.PosterUrl,
                 ReplyMarkup = replyMarkup
             };
 

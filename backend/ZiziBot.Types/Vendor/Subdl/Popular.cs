@@ -23,13 +23,20 @@ public partial class Result
     [JsonPropertyName("name")]
     public string Name { get; set; }
 
+    [JsonPropertyName("original_name")]
+    public string OriginalName { get; set; }
+
     [JsonPropertyName("poster_url")]
     public string PosterUrl { get; set; }
 
+    [JsonPropertyName("year")]
     public long Year { get; set; }
 
     [JsonPropertyName("total_season")]
     public long TotalSeasons { get; set; }
+
+    [JsonPropertyName("link")]
+    public string Link { get; set; }
 
     [JsonPropertyName("subtitles_count")]
     public long SubtitlesCount { get; set; }
