@@ -115,6 +115,7 @@ public static class StringUtil
             .Replace("https://", "")
             .Replace("http://", "")
             .Replace(".", "-")
+            .RegexReplaceEval(@"(%20|\s)+", "_")
             .TrimEnd('_');
 
         return key;
@@ -165,6 +166,16 @@ public static class StringUtil
     public static string RegexReplace(this string input, string pattern, string replacement)
     {
         return Regex.Replace(input, pattern, replacement);
+    }
+
+    public static string RegexReplaceEval(this string input, string pattern, string replacement)
+    {
+        return Regex.Replace(input, pattern, Eval);
+
+        string Eval(Match m)
+        {
+            return replacement;
+        }
     }
 
     public static string RegexMatch(this string input, string pattern)
