@@ -16,8 +16,6 @@ public class WebhookService
 
         var githubEvent = payload.Deserialize<GitHubEventBase>();
         var repository = githubEvent!.Repository;
-        var branchName = githubEvent.Ref.Split('/').Last();
-        var treeUrl = repository.HtmlUrl.AppendPathSegment($"tree/{branchName}");
 
         htmlMessage.Url($"{repository?.HtmlUrl}", $"🗼 {repository?.FullName}").Br();
 
@@ -28,6 +26,8 @@ public class WebhookService
                 var commits = pushEvent!.Commits.ToList();
                 var commitCount = commits.Count;
                 var commitsStr = "commit".ToQuantity(commitCount);
+                var branchName = githubEvent.Ref?.Split('/').Last();
+                var treeUrl = repository?.HtmlUrl.AppendPathSegment($"tree/{branchName}");
 
                 htmlMessage.Text("🚀 Push ").Url(pushEvent.Compare, $"{commitsStr}").Bold($" to ").Url(treeUrl, $"{branchName}")
                     .Br().Br();

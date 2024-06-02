@@ -160,12 +160,6 @@ public class TelegramService
 
         _logger.LogInformation("Message sent to chat {ChatId}", _request.ChatId);
 
-        _mediatorService.EnqueueAsync(new CreateChatActivityRequest() {
-            ActivityType = ChatActivityType.BotSendMessage,
-            SentMessage = SentMessage,
-            Source = ResponseSource.Hangfire
-        });
-
         var deleteAfterExec = deleteAfter != default ? deleteAfter : _request.DeleteAfter;
 
         if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfterExec == default)
@@ -207,11 +201,6 @@ public class TelegramService
 
         await Bot.EditMessageTextAsync(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup,
             parseMode: ParseMode.Html);
-
-        _mediatorService.EnqueueAsync(new CreateChatActivityRequest() {
-            ActivityType = ChatActivityType.BotEditMessage,
-            SentMessage = SentMessage,
-        });
 
         return Complete();
     }

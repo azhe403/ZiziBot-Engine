@@ -25,6 +25,7 @@ public static class MediatRExtension
                 .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))
                 .AddOpenRequestPostProcessor(typeof(FindNoteRequestHandler<,>))
                 .AddOpenRequestPostProcessor(typeof(UpsertBotUserHandler<,>))
+                .AddOpenRequestPostProcessor(typeof(InsertChatActivityHandler<,>))
         );
 
         services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));

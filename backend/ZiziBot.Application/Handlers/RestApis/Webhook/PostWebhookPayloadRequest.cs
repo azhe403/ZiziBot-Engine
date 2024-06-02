@@ -147,7 +147,8 @@ public class PostWebhookPayloadHandler(
             Chat = sentMessage.Chat,
             User = sentMessage.From,
             Status = (int)EventStatus.Complete,
-            TransactionId = request.TransactionId
+            TransactionId = request.TransactionId,
+            MessageId = sentMessage.MessageId
         });
 
         await mongoDbContextBase.SaveChangesAsync(cancellationToken);

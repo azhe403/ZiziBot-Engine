@@ -14,13 +14,14 @@ public class CreateChatActivityHandler(MongoDbContextBase mongoDbContextBase, Te
 {
     public async Task<BotResponseBase> Handle(CreateChatActivityRequest request, CancellationToken cancellationToken)
     {
-        mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity() {
+        mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = request.ActivityType,
-            ChatId = request.ChatIdentifier,
+            ChatId = request.SentMessage.Chat.Id,
             Chat = request.SentMessage.Chat,
             User = request.SentMessage.From,
             Status = (int)EventStatus.Complete,
-            TransactionId = request.TransactionId
+            TransactionId = request.TransactionId,
+            MessageId = request.SentMessage.MessageId
         });
 
         await mongoDbContextBase.SaveChangesAsync(cancellationToken);

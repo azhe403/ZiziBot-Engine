@@ -154,7 +154,8 @@ public class ChatSettingRepository
             Chat = dto.Chat,
             User = dto.User,
             Status = (int)dto.Status,
-            TransactionId = dto.TransactionId
+            TransactionId = dto.TransactionId,
+            MessageId = dto.MessageId
         });
 
         await _mongoDbContext.SaveChangesAsync();
