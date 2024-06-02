@@ -6,9 +6,10 @@ public static class ErrorUtil
     {
         var ignorableMessages = new List<string>() {
             "a connection attempt failed",
+            "bot is not a member",
             "bot was blocked",
-            "chat not found",
             "cannot begin with",
+            "chat not found",
             "connection could not be established",
             "error occurred while parsing",
             "message can't be deleted",
@@ -21,8 +22,8 @@ public static class ErrorUtil
             "request was canceled",
             "root element is missing",
             "root level is invalid",
+            "unexpected token",
             "user is deactivated",
-            "unexpected token"
         };
 
         return ignorableMessages.Exists(message.ToLower().Contains);
