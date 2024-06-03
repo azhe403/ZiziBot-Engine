@@ -7,9 +7,18 @@ public class UnixTimestampConverter : JsonConverter<DateTimeOffset>
 {
     public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var unixTimestamp = reader.GetInt64();
-        var dateTime = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp);
-        return dateTime;
+        var type = reader.TokenType;
+        switch (type)
+        {
+            case JsonTokenType.String:
+                return DateTimeOffset.Parse(reader.GetString() ?? string.Empty);
+            case JsonTokenType.Number:
+                var unixTimestamp = reader.GetInt64();
+                var dateTime = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp);
+                return dateTime;
+            default:
+                return default;
+        }
     }
 
     public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
