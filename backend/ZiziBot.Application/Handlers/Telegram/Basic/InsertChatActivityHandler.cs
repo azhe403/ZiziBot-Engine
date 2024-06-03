@@ -14,7 +14,7 @@ public class InsertChatActivityHandler<TRequest, TResponse>(
 {
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
-        logger.LogDebug("Insert Chat Activity for ChatId: {ChatId}", request.Chat);
+        logger.LogDebug("Insert Chat Activity for ChatId: {ChatId}", request.ChatId);
 
         if (request.Source != ResponseSource.Bot)
             return;
@@ -29,18 +29,21 @@ public class InsertChatActivityHandler<TRequest, TResponse>(
             TransactionId = request.TransactionId,
         });
 
-        mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
-            MessageId = response.SentMessage.MessageId,
-            ActivityType = ChatActivityType.BotSendMessage,
-            ChatId = response.SentMessage.Chat.Id,
-            Chat = response.SentMessage.Chat,
-            User = response.SentMessage.From,
-            Status = (int)EventStatus.Complete,
-            TransactionId = request.TransactionId,
-        });
+        if (response.SentMessage != null)
+        {
+            mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
+                MessageId = response.SentMessage.MessageId,
+                ActivityType = ChatActivityType.BotSendMessage,
+                ChatId = response.SentMessage.Chat.Id,
+                Chat = response.SentMessage.Chat,
+                User = response.SentMessage.From,
+                Status = (int)EventStatus.Complete,
+                TransactionId = request.TransactionId,
+            });
+        }
 
         await mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Insert Chat Activity for ChatId: {ChatId} is done", request.Chat);
+        logger.LogInformation("Insert Chat Activity for ChatId: {ChatId} is done", request.ChatId);
     }
 }
