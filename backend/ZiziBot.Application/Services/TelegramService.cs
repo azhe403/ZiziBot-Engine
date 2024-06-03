@@ -124,6 +124,13 @@ public class TelegramService
         if (threadId == -1)
             threadId = _request.MessageThreadId;
 
+        var replyToMessageId = _request.ReplyMessage ? _request.ReplyToMessageId : -1;
+
+        if (_request.ReplyToMessage != null)
+        {
+            replyToMessageId = _request.ReplyToMessage.MessageId;
+        }
+
         _logger.LogInformation("Sending message to chat {ChatId}", _request.ChatId);
         try
         {
@@ -131,7 +138,7 @@ public class TelegramService
                 chatId: targetChatId,
                 messageThreadId: threadId,
                 text: text,
-                replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
+                replyToMessageId: replyToMessageId,
                 parseMode: ParseMode.Html,
                 allowSendingWithoutReply: true,
                 replyMarkup: replyMarkup,
