@@ -24,6 +24,8 @@ public class CheckRoleHandler<TRequest> : IRequestPreProcessor<TRequest> where T
     {
         _logger.LogDebug("Checking Role {Name} for UserId: {UserId} in ChatId: {ChatId}", typeof(TRequest), request.UserId, request.ChatId);
 
+        _telegramService.SetupResponse(request);
+
         var isRoleMeet = request.MinimumRole switch {
             RoleLevel.Sudo => await _sudoService.IsSudoAsync(request.UserId),
             RoleLevel.ChatAdmin => await _telegramService.CheckAdministration(),
