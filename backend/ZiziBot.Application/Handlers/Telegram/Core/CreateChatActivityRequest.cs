@@ -3,16 +3,16 @@ using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Core;
 
-public class CreateChatActivityRequest : BotRequestBase
+public class CreateChatActivityRequest : IRequest<object>
 {
     public ChatActivityType ActivityType { get; set; }
     public Message SentMessage { get; set; }
 }
 
 public class CreateChatActivityHandler(MongoDbContextBase mongoDbContextBase, TelegramService telegramService)
-    : IBotRequestHandler<CreateChatActivityRequest>
+    : IRequestHandler<CreateChatActivityRequest, object>
 {
-    public async Task<BotResponseBase> Handle(CreateChatActivityRequest request, CancellationToken cancellationToken)
+    public async Task<object> Handle(CreateChatActivityRequest request, CancellationToken cancellationToken)
     {
         mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = request.ActivityType,
@@ -20,7 +20,7 @@ public class CreateChatActivityHandler(MongoDbContextBase mongoDbContextBase, Te
             Chat = request.SentMessage.Chat,
             User = request.SentMessage.From,
             Status = (int)EventStatus.Complete,
-            TransactionId = request.TransactionId,
+            TransactionId = "request.TransactionId",
             MessageId = request.SentMessage.MessageId
         });
 

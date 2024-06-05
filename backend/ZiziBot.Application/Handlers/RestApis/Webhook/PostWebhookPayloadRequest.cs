@@ -135,7 +135,8 @@ public class PostWebhookPayloadHandler(
             MessageId = sentMessage.MessageId,
             WebhookSource = WebhookSource.GitHub,
             Elapsed = stopwatch.Elapsed,
-            Payload = content,
+            Payload = request.IsDebug ? content : string.Empty,
+            Header = request.IsDebug ? webhookHeader : default,
             Status = EventStatus.Complete
         });
 

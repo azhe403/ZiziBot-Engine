@@ -29,19 +29,6 @@ public class InsertChatActivityHandler<TRequest, TResponse>(
             TransactionId = request.TransactionId,
         });
 
-        if (response.SentMessage != null)
-        {
-            mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
-                MessageId = response.SentMessage.MessageId,
-                ActivityType = ChatActivityType.BotSendMessage,
-                ChatId = response.SentMessage.Chat.Id,
-                Chat = response.SentMessage.Chat,
-                User = response.SentMessage.From,
-                Status = (int)EventStatus.Complete,
-                TransactionId = request.TransactionId,
-            });
-        }
-
         await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Insert Chat Activity for ChatId: {ChatId} is done", request.ChatId);
