@@ -1,12 +1,11 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoFramework.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.DataSource.MongoDb.Entities;
-using ZiziBot.DataSource.MongoEf;
-using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
@@ -39,7 +38,6 @@ public class PostWebhookPayloadHandler(
     IMediator mediator,
     MediatorService mediatorService,
     MongoDbContextBase mongoDbContextBase,
-    MongoEfContext mongoEfContext,
     WebhookService webhookService,
     AppSettingRepository appSettingRepository,
     ChatSettingRepository chatSettingRepository,
@@ -128,7 +126,7 @@ public class PostWebhookPayloadHandler(
             }
         }
 
-        mongoEfContext.WebhookHistory.Add(new WebhookHistoryEntity {
+        mongoDbContextBase.WebhookHistory.Add(new WebhookHistoryEntity {
             RouteId = webhookChat.RouteId,
             TransactionId = $"{request.TransactionId}",
             ChatId = webhookChat.ChatId,
@@ -137,10 +135,10 @@ public class PostWebhookPayloadHandler(
             Elapsed = stopwatch.Elapsed,
             Payload = request.IsDebug ? content : string.Empty,
             Header = request.IsDebug ? webhookHeader : default,
-            Status = EventStatus.Complete
+            Status = (int)EventStatus.Complete
         });
 
-        await mongoEfContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContextBase.SaveChangesAsync(cancellationToken);
 
         mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = ChatActivityType.BotSentWebHook,

@@ -1,9 +1,8 @@
-﻿using MongoDB.EntityFrameworkCore;
-using ZiziBot.Types.Types;
+﻿using ZiziBot.Types.Types;
 
-namespace ZiziBot.DataSource.MongoEf.Entities;
+namespace ZiziBot.DataSource.MongoDb.Entities;
 
-[Collection("WebhookHistory")]
+[Table("WebhookHistory")]
 public class WebhookHistoryEntity : EntityBase
 {
     public string RouteId { get; set; }
