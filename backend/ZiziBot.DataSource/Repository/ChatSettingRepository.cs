@@ -171,4 +171,30 @@ public class ChatSettingRepository
 
         return chatActivityEntities.Count > ValueConst.RAID_WINDOW_LIMIT;
     }
+
+    public async Task<int> LastWebhookMessageBetterEdit(long chatId, WebhookSource webhookSource, string eventName)
+    {
+        if (eventName.Like("push"))
+            return default;
+
+        var lastWebhookHistory = await _mongoDbContext.WebhookHistory.AsNoTracking()
+            .Where(x => x.ChatId == chatId)
+            .Where(x => x.WebhookSource == webhookSource)
+            .Where(x => x.EventName == eventName)
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .OrderByDescending(o => o.CreatedDate)
+            .FirstOrDefaultAsync();
+
+        var lastChatActivity = await _mongoDbContext.ChatActivity.AsNoTracking()
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.ChatId == chatId)
+            .OrderByDescending(o => o.CreatedDate)
+            .FirstOrDefaultAsync();
+
+        if (lastChatActivity.MessageId != lastWebhookHistory.MessageId)
+            return default;
+
+        _logger.LogDebug("Last Webhook Message for Better Edit: {MessageId}", lastWebhookHistory.MessageId);
+        return lastWebhookHistory.MessageId;
+    }
 }

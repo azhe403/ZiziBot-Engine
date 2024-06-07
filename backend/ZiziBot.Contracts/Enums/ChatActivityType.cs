@@ -15,7 +15,9 @@ public enum ChatActivityType
 
     BotSendMessage,
     BotEditMessage,
-    BotSentWebHook,
+
+    BotSendWebHook,
+    BotEditWebHook,
 
     UserSendMessage,
     UserEditMessage
