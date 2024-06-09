@@ -3,6 +3,7 @@ using Humanizer;
 using Octokit.Webhooks;
 using Octokit.Webhooks.Events;
 using Octokit.Webhooks.Events.PullRequest;
+using Octokit.Webhooks.Events.Star;
 using ZiziBot.Types.Vendor.GitHub;
 using ZiziBot.Types.Vendor.GitLab;
 
@@ -18,6 +19,7 @@ public class WebhookService
         var githubEvent = payload.Deserialize<GitHubEventBase>();
         var action = githubEvent!.Action;
         var repository = githubEvent!.Repository;
+        var sender = githubEvent.Sender;
 
         htmlMessage.Url($"{repository?.HtmlUrl}", $"🗼 {repository?.FullName}").Br();
 
@@ -39,8 +41,8 @@ public class WebhookService
                         .Text(": ")
                         .TextBr($"{commit.Message} by {commit.Author.Name}");
                 });
-
                 break;
+
             case WebhookEventType.PullRequest:
                 var pullRequestEvent = payload.Deserialize<PullRequestEvent>();
                 var pullRequest = pullRequestEvent!.PullRequest;
@@ -52,6 +54,38 @@ public class WebhookService
                     .Text(pullRequest.Title).Br()
                     .Bold("🎯 ").Url(headUrl, pullRequest.Head.Ref).Bold(" -> ").Url(baseUrl, pullRequest.Base.Ref).Br();
                 break;
+
+            case WebhookEventType.Star:
+                var watcherCount = repository.WatchersCount;
+
+                htmlMessage.Bold(action == StarAction.Created ? "⭐️ Starred " : "🌟 Unstarred ")
+                    .Url(repository.HtmlUrl, repository.FullName).Br()
+                    .Bold("Total: ").Code(watcherCount.ToString()).Br();
+                break;
+
+            case WebhookEventType.Status:
+                var statusEvent = payload.Deserialize<StatusEvent>();
+                htmlMessage
+                    .Bold("Creator: ").TextBr(sender.Login)
+                    .Bold("Status: ").Url(statusEvent.TargetUrl, statusEvent.State.StringValue);
+                break;
+
+            case WebhookEventType.DeploymentStatus:
+                var deploymentStatusEvent = payload.Deserialize<DeploymentStatusEvent>();
+                htmlMessage
+                    .Bold("Creator: ").TextBr(deploymentStatusEvent.Deployment.Creator.Login)
+                    .Bold("Environment: ").TextBr(deploymentStatusEvent.DeploymentStatus.Environment).Br()
+                    .Bold("Status: ").TextBr(deploymentStatusEvent.DeploymentStatus.State.StringValue);
+                break;
+
+            case WebhookEventType.Deployment:
+                var deploymentEvent = payload.Deserialize<DeploymentEvent>();
+                htmlMessage
+                    .Bold("Creator: ").TextBr(deploymentEvent.Deployment.Creator.Login)
+                    .Bold("Environment: ").TextBr(deploymentEvent.Deployment.Environment).Br()
+                    .Bold("Status: ").TextBr(deploymentEvent.Deployment.Task);
+                break;
+
             default:
                 break;
         }
