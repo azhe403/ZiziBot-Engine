@@ -92,6 +92,7 @@ public class MongoConfigSource : IConfigurationSource
                 KeyPair = new Dictionary<string, object> {
                     { "UseJsonFile", false },
                     { "UseFirebase", false },
+                    { "UseMongoDb", false },
                     { "UseRedis", false },
                     { "UseSqlite", false },
                     { "RedisConnection", "localhost:6379" }

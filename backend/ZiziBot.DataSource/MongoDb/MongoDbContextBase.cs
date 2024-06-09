@@ -40,7 +40,9 @@ public class MongoDbContextBase : MongoDbContext
     public MongoDbSet<NoteEntity> Note { get; set; }
     public MongoDbSet<RssSettingEntity> RssSetting { get; set; }
     public MongoDbSet<RssHistoryEntity> RssHistory { get; set; }
+
     public MongoDbSet<WebhookChatEntity> WebhookChat { get; set; }
+    public MongoDbSet<WebhookHistoryEntity> WebhookHistory { get; set; }
 
     public MongoDbSet<WordFilterEntity> WordFilter { get; set; }
 

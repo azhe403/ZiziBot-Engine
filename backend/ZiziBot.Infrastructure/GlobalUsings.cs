@@ -8,7 +8,6 @@ global using ZiziBot.Application.Handlers.Telegram.Group;
 global using ZiziBot.Application.Handlers.Telegram.Middleware;
 global using ZiziBot.Application.Handlers.Telegram.Note;
 global using ZiziBot.Application.Handlers.Telegram.Permission;
-global using ZiziBot.Application.Handlers.Telegram.WebHook.GitHub;
 global using ZiziBot.Application.HostedServices;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Application.Tasks;

@@ -41,7 +41,8 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
             Chat = request.Chat,
             User = request.User,
             Status = EventStatus.Complete,
-            TransactionId = request.TransactionId
+            TransactionId = request.TransactionId,
+            MessageId = request.MessageId
         });
 
         if (create)

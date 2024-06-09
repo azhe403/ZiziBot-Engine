@@ -17,7 +17,7 @@ public static class MediatRExtension
                 .RegisterServicesFromAssemblyContaining<PingRequestHandler>()
                 .AddOpenBehavior(typeof(BotMiddlewarePipelineBehaviour<,>))
                 .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
-                .AddOpenRequestPreProcessor(typeof(CheckRoleHandler<>))
+                .AddOpenBehavior(typeof(CheckUserRolePipelineBehavior<,>))
                 .AddOpenRequestPreProcessor(typeof(ChatRestrictionProcessorBotRequest<>))
                 .AddOpenRequestPreProcessor(typeof(ScanMessageProcessor<>))
                 .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
@@ -25,6 +25,7 @@ public static class MediatRExtension
                 .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))
                 .AddOpenRequestPostProcessor(typeof(FindNoteRequestHandler<,>))
                 .AddOpenRequestPostProcessor(typeof(UpsertBotUserHandler<,>))
+                .AddOpenRequestPostProcessor(typeof(InsertChatActivityHandler<,>))
         );
 
         services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));

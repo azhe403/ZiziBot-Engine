@@ -5,8 +5,6 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.DataSource.MongoDb.Entities;
-using ZiziBot.DataSource.MongoEf;
-using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
@@ -39,12 +37,10 @@ public class PostWebhookPayloadHandler(
     IMediator mediator,
     MediatorService mediatorService,
     MongoDbContextBase mongoDbContextBase,
-    MongoEfContext mongoEfContext,
     WebhookService webhookService,
     AppSettingRepository appSettingRepository,
-    ChatSettingRepository chatSettingRepository,
-    GithubWebhookEventProcessor githubWebhookEventProcessor)
-    : IRequestHandler<PostWebhookPayloadRequest, ApiResponseBase<PostWebhookPayloadResponseDto>>
+    ChatSettingRepository chatSettingRepository
+) : IRequestHandler<PostWebhookPayloadRequest, ApiResponseBase<PostWebhookPayloadResponseDto>>
 {
     public async Task<ApiResponseBase<PostWebhookPayloadResponseDto>> Handle(
         PostWebhookPayloadRequest request,
@@ -75,21 +71,6 @@ public class PostWebhookPayloadHandler(
         {
         }
 
-        switch (webhookSource)
-        {
-            case WebhookSource.GitHub:
-                githubWebhookEventProcessor.RouteId = webhookChat.RouteId;
-                githubWebhookEventProcessor.Payload = request.Content.ToString();
-                githubWebhookEventProcessor.TransactionId = $"{request.TransactionId}";
-
-                await githubWebhookEventProcessor.ProcessWebhookAsync(request.Headers, request.Content.ToString());
-                break;
-            case WebhookSource.Unknown:
-            default:
-                response.BadRequest("Webhook source is unknown");
-                break;
-        }
-
         var webhookResponse = webhookSource switch {
             WebhookSource.GitHub => await webhookService.ParseGitHub(webhookHeader, content),
             WebhookSource.GitLab => await webhookService.ParseGitLab(webhookHeader, content),
@@ -106,14 +87,28 @@ public class PostWebhookPayloadHandler(
 
         Message sentMessage = new();
 
+        var lastMessageId = await chatSettingRepository.LastWebhookMessageBetterEdit(webhookChat.ChatId, webhookSource, webhookHeader.Event);
+
         try
         {
-            sentMessage = await botClient.SendTextMessageAsync(
-                chatId: webhookChat.ChatId,
-                text: webhookResponse.FormattedHtml,
-                messageThreadId: webhookChat.MessageThreadId,
-                parseMode: ParseMode.Html,
-                disableWebPagePreview: true, cancellationToken: cancellationToken);
+            if (lastMessageId != 0)
+            {
+                sentMessage = await botClient.EditMessageTextAsync(
+                    chatId: webhookChat.ChatId,
+                    messageId: lastMessageId,
+                    text: webhookResponse.FormattedHtml,
+                    parseMode: ParseMode.Html,
+                    disableWebPagePreview: true, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                sentMessage = await botClient.SendTextMessageAsync(
+                    chatId: webhookChat.ChatId,
+                    text: webhookResponse.FormattedHtml,
+                    messageThreadId: webhookChat.MessageThreadId,
+                    parseMode: ParseMode.Html,
+                    disableWebPagePreview: true, cancellationToken: cancellationToken);
+            }
         }
         catch (Exception exception)
         {
@@ -128,26 +123,32 @@ public class PostWebhookPayloadHandler(
             }
         }
 
-        mongoEfContext.WebhookHistory.Add(new WebhookHistoryEntity {
+        mongoDbContextBase.WebhookHistory.Add(new WebhookHistoryEntity {
             RouteId = webhookChat.RouteId,
-            TransactionId = $"{request.TransactionId}",
+            TransactionId = request.TransactionId,
+            CreatedDate = default,
+            UpdatedDate = default,
             ChatId = webhookChat.ChatId,
             MessageId = sentMessage.MessageId,
+            MessageThreadId = 0,
             WebhookSource = WebhookSource.GitHub,
             Elapsed = stopwatch.Elapsed,
-            Payload = content,
-            Status = EventStatus.Complete
+            Payload = request.IsDebug ? content : string.Empty,
+            Header = request.IsDebug ? webhookHeader : default,
+            EventName = webhookHeader.Event,
+            Status = (int)EventStatus.Complete
         });
 
-        await mongoEfContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContextBase.SaveChangesAsync(cancellationToken);
 
         mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
-            ActivityType = ChatActivityType.BotSentWebHook,
+            ActivityType = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditMessage,
             ChatId = webhookChat.ChatId,
             Chat = sentMessage.Chat,
             User = sentMessage.From,
             Status = (int)EventStatus.Complete,
-            TransactionId = request.TransactionId
+            TransactionId = request.TransactionId,
+            MessageId = sentMessage.MessageId
         });
 
         await mongoDbContextBase.SaveChangesAsync(cancellationToken);

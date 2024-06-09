@@ -10,7 +10,7 @@
         <PackageReference Include="Hangfire.AspNetCore" Version="1.8.12"/>
         <PackageReference Include="Hangfire.Dashboard.Dark" Version="2.0.4"/>
         <PackageReference Include="Hangfire.Heartbeat" Version="0.6.0"/>
-        <PackageReference Include="Hangfire.InMemory" Version="0.9.0"/>
+        <PackageReference Include="Hangfire.InMemory" Version="0.10.0"/>
         <PackageReference Include="Hangfire.LiteDB" Version="0.4.1"/>
         <PackageReference Include="Hangfire.Mongo" Version="1.10.6"/>
         <PackageReference Include="Hangfire.Storage.SQLite" Version="0.4.2"/>

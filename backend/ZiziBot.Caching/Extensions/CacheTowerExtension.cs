@@ -1,9 +1,11 @@
 using System.Text.Json;
+using CacheTower.Providers.Database.MongoDB;
 using CacheTower.Providers.FileSystem;
 using CacheTower.Providers.Redis;
 using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using MongoFramework;
 using StackExchange.Redis;
 
 namespace ZiziBot.Caching.Extensions;
@@ -20,8 +22,9 @@ public static class CacheTowerExtension
                 builder
                     .WithCleanupFrequency(TimeSpan.FromDays(1))
                     .AddMemoryCacheLayer()
-                    .ConfigureSqliteCacheLayer(cacheConfig)
                     .ConfigureFileCacheLayer(cacheConfig)
+                    .ConfigureSqliteCacheLayer(cacheConfig)
+                    .ConfigureMongoDbCacheLayer(cacheConfig)
                     .ConfigureRedisCacheLayer(cacheConfig)
                     .ConfigureFirebaseCacheLayer(cacheConfig);
             }
@@ -92,6 +95,19 @@ public static class CacheTowerExtension
         var dbPath = PathConst.CACHE_TOWER_SQLITE_PATH.EnsureDirectory();
 
         builder.CacheLayers.Add(new CacheTowerSqliteProvider(dbPath));
+
+        return builder;
+    }
+
+    private static ICacheStackBuilder ConfigureMongoDbCacheLayer(this ICacheStackBuilder builder,
+        CacheConfig cacheConfig)
+    {
+        if (!cacheConfig.UseMongoDb)
+            return builder;
+
+        var dbPath = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING);
+
+        builder.CacheLayers.Add(new MongoDbCacheLayer(MongoDbConnection.FromConnectionString(dbPath)));
 
         return builder;
     }
