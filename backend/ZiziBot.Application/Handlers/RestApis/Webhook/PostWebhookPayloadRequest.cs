@@ -39,9 +39,8 @@ public class PostWebhookPayloadHandler(
     MongoDbContextBase mongoDbContextBase,
     WebhookService webhookService,
     AppSettingRepository appSettingRepository,
-    ChatSettingRepository chatSettingRepository,
-    GithubWebhookEventProcessor githubWebhookEventProcessor)
-    : IRequestHandler<PostWebhookPayloadRequest, ApiResponseBase<PostWebhookPayloadResponseDto>>
+    ChatSettingRepository chatSettingRepository
+) : IRequestHandler<PostWebhookPayloadRequest, ApiResponseBase<PostWebhookPayloadResponseDto>>
 {
     public async Task<ApiResponseBase<PostWebhookPayloadResponseDto>> Handle(
         PostWebhookPayloadRequest request,
@@ -70,21 +69,6 @@ public class PostWebhookPayloadHandler(
 
         if (request.IsDebug)
         {
-        }
-
-        switch (webhookSource)
-        {
-            case WebhookSource.GitHub:
-                githubWebhookEventProcessor.RouteId = webhookChat.RouteId;
-                githubWebhookEventProcessor.Payload = request.Content.ToString();
-                githubWebhookEventProcessor.TransactionId = $"{request.TransactionId}";
-
-                await githubWebhookEventProcessor.ProcessWebhookAsync(request.Headers, request.Content.ToString());
-                break;
-            case WebhookSource.Unknown:
-            default:
-                response.BadRequest("Webhook source is unknown");
-                break;
         }
 
         var webhookResponse = webhookSource switch {
