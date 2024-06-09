@@ -5,13 +5,15 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <ServerGarbageCollection>true</ServerGarbageCollection>
+        <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.5"/>
-        <PackageReference Include="NewRelic.Agent" Version="10.24.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.6"/>
+        <PackageReference Include="NewRelic.Agent" Version="10.25.1"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
     <ItemGroup>
