@@ -9,16 +9,19 @@
 </p>
 
 <p align="center">
-  <a href="https://gitpod.io/#https://github.com/WinTenDev/ZiziBot-Engine">
-    <img src="https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod" alt="Gitpod ready-to-code" />
-  </a>
+    <a href="https://gitpod.io/#https://github.com/WinTenDev/ZiziBot-Engine">
+        <img src="https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod" alt="Gitpod ready-to-code" />
+    </a>
+    <div align="center">
+        <img src="https://img.shields.io/github/languages/code-size/WinTenDev/ZiziBot-Engine" alt="GitHub code size in bytes" />
+    </div>
 </p>
 
 # Setup Development
 
-1. <a href="https://dotnet.microsoft.com/en-us/download" target="_blank">.NET 7</a>
-2. <a href="https://nodejs.org/en/download" target="_blank">NodeJs 18</a>
-3. <a href="https://www.jetbrains.com/rider" target="_blank">Jetbrains Rider</a> || <a href="https://visualstudio.microsoft.com" target="_blank">Visual Studio 2022</a> || <a href="https://code.visualstudio.com" target="_blank">Visual Studio Code</a>
+1. <a href="https://dotnet.microsoft.com/en-us/download" target="_blank">.NET 8</a>
+2. <a href="https://nodejs.org/en/download" target="_blank">NodeJS LTS</a>
+3. Your favorite IDE (<a href="https://www.jetbrains.com/rider" target="_blank">Jetbrains Rider</a> || <a href="https://visualstudio.microsoft.com" target="_blank">Visual Studio 2022</a> || <a href="https://code.visualstudio.com" target="_blank">Visual Studio Code</a>)
 4. Docker (Optional)
 5. MongoDB (We can use <a href="https://www.mongodb.com/atlas/database" target="_blank">Mongo Atlas</a>)
 
