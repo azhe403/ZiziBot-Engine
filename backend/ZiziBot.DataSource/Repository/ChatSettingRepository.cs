@@ -191,7 +191,7 @@ public class ChatSettingRepository
             .OrderByDescending(o => o.CreatedDate)
             .FirstOrDefaultAsync();
 
-        if (lastChatActivity.MessageId != lastWebhookHistory.MessageId)
+        if (lastChatActivity?.MessageId != lastWebhookHistory?.MessageId)
             return default;
 
         _logger.LogDebug("Last Webhook Message for Better Edit: {MessageId}", lastWebhookHistory.MessageId);

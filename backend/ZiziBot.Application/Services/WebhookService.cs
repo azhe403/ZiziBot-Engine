@@ -2,6 +2,7 @@
 using Humanizer;
 using Octokit.Webhooks;
 using Octokit.Webhooks.Events;
+using Octokit.Webhooks.Events.PullRequest;
 using ZiziBot.Types.Vendor.GitHub;
 using ZiziBot.Types.Vendor.GitLab;
 
@@ -15,6 +16,7 @@ public class WebhookService
         var response = new WebhookResponseBase<bool>();
 
         var githubEvent = payload.Deserialize<GitHubEventBase>();
+        var action = githubEvent!.Action;
         var repository = githubEvent!.Repository;
 
         htmlMessage.Url($"{repository?.HtmlUrl}", $"🗼 {repository?.FullName}").Br();
@@ -40,7 +42,15 @@ public class WebhookService
 
                 break;
             case WebhookEventType.PullRequest:
-                // var request = payload.Deserialize<PullRequestEvent>();
+                var pullRequestEvent = payload.Deserialize<PullRequestEvent>();
+                var pullRequest = pullRequestEvent!.PullRequest;
+                var headUrl = pullRequest.Head.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Head.Ref}");
+                var baseUrl = pullRequest.Base.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Base.Ref}");
+
+                htmlMessage.Bold(action == PullRequestAction.Opened ? "🔌 Opened " : "🔌 Updated ")
+                    .Url(pullRequest.HtmlUrl, $"PR #{pullRequest.Number}").Text(": ")
+                    .Text(pullRequest.Title).Br()
+                    .Bold("🎯 ").Url(headUrl, pullRequest.Head.Ref).Bold(" -> ").Url(baseUrl, pullRequest.Base.Ref).Br();
                 break;
             default:
                 break;

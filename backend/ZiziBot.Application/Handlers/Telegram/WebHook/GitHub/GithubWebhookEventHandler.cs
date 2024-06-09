@@ -1,11 +1,8 @@
-﻿using Flurl;
-using Humanizer;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Octokit.Webhooks;
 using Octokit.Webhooks.Events;
 using Octokit.Webhooks.Events.Deployment;
 using Octokit.Webhooks.Events.DeploymentStatus;
-using Octokit.Webhooks.Events.PullRequest;
 using Octokit.Webhooks.Events.Star;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -47,23 +44,23 @@ public class GithubWebhookEventHandler(
     //     await SendMessage(htmlMessage.ToString());
     // }
 
-    protected override Task ProcessPullRequestWebhookAsync(WebhookHeaders headers, PullRequestEvent pullRequestEvent,
-        PullRequestAction action)
-    {
-        var htmlMessage = HtmlMessage.Empty;
-        var repository = pullRequestEvent.Repository;
-        var pullRequest = pullRequestEvent.PullRequest;
-        var headUrl = pullRequest.Head.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Head.Ref}");
-        var baseUrl = pullRequest.Base.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Base.Ref}");
-
-        htmlMessage.Bold(action == PullRequestAction.Opened ? "🔌 Opened " : "🔌 Updated ")
-            .Url(pullRequest.HtmlUrl, $"PR #{pullRequest.Number}").Text(": ")
-            .Text(pullRequest.Title).Br()
-            .Bold("From: ").Url(headUrl, pullRequest.Head.Repo.FullName + ":" + pullRequest.Head.Ref).Br()
-            .Bold("To: ").Url(baseUrl, pullRequest.Base.Repo.FullName + ":" + pullRequest.Base.Ref).Br();
-
-        return SendMessage(htmlMessage.ToString());
-    }
+    // protected override Task ProcessPullRequestWebhookAsync(WebhookHeaders headers, PullRequestEvent pullRequestEvent,
+    //     PullRequestAction action)
+    // {
+    //     var htmlMessage = HtmlMessage.Empty;
+    //     var repository = pullRequestEvent.Repository;
+    //     var pullRequest = pullRequestEvent.PullRequest;
+    //     var headUrl = pullRequest.Head.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Head.Ref}");
+    //     var baseUrl = pullRequest.Base.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Base.Ref}");
+    //
+    //     htmlMessage.Bold(action == PullRequestAction.Opened ? "🔌 Opened " : "🔌 Updated ")
+    //         .Url(pullRequest.HtmlUrl, $"PR #{pullRequest.Number}").Text(": ")
+    //         .Text(pullRequest.Title).Br()
+    //         .Bold("From: ").Url(headUrl, pullRequest.Head.Repo.FullName + ":" + pullRequest.Head.Ref).Br()
+    //         .Bold("To: ").Url(baseUrl, pullRequest.Base.Repo.FullName + ":" + pullRequest.Base.Ref).Br();
+    //
+    //     return SendMessage(htmlMessage.ToString());
+    // }
 
     protected override Task ProcessStarWebhookAsync(WebhookHeaders headers, StarEvent starEvent, StarAction action)
     {
