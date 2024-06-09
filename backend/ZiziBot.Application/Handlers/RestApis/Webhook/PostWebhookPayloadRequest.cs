@@ -134,7 +134,7 @@ public class PostWebhookPayloadHandler(
             WebhookSource = WebhookSource.GitHub,
             Elapsed = stopwatch.Elapsed,
             Payload = request.IsDebug ? content : string.Empty,
-            Header = request.IsDebug ? webhookHeader : default,
+            Header = request.IsDebug ? request.Headers.ToHeaderRawKv() : default,
             EventName = webhookHeader.Event,
             Status = (int)EventStatus.Complete
         });
@@ -142,7 +142,7 @@ public class PostWebhookPayloadHandler(
         await mongoDbContextBase.SaveChangesAsync(cancellationToken);
 
         mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
-            ActivityType = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditMessage,
+            ActivityType = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditWebHook,
             ChatId = webhookChat.ChatId,
             Chat = sentMessage.Chat,
             User = sentMessage.From,
