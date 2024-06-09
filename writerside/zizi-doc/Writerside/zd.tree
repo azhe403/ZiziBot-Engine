@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="zd"
+                  name="ZiziBot Docs"
+                  start-page="Overview.md">
+
+    <toc-element topic="Overview.md"/>
+    <toc-element topic="Default-topic.md"/>
+    <toc-element topic="Empty-MD-Topic.md"/>
+    <toc-element topic="Privacy-Policy.md"/>
+</instance-profile>
