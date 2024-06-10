@@ -49,4 +49,12 @@ public static class SerializationUtil
     {
         return headerDictionary.Select(kv => $"{kv.Key}: {kv.Value}").StrJoin("\n");
     }
+
+    public static async Task<string> GetBodyAsync(this HttpContext? context)
+    {
+        if (context == null) return string.Empty;
+
+        using var reader = new StreamReader(context.Request.Body);
+        return await reader.ReadToEndAsync();
+    }
 }

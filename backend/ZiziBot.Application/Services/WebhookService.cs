@@ -86,6 +86,20 @@ public class WebhookService
                     .Bold("Status: ").TextBr(deploymentEvent.Deployment.Task);
                 break;
 
+            case WebhookEventType.WorkflowRun:
+                var workflowRunEvent = payload.Deserialize<WorkflowRunEvent>();
+                htmlMessage.Bold("Name: ").TextBr(workflowRunEvent.WorkflowRun.Name)
+                    .Bold("Status: ").TextBr(workflowRunEvent.WorkflowRun.Status.StringValue)
+                    .Bold("Actor: ").TextBr(workflowRunEvent.WorkflowRun.Actor.Login);
+                break;
+
+            case WebhookEventType.CheckSuite:
+                var checkSuiteEvent = payload.Deserialize<CheckSuiteEvent>();
+                htmlMessage.Bold("Name: ").TextBr(checkSuiteEvent.CheckSuite.App.Name)
+                    .Bold("Status: ").TextBr(checkSuiteEvent.CheckSuite.Status.StringValue)
+                    .Bold("Conclusion: ").TextBr(checkSuiteEvent.CheckSuite.Conclusion.StringValue);
+                break;
+
             default:
                 break;
         }
