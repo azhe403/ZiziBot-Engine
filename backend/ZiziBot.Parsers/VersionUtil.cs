@@ -22,14 +22,14 @@ public static class VersionUtil
 
     public static Version GetVersionNumber()
     {
-        var currentAssembly = Assembly.GetEntryAssembly()?.GetCustomAttribute<BuildStampAttribute>();
+        var currentAssembly = Assembly.GetEntryAssembly()?.GetName();
         var version = currentAssembly?.Version ?? new Version(1, 0, 0, 0);
         return version;
     }
 
     public static string GetVersion(bool pretty = false)
     {
-        var currentAssembly = Assembly.GetEntryAssembly()?.GetCustomAttribute<BuildStampAttribute>();
+        var currentAssembly = Assembly.GetEntryAssembly()?.GetName();
         var version = currentAssembly?.Version ?? new Version(1, 0, 0, 0);
 
         return pretty ? $"{version.Major}.{version.Minor} Build {version.Build}" : version.ToString();
@@ -37,7 +37,7 @@ public static class VersionUtil
 
     public static DateTime GetBuildDate()
     {
-        var attribute = Assembly.GetEntryAssembly()?.GetCustomAttribute<BuildStampAttribute>();
-        return attribute?.BuildDate ?? default(DateTime);
+        // var attribute = Assembly.GetEntryAssembly()?.GetCustomAttribute<BuildStampAttribute>();
+        return File.GetCreationTimeUtc(Assembly.GetExecutingAssembly().Location);
     }
 }
