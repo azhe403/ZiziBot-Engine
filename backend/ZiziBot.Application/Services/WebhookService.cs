@@ -49,7 +49,8 @@ public class WebhookService
                 var headUrl = pullRequest.Head.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Head.Ref}");
                 var baseUrl = pullRequest.Base.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Base.Ref}");
 
-                htmlMessage.Bold(action == PullRequestAction.Opened ? "🔌 Opened " : "🔌 Updated ")
+                htmlMessage
+                    .Bold(action == PullRequestAction.Opened ? "🔌 Opened " : "🔌 Updated ")
                     .Url(pullRequest.HtmlUrl, $"PR #{pullRequest.Number}").Text(": ")
                     .Text(pullRequest.Title).Br()
                     .Bold("🎯 ").Url(headUrl, pullRequest.Head.Ref).Bold(" -> ").Url(baseUrl, pullRequest.Base.Ref).Br();
@@ -58,7 +59,8 @@ public class WebhookService
             case WebhookEventType.Star:
                 var watcherCount = repository.WatchersCount;
 
-                htmlMessage.Bold(action == StarAction.Created ? "⭐️ Starred " : "🌟 Unstarred ")
+                htmlMessage
+                    .Bold(action == StarAction.Created ? "⭐️ Starred " : "🌟 Unstarred ")
                     .Url(repository.HtmlUrl, repository.FullName).Br()
                     .Bold("Total: ").Code(watcherCount.ToString()).Br();
                 break;
@@ -88,16 +90,32 @@ public class WebhookService
 
             case WebhookEventType.WorkflowRun:
                 var workflowRunEvent = payload.Deserialize<WorkflowRunEvent>();
-                htmlMessage.Bold("Name: ").TextBr(workflowRunEvent.WorkflowRun.Name)
-                    .Bold("Status: ").TextBr(workflowRunEvent.WorkflowRun.Status.StringValue)
-                    .Bold("Actor: ").TextBr(workflowRunEvent.WorkflowRun.Actor.Login);
+                var workflowRun = workflowRunEvent.WorkflowRun;
+
+                htmlMessage
+                    .Bold("Name: ").TextBr(workflowRun.Name)
+                    .Bold("Status: ").TextBr(workflowRun.Status.StringValue)
+                    .Bold("Actor: ").TextBr(workflowRun.Actor.Login);
                 break;
 
             case WebhookEventType.CheckSuite:
                 var checkSuiteEvent = payload.Deserialize<CheckSuiteEvent>();
-                htmlMessage.Bold("Name: ").TextBr(checkSuiteEvent.CheckSuite.App.Name)
-                    .Bold("Status: ").TextBr(checkSuiteEvent.CheckSuite.Status.StringValue)
-                    .Bold("Conclusion: ").TextBr(checkSuiteEvent.CheckSuite.Conclusion.StringValue);
+                var checkSuite = checkSuiteEvent.CheckSuite;
+
+                htmlMessage
+                    .Bold("Name: ").TextBr(checkSuite.App.Name)
+                    .Bold("Status: ").TextBr(checkSuite.Status.StringValue)
+                    .Bold("Conclusion: ").TextBr(checkSuite.Conclusion.StringValue);
+                break;
+
+            case WebhookEventType.CheckRun:
+                var checkRunEvent = payload.Deserialize<CheckRunEvent>();
+                var checkRun = checkRunEvent.CheckRun;
+
+                htmlMessage
+                    .Bold("Name: ").TextBr(checkRun.App.Name)
+                    .Bold("Status: ").TextBr(checkRun.Status.StringValue)
+                    .Bold("Conclusion: ").TextBr(checkRun.Conclusion.StringValue);
                 break;
 
             default:
@@ -131,9 +149,7 @@ public class WebhookService
                 var commits = request.Commits;
                 var commitsStr = "commit".ToQuantity(commits.Count);
 
-                htmlMessage
-                    // .Url(pushEvent.Compare, $"🏗 {commitsStr}")
-                    .Bold($"🏗 {commitsStr}")
+                htmlMessage.Bold($"🏗 {commitsStr}")
                     .Bold($" to ").Url(project.WebUrl, $"{project.Name}")
                     .Text(":").Url(treeUrl, $"{branchName}")
                     .Br().Br();
