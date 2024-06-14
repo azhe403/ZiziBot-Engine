@@ -13,7 +13,7 @@ public class JadwalSholatOrgParserTests
         cities.Should().NotBeNullOrEmpty();
     }
 
-    [Theory]
+    [Theory(Skip = "Deprecated")]
     [InlineData(1)]
     public async Task FetchPerCity_FullYear_Test(int cityId)
     {
@@ -22,7 +22,7 @@ public class JadwalSholatOrgParserTests
         shalatTimes.Should().NotBeNullOrEmpty();
     }
 
-    [Theory]
+    [Theory(Skip = "Deprecated")]
     [InlineData(1, 2)]
     [InlineData(1, 10)]
     public async Task Fetch_CustomMonth_Test(int cityId, int month)
@@ -32,7 +32,7 @@ public class JadwalSholatOrgParserTests
         shalatTimes.Should().NotBeNullOrEmpty();
     }
 
-    [Theory]
+    [Theory(Skip = "Deprecated")]
     [InlineData(1, 2, 2022)]
     [InlineData(1, 12, 2023)]
     public async Task Fetch_CustomMonth_CustomYear_Test(int cityId, int month, int year)

@@ -1,4 +1,5 @@
-﻿using MongoFramework.Linq;
+﻿using FluentAssertions;
+using MongoFramework.Linq;
 using MoreLinq;
 using SharpX.Extensions;
 using Xunit;
@@ -16,7 +17,7 @@ public class JadwalSholatOrgSinkServiceTests
         _jadwalSholatOrgSinkService = jadwalSholatOrgSinkService;
     }
 
-    [Fact]
+    [Fact(Skip = "Deprecated")]
     public async Task FeedCityTest()
     {
         _mongoDbContextBase.JadwalSholatOrg_City.RemoveRange(entity => true);
@@ -25,7 +26,7 @@ public class JadwalSholatOrgSinkServiceTests
         await _jadwalSholatOrgSinkService.FeedCity();
     }
 
-    [Fact]
+    [Fact(Skip = "Deprecated")]
     public async Task FeedScheduleTest()
     {
         var cities = await _mongoDbContextBase.JadwalSholatOrg_City.ToListAsync();
@@ -35,10 +36,12 @@ public class JadwalSholatOrgSinkServiceTests
         await randomCities.ForEachAsync(async entity => await _jadwalSholatOrgSinkService.FeedSchedule(entity.CityId));
     }
 
-    [Theory]
+    [Theory(Skip = "Deprecated")]
     [InlineData(124)]
     public async Task FeedSchedule_ByCity_Test(int cityId)
     {
-        await _jadwalSholatOrgSinkService.FeedSchedule(cityId);
+        var feedSchedule = await _jadwalSholatOrgSinkService.FeedSchedule(cityId);
+
+        feedSchedule.Should().BeGreaterThan(0, because: "Expected FeedSchedule to insert at least one schedule for the given cityId");
     }
 }

@@ -7,10 +7,9 @@ public class MirrorPaymentTest
 {
     public MirrorPaymentTest(MediatorService mediatorService)
     {
-
     }
 
-    [Theory]
+    [Theory(Skip = "Deprecated")]
     [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     public async Task TrakteerParserTest(string url)

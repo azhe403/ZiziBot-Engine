@@ -11,8 +11,7 @@ public static class JadwalSholatOrgParserUtil
     {
         var document = await WebUrl.OpenUrl();
 
-        var cities = document?.QuerySelector<IHtmlSelectElement>("select[name=kota]")?.Options.Select(x => new City()
-        {
+        var cities = document?.QuerySelector<IHtmlSelectElement>("select[class=town-select]")?.Options.Select(x => new City() {
             CityId = x.Value.Convert<int>(),
             CityCode = x.Text.ToLower().RegexReplace("[^a-zA-Z]", ""),
             CityName = x.Text
@@ -55,18 +54,17 @@ public static class JadwalSholatOrgParserUtil
         var document = await webUrl.OpenUrl();
 
         var tableRows = document?.QuerySelectorAll<IHtmlTableRowElement>("table[class=table_adzan] > tbody > tr");
-        var times = tableRows?.Skip(2).Select(x => x.Cells.Select(y => y.TextContent.RegexMatchIf("[0-9][0-9]:[0-9][0-9]+", y.TextContent.Contains(':')))).ToList();
+        var times = tableRows?.Skip(2)
+            .Select(x => x.Cells.Select(y => y.TextContent.RegexMatchIf("[0-9][0-9]:[0-9][0-9]+", y.TextContent.Contains(':')))).ToList();
         var header = times?.First();
 
         var shalatTimes = times?.Skip(1)
             .Select(row => header?.Zip(row, (h, t) => new { h, t }).ToDictionary(ht => ht.h, ht => ht.t))
             .SkipLast(13)
-            .Select(x =>
-            {
+            .Select(x => {
                 var date = x.GetValueOrDefault("Tanggal");
 
-                var time = new ShalatTime
-                {
+                var time = new ShalatTime {
                     Date = new DateOnly(year, month, date.Convert<int>()),
                     Fajr = TimeOnly.Parse(x.GetValueOrDefault("Shubuh")),
                     Sunrise = TimeOnly.Parse(x.GetValueOrDefault("Terbit")),

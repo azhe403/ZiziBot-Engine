@@ -53,10 +53,8 @@ public static class LinqUtil
 
     public static bool IsEmpty<TSource>([NotNullWhen(false)] this IEnumerable<TSource>? source)
     {
-        if (source == null || !source.Any())
-        {
-            return true;
-        }
+        if (source == null) return true;
+        if (!source.Any()) return true;
 
         return false;
     }
