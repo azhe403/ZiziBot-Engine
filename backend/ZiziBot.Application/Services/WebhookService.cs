@@ -118,8 +118,10 @@ public class WebhookService
 
                 htmlMessage
                     .Bold("Name: ").TextBr(checkRun.App.Name)
-                    .Bold("Status: ").TextBr(checkRun.Status.StringValue)
-                    .Bold("Conclusion: ").TextBr(checkRun.Conclusion.StringValue);
+                    .Bold("Status: ").TextBr(checkRun.Status.StringValue);
+
+                if (checkRun.Conclusion != null)
+                    htmlMessage.Bold("Conclusion: ").TextBr(checkRun.Conclusion.StringValue);
                 break;
 
             case WebhookEventType.DependabotAlert:
