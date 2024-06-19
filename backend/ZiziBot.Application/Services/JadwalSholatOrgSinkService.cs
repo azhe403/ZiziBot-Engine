@@ -58,7 +58,7 @@ public class JadwalSholatOrgSinkService
     }
 
 
-    public async Task FeedSchedule(int cityId)
+    public async Task<int> FeedSchedule(int cityId)
     {
         var trxId = Guid.NewGuid().ToString();
         var schedules = await JadwalSholatOrgParserUtil.FetchSchedules(cityId);
@@ -74,17 +74,22 @@ public class JadwalSholatOrgSinkService
             Isha = x.Isha,
             Status = (int)EventStatus.Complete,
             TransactionId = trxId
-        });
+        }).ToList();
 
-        if (insertSchedules != null)
+        if (insertSchedules.IsEmpty())
         {
-            _logger.LogDebug("Deleting old schedules for city {cityId}..", cityId);
-            _mongoDbContext.JadwalSholatOrg_Schedule.RemoveRange(x => x.CityId == cityId);
-            await _mongoDbContext.SaveChangesAsync();
-
-            _logger.LogDebug("Inserting new schedules for city {cityId}..", cityId);
-            _mongoDbContext.JadwalSholatOrg_Schedule.AddRange(insertSchedules);
-            await _mongoDbContext.SaveChangesAsync();
+            _logger.LogInformation("No schedules found for city with ID {cityId}.", cityId);
+            return default;
         }
+
+        _logger.LogDebug("Deleting old schedules for city {cityId}..", cityId);
+        _mongoDbContext.JadwalSholatOrg_Schedule.RemoveRange(x => x.CityId == cityId);
+        await _mongoDbContext.SaveChangesAsync();
+
+        _logger.LogDebug("Inserting new schedules for city {cityId}..", cityId);
+        _mongoDbContext.JadwalSholatOrg_Schedule.AddRange(insertSchedules);
+        await _mongoDbContext.SaveChangesAsync();
+
+        return insertSchedules.Count;
     }
 }

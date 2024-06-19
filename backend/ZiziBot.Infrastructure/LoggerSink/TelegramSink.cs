@@ -1,5 +1,6 @@
 using System.Text;
 using AsyncAwaitBestPractices;
+using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Debugging;
@@ -26,14 +27,22 @@ public class TelegramSink : ILogEventSink
         }
 
         var htmlMessage = HtmlMessage.Empty
-            .BoldBr("🛑 EventLog")
-            .CodeBr(logEvent.RenderMessage()).Br()
-            .Bold("Level: ").CodeBr(logEvent.Level.ToString())
-            .Bold("Timestamp: ").CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            .BoldBr("🛑 #EventLog")
+            .Bold("#").Text(logEvent.Level.ToString()).Text(" - ").CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"))
+            .CodeBr(logEvent.RenderMessage()).Br();
 
-        foreach (var (key, value) in logEvent.Properties)
+        foreach (var (key, value) in logEvent.Properties.Select(x => (x.Key, x.Value.ToString().Replace("\"", ""))))
         {
-            htmlMessage.Bold($"{key}: ").CodeBr(value.ToString());
+            htmlMessage.Bold($"{key}: ");
+
+            if (value.IsValidUrl())
+            {
+                htmlMessage.TextBr(value);
+            }
+            else
+            {
+                htmlMessage.CodeBr(value);
+            }
         }
 
         if (exception != null)
@@ -60,14 +69,13 @@ public class TelegramSink : ILogEventSink
                 .Bold("Assembly Location: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
         }
 
-        SendMessageText(htmlMessage.ToString()).SafeFireAndForget(ex => SelfLog.WriteLine("Error when sending Telegram message: {ex}", ex));
+        SendMessageText(htmlMessage.ToString()).SafeFireAndForget(ex => Log.Error(ex, "Error when sending Telegram message: {ex}", ex.Message));
     }
 
     private async Task SendMessageText(string message)
     {
         var client = new HttpClient();
-        var payload = new
-        {
+        var payload = new {
             chat_id = ChatId,
             message_thread_id = ThreadId,
             text = message,
@@ -96,8 +104,7 @@ public static class TelegramSinkExtension
             return configuration;
         }
 
-        configuration.Sink(logEventSink: new TelegramSink()
-        {
+        configuration.Sink(logEventSink: new TelegramSink() {
             BotToken = botToken,
             ChatId = chatId,
             ThreadId = threadId

@@ -10,9 +10,6 @@ namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
 public class PostWebhookPayloadRequest : ApiRequestBase<PostWebhookPayloadResponseDto>
 {
-    [FromBody]
-    public object? Content { get; set; }
-
     [FromRoute(Name = "targetId")]
     public string targetId { get; set; }
 
@@ -50,12 +47,12 @@ public class PostWebhookPayloadHandler(
         var stopwatch = Stopwatch.StartNew();
         var webhookSource = request.UserAgent.GetWebHookSource();
         var webhookHeader = WebhookHeader.Parse(request.Headers);
-        var content = $"{request.Content}";
+        var content = await request.RequestBody();
         var response = new ApiResponseBase<PostWebhookPayloadResponseDto>() {
             TransactionId = request.HttpContextAccessor?.HttpContext?.TraceIdentifier ?? string.Empty
         };
 
-        if (request.Content == null)
+        if (content == null)
         {
             return response.BadRequest("Webhook payload is empty");
         }
@@ -134,7 +131,7 @@ public class PostWebhookPayloadHandler(
             WebhookSource = WebhookSource.GitHub,
             Elapsed = stopwatch.Elapsed,
             Payload = request.IsDebug ? content : string.Empty,
-            Header = request.IsDebug ? webhookHeader : default,
+            Header = request.IsDebug ? request.Headers.ToHeaderRawKv() : default,
             EventName = webhookHeader.Event,
             Status = (int)EventStatus.Complete
         });
@@ -142,7 +139,7 @@ public class PostWebhookPayloadHandler(
         await mongoDbContextBase.SaveChangesAsync(cancellationToken);
 
         mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
-            ActivityType = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditMessage,
+            ActivityType = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditWebHook,
             ChatId = webhookChat.ChatId,
             Chat = sentMessage.Chat,
             User = sentMessage.From,

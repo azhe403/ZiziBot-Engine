@@ -49,7 +49,8 @@ public class WebhookService
                 var headUrl = pullRequest.Head.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Head.Ref}");
                 var baseUrl = pullRequest.Base.Repo.HtmlUrl.AppendPathSegment($"tree/{pullRequest.Base.Ref}");
 
-                htmlMessage.Bold(action == PullRequestAction.Opened ? "🔌 Opened " : "🔌 Updated ")
+                htmlMessage
+                    .Bold(action == PullRequestAction.Opened ? "🔌 Opened " : "🔌 Updated ")
                     .Url(pullRequest.HtmlUrl, $"PR #{pullRequest.Number}").Text(": ")
                     .Text(pullRequest.Title).Br()
                     .Bold("🎯 ").Url(headUrl, pullRequest.Head.Ref).Bold(" -> ").Url(baseUrl, pullRequest.Base.Ref).Br();
@@ -57,14 +58,15 @@ public class WebhookService
 
             case WebhookEventType.Star:
                 var watcherCount = repository.WatchersCount;
+                var watchEvent = payload.Deserialize<StarEvent>();
 
-                htmlMessage.Bold(action == StarAction.Created ? "⭐️ Starred " : "🌟 Unstarred ")
-                    .Url(repository.HtmlUrl, repository.FullName).Br()
-                    .Bold("Total: ").Code(watcherCount.ToString()).Br();
+                htmlMessage
+                    .Bold(action == StarAction.Created ? "⭐️ Starred " : "🌟 Unstarred ").Code(watcherCount.ToString()).Br();
                 break;
 
             case WebhookEventType.Status:
                 var statusEvent = payload.Deserialize<StatusEvent>();
+
                 htmlMessage
                     .Bold("Creator: ").TextBr(sender.Login)
                     .Bold("Status: ").Url(statusEvent.TargetUrl, statusEvent.State.StringValue);
@@ -72,18 +74,78 @@ public class WebhookService
 
             case WebhookEventType.DeploymentStatus:
                 var deploymentStatusEvent = payload.Deserialize<DeploymentStatusEvent>();
+                var deploymentStatus = deploymentStatusEvent!.DeploymentStatus;
+
                 htmlMessage
-                    .Bold("Creator: ").TextBr(deploymentStatusEvent.Deployment.Creator.Login)
-                    .Bold("Environment: ").TextBr(deploymentStatusEvent.DeploymentStatus.Environment).Br()
-                    .Bold("Status: ").TextBr(deploymentStatusEvent.DeploymentStatus.State.StringValue);
+                    .Bold("Creator: ").TextBr(deploymentStatus.Creator.Login)
+                    .Bold("Environment: ").TextBr(deploymentStatus.Environment).Br()
+                    .Bold("Status: ").TextBr(deploymentStatus.State.StringValue);
                 break;
 
             case WebhookEventType.Deployment:
                 var deploymentEvent = payload.Deserialize<DeploymentEvent>();
+                var deployment = deploymentEvent!.Deployment;
+
                 htmlMessage
-                    .Bold("Creator: ").TextBr(deploymentEvent.Deployment.Creator.Login)
-                    .Bold("Environment: ").TextBr(deploymentEvent.Deployment.Environment).Br()
-                    .Bold("Status: ").TextBr(deploymentEvent.Deployment.Task);
+                    .Bold("Creator: ").TextBr(deployment.Creator.Login)
+                    .Bold("Environment: ").TextBr(deployment.Environment).Br()
+                    .Bold("Status: ").TextBr(deployment.Task);
+                break;
+
+            case WebhookEventType.WorkflowRun:
+                var workflowRunEvent = payload.Deserialize<WorkflowRunEvent>();
+                var workflowRun = workflowRunEvent.WorkflowRun;
+
+                htmlMessage
+                    .Bold("Name: ").TextBr(workflowRun.Name)
+                    .Bold("Status: ").TextBr(workflowRun.Status.StringValue)
+                    .Bold("Actor: ").TextBr(workflowRun.Actor.Login);
+                break;
+
+            case WebhookEventType.CheckSuite:
+                var checkSuiteEvent = payload.Deserialize<CheckSuiteEvent>();
+                var checkSuite = checkSuiteEvent!.CheckSuite;
+
+                htmlMessage
+                    .Bold("Name: ").TextBr(checkSuite.App.Name)
+                    .Bold("Status: ").TextBr(checkSuite.Status.StringValue)
+                    .Bold("Conclusion: ").TextBr(checkSuite.Conclusion.StringValue);
+                break;
+
+            case WebhookEventType.CheckRun:
+                var checkRunEvent = payload.Deserialize<CheckRunEvent>();
+                var checkRun = checkRunEvent!.CheckRun;
+
+                htmlMessage
+                    .Bold("Name: ").TextBr(checkRun.App.Name)
+                    .Bold("Status: ").TextBr(checkRun.Status.StringValue);
+
+                if (checkRun.Conclusion != null)
+                    htmlMessage.Bold("Conclusion: ").TextBr(checkRun.Conclusion.StringValue);
+                break;
+
+            case WebhookEventType.DependabotAlert:
+                var dependabotAlertEvent = payload.Deserialize<DependabotAlertEvent>();
+                var dependabotAlert = dependabotAlertEvent!.Alert;
+
+                htmlMessage
+                    .Bold("Status: ").CodeBr(dependabotAlert.State.StringValue)
+                    .Bold("CVE ID: ").CodeBr(dependabotAlert.SecurityAdvisory.CveId)
+                    .Bold("Summary: ").CodeBr(dependabotAlert.SecurityAdvisory.Summary)
+                    .Bold("Severity: ").CodeBr(dependabotAlert.SecurityAdvisory.Severity.StringValue)
+                    .Url(dependabotAlert.HtmlUrl, "Open details");
+                break;
+
+            case WebhookEventType.RepositoryVulnerabilityAlert:
+                var repositoryVulnerabilityAlertEvent = payload.Deserialize<RepositoryVulnerabilityAlertEvent>();
+                var repositoryVulnerabilityAlert = repositoryVulnerabilityAlertEvent!.Alert;
+
+                htmlMessage
+                    .Bold("CVE ID: ").CodeBr(repositoryVulnerabilityAlert.ExternalIdentifier)
+                    .Bold("Package Name: ").CodeBr(repositoryVulnerabilityAlert.AffectedPackageName)
+                    .Bold("Affected Range: ").CodeBr(repositoryVulnerabilityAlert.AffectedRange)
+                    .Bold("Fixed In: ").CodeBr(repositoryVulnerabilityAlert.FixedIn)
+                    .Url(repositoryVulnerabilityAlert.ExternalReference, "Open details");
                 break;
 
             default:
@@ -117,9 +179,7 @@ public class WebhookService
                 var commits = request.Commits;
                 var commitsStr = "commit".ToQuantity(commits.Count);
 
-                htmlMessage
-                    // .Url(pushEvent.Compare, $"🏗 {commitsStr}")
-                    .Bold($"🏗 {commitsStr}")
+                htmlMessage.Bold($"🏗 {commitsStr}")
                     .Bold($" to ").Url(project.WebUrl, $"{project.Name}")
                     .Text(":").Url(treeUrl, $"{branchName}")
                     .Br().Br();

@@ -4,7 +4,9 @@ namespace ZiziBot.Types.Types;
 
 public class WebhookHeader
 {
-    public required string UserAgent { get; init; }
+    public string? Host { get; init; }
+    public string? UserAgent { get; init; }
+    public string? ContentType { get; init; }
     public string? Delivery { get; init; }
     public string? Event { get; init; }
     public string? HookId { get; init; }
@@ -15,17 +17,15 @@ public class WebhookHeader
     {
         ArgumentNullException.ThrowIfNull(headers);
 
-        headers.TryGetValue("User-Agent", out var userAgent);
-        headers.TryGetValue("X-GitHub-Hook-Installation-Target-ID", out var hookInstallationTargetId);
-        headers.TryGetValue("X-GitHub-Hook-Installation-Target-Type", out var hookInstallationTargetType);
-
         var webhookHeader = new WebhookHeader {
-            UserAgent = userAgent.ToString(),
-            Delivery = headers.FirstOrDefault(kv => kv.Key.Contains("Delivery")).Value,
-            Event = headers.FirstOrDefault(kv => kv.Key.Contains("Event")).Value,
-            HookId = headers.FirstOrDefault(kv => kv.Key.Contains("Hook-ID")).Value,
-            HookInstallationTargetId = hookInstallationTargetId.ToString(),
-            HookInstallationTargetType = hookInstallationTargetType.ToString(),
+            Host = headers.FirstOrDefault(kv => kv.Key.Like("host")).Value,
+            UserAgent = headers.FirstOrDefault(kv => kv.Key.Like("user-agent")).Value,
+            ContentType = headers.FirstOrDefault(kv => kv.Key.Like("content-type")).Value,
+            Delivery = headers.FirstOrDefault(kv => kv.Key.Like("delivery")).Value,
+            Event = headers.FirstOrDefault(kv => kv.Key.Like("event")).Value,
+            HookId = headers.FirstOrDefault(kv => kv.Key.Like("hook-id")).Value,
+            HookInstallationTargetId = headers.FirstOrDefault(kv => kv.Key.Like("hook-installation-target-id")).Value,
+            HookInstallationTargetType = headers.FirstOrDefault(kv => kv.Key.Like("hook-installation-target-type")).Value
         };
 
         return webhookHeader;

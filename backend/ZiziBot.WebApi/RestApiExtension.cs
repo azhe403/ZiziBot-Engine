@@ -34,15 +34,13 @@ public static class RestApiExtension
                     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
                 }
             )
-            .AddNewtonsoftJson()
             .ConfigureApiBehaviorOptions(options => {
                 options.InvalidModelStateResponseFactory = context => {
                     var transactionId = context.HttpContext.Request.Headers[HeaderKey.TransactionId].FirstOrDefault();
 
                     var errorDetails = context.ModelState
                         .Where(entry => entry.Value?.ValidationState == ModelValidationState.Invalid)
-                        .Select(key => new
-                        {
+                        .Select(key => new {
                             Id = key.Key,
                             Field = key.Key.Split('.').Last(),
                             Message = key.Value?.Errors.Select(e => e.ErrorMessage)
@@ -50,13 +48,11 @@ public static class RestApiExtension
 
                     var errors = errorDetails.SelectMany(x => x.Message).ToList();
 
-                    return new BadRequestObjectResult(new ApiResponseBase<object>()
-                    {
+                    return new BadRequestObjectResult(new ApiResponseBase<object>() {
                         StatusCode = HttpStatusCode.BadRequest,
                         TransactionId = transactionId,
                         Message = "Please ensure your request",
-                        Result = new
-                        {
+                        Result = new {
                             Error = errors.Aggregate((a, b) => $"{a}\n{b}"),
                             Errors = errors,
                             ErrorDetails = errorDetails,
@@ -71,8 +67,7 @@ public static class RestApiExtension
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(o => {
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
+                o.TokenValidationParameters = new TokenValidationParameters {
                     ValidIssuer = jwtConfig.Issuer,
                     ValidAudience = jwtConfig.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key)),
@@ -82,16 +77,14 @@ public static class RestApiExtension
                     ValidateIssuerSigningKey = true
                 };
 
-                o.Events = new JwtBearerEvents
-                {
+                o.Events = new JwtBearerEvents {
                     OnChallenge = async context => {
                         context.HandleResponse();
 
                         context.Response.StatusCode = 401;
                         context.Response.ContentType = "application/json";
                         await context.Response.WriteAsJsonAsync(
-                            new ApiResponseBase<bool>()
-                            {
+                            new ApiResponseBase<bool>() {
                                 StatusCode = HttpStatusCode.Unauthorized,
                                 Message = "Please ensure you have a valid token"
                             }
@@ -154,9 +147,7 @@ public static class RestApiExtension
         app.ConfigureRateLimiter();
 
         app.UseSwagger();
-        app.UseSwaggerUI(options => {
-            options.DefaultModelsExpandDepth(-1);
-        });
+        app.UseSwaggerUI(options => { options.DefaultModelsExpandDepth(-1); });
 
         return app;
     }
