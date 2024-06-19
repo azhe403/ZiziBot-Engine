@@ -22,6 +22,7 @@ public class InsertChatActivityHandler<TRequest, TResponse>(
         mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
             MessageId = request.MessageId,
             ChatId = request.ChatIdentifier,
+            UserId = request.UserId,
             ActivityType = ChatActivityType.UserSendMessage,
             Chat = request.Chat,
             User = request.User,

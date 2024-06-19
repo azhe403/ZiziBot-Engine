@@ -150,6 +150,7 @@ public class ChatSettingRepository
     {
         _mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
             ChatId = dto.ChatId,
+            UserId = dto.UserId,
             ActivityType = dto.ActivityType,
             Chat = dto.Chat,
             User = dto.User,

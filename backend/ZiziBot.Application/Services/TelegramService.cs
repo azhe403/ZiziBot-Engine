@@ -155,7 +155,8 @@ public class TelegramService(
 
         await mediator.Send(new CreateChatActivityRequest() {
             ActivityType = ChatActivityType.BotSendMessage,
-            SentMessage = SentMessage
+            SentMessage = SentMessage,
+            TransactionId = _request.TransactionId
         });
 
         logger.LogInformation("Message sent to chat {ChatId}", _request.ChatId);
@@ -203,7 +204,8 @@ public class TelegramService(
 
         await mediator.Send(new CreateChatActivityRequest() {
             ActivityType = ChatActivityType.BotEditMessage,
-            SentMessage = SentMessage
+            SentMessage = SentMessage,
+            TransactionId = _request.TransactionId
         });
 
         return Complete();

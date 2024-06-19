@@ -141,6 +141,7 @@ public class PostWebhookPayloadHandler(
         mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditWebHook,
             ChatId = webhookChat.ChatId,
+            UserId = sentMessage.From.Id,
             Chat = sentMessage.Chat,
             User = sentMessage.From,
             Status = (int)EventStatus.Complete,
