@@ -78,7 +78,7 @@ public class WebhookService
 
                 htmlMessage
                     .Bold("Creator: ").TextBr(deploymentStatus.Creator.Login)
-                    .Bold("Environment: ").TextBr(deploymentStatus.Environment).Br()
+                    .Bold("Environment: ").TextBr(deploymentStatus.Environment)
                     .Bold("Status: ").TextBr(deploymentStatus.State.StringValue);
                 break;
 
@@ -88,7 +88,7 @@ public class WebhookService
 
                 htmlMessage
                     .Bold("Creator: ").TextBr(deployment.Creator.Login)
-                    .Bold("Environment: ").TextBr(deployment.Environment).Br()
+                    .Bold("Environment: ").TextBr(deployment.Environment)
                     .Bold("Status: ").TextBr(deployment.Task);
                 break;
 
@@ -100,6 +100,16 @@ public class WebhookService
                     .Bold("Name: ").TextBr(workflowRun.Name)
                     .Bold("Status: ").TextBr(workflowRun.Status.StringValue)
                     .Bold("Actor: ").TextBr(workflowRun.Actor.Login);
+                break;
+
+            case WebhookEventType.WorkflowJob:
+                var workflowJobEvent = payload.Deserialize<WorkflowJobEvent>();
+                var workflowJob = workflowJobEvent.WorkflowJob;
+
+                htmlMessage
+                    .Bold("Name: ").TextBr(workflowJob.Name)
+                    .Bold("Workflow Name: ").TextBr(workflowJob.WorkflowName)
+                    .Bold("Status: ").TextBr(workflowJob.Status.StringValue);
                 break;
 
             case WebhookEventType.CheckSuite:

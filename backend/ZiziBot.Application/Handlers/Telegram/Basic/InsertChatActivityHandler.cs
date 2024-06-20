@@ -24,6 +24,7 @@ public class InsertChatActivityHandler<TRequest, TResponse>(
             ChatId = request.ChatIdentifier,
             UserId = request.UserId,
             ActivityType = ChatActivityType.UserSendMessage,
+            ActivityTypeName = ChatActivityType.UserSendMessage.ToString(),
             Chat = request.Chat,
             User = request.User,
             Status = (int)EventStatus.Complete,

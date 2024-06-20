@@ -138,8 +138,10 @@ public class PostWebhookPayloadHandler(
 
         await mongoDbContextBase.SaveChangesAsync(cancellationToken);
 
+        var chatActivity = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditWebHook;
         mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
-            ActivityType = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditWebHook,
+            ActivityType = chatActivity,
+            ActivityTypeName = chatActivity.ToString(),
             ChatId = webhookChat.ChatId,
             UserId = sentMessage.From.Id,
             Chat = sentMessage.Chat,

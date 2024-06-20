@@ -17,6 +17,7 @@ public class CreateChatActivityHandler(MongoDbContextBase mongoDbContextBase, Te
     {
         mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = request.ActivityType,
+            ActivityTypeName = request.ActivityType.ToString(),
             ChatId = request.SentMessage.Chat.Id,
             UserId = request.SentMessage.From.Id,
             Chat = request.SentMessage.Chat,

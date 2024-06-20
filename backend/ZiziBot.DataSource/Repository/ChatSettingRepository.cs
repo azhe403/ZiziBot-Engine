@@ -152,6 +152,7 @@ public class ChatSettingRepository
             ChatId = dto.ChatId,
             UserId = dto.UserId,
             ActivityType = dto.ActivityType,
+            ActivityTypeName = dto.ActivityType.ToString(),
             Chat = dto.Chat,
             User = dto.User,
             Status = (int)dto.Status,
