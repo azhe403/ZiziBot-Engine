@@ -27,8 +27,8 @@ public class TelegramSink : ILogEventSink
         }
 
         var htmlMessage = HtmlMessage.Empty
-            .BoldBr("🛑 #EventLog")
-            .Bold("#").Text(logEvent.Level.ToString()).Text(" - ").CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"))
+            .Text("⌛ ")
+            .CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"))
             .CodeBr(logEvent.RenderMessage()).Br();
 
         foreach (var (key, value) in logEvent.Properties.Select(x => (x.Key, x.Value.ToString().Replace("\"", ""))))
@@ -38,6 +38,11 @@ public class TelegramSink : ILogEventSink
             if (value.IsValidUrl())
             {
                 htmlMessage.TextBr(value);
+            }
+            else if (value.Contains('.'))
+            {
+                var end = value.Split(".").LastOrDefault();
+                htmlMessage.CodeBr(end);
             }
             else
             {
@@ -68,6 +73,8 @@ public class TelegramSink : ILogEventSink
                 .Bold("Assembly Version: ").CodeBr(VersionUtil.GetVersion())
                 .Bold("Assembly Location: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
         }
+
+        htmlMessage.Bold("#").Text(logEvent.Level.ToString()).Text(" ").Text($"#LOG_{logEvent.Timestamp.ToString("yyyyMMdd")}");
 
         SendMessageText(htmlMessage.ToString()).SafeFireAndForget(ex => Log.Error(ex, "Error when sending Telegram message: {ex}", ex.Message));
     }
