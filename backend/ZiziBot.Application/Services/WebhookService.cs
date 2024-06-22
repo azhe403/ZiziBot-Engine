@@ -18,13 +18,21 @@ public class WebhookService
 
         var githubEvent = payload.Deserialize<GitHubEventBase>();
         var action = githubEvent!.Action;
-        var repository = githubEvent!.Repository;
+        var repository = githubEvent.Repository;
         var sender = githubEvent.Sender;
 
-        htmlMessage.Url($"{repository?.HtmlUrl}", $"🗼 {repository?.FullName}").Br();
+        if (repository != null)
+            htmlMessage.Url($"{repository?.HtmlUrl}", $"🗼 {repository?.FullName}").Br();
 
         switch (header.Event)
         {
+            case WebhookEventType.Ping:
+                var pingEvent = payload.Deserialize<PingEvent>();
+                var hook = pingEvent.Hook;
+
+                htmlMessage.Bold("Webhook installed").Br()
+                    .Bold("Type: ").Code(hook.Type.StringValue);
+                break;
             case WebhookEventType.Push:
                 var pushEvent = payload.Deserialize<PushEvent>();
                 var commits = pushEvent!.Commits.ToList();
