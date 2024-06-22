@@ -1,5 +1,5 @@
 using System.Net;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace ZiziBot.Application.Core;
 
@@ -8,12 +8,12 @@ public class ApiResponseBase<TResult>
     [JsonIgnore]
     public HttpStatusCode StatusCode { get; set; }
 
-    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? TransactionId { get; set; }
 
     public string Message { get; set; }
 
-    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public TResult? Result { get; set; }
 
     public ApiResponseBase<TResult> Success(string message, TResult? result = default)
