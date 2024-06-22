@@ -7,7 +7,6 @@ namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 [WithBehaviors(typeof(FluentValidationBehavior<,>))]
 [MediatRBehavior(typeof(RequestValidationPipeline))]
-// [MediatRBehavior(typeof(CheckUsernamePipeline))]
 [MediatRBehavior(typeof(CheckAntispamPipeline))]
 public class BotMiddlewareRunnerRequest : BotMiddlewareRequestBase<AntiSpamDto>
 {
@@ -29,8 +28,7 @@ public class BotMiddlewareRunnerHandler : IRequestHandler<BotMiddlewareRunnerReq
 
         await Task.Delay(1, cancellationToken);
 
-        var response = new BotMiddlewareResponseBase<AntiSpamDto>
-        {
+        var response = new BotMiddlewareResponseBase<AntiSpamDto> {
             CanContinue = true
         };
 
