@@ -16,23 +16,17 @@ public class FetchRssRequest : IRequest<bool>
     public string RssUrl { get; set; }
 }
 
-public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
+public class FetchRssHandler(
+    ILogger<FetchRssHandler> logger,
+    IRecurringJobManager recurringJob,
+    MongoDbContextBase mongoDbContext,
+    AppSettingRepository appSettingRepository
+)
+    : IRequestHandler<FetchRssRequest, bool>
 {
-    private readonly ILogger<FetchRssHandler> _logger;
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly AppSettingRepository _appSettingRepository;
-
-    public FetchRssHandler(ILogger<FetchRssHandler> logger, MongoDbContextBase mongoDbContext,
-        AppSettingRepository appSettingRepository)
-    {
-        _logger = logger;
-        _mongoDbContext = mongoDbContext;
-        _appSettingRepository = appSettingRepository;
-    }
-
     public async Task<bool> Handle(FetchRssRequest request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Processing RSS Url: {Url}", request.RssUrl);
+        logger.LogInformation("Processing RSS Url: {Url}", request.RssUrl);
 
         try
         {
@@ -42,12 +36,12 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             if (latestArticle == null)
             {
-                _logger.LogInformation("No article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId,
+                logger.LogInformation("No article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId,
                     request.RssUrl);
                 return false;
             }
 
-            var latestHistory = await _mongoDbContext.RssHistory.AsNoTracking()
+            var latestHistory = await mongoDbContext.RssHistory.AsNoTracking()
                 .Where(entity => entity.ChatId == request.ChatId)
                 .Where(entity => entity.ThreadId == request.ThreadId)
                 .Where(entity => entity.RssUrl == request.RssUrl)
@@ -56,12 +50,12 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
 
             if (latestHistory != null)
             {
-                _logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId,
+                logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId,
                     request.RssUrl);
                 return false;
             }
 
-            var botSettings = await _appSettingRepository.GetBotMain();
+            var botSettings = await appSettingRepository.GetBotMain();
 
             var botClient = new TelegramBotClient(botSettings.Token);
 
@@ -72,7 +66,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 .Url(latestArticle.Link, latestArticle.Title.Trim()).Br();
 
             if (!request.RssUrl.IsGithubCommitsUrl() &&
-                await _appSettingRepository.GetFlagValue(Flag.RSS_INCLUDE_CONTENT))
+                await appSettingRepository.GetFlagValue(Flag.RSS_INCLUDE_CONTENT))
                 messageText.Text(htmlContent.Truncate(2000));
 
             if (request.RssUrl.IsGithubReleaseUrl())
@@ -106,7 +100,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
             {
                 if (exception.Message.Contains("thread not found"))
                 {
-                    _logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
+                    logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
                     await botClient.SendTextMessageAsync(
                         chatId: request.ChatId,
                         text: truncatedMessageText,
@@ -117,7 +111,7 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
                 }
             }
 
-            _mongoDbContext.RssHistory.Add(new RssHistoryEntity() {
+            mongoDbContext.RssHistory.Add(new RssHistoryEntity() {
                 ChatId = request.ChatId,
                 ThreadId = request.ThreadId,
                 RssUrl = request.RssUrl,
@@ -132,29 +126,30 @@ public class FetchRssHandler : IRequestHandler<FetchRssRequest, bool>
         {
             if (exception.Message.IsIgnorable())
             {
-                var findRssSetting = await _mongoDbContext.RssSetting
+                var findRssSetting = await mongoDbContext.RssSetting
                     .Where(entity => entity.ChatId == request.ChatId)
                     .Where(entity => entity.RssUrl == request.RssUrl)
                     .Where(entity => entity.Status == (int)EventStatus.Complete)
                     .ToListAsync(cancellationToken);
 
-                findRssSetting.ForEach(e => {
-                    _logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}", e.ChatId, e.RssUrl);
+                findRssSetting.ForEach(rssSetting => {
+                    logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}",
+                        rssSetting.ChatId, rssSetting.RssUrl, exception.Message);
 
-                    e.Status = (int)EventStatus.InProgress;
-                    e.LastErrorMessage = exception.Message;
+                    rssSetting.Status = (int)EventStatus.InProgress;
+                    rssSetting.LastErrorMessage = exception.Message;
 
-                    RecurringJob.RemoveIfExists(e.CronJobId);
+                    recurringJob.RemoveIfExists(rssSetting.CronJobId);
                 });
             }
             else
             {
-                _logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}",
+                logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}",
                     request.ChatId, request.RssUrl);
             }
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return true;
     }
