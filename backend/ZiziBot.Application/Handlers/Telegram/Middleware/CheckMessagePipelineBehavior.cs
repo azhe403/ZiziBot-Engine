@@ -72,7 +72,7 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
         }
 
         if (!hasBadword)
-            return new TResponse();
+            return await next();
 
         var htmlMessage = HtmlMessage.Empty
             .User(request.UserId, request.User.GetFullName()).Text(" telah diperingatkan.").Br()
