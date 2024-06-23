@@ -8,7 +8,7 @@ public class CheckUsernamePipelineBehavior<TRequest, TResponse>(
     TelegramService telegramService
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : BotRequestBase, IRequest<TResponse>
-    where TResponse : BotResponseBase
+    where TResponse : BotResponseBase, new()
 {
     public async Task<TResponse> Handle(
         TRequest request,
@@ -31,18 +31,27 @@ public class CheckUsernamePipelineBehavior<TRequest, TResponse>(
             return await next();
         }
 
-        var fullName = request.User?.GetFullMention();
+        try
+        {
+            var fullName = request.User?.GetFullMention();
 
-        var button = new InlineKeyboardMarkup(new[] {
-            new[] {
-                InlineKeyboardButton.WithUrl("↗️ Pasang Username", UrlConst.TG_APPLY_USERNAME),
-                InlineKeyboardButton.WithUrl("↗️ Apply Username", UrlConst.TG_APPLY_USERNAME),
-            }
-        });
+            var button = new InlineKeyboardMarkup(new[] {
+                new[] {
+                    InlineKeyboardButton.WithUrl("↗️ Pasang Username", UrlConst.TG_APPLY_USERNAME),
+                    InlineKeyboardButton.WithUrl("↗️ Apply Username", UrlConst.TG_APPLY_USERNAME),
+                }
+            });
 
-        await telegramService.SendMessageText($"Hai {fullName}, kamu belum mengatur Username, silakan ikuti petunjuk dibawah ini.", button);
-        await telegramService.MuteMemberAsync(request.User.Id, TimeSpan.FromMinutes(1));
+            await telegramService.MuteMemberAsync(request.UserId, TimeSpan.FromMinutes(1));
+            await telegramService.SendMessageText($"Hai {fullName}, kamu belum mengatur Username, silakan ikuti petunjuk dibawah ini.", button);
 
-        throw new BotMiddlewareException<TRequest>("User Not Passed");
+            return new TResponse();
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Error when Muting member. Message: {Message}", exception.Message);
+        }
+
+        return await next();
     }
 }
