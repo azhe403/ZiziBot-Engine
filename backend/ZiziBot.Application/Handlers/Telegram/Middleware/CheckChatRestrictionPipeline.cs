@@ -30,8 +30,9 @@ public class CheckChatRestrictionPipeline<TRequest, TResponse>(
         {
             await telegramService.SendMessageText("Untuk mendapatkan pengalaman terbaik, silakan gunakan @MissZiziBot di Grub Anda.");
             await telegramService.LeaveChatAsync();
+            return new TResponse();
         }
 
-        return new TResponse();
+        return await next();
     }
 }

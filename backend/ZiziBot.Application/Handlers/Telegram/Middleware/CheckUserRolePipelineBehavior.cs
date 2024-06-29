@@ -16,15 +16,7 @@ public class CheckUserRolePipelineBehavior<TRequest, TResponse>(
 
         telegramService.SetupResponse(request);
 
-        var isRoleMeet = request.MinimumRole switch {
-            RoleLevel.Sudo => await sudoService.IsSudoAsync(request.UserId),
-            RoleLevel.ChatAdmin => await telegramService.CheckAdministration(),
-            RoleLevel.ChatCreator => await telegramService.CheckChatCreator(),
-            RoleLevel.ChatAdminOrPrivate => await telegramService.CheckChatAdminOrPrivate(),
-            RoleLevel.User => true,
-            RoleLevel.Guest => true,
-            _ => false,
-        };
+        var isRoleMeet = await telegramService.ValidateRole();
 
         logger.LogWarning("The minimum role for {Name} for UserId: {UserId} in ChatId: {ChatId} should have role minimum {Role}? {Result}",
             typeof(TRequest).Name, request.UserId, request.ChatId, request.MinimumRole, isRoleMeet);

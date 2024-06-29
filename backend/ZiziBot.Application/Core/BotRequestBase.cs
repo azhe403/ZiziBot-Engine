@@ -6,6 +6,7 @@ namespace ZiziBot.Application.Core;
 public class BotRequestBase : IRequest<BotResponseBase>
 {
     public RoleLevel MinimumRole { get; set; }
+    public List<RoleLevel> RolesLevels { get; set; } = new();
 
     public string BotToken { get; set; }
 

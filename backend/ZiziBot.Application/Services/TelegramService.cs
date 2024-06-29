@@ -17,7 +17,9 @@ public class TelegramService(
     IMediator mediator,
     CacheService cacheService,
     MongoDbContextBase mongoDbContext,
-    MediatorService mediatorService)
+    MediatorService mediatorService,
+    SudoService sudoService
+)
 {
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private BotRequestBase _request = new();
@@ -676,6 +678,37 @@ public class TelegramService(
         var chatAdmins = await GetChatAdministrator();
         var isAdmin = chatAdmins.Exists(x => x.User.Id == _request.UserId && x.Status == ChatMemberStatus.Creator);
         return isAdmin;
+    }
+
+    public async Task<bool> ValidateRole()
+    {
+        _request.RolesLevels.Add(RoleLevel.Guest);
+        _request.RolesLevels.Add(RoleLevel.None);
+
+        if (await sudoService.IsSudoAsync(_request.UserId))
+        {
+            _request.RolesLevels.Add(RoleLevel.Sudo);
+        }
+
+        if (await CheckChatCreator())
+        {
+            _request.RolesLevels.Add(RoleLevel.ChatCreator);
+        }
+
+        if (await CheckAdministration())
+        {
+            _request.RolesLevels.Add(RoleLevel.ChatAdmin);
+        }
+
+        if (_request.ChatType == ChatType.Private)
+        {
+            _request.RolesLevels.Add(RoleLevel.Private);
+        }
+
+        logger.LogDebug("Roles for UserId: {UserId} in ChatId: {ChatId} is: {@Roles}", _request.UserId, _request.ChatId, _request.RolesLevels);
+
+        var isRoleMeet = _request.RolesLevels.Any(x => x == _request.MinimumRole);
+        return isRoleMeet;
     }
 
     #endregion
