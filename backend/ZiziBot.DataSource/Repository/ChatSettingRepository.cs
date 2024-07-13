@@ -6,20 +6,29 @@ using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
-public class ChatSettingRepository
+public class ChatSettingRepository(
+    ILogger<ChatSettingRepository> logger,
+    ICacheService cacheService,
+    MongoDbContextBase mongoDbContext
+)
 {
-    private readonly ILogger<ChatSettingRepository> _logger;
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public ChatSettingRepository(ILogger<ChatSettingRepository> logger, MongoDbContextBase mongoDbContext)
+    public async Task<ChatRestrictionEntity?> GetChatRestriction(long chatId)
     {
-        _logger = logger;
-        _mongoDbContext = mongoDbContext;
+        var cache = await cacheService.GetOrSetAsync($"{CacheKey.CHAT_RESTRICTION}{chatId}", async () => {
+            var check = await mongoDbContext.ChatRestriction.AsNoTracking()
+                .Where(entity => entity.Status == (int)EventStatus.Complete)
+                .Where(entity => entity.ChatId == chatId)
+                .FirstOrDefaultAsync();
+
+            return check;
+        });
+
+        return cache;
     }
 
     public async Task<WebhookChatEntity?> GetWebhookRouteById(string routeId)
     {
-        var webhookChat = await _mongoDbContext.WebhookChat
+        var webhookChat = await mongoDbContext.WebhookChat
             .Where(entity => entity.RouteId == routeId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();
@@ -30,7 +39,7 @@ public class ChatSettingRepository
     {
         #region Check Dashboard Session
 
-        var dashboardSession = await _mongoDbContext.DashboardSessions
+        var dashboardSession = await mongoDbContext.DashboardSessions
             .Where(entity => entity.BearerToken == bearerToken)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();
@@ -44,7 +53,7 @@ public class ChatSettingRepository
 
         #endregion
 
-        var chatAdmin = await _mongoDbContext.ChatAdmin
+        var chatAdmin = await mongoDbContext.ChatAdmin
             .Where(entity =>
                 entity.UserId == userId &&
                 entity.Status == (int)EventStatus.Complete
@@ -58,7 +67,7 @@ public class ChatSettingRepository
 
         var chatIds = chatAdmin.Select(y => y.ChatId);
 
-        var listChatSetting = await _mongoDbContext.ChatSetting
+        var listChatSetting = await mongoDbContext.ChatSetting
             .Where(x => chatIds.Contains(x.ChatId))
             .ToListAsync();
 
@@ -86,10 +95,10 @@ public class ChatSettingRepository
 
     public async Task<List<NoteDto>> GetListNote(long chatId)
     {
-        var listNoteEntity = await _mongoDbContext.Note
+        var listNoteEntity = await mongoDbContext.Note
             .AsNoTracking()
             .Where(entity => entity.ChatId == chatId)
-            .Join(_mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto() {
+            .Join(mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto() {
                 Id = note.Id.ToString(),
                 ChatId = note.ChatId,
                 ChatTitle = chat.ChatTitle,
@@ -112,10 +121,10 @@ public class ChatSettingRepository
 
     public async Task<NoteDto> GetNote(string noteId)
     {
-        var listNoteEntity = await _mongoDbContext.Note
+        var listNoteEntity = await mongoDbContext.Note
             .AsNoTracking()
             .Where(entity => entity.Id == new ObjectId(noteId))
-            .Join(_mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto() {
+            .Join(mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto() {
                 Id = note.Id.ToString(),
                 ChatId = note.ChatId,
                 ChatTitle = chat.ChatTitle,
@@ -137,7 +146,7 @@ public class ChatSettingRepository
 
     public async Task<List<BangHasan_ShalatCityEntity>> GetShalatCity(long chatId)
     {
-        var cityList = await _mongoDbContext.BangHasan_ShalatCity
+        var cityList = await mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == chatId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.CityName)
@@ -148,9 +157,11 @@ public class ChatSettingRepository
 
     public async Task<bool> MeasureActivity(ChatActivityDto dto)
     {
-        _mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
+        mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
             ChatId = dto.ChatId,
+            UserId = dto.UserId,
             ActivityType = dto.ActivityType,
+            ActivityTypeName = dto.ActivityType.ToString(),
             Chat = dto.Chat,
             User = dto.User,
             Status = (int)dto.Status,
@@ -158,16 +169,16 @@ public class ChatSettingRepository
             MessageId = dto.MessageId
         });
 
-        await _mongoDbContext.SaveChangesAsync();
+        await mongoDbContext.SaveChangesAsync();
 
-        var chatActivityEntities = await _mongoDbContext.ChatActivity.AsNoTracking()
+        var chatActivityEntities = await mongoDbContext.ChatActivity.AsNoTracking()
             .Where(x => x.Status == (int)EventStatus.Complete)
             .Where(x => x.ActivityType == ChatActivityType.NewChatMember)
             .Where(x => x.CreatedDate > DateTime.UtcNow.Add(-ValueConst.RAID_SLIDING_WINDOW))
             .ToListAsync();
 
-        _logger.LogInformation("Chat Activity Count: {Count} in a window {Window}", chatActivityEntities.Count,
-            ValueConst.RAID_SLIDING_WINDOW);
+        logger.LogInformation("Chat Activity Count: {Count} in a window {Window}",
+            chatActivityEntities.Count, ValueConst.RAID_SLIDING_WINDOW);
 
         return chatActivityEntities.Count > ValueConst.RAID_WINDOW_LIMIT;
     }
@@ -177,7 +188,7 @@ public class ChatSettingRepository
         if (eventName.Like("push"))
             return default;
 
-        var lastWebhookHistory = await _mongoDbContext.WebhookHistory.AsNoTracking()
+        var lastWebhookHistory = await mongoDbContext.WebhookHistory.AsNoTracking()
             .Where(x => x.ChatId == chatId)
             .Where(x => x.WebhookSource == webhookSource)
             .Where(x => x.EventName == eventName)
@@ -185,7 +196,7 @@ public class ChatSettingRepository
             .OrderByDescending(o => o.CreatedDate)
             .FirstOrDefaultAsync();
 
-        var lastChatActivity = await _mongoDbContext.ChatActivity.AsNoTracking()
+        var lastChatActivity = await mongoDbContext.ChatActivity.AsNoTracking()
             .Where(x => x.Status == (int)EventStatus.Complete)
             .Where(x => x.ChatId == chatId)
             .OrderByDescending(o => o.CreatedDate)
@@ -194,7 +205,7 @@ public class ChatSettingRepository
         if (lastChatActivity?.MessageId != lastWebhookHistory?.MessageId)
             return default;
 
-        _logger.LogDebug("Last Webhook Message for Better Edit: {MessageId}", lastWebhookHistory.MessageId);
+        logger.LogDebug("Last Webhook Message for Better Edit: {MessageId}", lastWebhookHistory.MessageId);
         return lastWebhookHistory.MessageId;
     }
 }

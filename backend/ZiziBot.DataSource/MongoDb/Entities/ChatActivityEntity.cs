@@ -5,9 +5,11 @@ namespace ZiziBot.DataSource.MongoDb.Entities;
 [Table("ChatActivity")]
 public class ChatActivityEntity : EntityBase
 {
-    public required int MessageId { get; set; }
-    public required long ChatId { get; set; }
-    public required ChatActivityType ActivityType { get; set; }
+    public int MessageId { get; set; }
+    public long ChatId { get; set; }
+    public long UserId { get; set; }
+    public ChatActivityType ActivityType { get; set; }
+    public required string ActivityTypeName { get; set; }
     public required Chat Chat { get; set; }
     public required User User { get; set; }
 }

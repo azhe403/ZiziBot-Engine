@@ -16,10 +16,10 @@ public static class MediatRExtension
             configuration => configuration
                 .RegisterServicesFromAssemblyContaining<PingRequestHandler>()
                 .AddOpenBehavior(typeof(BotMiddlewarePipelineBehaviour<,>))
-                .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
                 .AddOpenBehavior(typeof(CheckUserRolePipelineBehavior<,>))
-                .AddOpenRequestPreProcessor(typeof(ChatRestrictionProcessorBotRequest<>))
-                .AddOpenRequestPreProcessor(typeof(ScanMessageProcessor<>))
+                .AddOpenBehavior(typeof(CheckChatRestrictionPipeline<,>))
+                .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
+                .AddOpenBehavior(typeof(CheckMessagePipelineBehavior<,>))
                 .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
                 .AddOpenRequestPostProcessor(typeof(EnsureChatAdminRequestHandler<,>))
                 .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))

@@ -17,7 +17,9 @@ public class TelegramService(
     IMediator mediator,
     CacheService cacheService,
     MongoDbContextBase mongoDbContext,
-    MediatorService mediatorService)
+    MediatorService mediatorService,
+    SudoService sudoService
+)
 {
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private BotRequestBase _request = new();
@@ -107,12 +109,16 @@ public class TelegramService(
 
         text += "\n\n" + GetExecStamp();
 
-        var targetChatId = chatId != -1 ? chatId : _request.ChatId;
+        var targetChatId = chatId != -1 ?
+            chatId :
+            _request.ChatId;
 
         if (threadId == -1)
             threadId = _request.MessageThreadId;
 
-        var replyToMessageId = _request.ReplyMessage ? _request.ReplyToMessageId : -1;
+        var replyToMessageId = _request.ReplyMessage ?
+            _request.ReplyToMessageId :
+            -1;
 
         if (_request.ReplyToMessage != null)
         {
@@ -141,7 +147,9 @@ public class TelegramService(
                 SentMessage = await Bot.SendTextMessageAsync(
                     chatId: targetChatId,
                     text: text,
-                    replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
+                    replyToMessageId: _request.ReplyMessage ?
+                        _request.ReplyToMessageId :
+                        -1,
                     parseMode: ParseMode.Html,
                     allowSendingWithoutReply: true,
                     replyMarkup: replyMarkup,
@@ -155,12 +163,15 @@ public class TelegramService(
 
         await mediator.Send(new CreateChatActivityRequest() {
             ActivityType = ChatActivityType.BotSendMessage,
-            SentMessage = SentMessage
+            SentMessage = SentMessage,
+            TransactionId = _request.TransactionId
         });
 
         logger.LogInformation("Message sent to chat {ChatId}", _request.ChatId);
 
-        var deleteAfterExec = deleteAfter != default ? deleteAfter : _request.DeleteAfter;
+        var deleteAfterExec = deleteAfter != default ?
+            deleteAfter :
+            _request.DeleteAfter;
 
         if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfterExec == default)
             return Complete();
@@ -203,7 +214,8 @@ public class TelegramService(
 
         await mediator.Send(new CreateChatActivityRequest() {
             ActivityType = ChatActivityType.BotEditMessage,
-            SentMessage = SentMessage
+            SentMessage = SentMessage,
+            TransactionId = _request.TransactionId
         });
 
         return Complete();
@@ -219,11 +231,15 @@ public class TelegramService(
         int? threadId = null
     )
     {
-        var targetChatId = customChatId == -1 ? _request.ChatId : customChatId;
+        var targetChatId = customChatId == -1 ?
+            _request.ChatId :
+            customChatId;
+
         var targetThreadId = threadId ?? _request.MessageThreadId;
 
         logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId,
             targetChatId);
+
         InputFile inputFile = InputFile.FromFileId(fileId);
 
         switch (mediaType)
@@ -248,6 +264,7 @@ public class TelegramService(
                     allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
+
                 break;
 
             case CommonMediaType.LocalDocument:
@@ -282,6 +299,7 @@ public class TelegramService(
                     allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
+
                 break;
 
             case CommonMediaType.Audio:
@@ -295,6 +313,7 @@ public class TelegramService(
                     allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
+
                 break;
 
             case CommonMediaType.Video:
@@ -308,6 +327,7 @@ public class TelegramService(
                     allowSendingWithoutReply: true,
                     messageThreadId: targetThreadId
                 );
+
                 break;
 
             case CommonMediaType.Sticker:
@@ -345,7 +365,10 @@ public class TelegramService(
         int? messageId = null
     )
     {
-        var targetChatId = customChatId == -1 ? _request.ChatId : customChatId;
+        var targetChatId = customChatId == -1 ?
+            _request.ChatId :
+            customChatId;
+
         var targetThreadId = threadId ?? _request.MessageThreadId;
         var targetMessageId = messageId ?? SentMessage.MessageId;
 
@@ -353,6 +376,7 @@ public class TelegramService(
 
         logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId,
             targetChatId);
+
         logger.LogDebug("Updating media caption in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId,
             targetMessageId);
 
@@ -374,6 +398,7 @@ public class TelegramService(
 
         logger.LogDebug("Updating media file in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId,
             targetMessageId);
+
         Bot.EditMessageMediaAsync(
             chatId: targetChatId,
             messageId: targetMessageId,
@@ -492,6 +517,7 @@ public class TelegramService(
 
         if (withoutSlash)
             cmd = cmd?.TrimStart('/');
+
         if (withoutUsername)
             cmd = cmd?.Split("@").FirstOrDefault();
 
@@ -651,6 +677,7 @@ public class TelegramService(
                 return chatAdmins.ToList();
             }
         );
+
         return cacheValue;
     }
 
@@ -674,6 +701,42 @@ public class TelegramService(
         var chatAdmins = await GetChatAdministrator();
         var isAdmin = chatAdmins.Exists(x => x.User.Id == _request.UserId && x.Status == ChatMemberStatus.Creator);
         return isAdmin;
+    }
+
+    public async Task<bool> ValidateRole()
+    {
+        _request.RolesLevels.Add(RoleLevel.Guest);
+        _request.RolesLevels.Add(RoleLevel.None);
+
+        if (await sudoService.IsSudoAsync(_request.UserId))
+        {
+            _request.RolesLevels.Add(RoleLevel.Sudo);
+        }
+
+        if (await CheckChatCreator())
+        {
+            _request.RolesLevels.Add(RoleLevel.ChatCreator);
+        }
+
+        if (await CheckAdministration())
+        {
+            _request.RolesLevels.Add(RoleLevel.ChatAdmin);
+        }
+
+        if (_request.ChatType == ChatType.Private)
+        {
+            _request.RolesLevels.Add(RoleLevel.Private);
+        }
+
+        logger.LogDebug("Roles for UserId: {UserId} in ChatId: {ChatId} is: {@Roles}", _request.UserId, _request.ChatId, _request.RolesLevels);
+
+        var isRoleMeet = _request.RolesLevels.Exists(x => x == _request.MinimumRole);
+        if (_request.MinimumRole == RoleLevel.ChatAdminOrPrivate)
+        {
+            isRoleMeet = _request.RolesLevels.Exists(x => x is RoleLevel.ChatCreator or RoleLevel.ChatAdmin or RoleLevel.Private);
+        }
+
+        return isRoleMeet;
     }
 
     #endregion

@@ -16,5 +16,6 @@ public static class CacheKey
     public const string CHAT_ADMIN = "chat/admin/";
     public const string CHAT_NOTES = "chat/notes/";
     public const string CHAT_ACTIVE_USERNAMES = "chat/active-usernames/";
+    public const string CHAT_RESTRICTION = "chat/restriction/";
     public const string CHAT_BADWORD = "chat/badword";
 }

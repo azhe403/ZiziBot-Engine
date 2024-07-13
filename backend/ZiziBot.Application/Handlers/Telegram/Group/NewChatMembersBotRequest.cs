@@ -37,6 +37,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
 
         var create = await _chatSettingRepository.MeasureActivity(new ChatActivityDto {
             ChatId = request.ChatIdentifier,
+            UserId = request.UserId,
             ActivityType = ChatActivityType.NewChatMember,
             Chat = request.Chat,
             User = request.User,
