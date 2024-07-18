@@ -174,13 +174,13 @@ public class ChatSettingRepository(
         var chatActivityEntities = await mongoDbContext.ChatActivity.AsNoTracking()
             .Where(x => x.Status == (int)EventStatus.Complete)
             .Where(x => x.ActivityType == ChatActivityType.NewChatMember)
-            .Where(x => x.CreatedDate > DateTime.UtcNow.Add(-ValueConst.RAID_SLIDING_WINDOW))
+            .Where(x => x.CreatedDate > DateTime.UtcNow.Add(-ValueConst.NEW_MEMBER_RAID_SLIDING_WINDOW))
             .ToListAsync();
 
         logger.LogInformation("Chat Activity Count: {Count} in a window {Window}",
-            chatActivityEntities.Count, ValueConst.RAID_SLIDING_WINDOW);
+            chatActivityEntities.Count, ValueConst.NEW_MEMBER_RAID_SLIDING_WINDOW);
 
-        return chatActivityEntities.Count > ValueConst.RAID_WINDOW_LIMIT;
+        return chatActivityEntities.Count > ValueConst.NEW_MEMBER_RAID_WINDOW_LIMIT;
     }
 
     public async Task<int> LastWebhookMessageBetterEdit(long chatId, WebhookSource webhookSource, string eventName)
