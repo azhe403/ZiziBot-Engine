@@ -118,6 +118,13 @@ public class PostWebhookPayloadHandler(
                     parseMode: ParseMode.Html,
                     disableWebPagePreview: true, cancellationToken: cancellationToken);
             }
+            else
+            {
+                logger.LogError(exception, "Fail when sending webhook Message to ChatId: {ChatId}, ThreadId: {ThreadId}",
+                    webhookChat.ChatId, webhookChat.MessageThreadId);
+
+                return response.BadRequest(exception.Message);
+            }
         }
 
         mongoDbContextBase.WebhookHistory.Add(new WebhookHistoryEntity {
