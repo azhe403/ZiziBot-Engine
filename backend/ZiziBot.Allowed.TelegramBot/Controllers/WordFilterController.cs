@@ -19,15 +19,29 @@ public class WordFilterController : CommandController
     [Command("awf")]
     public async Task AddBadWordCommand(MessageData data)
     {
-        await _mediatorService.EnqueueAsync(new AddWordFilterRequest()
-        {
+        await _mediatorService.EnqueueAsync(new AddWordFilterRequest() {
             BotToken = data.Options.Token,
             Message = data.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.Sudo,
             Word = data.Message.Text.GetCommandParamAt<string>(1),
-            CleanupTargets = new[]
-            {
+            CleanupTargets = new[] {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
+
+    [Command("dwf")]
+    public async Task DisableBadWordCommand(MessageData data)
+    {
+        await _mediatorService.EnqueueAsync(new DisableWordFilterRequest() {
+            BotToken = data.Options.Token,
+            Message = data.Message,
+            ReplyMessage = true,
+            MinimumRole = RoleLevel.Sudo,
+            Word = data.Message.Text.GetCommandParamAt<string>(1),
+            CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

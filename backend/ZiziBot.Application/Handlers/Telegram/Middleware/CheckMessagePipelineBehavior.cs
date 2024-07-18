@@ -26,6 +26,14 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
         if (request.MessageTexts.IsEmpty())
             return await next();
 
+        if (request.RolesLevels.Any(x => x == RoleLevel.Sudo))
+        {
+            if (request.Command is "/dwf" or "/awf")
+            {
+                return await next();
+            }
+        }
+
         request.ReplyMessage = true;
 
         telegramService.SetupResponse(request);

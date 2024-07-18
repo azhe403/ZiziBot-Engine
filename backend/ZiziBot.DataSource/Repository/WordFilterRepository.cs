@@ -4,30 +4,34 @@ using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
-public class WordFilterRepository
+public class WordFilterRepository(
+    MongoDbContextBase mongoDbContext,
+    ICacheService cacheService
+)
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly ICacheService _cacheService;
-
-    public WordFilterRepository(MongoDbContextBase mongoDbContext, ICacheService cacheService)
-    {
-        _mongoDbContext = mongoDbContext;
-        _cacheService = cacheService;
-    }
-
     public async Task Save(WordFilterEntity entity)
     {
-        _mongoDbContext.WordFilter.Add(entity);
+        var wordFilter = await mongoDbContext.WordFilter
+            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Word == entity.Word)
+            .FirstOrDefaultAsync();
 
-        await _mongoDbContext.SaveChangesAsync();
+        if (wordFilter == null)
+        {
+            mongoDbContext.WordFilter.Add(entity);
+
+            await mongoDbContext.SaveChangesAsync();
+            await GetAll(true);
+        }
     }
 
-    public async Task<List<WordFilterDto>> GetAll()
+    public async Task<List<WordFilterDto>> GetAll(bool evictAfter = false)
     {
-        var cache = await _cacheService.GetOrSetAsync(
+        var cache = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.CHAT_BADWORD,
+            evictAfter: evictAfter,
             action: async () => {
-                var data = await _mongoDbContext.WordFilter
+                var data = await mongoDbContext.WordFilter
                     .Where(x => x.Status == (int)EventStatus.Complete)
                     .Select(entity => new WordFilterDto() {
                         Id = entity.Id.ToString(),
