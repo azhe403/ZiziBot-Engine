@@ -15,7 +15,7 @@ public class AccessFilterAuthorizationFilter(
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var response = new ApiResponseBase<object> {
-            TransactionId = context.HttpContext.Request.Headers.GetTransactionId()
+            TransactionId = context.HttpContext.GetTransactionId()
         };
 
         var userId = context.HttpContext.Request.Headers.GetUserId();

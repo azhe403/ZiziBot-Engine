@@ -10,18 +10,18 @@ public class ApiControllerBase : ControllerBase
     protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();
     protected MediatorService MediatorService => HttpContext.RequestServices.GetRequiredService<MediatorService>();
 
-    protected async Task<IActionResult> SendRequest<T>(ApiRequestBase<T> request)
+    protected async Task<IActionResult> SendRequest<T>(ApiRequestBase<T> request, ExecutionStrategy executionStrategy = ExecutionStrategy.Instant)
     {
-        var result = await Mediator.Send(request);
+        var result = await MediatorService.EnqueueAsync(request, executionStrategy);
+
         return SwitchStatus(result);
     }
 
     protected IActionResult SwitchStatus<T>(ApiResponseBase<T> responseBase)
     {
-        responseBase.TransactionId = HttpContext.Request.Headers.GetTransactionId();
+        responseBase.TransactionId = HttpContext.GetTransactionId();
 
-        return responseBase.StatusCode switch
-        {
+        return responseBase.StatusCode switch {
             HttpStatusCode.OK => Ok(responseBase),
             HttpStatusCode.BadRequest => BadRequest(responseBase),
             HttpStatusCode.Unauthorized => Unauthorized(responseBase),
@@ -29,5 +29,4 @@ public class ApiControllerBase : ControllerBase
             _ => BadRequest(responseBase)
         };
     }
-
 }
