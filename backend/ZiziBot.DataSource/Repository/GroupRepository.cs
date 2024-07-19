@@ -5,18 +5,11 @@ using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
-public class GroupRepository
+public class GroupRepository(MongoDbContextBase mongoDbContext, ICacheService cacheService)
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public GroupRepository(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<WelcomeMessageDto?> GetWelcomeMessageById(string welcomeId)
     {
-        var query = await _mongoDbContext.WelcomeMessage
+        var query = await mongoDbContext.WelcomeMessage
             .AsNoTracking()
             .Where(entity => entity.Id == new ObjectId(welcomeId))
             .FirstOrDefaultAsync();
@@ -24,7 +17,7 @@ public class GroupRepository
         if (query == null)
             return default;
 
-        var listChatSetting = await _mongoDbContext.ChatSetting
+        var listChatSetting = await mongoDbContext.ChatSetting
             .Where(entity => entity.ChatId == query.ChatId)
             .FirstOrDefaultAsync();
 
@@ -47,19 +40,26 @@ public class GroupRepository
         return data;
     }
 
-    public async Task<List<ChatAdminEntity>> GetChatAdminByUserId(long userId)
+    public async Task<List<ChatAdminEntity>> GetChatAdminByUserId(long userId, bool evictAfter = false)
     {
-        var listChatAdmin = await _mongoDbContext.ChatAdmin
-            .Where(entity => entity.UserId == userId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .ToListAsync();
+        var cache = await cacheService.GetOrSetAsync(
+            cacheKey: CacheKey.CHAT_ADMIN + userId,
+            evictAfter: evictAfter,
+            action: async () => {
+                var listChatAdmin = await mongoDbContext.ChatAdmin.AsNoTracking()
+                    .Where(entity => entity.UserId == userId)
+                    .Where(entity => entity.Status == (int)EventStatus.Complete)
+                    .ToListAsync();
 
-        return listChatAdmin;
+                return listChatAdmin;
+            });
+
+        return cache;
     }
 
     public async Task<WelcomeMessageEntity?> GetWelcomeMessage(long chatId)
     {
-        var welcomeMessage = await _mongoDbContext.WelcomeMessage
+        var welcomeMessage = await mongoDbContext.WelcomeMessage
             .Where(e => e.ChatId == chatId)
             .Where(e => e.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();
