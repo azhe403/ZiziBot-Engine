@@ -14,9 +14,7 @@ public static class ConfigurationExtension
 
         builder.AddMongoConfigurationSource();
 
-        return builder
-            .LoadLocalSettings()
-            .LoadAzureAppConfiguration();
+        return builder.LoadLocalSettings();
     }
 
     public static IServiceCollection ConfigureSettings(this IServiceCollection services)
@@ -50,8 +48,6 @@ public static class ConfigurationExtension
             }
         );
 
-        if (EnvUtil.IsEnvExist(Env.AZURE_APP_CONFIG_CONNECTION_STRING))
-            services.AddAzureAppConfiguration();
 
         return services;
     }
@@ -74,16 +70,6 @@ public static class ConfigurationExtension
         return builder;
     }
 
-    private static IConfigurationBuilder LoadAzureAppConfiguration(this IConfigurationBuilder builder)
-    {
-        var connectionString = EnvUtil.GetEnv(Env.AZURE_APP_CONFIG_CONNECTION_STRING);
-
-        if (string.IsNullOrEmpty(connectionString)) return builder;
-
-        builder.AddAzureAppConfiguration(options => { options.Connect(connectionString); });
-
-        return builder;
-    }
 
     private static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
     {

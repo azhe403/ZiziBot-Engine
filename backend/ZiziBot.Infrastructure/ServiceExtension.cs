@@ -1,7 +1,12 @@
-﻿using CloudCraic.Hosting.BackgroundQueue.DependencyInjection;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using CloudCraic.Hosting.BackgroundQueue.DependencyInjection;
+using Flurl.Http;
+using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace ZiziBot.Infrastructure;
 
@@ -19,6 +24,40 @@ public static class ServiceExtension
         services.AddBackgroundQueue();
         services.AddCacheTower();
         services.AddAllService();
+
+        services.ConfigureFlurl();
+
+        return services;
+    }
+
+    private static IServiceCollection ConfigureFlurl(this IServiceCollection services)
+    {
+        services.AddSingleton<IFlurlClientCache>(sp => new FlurlClientCache()
+            .WithDefaults(builder => {
+                    builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions() {
+                        NumberHandling = JsonNumberHandling.AllowReadingFromString
+                    });
+
+                    builder.BeforeCall(call => {
+                        var request = call.Request;
+                        call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
+
+                        Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
+                    });
+
+                    builder.AfterCall(flurlCall => {
+                        var request = flurlCall.Request;
+                        var response = flurlCall.Response;
+
+                        Log.Information("FlurlHttp: {Method} {Url}: {StatusCode}. Elapsed: {Elapsed}",
+                            request.Verb,
+                            request.Url,
+                            response?.StatusCode,
+                            flurlCall.Duration
+                        );
+                    });
+                }
+            ));
 
         return services;
     }
@@ -59,7 +98,8 @@ public static class ServiceExtension
         services.AddBackgroundQueue(
             maxConcurrentCount: 3,
             millisecondsToWaitBeforePickingUpTask: 1000,
-            onException: exception => { }
+            onException: exception => {
+            }
         );
 
         return services;
