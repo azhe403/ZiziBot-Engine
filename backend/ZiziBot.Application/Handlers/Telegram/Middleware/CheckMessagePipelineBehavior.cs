@@ -41,7 +41,7 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
         var hasBadword = false;
         var matchPattern = string.Empty;
 
-        var words = await wordFilterRepository.GetAll();
+        var words = await wordFilterRepository.GetAllAsync();
 
         var messageTexts = request.Message?.Text?.Split(Separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
@@ -72,6 +72,7 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                 logger.LogWarning("Scan message: Match word: {Pattern} with a source: {MessageText}", pattern, messageText);
 
                 matchPattern = dto.Word;
+
                 break;
             }
 

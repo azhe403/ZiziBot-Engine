@@ -9,23 +9,36 @@ public class WordFilterRepository(
     ICacheService cacheService
 )
 {
-    public async Task Save(WordFilterEntity entity)
+    public async Task SaveAsync(WordFilterDto dto)
     {
         var wordFilter = await mongoDbContext.WordFilter
             .Where(x => x.Status == (int)EventStatus.Complete)
-            .Where(x => x.Word == entity.Word)
+            .Where(x => x.Word == dto.Word)
             .FirstOrDefaultAsync();
 
         if (wordFilter == null)
         {
-            mongoDbContext.WordFilter.Add(entity);
-
-            await mongoDbContext.SaveChangesAsync();
-            await GetAll(true);
+            mongoDbContext.WordFilter.Add(new WordFilterEntity() {
+                ChatId = dto.ChatId,
+                UserId = dto.UserId,
+                Word = dto.Word,
+                IsGlobal = dto.IsGlobal,
+                Action = dto.Action,
+                Status = (int)EventStatus.Complete,
+                TransactionId = dto.TransactionId
+            });
         }
+        else
+        {
+            wordFilter.Action = dto.Action;
+            wordFilter.TransactionId = dto.TransactionId;
+        }
+
+        await mongoDbContext.SaveChangesAsync();
+        await GetAllAsync(true);
     }
 
-    public async Task<List<WordFilterDto>> GetAll(bool evictAfter = false)
+    public async Task<List<WordFilterDto>> GetAllAsync(bool evictAfter = false)
     {
         var cache = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.CHAT_BADWORD,

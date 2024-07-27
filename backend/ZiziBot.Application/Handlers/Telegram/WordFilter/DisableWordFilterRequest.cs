@@ -33,7 +33,7 @@ public class DisableWordFilterHandler(
         wordFilter.Status = (int)EventStatus.Inactive;
 
         await mongoDbContext.SaveChangesAsync(cancellationToken);
-        await wordFilterRepository.GetAll(true);
+        await wordFilterRepository.GetAllAsync(true);
 
         return await telegramService.SendMessageAsync("Word berhasil dimatikan");
     }

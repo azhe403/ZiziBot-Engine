@@ -1,6 +1,4 @@
-﻿using ZiziBot.DataSource.MongoDb.Entities;
-
-namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
+﻿namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
 
 public class AddWordFilterRequest : BotRequestBase
 {
@@ -21,9 +19,24 @@ public class AddWordFilterHandler(
             return await telegramService.SendMessageAsync("Apa kata yang ingin ditambahkan?");
         }
 
-        await wordFilterRepository.Save(new WordFilterEntity() {
+        List<WordFilterAction> action = new();
+
+        var cmdParam = request.Params?.Skip(1).ToList();
+        if (cmdParam.NotEmpty())
+        {
+            if (cmdParam.Contains("-d"))
+                action.Add(WordFilterAction.Delete);
+
+            if (cmdParam.Contains("-w"))
+                action.Add(WordFilterAction.Warn);
+
+            if (cmdParam.Contains("-m"))
+                action.Add(WordFilterAction.Mute);
+        }
+
+        await wordFilterRepository.SaveAsync(new WordFilterDto() {
             Word = request.Word,
-            Status = (int)EventStatus.Complete,
+            Action = action.ToArray(),
             TransactionId = request.TransactionId
         });
 

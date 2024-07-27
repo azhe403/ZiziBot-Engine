@@ -1,6 +1,5 @@
 using System.Reactive.Linq;
 using Microsoft.AspNetCore.Components.Web;
-using ZiziBot.Contracts.Enums;
 using Unit = System.Reactive.Unit;
 
 namespace ZiziBot.Console.ViewModels;
@@ -47,13 +46,11 @@ public class BadwordViewModel : ReactiveObject, IActivatableViewModel
 
     private async Task SaveWord()
     {
-        await _wordFilterRepository.Save(new WordFilterEntity()
-        {
+        await _wordFilterRepository.SaveAsync(new WordFilterDto() {
             ChatId = 1,
             UserId = 1,
             Word = Word,
             IsGlobal = true,
-            Status = (int)EventStatus.Complete,
             TransactionId = Guid.NewGuid().ToString()
         });
 
@@ -64,9 +61,9 @@ public class BadwordViewModel : ReactiveObject, IActivatableViewModel
 
     public async Task LoadData()
     {
-        Words = (await _wordFilterRepository.GetAll())
-            .Select(x => new BadwordDto()
-            {
+        var findWordFilter = await _wordFilterRepository.GetAllAsync();
+
+        Words = findWordFilter.Select(x => new BadwordDto() {
                 Id = x.Id,
                 Word = x.Word
             })
