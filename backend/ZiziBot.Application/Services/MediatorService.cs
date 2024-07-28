@@ -58,6 +58,24 @@ public class MediatorService(
         }
     }
 
+    public async Task<T> EnqueueAsync<T>(IRequest<T> request, ExecutionStrategy executionStrategy = default) where T : new()
+    {
+        switch (executionStrategy)
+        {
+            case ExecutionStrategy.Hangfire:
+                backgroundJobClient.Enqueue<MediatorService>(x => x.Send(request));
+
+                return new T();
+
+                break;
+
+            case ExecutionStrategy.Instant:
+                return await mediator.Send(request);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(executionStrategy));
+        }
+    }
+
     public BotResponseBase Schedule(BotRequestBase request, TimeSpan delayExecution = default)
     {
         BotResponseBase botResponse = new();
