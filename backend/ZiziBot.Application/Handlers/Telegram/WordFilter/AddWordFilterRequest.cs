@@ -35,6 +35,8 @@ public class AddWordFilterHandler(
         }
 
         await wordFilterRepository.SaveAsync(new WordFilterDto() {
+            ChatId = request.ChatIdentifier,
+            UserId = request.UserId,
             Word = request.Word,
             Action = action.ToArray(),
             TransactionId = request.TransactionId

@@ -30,6 +30,8 @@ public class WordFilterRepository(
         }
         else
         {
+            wordFilter.ChatId = dto.ChatId;
+            wordFilter.UserId = dto.UserId;
             wordFilter.Action = dto.Action;
             wordFilter.TransactionId = dto.TransactionId;
         }
