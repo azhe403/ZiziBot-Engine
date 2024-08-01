@@ -4,5 +4,6 @@ public enum WordFilterAction
 {
     Delete,
     Warn,
-    Mute
+    Mute,
+    Kick
 }

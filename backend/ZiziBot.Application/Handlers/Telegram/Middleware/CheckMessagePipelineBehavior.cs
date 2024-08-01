@@ -40,6 +40,7 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
 
         var hasBadword = false;
         var matchPattern = string.Empty;
+        WordFilterAction[] action = [];
 
         var words = await wordFilterRepository.GetAllAsync();
 
@@ -72,6 +73,7 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                 logger.LogWarning("Scan message: Match word: {Pattern} with a source: {MessageText}", pattern, messageText);
 
                 matchPattern = dto.Word;
+                action = dto.Action;
 
                 break;
             }
@@ -92,9 +94,34 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
             //todo. incremental
             var muteDuration = MemberMuteDuration.Select(0);
 
-            await telegramService.MuteMemberAsync(request.UserId, muteDuration);
+            if (action.NotEmpty())
+            {
+                foreach (var actionItem in action)
+                    switch (actionItem)
+                    {
+                        case WordFilterAction.Delete:
+                            await telegramService.DeleteMessageAsync();
 
-            htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
+                            break;
+                        case WordFilterAction.Warn:
+                            break;
+                        case WordFilterAction.Mute:
+                            await telegramService.MuteMemberAsync(request.UserId, muteDuration);
+                            htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
+
+                            break;
+                        case WordFilterAction.Kick:
+                            break;
+                        default:
+                            break;
+                    }
+            }
+            else
+            {
+                await telegramService.MuteMemberAsync(request.UserId, muteDuration);
+
+                htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
+            }
         }
         catch (Exception exception)
         {

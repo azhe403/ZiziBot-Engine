@@ -51,6 +51,7 @@ public class WordFilterRepository(
                         ChatId = entity.ChatId,
                         UserId = entity.UserId,
                         Word = entity.Word,
+                        Action = entity.Action,
                         IsGlobal = entity.IsGlobal,
                         CreatedDate = entity.CreatedDate,
                         UpdatedDate = entity.UpdatedDate
