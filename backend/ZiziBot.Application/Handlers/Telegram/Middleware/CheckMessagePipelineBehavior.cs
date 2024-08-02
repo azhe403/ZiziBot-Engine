@@ -125,10 +125,11 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
         }
         catch (Exception exception)
         {
-            logger.LogWarning(exception, "Error when trying to Mute UserId: {UserId}. Message: {Message}", request.UserId, exception.Message);
+            logger.LogWarning(exception, "Error when running action for userId: {UserId}. Message: {Message}", request.UserId, exception.Message);
         }
 
-        await telegramService.SendMessageText(htmlMessage.ToString());
+        if (action.Any(x => x == WordFilterAction.Warn))
+            await telegramService.SendMessageText(htmlMessage.ToString());
 
         return new TResponse();
     }
