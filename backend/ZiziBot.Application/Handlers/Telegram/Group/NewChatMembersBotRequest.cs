@@ -54,7 +54,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
                       "Untuk alasan keamanan, anggota baru yang masuk dalam {COOLDOWN_TIME} akan disenyapkan.").Br();
 
             await _telegramService.SendMessageAsync(message.ToString());
-            await _telegramService.MuteMemberAsync(request.UserId, ValueConst.RAID_MODE_MUTE_DURATION);
+            await _telegramService.MuteMemberAsync(request.UserId, ValueConst.NEW_MEMBER_RAID_MODE_MUTE_DURATION);
 
             return _telegramService.Complete();
         }

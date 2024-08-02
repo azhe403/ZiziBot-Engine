@@ -26,14 +26,23 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
         if (request.MessageTexts.IsEmpty())
             return await next();
 
+        if (request.RolesLevels.Any(x => x == RoleLevel.Sudo))
+        {
+            if (request.Command is "/dwf" or "/awf")
+            {
+                return await next();
+            }
+        }
+
         request.ReplyMessage = true;
 
         telegramService.SetupResponse(request);
 
         var hasBadword = false;
         var matchPattern = string.Empty;
+        WordFilterAction[] action = [];
 
-        var words = await wordFilterRepository.GetAll();
+        var words = await wordFilterRepository.GetAllAsync();
 
         var messageTexts = request.Message?.Text?.Split(Separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
@@ -64,6 +73,8 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                 logger.LogWarning("Scan message: Match word: {Pattern} with a source: {MessageText}", pattern, messageText);
 
                 matchPattern = dto.Word;
+                action = dto.Action;
+
                 break;
             }
 
@@ -83,16 +94,42 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
             //todo. incremental
             var muteDuration = MemberMuteDuration.Select(0);
 
-            await telegramService.MuteMemberAsync(request.UserId, muteDuration);
+            if (action.NotEmpty())
+            {
+                foreach (var actionItem in action)
+                    switch (actionItem)
+                    {
+                        case WordFilterAction.Delete:
+                            await telegramService.DeleteMessageAsync();
 
-            htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
+                            break;
+                        case WordFilterAction.Warn:
+                            break;
+                        case WordFilterAction.Mute:
+                            await telegramService.MuteMemberAsync(request.UserId, muteDuration);
+                            htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
+
+                            break;
+                        case WordFilterAction.Kick:
+                            break;
+                        default:
+                            break;
+                    }
+            }
+            else
+            {
+                await telegramService.MuteMemberAsync(request.UserId, muteDuration);
+
+                htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
+            }
         }
         catch (Exception exception)
         {
-            logger.LogWarning(exception, "Error when trying to Mute UserId: {UserId}. Message: {Message}", request.UserId, exception.Message);
+            logger.LogWarning(exception, "Error when running action for userId: {UserId}. Message: {Message}", request.UserId, exception.Message);
         }
 
-        await telegramService.SendMessageText(htmlMessage.ToString());
+        if (action.Any(x => x == WordFilterAction.Warn))
+            await telegramService.SendMessageText(htmlMessage.ToString());
 
         return new TResponse();
     }

@@ -46,6 +46,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
 
     public string? Command => MessageTexts?.FirstOrDefault();
     public string Param => MessageTexts?.Skip(1).StrJoin(" ") ?? "";
+    public IEnumerable<string>? Params => MessageTexts?.Skip(1);
     public string CallbackQueryId => CallbackQuery?.Id ?? string.Empty;
 
     public ChatId ChatId => ChatJoinRequest?.Chat.Id ?? Message?.Chat.Id ?? default;

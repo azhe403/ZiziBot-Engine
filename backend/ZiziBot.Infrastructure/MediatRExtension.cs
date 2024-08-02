@@ -1,5 +1,4 @@
 using System.Reflection;
-using MediatR;
 using MediatR.Extensions.AttributedBehaviors;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,23 +12,24 @@ public static class MediatRExtension
         var assembly = typeof(PingRequestHandler).GetTypeInfo().Assembly;
 
         services.AddMediatR(
-            configuration => configuration
-                .RegisterServicesFromAssemblyContaining<PingRequestHandler>()
-                .AddOpenBehavior(typeof(BotMiddlewarePipelineBehaviour<,>))
-                .AddOpenBehavior(typeof(CheckUserRolePipelineBehavior<,>))
-                .AddOpenBehavior(typeof(CheckChatRestrictionPipeline<,>))
-                .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
-                .AddOpenBehavior(typeof(CheckMessagePipelineBehavior<,>))
-                .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
-                .AddOpenRequestPostProcessor(typeof(EnsureChatAdminRequestHandler<,>))
-                .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))
-                .AddOpenRequestPostProcessor(typeof(FindNoteRequestHandler<,>))
-                .AddOpenRequestPostProcessor(typeof(UpsertBotUserHandler<,>))
-                .AddOpenRequestPostProcessor(typeof(InsertChatActivityHandler<,>))
+            configuration =>
+                configuration.RegisterServicesFromAssemblyContaining<PingRequestHandler>()
+                    .AddBehavior(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>))
+                    .AddOpenBehavior(typeof(LoggingPipelineBehaviour<,>))
+                    .AddOpenBehavior(typeof(CheckUserRolePipelineBehavior<,>))
+                    .AddOpenBehavior(typeof(CheckRestrictionPipelineBehavior<,>))
+                    .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
+                    .AddOpenBehavior(typeof(CheckMessagePipelineBehavior<,>))
+                    .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
+                    .AddOpenRequestPostProcessor(typeof(EnsureChatAdminRequestHandler<,>))
+                    .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))
+                    .AddOpenRequestPostProcessor(typeof(FindNoteRequestHandler<,>))
+                    .AddOpenRequestPostProcessor(typeof(UpsertBotUserHandler<,>))
+                    .AddOpenRequestPostProcessor(typeof(InsertChatActivityHandler<,>))
         );
 
-        services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
+        // services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));
+        // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
 
         services.AddMediatRAttributedBehaviors(assembly);
 

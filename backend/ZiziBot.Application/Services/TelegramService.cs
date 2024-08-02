@@ -703,7 +703,7 @@ public class TelegramService(
         return isAdmin;
     }
 
-    public async Task<bool> ValidateRole()
+    private async Task GetRoles()
     {
         _request.RolesLevels.Add(RoleLevel.Guest);
         _request.RolesLevels.Add(RoleLevel.None);
@@ -712,6 +712,13 @@ public class TelegramService(
         {
             _request.RolesLevels.Add(RoleLevel.Sudo);
         }
+
+        if (_request.ChatType == ChatType.Private)
+        {
+            _request.RolesLevels.Add(RoleLevel.Private);
+        }
+
+        if (_request.InlineQuery != null) return;
 
         if (await CheckChatCreator())
         {
@@ -722,11 +729,11 @@ public class TelegramService(
         {
             _request.RolesLevels.Add(RoleLevel.ChatAdmin);
         }
+    }
 
-        if (_request.ChatType == ChatType.Private)
-        {
-            _request.RolesLevels.Add(RoleLevel.Private);
-        }
+    public async Task<bool> ValidateRole()
+    {
+        await GetRoles();
 
         logger.LogDebug("Roles for UserId: {UserId} in ChatId: {ChatId} is: {@Roles}", _request.UserId, _request.ChatId, _request.RolesLevels);
 

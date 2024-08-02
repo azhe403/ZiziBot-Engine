@@ -1,10 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Telegram.Bot;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
@@ -79,81 +75,15 @@ public class PostWebhookPayloadHandler(
             return response.BadRequest("Webhook can't be processed");
         }
 
-        var botSetting = await appSettingRepository.GetBotMain();
-        var botClient = new TelegramBotClient(botSetting.Token);
-
-        Message sentMessage = new();
-
-        var lastMessageId = await chatSettingRepository.LastWebhookMessageBetterEdit(webhookChat.ChatId, webhookSource, webhookHeader.Event);
-
-        try
-        {
-            if (lastMessageId != 0)
-            {
-                sentMessage = await botClient.EditMessageTextAsync(
-                    chatId: webhookChat.ChatId,
-                    messageId: lastMessageId,
-                    text: webhookResponse.FormattedHtml,
-                    parseMode: ParseMode.Html,
-                    disableWebPagePreview: true, cancellationToken: cancellationToken);
-            }
-            else
-            {
-                sentMessage = await botClient.SendTextMessageAsync(
-                    chatId: webhookChat.ChatId,
-                    text: webhookResponse.FormattedHtml,
-                    messageThreadId: webhookChat.MessageThreadId,
-                    parseMode: ParseMode.Html,
-                    disableWebPagePreview: true, cancellationToken: cancellationToken);
-            }
-        }
-        catch (Exception exception)
-        {
-            logger.LogWarning(exception, "Trying send GitHub Webhook without thread to ChatId: {ChatId}", webhookChat.ChatId);
-            if (exception.Message.Contains("thread not found"))
-            {
-                sentMessage = await botClient.SendTextMessageAsync(
-                    chatId: webhookChat.ChatId,
-                    text: webhookResponse.FormattedHtml,
-                    parseMode: ParseMode.Html,
-                    disableWebPagePreview: true, cancellationToken: cancellationToken);
-            }
-        }
-
-        mongoDbContextBase.WebhookHistory.Add(new WebhookHistoryEntity {
-            RouteId = webhookChat.RouteId,
+        await mediatorService.EnqueueAsync(new SendWebhookMessageRequest() {
+            targetId = request.targetId,
+            Event = webhookHeader.Event,
             TransactionId = request.TransactionId,
-            CreatedDate = default,
-            UpdatedDate = default,
-            ChatId = webhookChat.ChatId,
-            MessageId = sentMessage.MessageId,
-            MessageThreadId = 0,
-            WebhookSource = WebhookSource.GitHub,
-            Elapsed = stopwatch.Elapsed,
-            Payload = request.IsDebug ? content : string.Empty,
-            Header = request.IsDebug ? request.Headers.ToHeaderRawKv() : default,
-            EventName = webhookHeader.Event,
-            Status = (int)EventStatus.Complete
+            WebhookSource = webhookSource,
+            Headers = request.Headers,
+            RawBody = content,
+            FormattedHtml = webhookResponse.FormattedHtml
         });
-
-        await mongoDbContextBase.SaveChangesAsync(cancellationToken);
-
-        var chatActivity = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditWebHook;
-        mongoDbContextBase.ChatActivity.Add(new ChatActivityEntity {
-            ActivityType = chatActivity,
-            ActivityTypeName = chatActivity.ToString(),
-            ChatId = webhookChat.ChatId,
-            UserId = sentMessage.From.Id,
-            Chat = sentMessage.Chat,
-            User = sentMessage.From,
-            Status = (int)EventStatus.Complete,
-            TransactionId = request.TransactionId,
-            MessageId = sentMessage.MessageId
-        });
-
-        await mongoDbContextBase.SaveChangesAsync(cancellationToken);
-
-        stopwatch.Stop();
 
         return response.Success("Webhook payload processed", new PostWebhookPayloadResponseDto() {
             Duration = stopwatch.Elapsed

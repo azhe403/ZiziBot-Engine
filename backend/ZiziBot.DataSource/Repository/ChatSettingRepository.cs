@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoFramework.Linq;
+using ZiziBot.Contracts.Dtos.Entity;
 using ZiziBot.DataSource.MongoDb;
 using ZiziBot.DataSource.MongoDb.Entities;
 
@@ -12,15 +13,22 @@ public class ChatSettingRepository(
     MongoDbContextBase mongoDbContext
 )
 {
-    public async Task<ChatRestrictionEntity?> GetChatRestriction(long chatId)
+    public async Task<ChatRestrictionDto> GetChatRestriction(long chatId)
     {
         var cache = await cacheService.GetOrSetAsync($"{CacheKey.CHAT_RESTRICTION}{chatId}", async () => {
-            var check = await mongoDbContext.ChatRestriction.AsNoTracking()
+            var chatRestriction = await mongoDbContext.ChatRestriction.AsNoTracking()
                 .Where(entity => entity.Status == (int)EventStatus.Complete)
                 .Where(entity => entity.ChatId == chatId)
+                .Select(chatRestriction => new ChatRestrictionDto() {
+                    ChatId = chatRestriction.ChatId,
+                    UserId = chatRestriction.UserId,
+                    Status = chatRestriction.Status, TransactionId = chatRestriction.TransactionId,
+                    CreatedDate = chatRestriction.CreatedDate,
+                    UpdatedDate = chatRestriction.UpdatedDate
+                })
                 .FirstOrDefaultAsync();
 
-            return check;
+            return chatRestriction;
         });
 
         return cache;
@@ -32,6 +40,7 @@ public class ChatSettingRepository(
             .Where(entity => entity.RouteId == routeId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();
+
         return webhookChat;
     }
 
@@ -174,13 +183,13 @@ public class ChatSettingRepository(
         var chatActivityEntities = await mongoDbContext.ChatActivity.AsNoTracking()
             .Where(x => x.Status == (int)EventStatus.Complete)
             .Where(x => x.ActivityType == ChatActivityType.NewChatMember)
-            .Where(x => x.CreatedDate > DateTime.UtcNow.Add(-ValueConst.RAID_SLIDING_WINDOW))
+            .Where(x => x.CreatedDate > DateTime.UtcNow.Add(-ValueConst.NEW_MEMBER_RAID_SLIDING_WINDOW))
             .ToListAsync();
 
         logger.LogInformation("Chat Activity Count: {Count} in a window {Window}",
-            chatActivityEntities.Count, ValueConst.RAID_SLIDING_WINDOW);
+            chatActivityEntities.Count, ValueConst.NEW_MEMBER_RAID_SLIDING_WINDOW);
 
-        return chatActivityEntities.Count > ValueConst.RAID_WINDOW_LIMIT;
+        return chatActivityEntities.Count > ValueConst.NEW_MEMBER_RAID_WINDOW_LIMIT;
     }
 
     public async Task<int> LastWebhookMessageBetterEdit(long chatId, WebhookSource webhookSource, string eventName)
@@ -206,6 +215,7 @@ public class ChatSettingRepository(
             return default;
 
         logger.LogDebug("Last Webhook Message for Better Edit: {MessageId}", lastWebhookHistory.MessageId);
+
         return lastWebhookHistory.MessageId;
     }
 }

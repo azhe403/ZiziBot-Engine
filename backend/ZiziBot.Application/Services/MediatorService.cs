@@ -5,49 +5,82 @@ using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Services;
 
-public class MediatorService
+public class MediatorService(
+    ILogger<MediatorService> logger,
+    IMediator mediator,
+    IBackgroundQueue backgroundQueue,
+    IBackgroundJobClient backgroundJobClient
+)
 {
-    private readonly ILogger<MediatorService> _logger;
-    private readonly IMediator _mediator;
-    private readonly IBackgroundQueue _backgroundQueue;
-
-    public MediatorService(ILogger<MediatorService> logger, IMediator mediator, IBackgroundQueue backgroundQueue)
-    {
-        _logger = logger;
-        _mediator = mediator;
-        _backgroundQueue = backgroundQueue;
-    }
-
     #region Execution
 
     public async Task<BotResponseBase> EnqueueAsync(BotRequestBase request)
     {
         BotResponseBase botResponse = new();
-        _logger.LogDebug("Enqueueing request {request} in {Mode}", request, request.ExecutionStrategy);
+        logger.LogDebug("Enqueueing request {Request} in {Mode}", request, request.ExecutionStrategy);
 
         switch (request.ExecutionStrategy)
         {
             case ExecutionStrategy.Hangfire:
                 var jobId = $"{request.Source}-{request.ChatId}-{request.MessageId}-{request.UserId}-{request.Command}";
                 BackgroundJob.Enqueue<MediatorService>(x => x.Send(jobId, request));
+
                 break;
             case ExecutionStrategy.Background:
-                _backgroundQueue.Enqueue(async token => await _mediator.Send(request, token));
+                backgroundQueue.Enqueue(async token => await mediator.Send(request, token));
+
                 break;
             case ExecutionStrategy.Instant:
-                return await _mediator.Send(request);
+                return await mediator.Send(request);
             default:
-                throw new ArgumentOutOfRangeException(nameof(request.ExecutionStrategy), request.ExecutionStrategy,
-                    null);
+                throw new ArgumentOutOfRangeException(nameof(request.ExecutionStrategy), request.ExecutionStrategy, "Unknown execution strategy");
         }
 
         return botResponse.Complete();
+    }
+
+    public async Task<ApiResponseBase<T>> EnqueueAsync<T>(ApiRequestBase<T> request, ExecutionStrategy executionStrategy = default)
+    {
+        switch (executionStrategy)
+        {
+            case ExecutionStrategy.Hangfire:
+                var jobId = $"{request.HttpContextAccessor?.HttpContext?.TraceIdentifier}";
+                backgroundJobClient.Enqueue<MediatorService>(x => x.Send(jobId, request));
+
+                return new ApiResponseBase<T>();
+
+                break;
+
+            case ExecutionStrategy.Instant:
+                return await mediator.Send(request);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(executionStrategy));
+        }
+    }
+
+    public async Task<T> EnqueueAsync<T>(IRequest<T> request, ExecutionStrategy executionStrategy = default) where T : new()
+    {
+        switch (executionStrategy)
+        {
+            case ExecutionStrategy.Hangfire:
+                backgroundJobClient.Enqueue<MediatorService>(x => x.Send(request));
+
+                return new T();
+
+                break;
+
+            case ExecutionStrategy.Instant:
+                return await mediator.Send(request);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(executionStrategy));
+        }
     }
 
     public BotResponseBase Schedule(BotRequestBase request, TimeSpan delayExecution = default)
     {
         BotResponseBase botResponse = new();
         BackgroundJob.Schedule<MediatorService>(x => x.Send(request), delayExecution);
+
         return botResponse.Complete();
     }
 
@@ -59,14 +92,14 @@ public class MediatorService
     [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
     public async Task<TResponse?> Send<TResponse>(IRequest<TResponse> request)
     {
-        return await _mediator.Send(request);
+        return await mediator.Send(request);
     }
 
     [DisplayName("{0}")]
     [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
     public async Task<TResponse?> Send<TResponse>(string jobName, IRequest<TResponse> request)
     {
-        return await _mediator.Send(request);
+        return await mediator.Send(request);
     }
 
     #endregion

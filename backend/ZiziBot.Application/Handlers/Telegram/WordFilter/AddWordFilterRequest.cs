@@ -1,51 +1,47 @@
-﻿using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
-
-namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
+﻿namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
 
 public class AddWordFilterRequest : BotRequestBase
 {
     public string? Word { get; set; }
 }
 
-public class AddWordFilterHandler : IBotRequestHandler<AddWordFilterRequest>
+public class AddWordFilterHandler(
+    TelegramService telegramService,
+    WordFilterRepository wordFilterRepository
+) : IBotRequestHandler<AddWordFilterRequest>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly TelegramService _telegramService;
-
-    public AddWordFilterHandler(MongoDbContextBase mongoDbContext, TelegramService telegramService)
-    {
-        _mongoDbContext = mongoDbContext;
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(AddWordFilterRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         if (request.Word.IsNullOrEmpty())
         {
-            return await _telegramService.SendMessageAsync("Apa kata yang ingin ditambahkan?");
+            return await telegramService.SendMessageAsync("Apa kata yang ingin ditambahkan?");
         }
 
-        var wordFilter = await _mongoDbContext.WordFilter
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .Where(entity => entity.Word == request.Word)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        List<WordFilterAction> action = new();
 
-        if (wordFilter == null)
+        var cmdParam = request.Params?.Skip(1).ToList();
+        if (cmdParam.NotEmpty())
         {
-            _mongoDbContext.WordFilter.Add(new WordFilterEntity() {
-                Word = request.Word,
-                Status = (int)EventStatus.Complete,
-                TransactionId = request.TransactionId
-            });
+            if (cmdParam.Contains("-d"))
+                action.Add(WordFilterAction.Delete);
 
-            await _mongoDbContext.SaveChangesAsync(cancellationToken);
+            if (cmdParam.Contains("-w"))
+                action.Add(WordFilterAction.Warn);
 
-            return await _telegramService.SendMessageAsync("Kata berhasil disimpan");
+            if (cmdParam.Contains("-m"))
+                action.Add(WordFilterAction.Mute);
         }
 
-        return await _telegramService.SendMessageAsync("Kata sudah disimpan");
+        await wordFilterRepository.SaveAsync(new WordFilterDto() {
+            ChatId = request.ChatIdentifier,
+            UserId = request.UserId,
+            Word = request.Word,
+            Action = action.ToArray(),
+            TransactionId = request.TransactionId
+        });
+
+        return await telegramService.SendMessageAsync("Kata berhasil disimpan");
     }
 }

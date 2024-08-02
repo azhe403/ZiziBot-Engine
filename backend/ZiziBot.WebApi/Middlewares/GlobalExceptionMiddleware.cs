@@ -24,10 +24,9 @@ public class GlobalExceptionMiddleware : IMiddleware
             _logger.LogError(exception, "Unhandled API Exception");
 
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>()
-            {
+            await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>() {
                 StatusCode = HttpStatusCode.InternalServerError,
-                TransactionId = context.Request.Headers.GetTransactionId(),
+                TransactionId = context.GetTransactionId(),
                 Message = "Internal Server Error. Please contact administrator.",
             });
         }

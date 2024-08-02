@@ -29,9 +29,9 @@ public static class SerializationUtil
     }
 
 
-    public static string? GetTransactionId(this IHeaderDictionary headerDictionary)
+    public static string? GetTransactionId(this HttpContext context)
     {
-        return headerDictionary.TryGetValue(HeaderKey.TransactionId, out var transactionId) ? transactionId.ToString() : default;
+        return context.TraceIdentifier;
     }
 
     public static long GetUserId(this IHeaderDictionary headerDictionary)
@@ -42,6 +42,7 @@ public static class SerializationUtil
     public static List<long>? GetListChatId(this IHeaderDictionary headerDictionary)
     {
         var listChatId = headerDictionary[HeaderKey.ListChatId].ToString().ToObject<List<long>>();
+
         return listChatId;
     }
 
@@ -55,6 +56,7 @@ public static class SerializationUtil
         if (context == null) return string.Empty;
 
         using var reader = new StreamReader(context.Request.Body);
+
         return await reader.ReadToEndAsync();
     }
 }
