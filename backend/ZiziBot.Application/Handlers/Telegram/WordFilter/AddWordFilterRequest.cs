@@ -32,6 +32,9 @@ public class AddWordFilterHandler(
 
             if (cmdParam.Contains("-m"))
                 action.Add(WordFilterAction.Mute);
+
+            if (cmdParam.Contains("-k"))
+                action.Add(WordFilterAction.Kick);
         }
 
         await wordFilterRepository.SaveAsync(new WordFilterDto() {

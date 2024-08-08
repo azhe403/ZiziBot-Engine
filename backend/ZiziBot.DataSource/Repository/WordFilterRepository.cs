@@ -1,18 +1,18 @@
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb;
-using ZiziBot.DataSource.MongoDb.Entities;
+using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
 public class WordFilterRepository(
-    MongoDbContextBase mongoDbContext,
+    MongoEfContext mongoDbContext,
     ICacheService cacheService
 )
 {
     public async Task SaveAsync(WordFilterDto dto)
     {
         var wordFilter = await mongoDbContext.WordFilter
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .Where(x => x.Word == dto.Word)
             .FirstOrDefaultAsync();
 
@@ -24,7 +24,7 @@ public class WordFilterRepository(
                 Word = dto.Word,
                 IsGlobal = dto.IsGlobal,
                 Action = dto.Action,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete,
                 TransactionId = dto.TransactionId
             });
         }
@@ -47,7 +47,7 @@ public class WordFilterRepository(
             evictAfter: evictAfter,
             action: async () => {
                 var data = await mongoDbContext.WordFilter
-                    .Where(x => x.Status == (int)EventStatus.Complete)
+                    .Where(x => x.Status == EventStatus.Complete)
                     .Select(entity => new WordFilterDto() {
                         Id = entity.Id.ToString(),
                         ChatId = entity.ChatId,

@@ -40,7 +40,7 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
 
         var hasBadword = false;
         var matchPattern = string.Empty;
-        WordFilterAction[] action = [];
+        WordFilterAction[]? action = [];
 
         var words = await wordFilterRepository.GetAllAsync();
 
@@ -103,15 +103,19 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                             await telegramService.DeleteMessageAsync();
 
                             break;
+
                         case WordFilterAction.Warn:
                             break;
+
                         case WordFilterAction.Mute:
                             await telegramService.MuteMemberAsync(request.UserId, muteDuration);
                             htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
 
                             break;
+
                         case WordFilterAction.Kick:
                             break;
+
                         default:
                             break;
                     }
