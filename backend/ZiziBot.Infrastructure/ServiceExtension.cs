@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using ZiziBot.DataMigration.MongoDb.Extension;
 
 namespace ZiziBot.Infrastructure;
 
@@ -15,7 +16,7 @@ public static class ServiceExtension
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         services.ConfigureSettings();
-        services.AddKotMongoMigrations();
+        services.AddMongoMigration();
 
         services.AddMediator();
 

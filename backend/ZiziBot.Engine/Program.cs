@@ -22,7 +22,7 @@ app.ConfigureFlurl();
 
 app.PrintAbout();
 
-await app.RunMigrationsAsync();
+await app.UseMongoMigration();
 
 app.UseAuthorization();
 

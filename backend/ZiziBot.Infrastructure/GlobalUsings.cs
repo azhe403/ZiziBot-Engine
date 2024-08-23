@@ -24,7 +24,6 @@ global using ZiziBot.DataSource.Repository;
 global using ZiziBot.Exceptions;
 global using ZiziBot.Infrastructure.LoggerSink;
 global using ZiziBot.Infrastructure.MongoConfig;
-global using ZiziBot.Kot.MongoMigrations;
 global using ZiziBot.Parsers;
 global using ZiziBot.Services;
 global using ZiziBot.Utils;
