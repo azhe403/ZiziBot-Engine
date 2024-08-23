@@ -25,9 +25,11 @@ public static class TelegramExtension
             case BotEngineMode.Webhook:
                 services.AddTelegramWebHookManager();
                 break;
+
             case BotEngineMode.Polling:
                 services.AddTelegramManager();
                 break;
+
             default: // or EngineMode.Auto
                 if (environment.IsDevelopment())
                     services.AddTelegramManager();
@@ -48,8 +50,7 @@ public static class TelegramExtension
 
         if (!listBotOptions.Any())
         {
-            appSettingsDbContext.BotSettings.Add(new BotSettingsEntity()
-            {
+            appSettingsDbContext.BotSettings.Add(new BotSettingsEntity() {
                 Name = "BOT_NAME",
                 Token = "BOT_TOKEN",
                 Status = (int)EventStatus.InProgress

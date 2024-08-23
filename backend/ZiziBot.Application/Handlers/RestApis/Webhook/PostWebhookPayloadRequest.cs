@@ -80,10 +80,10 @@ public class PostWebhookPayloadHandler(
             Event = webhookHeader.Event,
             TransactionId = request.TransactionId,
             WebhookSource = webhookSource,
-            Headers = request.Headers,
+            RawHeaders = request.Headers.ToHeaderRawKv(),
             RawBody = content,
             FormattedHtml = webhookResponse.FormattedHtml
-        });
+        }, ExecutionStrategy.Hangfire);
 
         return response.Success("Webhook payload processed", new PostWebhookPayloadResponseDto() {
             Duration = stopwatch.Elapsed

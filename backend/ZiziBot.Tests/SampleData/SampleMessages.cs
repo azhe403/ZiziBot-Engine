@@ -5,38 +5,30 @@ namespace ZiziBot.Tests.SampleData;
 
 public static class SampleMessages
 {
-
-    private static readonly long[] ChatIds =
-    {
+    private static readonly long[] ChatIds = [
         -1001710313973,
         -1001929269823,
         -1001645422053,
         -1001936696407,
         -1001404591750
-    };
+    ];
 
-    public static Message CommonMessage => new()
-    {
+    public static Message CommonMessage => new() {
         MessageId = 316001,
         MessageThreadId = 297986,
-        ForumTopicCreated = new ForumTopicCreated()
-        {
+        ForumTopicCreated = new ForumTopicCreated() {
             Name = "Sample - Taufik Name"
         },
-        ForumTopicEdited = new ForumTopicEdited()
-        {
+        ForumTopicEdited = new ForumTopicEdited() {
             Name = "Sample - New Taufik Name"
         },
         Date = DateTime.UtcNow,
         EditDate = DateTime.UtcNow,
-        ForwardDate = DateTime.UtcNow,
-        Chat = new Chat
-        {
+        Chat = new Chat {
             Id = ChatIds.RandomPick(),
             Title = "Sample - Grub Name"
         },
-        From = new User
-        {
+        From = new User {
             Id = 236205726,
             FirstName = "Azhe",
             LastName = "Kun",
@@ -44,38 +36,31 @@ public static class SampleMessages
         }
     };
 
-    public static Message NewChatMembers => new()
-    {
+    public static Message NewChatMembers => new() {
         MessageId = 12345,
         MessageThreadId = 321067,
-        Chat = new Chat()
-        {
+        Chat = new Chat() {
             Id = -1001404591750,
             Title = "Grub Name"
         },
-        From = new User()
-        {
+        From = new User() {
             Id = 552609163,
             FirstName = "I'am",
             LastName = "Groot",
             Username = "groot"
         },
-        NewChatMembers = new[]
-        {
-            new User()
-            {
+        NewChatMembers = new[] {
+            new User() {
                 Id = 1025424321,
                 FirstName = "Sandal",
                 LastName = "Jepit"
             },
-            new User()
-            {
+            new User() {
                 Id = 1025424321,
                 FirstName = "Fulan",
                 LastName = "Ahmad"
             },
-            new User()
-            {
+            new User() {
                 Id = 552609163,
                 FirstName = "I'm",
                 LastName = "Groot"
@@ -83,8 +68,7 @@ public static class SampleMessages
         }
     };
 
-    public static Update UpdateChannelPost => new()
-    {
+    public static Update UpdateChannelPost => new() {
         Id = 0,
         Message = null,
         EditedMessage = null,
@@ -92,8 +76,7 @@ public static class SampleMessages
         EditedChannelPost = null,
     };
 
-    public static Update UpdateChannelPostDocument => new()
-    {
+    public static Update UpdateChannelPostDocument => new() {
         Id = 0,
         Message = null,
         EditedMessage = null,
@@ -101,8 +84,7 @@ public static class SampleMessages
         EditedChannelPost = null,
     };
 
-    public static Update UpdateEditedChannelPost => new()
-    {
+    public static Update UpdateEditedChannelPost => new() {
         Id = 0,
         Message = null,
         EditedMessage = null,
@@ -110,32 +92,27 @@ public static class SampleMessages
         EditedChannelPost = ChannelPost
     };
 
-    public static Message ChannelPost = new()
-    {
+    public static Message ChannelPost = new() {
         MessageId = 45,
         Date = DateTime.UtcNow,
-        Chat = new()
-        {
+        Chat = new() {
             Id = -1001556283448,
-            Type = (ChatType)0,
+            Type = ChatType.Channel,
             Title = "Sample - Telegram Bot API Channel",
         },
         Text = "this is message text"
     };
 
-    public static Message ChannelPostDocument = new()
-    {
+    public static Message ChannelPostDocument = new() {
         MessageId = 45,
         Date = DateTime.UtcNow,
-        Chat = new()
-        {
+        Chat = new() {
             Id = -1001556283448,
-            Type = (ChatType)0,
+            Type = ChatType.Channel,
             Title = "Sample - Telegram Bot API Channel",
         },
         Caption = "this is message caption",
-        Document = new()
-        {
+        Document = new() {
             FileId = "BQACAgUAAx0CU7hehgABBNdfZPrwISnUYnEMrm5Tzpo40aZBdXMAAl0LAAIXHEhVVErnd8J1j8YwBA",
             FileUniqueId = "BQACAgUAA",
             FileSize = 2000,

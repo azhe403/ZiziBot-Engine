@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace ZiziBot.Application.Handlers.Core;
 
 public class GlobalExceptionHandler<TRequest, TResponse, TException> : IRequestExceptionHandler<TRequest, TResponse, TException>
-    where TRequest : BotRequestBase, IRequest<TResponse>
+    where TRequest : BotRequestBase
     where TException : Exception
 {
     private readonly ILogger<GlobalExceptionHandler<TRequest, TResponse, TException>> _logger;
