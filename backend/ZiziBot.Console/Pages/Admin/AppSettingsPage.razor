@@ -1,12 +1,11 @@
 ﻿@page "/admin/app-settings"
 @attribute [Authorize(Roles = "Sudo")]
-@using ZiziBot.Contracts.Constants
 @using ZiziBot.Types.Types
 @inherits WebComponentBase<AppSettingsViewModel>
 
 <TitleControl Value="AppSettings"></TitleControl>
 
-<Loading Configuration="Loading"/>
+<Container Configuration="Loading"/>
 
 <RadzenDataGrid
     @ref="dataGrid"
