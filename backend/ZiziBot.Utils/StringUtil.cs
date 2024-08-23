@@ -207,6 +207,25 @@ public static class StringUtil
                input.Contains(what, StringComparison.InvariantCultureIgnoreCase);
     }
 
+    public static bool Match(this string source, string pattern)
+    {
+        var isMatch = source == pattern;
+
+        if (pattern.StartsWith('*'))
+            if (source.StartsWith(pattern.Replace("*", "")))
+                isMatch = true;
+
+        if (pattern.EndsWith('*'))
+            if (source.EndsWith(pattern.Replace("*", "")))
+                isMatch = true;
+
+        if (pattern.StartsWith('*') && pattern.EndsWith('*'))
+            if (source.Contains(pattern.Replace("*", "")))
+                isMatch = true;
+
+        return isMatch;
+    }
+
     public static T? Deserialize<T>(this string input)
     {
         return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions() {

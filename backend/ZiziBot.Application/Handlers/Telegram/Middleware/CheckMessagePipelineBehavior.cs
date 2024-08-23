@@ -52,25 +52,12 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
             {
                 var pattern = dto.Word;
 
-                if (messageText == pattern)
-                    hasBadword = true;
-
-                if (pattern.StartsWith('*'))
-                    if (messageText.StartsWith(pattern))
-                        hasBadword = true;
-
-                if (pattern.EndsWith('*'))
-                    if (messageText.EndsWith(pattern))
-                        hasBadword = true;
-
-                if (pattern.StartsWith('*') && pattern.EndsWith('*'))
-                    if (messageText.Contains(pattern))
-                        hasBadword = true;
+                hasBadword = messageText.Match(pattern);
 
                 if (!hasBadword)
                     continue;
 
-                logger.LogWarning("Scan message: Match word: {Pattern} with a source: {MessageText}", pattern, messageText);
+                logger.LogWarning("Check message pattern: {Pattern}, source: {MessageText}, action: {Action}", pattern, messageText, dto.Action);
 
                 matchPattern = dto.Word;
                 action = dto.Action;
@@ -101,10 +88,10 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                     {
                         case WordFilterAction.Delete:
                             await telegramService.DeleteMessageAsync();
-
                             break;
 
                         case WordFilterAction.Warn:
+                            //todo. warn user
                             break;
 
                         case WordFilterAction.Mute:
@@ -114,6 +101,7 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                             break;
 
                         case WordFilterAction.Kick:
+                            //todo. kick user
                             break;
 
                         default:
