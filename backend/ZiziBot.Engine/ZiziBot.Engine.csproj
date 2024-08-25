@@ -13,7 +13,6 @@
         <PackageReference Include="JetBrains.Annotations" Version="2024.2.0"/>
         <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.8"/>
         <PackageReference Include="NewRelic.Agent" Version="10.29.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.1"/>
     </ItemGroup>
 
     <ItemGroup>

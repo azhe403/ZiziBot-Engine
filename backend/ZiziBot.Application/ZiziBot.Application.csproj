@@ -13,7 +13,7 @@
         <PackageReference Include="FirebaseDatabase.net" Version="4.2.0" />
         <PackageReference Include="Google.Cloud.Firestore" Version="3.8.0"/>
         <PackageReference Include="JetBrains.Annotations" Version="2024.2.0"/>
-        <PackageReference Include="MediatR" Version="12.3.0"/>
+        <PackageReference Include="MediatR" Version="12.4.0"/>
         <PackageReference Include="MediatR.Extensions.AttributedBehaviors" Version="3.0.0" />
         <PackageReference Include="morelinq" Version="4.3.0"/>
         <PackageReference Include="Nut.MediatR.Behaviors" Version="1.0.0"/>
