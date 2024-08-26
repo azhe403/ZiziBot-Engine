@@ -1,21 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
+using ZiziBot.Services.Facade;
 
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 public class CheckMessagePipelineBehavior<TRequest, TResponse>(
     ILogger<CheckMessagePipelineBehavior<TRequest, TResponse>> logger,
     TelegramService telegramService,
-    AppSettingRepository appSettingRepository,
-    MongoDbContextBase mongoDbContext,
-    WordFilterRepository wordFilterRepository
+    DataFacade dataFacade
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : BotRequestBase
     where TResponse : BotResponseBase, new()
 {
-    private readonly AppSettingRepository _appSettingRepository = appSettingRepository;
-    private readonly MongoDbContextBase _mongoDbContext = mongoDbContext;
-    private static readonly char[] Separator = new[] { ' ', '\n', ':', ';', ',' };
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         if (request.IsChannel ||
@@ -42,9 +37,9 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
         var matchPattern = string.Empty;
         WordFilterAction[]? action = [];
 
-        var words = await wordFilterRepository.GetAllAsync();
+        var words = await dataFacade.WordFilter.GetAllAsync();
 
-        var messageTexts = request.Message?.Text?.Split(Separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+        var messageTexts = request.Message?.Text?.Explode();
 
         foreach (var messageText in messageTexts)
         {

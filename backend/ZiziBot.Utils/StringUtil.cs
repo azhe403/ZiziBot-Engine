@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using NanoidDotNet;
+using ZiziBot.Contracts.Constants;
 
 namespace ZiziBot.Utils;
 
@@ -161,6 +162,11 @@ public static class StringUtil
         }
 
         return source.Substring(0, count);
+    }
+
+    public static string[] Explode(this string? input)
+    {
+        return input?.Split(ValueConst.WordSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
     }
 
     public static string RegexReplace(this string input, string pattern, string replacement)

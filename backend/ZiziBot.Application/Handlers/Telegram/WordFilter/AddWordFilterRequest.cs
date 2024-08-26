@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
+﻿using ZiziBot.Services.Facade;
+
+namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
 
 public class AddWordFilterRequest : BotRequestBase
 {
@@ -7,7 +9,7 @@ public class AddWordFilterRequest : BotRequestBase
 
 public class AddWordFilterHandler(
     TelegramService telegramService,
-    WordFilterRepository wordFilterRepository
+    DataFacade dataFacade
 ) : IBotRequestHandler<AddWordFilterRequest>
 {
     public async Task<BotResponseBase> Handle(AddWordFilterRequest request, CancellationToken cancellationToken)
@@ -37,7 +39,7 @@ public class AddWordFilterHandler(
                 action.Add(WordFilterAction.Kick);
         }
 
-        await wordFilterRepository.SaveAsync(new WordFilterDto() {
+        await dataFacade.WordFilter.SaveAsync(new WordFilterDto() {
             ChatId = request.ChatIdentifier,
             UserId = request.UserId,
             Word = request.Word,

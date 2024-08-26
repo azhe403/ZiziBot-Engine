@@ -4,8 +4,8 @@
         <BaseOutputPath>.bin\</BaseOutputPath>
     </PropertyGroup>
     <PropertyGroup>
-        <Version>224.8.9003.27792</Version>
-        <Company>WinTenDev</Company>
+        <Version>224.8.9004.22279</Version>
+        <Company>AZ Corp</Company>
         <Authors>azhe403</Authors>
         <Product>ZiziBot</Product>
     </PropertyGroup>
