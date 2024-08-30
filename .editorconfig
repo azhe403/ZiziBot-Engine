@@ -8,6 +8,7 @@ trim_trailing_whitespace = true
 end_of_line = lf
 
 # ReSharper properties
+resharper_csharp_empty_block_style = together
 resharper_html_pi_attribute_style = first_attribute_on_single_line
 
 [*.cs]

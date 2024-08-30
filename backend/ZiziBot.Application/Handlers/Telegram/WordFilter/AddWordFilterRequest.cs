@@ -1,4 +1,4 @@
-﻿using ZiziBot.Services.Facade;
+﻿using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
 
@@ -21,22 +21,22 @@ public class AddWordFilterHandler(
             return await telegramService.SendMessageAsync("Apa kata yang ingin ditambahkan?");
         }
 
-        List<WordFilterAction> action = new();
+        List<PipelineResultAction> action = new();
 
         var cmdParam = request.Params?.Skip(1).ToList();
         if (cmdParam.NotEmpty())
         {
             if (cmdParam.Contains("-d"))
-                action.Add(WordFilterAction.Delete);
+                action.Add(PipelineResultAction.Delete);
 
             if (cmdParam.Contains("-w"))
-                action.Add(WordFilterAction.Warn);
+                action.Add(PipelineResultAction.Warn);
 
             if (cmdParam.Contains("-m"))
-                action.Add(WordFilterAction.Mute);
+                action.Add(PipelineResultAction.Mute);
 
             if (cmdParam.Contains("-k"))
-                action.Add(WordFilterAction.Kick);
+                action.Add(PipelineResultAction.Kick);
         }
 
         await dataFacade.WordFilter.SaveAsync(new WordFilterDto() {

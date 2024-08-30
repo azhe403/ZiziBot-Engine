@@ -1,9 +1,10 @@
-﻿namespace ZiziBot.Application.Handlers.Telegram.Middleware;
+﻿using ZiziBot.Application.Facades;
+
+namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 public class CheckRestrictionPipelineBehavior<TRequest, TResponse>(
-    TelegramService telegramService,
-    AppSettingRepository appSettingRepository,
-    ChatSettingRepository chatSettingRepository
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : BotRequestBase
     where TResponse : BotResponseBase, new()
@@ -17,22 +18,16 @@ public class CheckRestrictionPipelineBehavior<TRequest, TResponse>(
             request.Source != ResponseSource.Bot)
             return await next();
 
-        var config = await appSettingRepository.GetConfigSectionAsync<EngineConfig>();
+        var config = await dataFacade.AppSetting.GetConfigSectionAsync<EngineConfig>();
 
         if (!(config?.EnableChatRestriction ?? false))
             return await next();
 
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        var check = await chatSettingRepository.GetChatRestriction(request.ChatIdentifier);
+        var check = await dataFacade.ChatSetting.GetChatRestriction(request.ChatIdentifier);
 
-        if (check == null)
-        {
-            await telegramService.SendMessageText("Untuk mendapatkan pengalaman terbaik, silakan gunakan @MissZiziBot di Grub Anda.");
-            await telegramService.LeaveChatAsync();
-
-            return new TResponse();
-        }
+        request.PipelineResult.IsChatPassed = check != null;
 
         return await next();
     }

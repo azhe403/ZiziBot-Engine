@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using ZiziBot.Services.Facade;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 public class CheckMessagePipelineBehavior<TRequest, TResponse>(
     ILogger<CheckMessagePipelineBehavior<TRequest, TResponse>> logger,
-    TelegramService telegramService,
+    ServiceFacade serviceFacade,
     DataFacade dataFacade
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : BotRequestBase
@@ -31,11 +31,9 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
 
         request.ReplyMessage = true;
 
-        telegramService.SetupResponse(request);
-
         var hasBadword = false;
         var matchPattern = string.Empty;
-        WordFilterAction[]? action = [];
+        PipelineResultAction[]? action = [];
 
         var words = await dataFacade.WordFilter.GetAllAsync();
 
@@ -64,60 +62,9 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                 break;
         }
 
-        if (!hasBadword)
-            return await next();
+        request.PipelineResult.IsMessagePassed = !hasBadword;
+        request.PipelineResult.Actions.AddRange(action ?? []);
 
-        var htmlMessage = HtmlMessage.Empty
-            .User(request.UserId, request.User.GetFullName()).Text(" telah diperingatkan.").Br()
-            .Text("Karena: mengirim pesan yang mengandung pola: ").Bold(matchPattern).Br();
-
-        try
-        {
-            //todo. incremental
-            var muteDuration = MemberMuteDuration.Select(0);
-
-            if (action.NotEmpty())
-            {
-                foreach (var actionItem in action)
-                    switch (actionItem)
-                    {
-                        case WordFilterAction.Delete:
-                            await telegramService.DeleteMessageAsync();
-                            break;
-
-                        case WordFilterAction.Warn:
-                            //todo. warn user
-                            break;
-
-                        case WordFilterAction.Mute:
-                            await telegramService.MuteMemberAsync(request.UserId, muteDuration);
-                            htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
-
-                            break;
-
-                        case WordFilterAction.Kick:
-                            //todo. kick user
-                            break;
-
-                        default:
-                            break;
-                    }
-            }
-            else
-            {
-                await telegramService.MuteMemberAsync(request.UserId, muteDuration);
-
-                htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
-            }
-        }
-        catch (Exception exception)
-        {
-            logger.LogWarning(exception, "Error when running action for userId: {UserId}. Message: {Message}", request.UserId, exception.Message);
-        }
-
-        if (action.Any(x => x == WordFilterAction.Warn))
-            await telegramService.SendMessageText(htmlMessage.ToString());
-
-        return new TResponse();
+        return await next();
     }
 }

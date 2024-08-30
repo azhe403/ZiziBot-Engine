@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 public class CheckUsernamePipelineBehavior<TRequest, TResponse>(
     ILogger<CheckUsernamePipelineBehavior<TRequest, TResponse>> logger,
-    TelegramService telegramService
+    ServiceFacade serviceFacade
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : BotRequestBase, IRequest<TResponse>
     where TResponse : BotResponseBase, new()
@@ -20,37 +20,22 @@ public class CheckUsernamePipelineBehavior<TRequest, TResponse>(
             request.ChannelPostAny != null)
             return await next();
 
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         logger.LogDebug("Checking Username for UserId: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
 
-        if (await telegramService.UserHasUsername())
+        if (!await serviceFacade.TelegramService.UserHasUsername())
         {
-            logger.LogDebug("User passed from checking Username for UserId: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
-
+            request.PipelineResult.Actions.AddRange(new[] {
+                PipelineResultAction.Mute,
+                PipelineResultAction.Warn
+            });
             return await next();
         }
 
-        try
-        {
-            var fullName = request.User?.GetFullMention();
+        logger.LogDebug("User passed from checking Username for UserId: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
 
-            var button = new InlineKeyboardMarkup(new[] {
-                new[] {
-                    InlineKeyboardButton.WithUrl("↗️ Pasang Username", UrlConst.TG_APPLY_USERNAME),
-                    InlineKeyboardButton.WithUrl("↗️ Apply Username", UrlConst.TG_APPLY_USERNAME),
-                }
-            });
-
-            await telegramService.MuteMemberAsync(request.UserId, TimeSpan.FromMinutes(1));
-            await telegramService.SendMessageText($"Hai {fullName}, kamu belum mengatur Username, silakan ikuti petunjuk dibawah ini.", button);
-
-            return new TResponse();
-        }
-        catch (Exception exception)
-        {
-            logger.LogWarning(exception, "Error when Muting member. Message: {Message}", exception.Message);
-        }
+        request.PipelineResult.HasUsername = true;
 
         return await next();
     }

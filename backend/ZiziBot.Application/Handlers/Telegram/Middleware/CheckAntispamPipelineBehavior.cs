@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 public class CheckAntispamPipelineBehavior<TRequest, TResponse>(
     ILogger<CheckAntispamPipelineBehavior<TRequest, TResponse>> logger,
-    AntiSpamService antiSpamService
+    ServiceFacade serviceFacade
 )
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : BotRequestBase
@@ -14,21 +15,10 @@ public class CheckAntispamPipelineBehavior<TRequest, TResponse>(
     {
         logger.LogDebug("Checking antispam for UserId: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
 
-        var response = new BotMiddlewareResponseBase<AntiSpamDto>();
-        var antiSpamDto = await antiSpamService.CheckSpamAsync(request.ChatIdentifier, request.UserId);
+        var antiSpamDto = await serviceFacade.AntiSpamService.CheckSpamAsync(request.ChatIdentifier, request.UserId);
 
-        response.CanContinue = !antiSpamDto.IsBanAny;
+        request.PipelineResult.IsUserPassed = !antiSpamDto.IsBanAny;
 
-        if (!antiSpamDto.IsBanAny)
-            return await next();
-
-        var htmlMessage = HtmlMessage.Empty
-            .User(request.UserId, request.User.GetFullName())
-            .Text(" is banned from Global Ban");
-
-        response.Message = htmlMessage.ToString();
-        response.Result = antiSpamDto;
-
-        return new TResponse();
+        return await next();
     }
 }
