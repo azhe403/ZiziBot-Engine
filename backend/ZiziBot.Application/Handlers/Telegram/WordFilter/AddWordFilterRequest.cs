@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
+﻿using ZiziBot.Application.Facades;
+
+namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
 
 public class AddWordFilterRequest : BotRequestBase
 {
@@ -7,7 +9,7 @@ public class AddWordFilterRequest : BotRequestBase
 
 public class AddWordFilterHandler(
     TelegramService telegramService,
-    WordFilterRepository wordFilterRepository
+    DataFacade dataFacade
 ) : IBotRequestHandler<AddWordFilterRequest>
 {
     public async Task<BotResponseBase> Handle(AddWordFilterRequest request, CancellationToken cancellationToken)
@@ -19,22 +21,25 @@ public class AddWordFilterHandler(
             return await telegramService.SendMessageAsync("Apa kata yang ingin ditambahkan?");
         }
 
-        List<WordFilterAction> action = new();
+        List<PipelineResultAction> action = new();
 
         var cmdParam = request.Params?.Skip(1).ToList();
         if (cmdParam.NotEmpty())
         {
             if (cmdParam.Contains("-d"))
-                action.Add(WordFilterAction.Delete);
+                action.Add(PipelineResultAction.Delete);
 
             if (cmdParam.Contains("-w"))
-                action.Add(WordFilterAction.Warn);
+                action.Add(PipelineResultAction.Warn);
 
             if (cmdParam.Contains("-m"))
-                action.Add(WordFilterAction.Mute);
+                action.Add(PipelineResultAction.Mute);
+
+            if (cmdParam.Contains("-k"))
+                action.Add(PipelineResultAction.Kick);
         }
 
-        await wordFilterRepository.SaveAsync(new WordFilterDto() {
+        await dataFacade.WordFilter.SaveAsync(new WordFilterDto() {
             ChatId = request.ChatIdentifier,
             UserId = request.UserId,
             Word = request.Word,

@@ -15,7 +15,8 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextBotR
     private readonly MediatorService _mediatorService;
     private readonly TelegramService _telegramService;
 
-    public SendMessageTextRequestHandler(ILogger<SendMessageTextRequestHandler> logger, MediatorService mediatorService, TelegramService telegramService)
+    public SendMessageTextRequestHandler(ILogger<SendMessageTextRequestHandler> logger, MediatorService mediatorService,
+        TelegramService telegramService)
     {
         _logger = logger;
         _mediatorService = mediatorService;
@@ -41,8 +42,7 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextBotR
 
         _logger.LogDebug("Deleting message {MessageId} in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
         _mediatorService.Schedule(
-            new DeleteMessageBotRequestModel()
-            {
+            new DeleteMessageBotRequestModel() {
                 BotToken = request.BotToken,
                 Message = request.Message,
                 MessageId = sentMessage.MessageId,
@@ -51,7 +51,8 @@ public class SendMessageTextRequestHandler : IRequestHandler<SendMessageTextBotR
             }
         );
 
-        _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", sentMessage.MessageId, request.DeleteAfter.TotalSeconds);
+        _logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", sentMessage.MessageId,
+            request.DeleteAfter.TotalSeconds);
 
         return _telegramService.Complete();
     }

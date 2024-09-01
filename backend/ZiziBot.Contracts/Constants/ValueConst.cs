@@ -13,6 +13,8 @@ public static class ValueConst
 
     public static readonly TimeSpan NEW_MEMBER_ENTRY_SAFE_LIMIT = TimeSpan.FromDays(3);
 
+    public static readonly char[] WordSeparator = [' ', '\n', ':', ';', ','];
+
     public const string NEW_MEMBER_DEFAULT_WELCOME_MESSAGE = "Hai {users}" +
                                                              "\nSelamat datang di Kontrakan <b>{ChatTitle}</b>";
 

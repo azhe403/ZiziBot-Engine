@@ -21,9 +21,8 @@ public class CheckUserRolePipelineBehavior<TRequest, TResponse>(
         logger.LogWarning("The minimum role for {Name} for UserId: {UserId} in ChatId: {ChatId} should have role minimum {Role}? {Result}",
             typeof(TRequest).Name, request.UserId, request.ChatId, request.MinimumRole, isRoleMeet);
 
-        if (isRoleMeet)
-            return await next();
+        request.PipelineResult.IsRolePassed = isRoleMeet;
 
-        return new TResponse();
+        return await next();
     }
 }

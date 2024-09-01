@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -17,7 +16,7 @@ public class SendWebhookMessageRequest : IRequest<object>
     public string RawBody { get; set; }
     public string FormattedHtml { get; set; }
     public bool IsDebug { get; set; }
-    public IHeaderDictionary Headers { get; set; }
+    public string RawHeaders { get; set; }
 }
 
 public class SendWebhookMessageRequestHandler(
@@ -46,14 +45,16 @@ public class SendWebhookMessageRequestHandler(
                     lastMessageId,
                     request.FormattedHtml,
                     ParseMode.Html,
-                    disableWebPagePreview: true, cancellationToken: cancellationToken);
+                    disableWebPagePreview: true,
+                    cancellationToken: cancellationToken);
             else
                 sentMessage = await botClient.SendTextMessageAsync(
                     webhookChat.ChatId,
                     request.FormattedHtml,
                     webhookChat.MessageThreadId,
                     ParseMode.Html,
-                    disableWebPagePreview: true, cancellationToken: cancellationToken);
+                    disableWebPagePreview: true,
+                    cancellationToken: cancellationToken);
         }
         catch (Exception exception)
         {
@@ -64,7 +65,8 @@ public class SendWebhookMessageRequestHandler(
                     webhookChat.ChatId,
                     request.FormattedHtml,
                     parseMode: ParseMode.Html,
-                    disableWebPagePreview: true, cancellationToken: cancellationToken);
+                    disableWebPagePreview: true,
+                    cancellationToken: cancellationToken);
             }
             else
             {
@@ -87,7 +89,7 @@ public class SendWebhookMessageRequestHandler(
             WebhookSource = WebhookSource.GitHub,
             Elapsed = stopwatch.Elapsed,
             Payload = request.IsDebug ? request.RawBody : string.Empty,
-            Header = request.IsDebug ? request.Headers.ToHeaderRawKv() : default,
+            Header = request.IsDebug ? request.RawHeaders : default,
             EventName = request.Event,
             Status = (int)EventStatus.Complete
         });

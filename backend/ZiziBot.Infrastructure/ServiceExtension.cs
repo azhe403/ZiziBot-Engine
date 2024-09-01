@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using ZiziBot.Application.Facades;
+using ZiziBot.DataMigration.MongoDb.Extension;
 
 namespace ZiziBot.Infrastructure;
 
@@ -15,7 +17,7 @@ public static class ServiceExtension
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         services.ConfigureSettings();
-        services.AddKotMongoMigrations();
+        services.AddMongoMigration();
 
         services.AddMediator();
 
@@ -64,29 +66,28 @@ public static class ServiceExtension
 
     private static IServiceCollection AddAllService(this IServiceCollection services)
     {
-        services.Scan(selector =>
-            selector.FromAssembliesOf(typeof(TelegramService))
-                .AddClasses(filter => filter.InNamespaceOf<TelegramService>())
-                .AsSelfWithInterfaces()
-                .WithTransientLifetime()
-        );
+        services.Scan(selector => selector.FromAssembliesOf(typeof(TelegramService))
+            .AddClasses(filter => filter.InNamespaceOf<TelegramService>())
+            .AsSelfWithInterfaces()
+            .WithTransientLifetime());
 
-        services.Scan(selector =>
-            selector.FromAssembliesOf(typeof(RegisterRssJobTask))
-                .AddClasses(filter => filter.InNamespaceOf<RegisterRssJobTask>())
-                .As<IStartupTask>()
-                .WithTransientLifetime()
-        );
+        services.Scan(selector => selector.FromAssembliesOf(typeof(RegisterRssJobTask))
+            .AddClasses(filter => filter.InNamespaceOf<RegisterRssJobTask>())
+            .As<IStartupTask>()
+            .WithTransientLifetime());
 
-        services.Scan(selector =>
-            selector.FromAssembliesOf(typeof(TaskRunnerHostedService))
-                .AddClasses(filter => filter.InNamespaceOf<TaskRunnerHostedService>())
-                .As<IHostedService>()
-                .WithTransientLifetime()
-        );
+        services.Scan(selector => selector.FromAssembliesOf(typeof(TaskRunnerHostedService))
+            .AddClasses(filter => filter.InNamespaceOf<TaskRunnerHostedService>())
+            .As<IHostedService>()
+            .WithTransientLifetime());
 
         services.Scan(selector => selector.FromAssembliesOf(typeof(CacheService))
             .AddClasses(filter => filter.InNamespaceOf<CacheService>())
+            .AsSelfWithInterfaces()
+            .WithScopedLifetime());
+
+        services.Scan(selector => selector.FromAssembliesOf(typeof(DataFacade))
+            .AddClasses(filter => filter.InNamespaceOf<DataFacade>())
             .AsSelfWithInterfaces()
             .WithScopedLifetime());
 
@@ -95,12 +96,7 @@ public static class ServiceExtension
 
     private static IServiceCollection AddBackgroundQueue(this IServiceCollection services)
     {
-        services.AddBackgroundQueue(
-            maxConcurrentCount: 3,
-            millisecondsToWaitBeforePickingUpTask: 1000,
-            onException: exception => {
-            }
-        );
+        services.AddBackgroundQueue(maxConcurrentCount: 3, millisecondsToWaitBeforePickingUpTask: 1000, onException: exception => { });
 
         return services;
     }

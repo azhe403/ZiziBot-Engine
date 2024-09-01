@@ -1,11 +1,10 @@
 @page "/admin/mirror-subscription"
 @attribute [Authorize(Roles = "Sudo")]
-@using ZiziBot.Contracts.Constants
 @inherits WebComponentBase<MirrorSubscriptionViewModel>
 
 <TitleControl Value="Mirror Subscription"></TitleControl>
 
-<Loading Configuration="ViewModel.Loading"/>
+<Container Configuration="ViewModel.Loading"/>
 
 <RadzenTabs @bind-SelectedIndex=@selectedIndex>
     <Tabs>

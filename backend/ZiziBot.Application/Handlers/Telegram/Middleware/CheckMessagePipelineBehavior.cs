@@ -1,21 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
 
 public class CheckMessagePipelineBehavior<TRequest, TResponse>(
     ILogger<CheckMessagePipelineBehavior<TRequest, TResponse>> logger,
-    TelegramService telegramService,
-    AppSettingRepository appSettingRepository,
-    MongoDbContextBase mongoDbContext,
-    WordFilterRepository wordFilterRepository
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : BotRequestBase
     where TResponse : BotResponseBase, new()
 {
-    private readonly AppSettingRepository _appSettingRepository = appSettingRepository;
-    private readonly MongoDbContextBase _mongoDbContext = mongoDbContext;
-    private static readonly char[] Separator = new[] { ' ', '\n', ':', ';', ',' };
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         if (request.IsChannel ||
@@ -36,15 +31,13 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
 
         request.ReplyMessage = true;
 
-        telegramService.SetupResponse(request);
-
         var hasBadword = false;
         var matchPattern = string.Empty;
-        WordFilterAction[] action = [];
+        PipelineResultAction[]? action = [];
 
-        var words = await wordFilterRepository.GetAllAsync();
+        var words = await dataFacade.WordFilter.GetAllAsync();
 
-        var messageTexts = request.Message?.Text?.Split(Separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+        var messageTexts = request.Message?.Text?.Explode();
 
         foreach (var messageText in messageTexts)
         {
@@ -52,25 +45,12 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
             {
                 var pattern = dto.Word;
 
-                if (messageText == pattern)
-                    hasBadword = true;
-
-                if (pattern.StartsWith('*'))
-                    if (messageText.StartsWith(pattern))
-                        hasBadword = true;
-
-                if (pattern.EndsWith('*'))
-                    if (messageText.EndsWith(pattern))
-                        hasBadword = true;
-
-                if (pattern.StartsWith('*') && pattern.EndsWith('*'))
-                    if (messageText.Contains(pattern))
-                        hasBadword = true;
+                hasBadword = messageText.Match(pattern);
 
                 if (!hasBadword)
                     continue;
 
-                logger.LogWarning("Scan message: Match word: {Pattern} with a source: {MessageText}", pattern, messageText);
+                logger.LogWarning("Check message pattern: {Pattern}, source: {MessageText}, action: {Action}", pattern, messageText, dto.Action);
 
                 matchPattern = dto.Word;
                 action = dto.Action;
@@ -82,55 +62,9 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                 break;
         }
 
-        if (!hasBadword)
-            return await next();
+        request.PipelineResult.IsMessagePassed = !hasBadword;
+        request.PipelineResult.Actions.AddRange(action ?? []);
 
-        var htmlMessage = HtmlMessage.Empty
-            .User(request.UserId, request.User.GetFullName()).Text(" telah diperingatkan.").Br()
-            .Text("Karena: mengirim pesan yang mengandung pola: ").Bold(matchPattern).Br();
-
-        try
-        {
-            //todo. incremental
-            var muteDuration = MemberMuteDuration.Select(0);
-
-            if (action.NotEmpty())
-            {
-                foreach (var actionItem in action)
-                    switch (actionItem)
-                    {
-                        case WordFilterAction.Delete:
-                            await telegramService.DeleteMessageAsync();
-
-                            break;
-                        case WordFilterAction.Warn:
-                            break;
-                        case WordFilterAction.Mute:
-                            await telegramService.MuteMemberAsync(request.UserId, muteDuration);
-                            htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
-
-                            break;
-                        case WordFilterAction.Kick:
-                            break;
-                        default:
-                            break;
-                    }
-            }
-            else
-            {
-                await telegramService.MuteMemberAsync(request.UserId, muteDuration);
-
-                htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
-            }
-        }
-        catch (Exception exception)
-        {
-            logger.LogWarning(exception, "Error when running action for userId: {UserId}. Message: {Message}", request.UserId, exception.Message);
-        }
-
-        if (action.Any(x => x == WordFilterAction.Warn))
-            await telegramService.SendMessageText(htmlMessage.ToString());
-
-        return new TResponse();
+        return await next();
     }
 }

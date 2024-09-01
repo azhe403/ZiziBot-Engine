@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using NanoidDotNet;
+using ZiziBot.Contracts.Constants;
 
 namespace ZiziBot.Utils;
 
@@ -163,6 +164,11 @@ public static class StringUtil
         return source.Substring(0, count);
     }
 
+    public static string[] Explode(this string? input)
+    {
+        return input?.Split(ValueConst.WordSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+    }
+
     public static string RegexReplace(this string input, string pattern, string replacement)
     {
         return Regex.Replace(input, pattern, replacement);
@@ -205,6 +211,25 @@ public static class StringUtil
     {
         return !input.IsNullOrEmpty() &&
                input.Contains(what, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    public static bool Match(this string source, string pattern)
+    {
+        var isMatch = source == pattern;
+
+        if (pattern.StartsWith('*'))
+            if (source.StartsWith(pattern.Replace("*", "")))
+                isMatch = true;
+
+        if (pattern.EndsWith('*'))
+            if (source.EndsWith(pattern.Replace("*", "")))
+                isMatch = true;
+
+        if (pattern.StartsWith('*') && pattern.EndsWith('*'))
+            if (source.Contains(pattern.Replace("*", "")))
+                isMatch = true;
+
+        return isMatch;
     }
 
     public static T? Deserialize<T>(this string input)

@@ -78,6 +78,8 @@ public class BotRequestBase : IRequest<BotResponseBase>
 
     public ResponseSource Source { get; set; } = ResponseSource.Bot;
 
+    public BotPipelineResult PipelineResult { get; set; } = new();
+
     public CleanupTarget[] CleanupTargets { get; set; } = new[] {
         CleanupTarget.None
     };

@@ -109,16 +109,12 @@ public class TelegramService(
 
         text += "\n\n" + GetExecStamp();
 
-        var targetChatId = chatId != -1 ?
-            chatId :
-            _request.ChatId;
+        var targetChatId = chatId != -1 ? chatId : _request.ChatId;
 
         if (threadId == -1)
             threadId = _request.MessageThreadId;
 
-        var replyToMessageId = _request.ReplyMessage ?
-            _request.ReplyToMessageId :
-            -1;
+        var replyToMessageId = _request.ReplyMessage ? _request.ReplyToMessageId : -1;
 
         if (_request.ReplyToMessage != null)
         {
@@ -147,9 +143,7 @@ public class TelegramService(
                 SentMessage = await Bot.SendTextMessageAsync(
                     chatId: targetChatId,
                     text: text,
-                    replyToMessageId: _request.ReplyMessage ?
-                        _request.ReplyToMessageId :
-                        -1,
+                    replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
                     parseMode: ParseMode.Html,
                     allowSendingWithoutReply: true,
                     replyMarkup: replyMarkup,
@@ -169,9 +163,7 @@ public class TelegramService(
 
         logger.LogInformation("Message sent to chat {ChatId}", _request.ChatId);
 
-        var deleteAfterExec = deleteAfter != default ?
-            deleteAfter :
-            _request.DeleteAfter;
+        var deleteAfterExec = deleteAfter != default ? deleteAfter : _request.DeleteAfter;
 
         if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfterExec == default)
             return Complete();
@@ -231,9 +223,7 @@ public class TelegramService(
         int? threadId = null
     )
     {
-        var targetChatId = customChatId == -1 ?
-            _request.ChatId :
-            customChatId;
+        var targetChatId = customChatId == -1 ? _request.ChatId : customChatId;
 
         var targetThreadId = threadId ?? _request.MessageThreadId;
 
@@ -346,6 +336,7 @@ public class TelegramService(
             case CommonMediaType.Text:
                 await SendMessageText(caption, replyMarkup);
                 break;
+
             default:
                 logger.LogWarning("Media unknown: {MediaType}", mediaType);
                 return default;
@@ -365,9 +356,7 @@ public class TelegramService(
         int? messageId = null
     )
     {
-        var targetChatId = customChatId == -1 ?
-            _request.ChatId :
-            customChatId;
+        var targetChatId = customChatId == -1 ? _request.ChatId : customChatId;
 
         var targetThreadId = threadId ?? _request.MessageThreadId;
         var targetMessageId = messageId ?? SentMessage.MessageId;
@@ -670,6 +659,9 @@ public class TelegramService(
 
     public async Task<List<ChatMember>> GetChatAdministrator()
     {
+        if (_request.IsPrivateChat)
+            return [];
+
         var cacheValue = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.CHAT_ADMIN + _request.ChatId,
             action: async () => {

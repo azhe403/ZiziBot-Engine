@@ -1,6 +1,6 @@
 ﻿namespace ZiziBot.Contracts.Enums;
 
-public enum WordFilterAction
+public enum PipelineResultAction
 {
     Delete,
     Warn,

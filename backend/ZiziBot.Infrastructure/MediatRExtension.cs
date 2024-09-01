@@ -1,6 +1,5 @@
 using System.Reflection;
 using MediatR.Extensions.AttributedBehaviors;
-using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ZiziBot.Infrastructure;
@@ -14,12 +13,13 @@ public static class MediatRExtension
         services.AddMediatR(
             configuration =>
                 configuration.RegisterServicesFromAssemblyContaining<PingRequestHandler>()
-                    .AddBehavior(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>))
                     .AddOpenBehavior(typeof(LoggingPipelineBehaviour<,>))
                     .AddOpenBehavior(typeof(CheckUserRolePipelineBehavior<,>))
                     .AddOpenBehavior(typeof(CheckRestrictionPipelineBehavior<,>))
-                    .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
                     .AddOpenBehavior(typeof(CheckMessagePipelineBehavior<,>))
+                    .AddOpenBehavior(typeof(CheckAntispamPipelineBehavior<,>))
+                    .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
+                    .AddOpenBehavior(typeof(ActionResultPipelineBehavior<,>))
                     .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
                     .AddOpenRequestPostProcessor(typeof(EnsureChatAdminRequestHandler<,>))
                     .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))

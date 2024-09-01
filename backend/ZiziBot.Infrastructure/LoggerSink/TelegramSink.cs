@@ -27,9 +27,8 @@ public class TelegramSink : ILogEventSink
         }
 
         var htmlMessage = HtmlMessage.Empty
-            .Text("⌛ ")
-            .CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"))
-            .CodeBr(logEvent.RenderMessage()).Br();
+            .CodeBr(logEvent.RenderMessage()).Br()
+            .Text("Date: ").CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
         foreach (var (key, value) in logEvent.Properties.Select(x => (x.Key, x.Value.ToString().Replace("\"", ""))))
         {

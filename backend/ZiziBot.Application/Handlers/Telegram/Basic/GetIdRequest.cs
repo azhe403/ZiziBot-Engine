@@ -27,7 +27,7 @@ public class GetIdRequestHandler : IRequestHandler<GetIdBotRequestModel, BotResp
                 .Bold("Chat ID: ").CodeBr(request.ChatId.ToString());
         }
 
-        if (request.Message?.IsTopicMessage.HasValue ?? false)
+        if (request.Message?.IsTopicMessage ?? false)
         {
             htmlMessage.Br()
                 .Bold("🧵 ").BoldBr(request.ReplyToMessage?.ForumTopicCreated?.Name)

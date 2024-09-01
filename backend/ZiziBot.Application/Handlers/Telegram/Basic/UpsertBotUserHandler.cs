@@ -65,7 +65,7 @@ public class UpsertBotUserHandler<TRequest, TResponse>(
                     .Bold("Pengguna: ").User(request.User).Br()
                     .Append(trackingMessage);
 
-                await telegramService.SendMessageText(message.ToString());
+                await telegramService.SendMessageAsync(message.ToString());
             }
 
             botUser.UserId = request.UserId;
