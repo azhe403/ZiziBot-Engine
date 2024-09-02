@@ -33,12 +33,6 @@
         </None>
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="..\..\.dockerignore">
-            <Link>.dockerignore</Link>
-        </Content>
-    </ItemGroup>
-
     <!--  SPA Config  -->
     <!--    <PropertyGroup>-->
     <!--        <SpaRoot>..\..\frontend\zizibot-console</SpaRoot>-->
