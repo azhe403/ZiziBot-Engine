@@ -565,6 +565,14 @@ public class TelegramService(
         }, untilDate: untilDate);
     }
 
+    public async Task KickMember(long userId = default)
+    {
+        if (userId == default) userId = _request.UserId;
+
+        await Bot.BanChatMemberAsync(_request.ChatId, userId);
+        await Bot.UnbanChatMemberAsync(_request.ChatId, userId);
+    }
+
     public async Task AnswerJoinRequestAsync(ChatJoinRequest joinRequest)
     {
         var result = await Bot.ApproveChatJoinRequest(_request.ChatId, joinRequest.From.Id);
