@@ -79,7 +79,9 @@ public class FetchRssHandler(
                     messageText.Br().Br()
                         .BoldBr("Assets");
 
-                    assets.Assets.ForEach(asset => { messageText.Url(asset.BrowserDownloadUrl, asset.Name).Br(); });
+                    assets.Assets.ForEach(asset => {
+                        messageText.Url(asset.BrowserDownloadUrl, asset.Name).Br();
+                    });
                 }
             }
 
@@ -124,7 +126,7 @@ public class FetchRssHandler(
         }
         catch (Exception exception)
         {
-            if (exception.Message.IsIgnorable())
+            if (exception.IsRssBetterDisabled())
             {
                 var findRssSetting = await mongoDbContext.RssSetting
                     .Where(entity => entity.ChatId == request.ChatId)
@@ -132,12 +134,14 @@ public class FetchRssHandler(
                     .Where(entity => entity.Status == (int)EventStatus.Complete)
                     .ToListAsync(cancellationToken);
 
+                var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
+
                 findRssSetting.ForEach(rssSetting => {
                     logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}",
-                        rssSetting.ChatId, rssSetting.RssUrl, exception.Message);
+                        rssSetting.ChatId, rssSetting.RssUrl, exceptionMessage);
 
                     rssSetting.Status = (int)EventStatus.InProgress;
-                    rssSetting.LastErrorMessage = exception.Message;
+                    rssSetting.LastErrorMessage = exceptionMessage;
 
                     recurringJob.RemoveIfExists(rssSetting.CronJobId);
                 });
