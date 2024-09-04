@@ -30,7 +30,7 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
                 htmlMessage.Text(" - mengirim pesan yang mengandung teks yang dilarang");
 
             if (!request.PipelineResult.HasUsername)
-                htmlMessage.Text(" - belum menetapkan Username");
+                htmlMessage.Text(" - belum menetapkan Username").Br();
         }
 
         try
@@ -38,27 +38,26 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
             //todo. incremental
             var muteDuration = MemberMuteDuration.Select(0);
 
+            if (actions.Count != 0)
+                htmlMessage.BoldBr("Aksi: ");
 
-            foreach (var actionItem in actions)
-                switch (actionItem)
-                {
-                    case PipelineResultAction.Delete:
-                        await serviceFacade.TelegramService.DeleteMessageAsync();
-                        break;
+            if (actions.Contains(PipelineResultAction.Mute))
+            {
+                await serviceFacade.TelegramService.MuteMemberAsync(request.UserId, muteDuration);
+                htmlMessage.TextBr($" - pengguna disenyapkan selama {muteDuration.ForHuman()}");
+            }
 
-                    case PipelineResultAction.Mute:
-                        await serviceFacade.TelegramService.MuteMemberAsync(request.UserId, muteDuration);
-                        htmlMessage.Text($"Aksi: Senyap selama {muteDuration.ForHuman()}");
+            if (actions.Contains(PipelineResultAction.Delete))
+            {
+                await serviceFacade.TelegramService.DeleteMessageAsync();
+                htmlMessage.TextBr(" - pesan dihapus");
+            }
 
-                        break;
-
-                    case PipelineResultAction.Kick:
-                        //todo. kick user
-                        break;
-
-                    default:
-                        break;
-                }
+            if (actions.Contains(PipelineResultAction.Kick))
+            {
+                await serviceFacade.TelegramService.KickMember();
+                htmlMessage.TextBr(" - pengguna dikeluarkan dari grub");
+            }
 
             await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
         }

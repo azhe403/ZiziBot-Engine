@@ -18,8 +18,9 @@ public class CheckUserRolePipelineBehavior<TRequest, TResponse>(
 
         var isRoleMeet = await telegramService.ValidateRole();
 
-        logger.LogWarning("The minimum role for {Name} for UserId: {UserId} in ChatId: {ChatId} should have role minimum {Role}? {Result}",
-            typeof(TRequest).Name, request.UserId, request.ChatId, request.MinimumRole, isRoleMeet);
+        if (request.MinimumRole > RoleLevel.None)
+            logger.LogWarning("The minimum role for {Name} for UserId: {UserId} in ChatId: {ChatId} should have role minimum {Role}? {Result}",
+                typeof(TRequest).Name, request.UserId, request.ChatId, request.MinimumRole, isRoleMeet);
 
         request.PipelineResult.IsRolePassed = isRoleMeet;
 
