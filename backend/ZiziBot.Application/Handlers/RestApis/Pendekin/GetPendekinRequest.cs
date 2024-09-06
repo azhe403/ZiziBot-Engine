@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ZiziBot.Application.Facades;
+using ZiziBot.DataSource.Utils;
 
 public class GetPendekinRequest : ApiRequestBase<GetPendekinResponse>
 {
@@ -19,6 +20,7 @@ public class GetPendekinRequestValidator : AbstractValidator<GetPendekinRequest>
 
 public class GetPendekinResponse
 {
+    public string PendekinId { get; set; }
     public string OriginalUrl { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
@@ -28,12 +30,16 @@ public class GetPendekinHandler(DataFacade dataFacade) : IApiRequestHandler<GetP
 {
     public async Task<ApiResponseBase<GetPendekinResponse>> Handle(GetPendekinRequest request, CancellationToken cancellationToken)
     {
-        var pendekinMap = await dataFacade.MongoEf.PendekinMap.FirstOrDefaultAsync(x => x.ShortPath == request.ShortPath, cancellationToken);
+        var pendekinMap = await dataFacade.MongoEf.PendekinMap.AsNoTracking()
+            .WhereIf(!request.ShortPath.IsObjectId(), x => x.ShortPath == request.ShortPath)
+            .WhereIf(request.ShortPath.IsObjectId(), x => x.Id == request.ShortPath.ToObjectId())
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (pendekinMap == null)
             return ApiResponseBase.ReturnBadRequest<GetPendekinResponse>("Pendekin not found");
 
         return ApiResponseBase.ReturnSuccess("Get Pendekin successfully", new GetPendekinResponse() {
+            PendekinId = pendekinMap.Id.ToString(),
             OriginalUrl = pendekinMap.OriginalUrl,
             CreatedDate = pendekinMap.CreatedDate,
             UpdatedDate = pendekinMap.UpdatedDate

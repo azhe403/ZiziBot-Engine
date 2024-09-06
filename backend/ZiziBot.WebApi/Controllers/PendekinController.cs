@@ -7,18 +7,21 @@ namespace ZiziBot.WebApi.Controllers;
 public class PendekinController : ApiControllerBase
 {
     [HttpPost]
+    [AccessFilter]
     public async Task<IActionResult> CreatePendekin(CreatePendekinRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpGet("{ShortPath}")]
+    [AccessFilter]
     public async Task<IActionResult> GetPendekin(GetPendekinRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpGet()]
+    [AccessFilter]
     public async Task<IActionResult> ListPendekin(ListPendekinRequest request)
     {
         return await SendRequest(request);

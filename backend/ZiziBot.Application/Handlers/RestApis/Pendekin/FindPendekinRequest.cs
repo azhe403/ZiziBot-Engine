@@ -6,6 +6,7 @@ public class ListPendekinRequest : ApiRequestBase<List<ListPendekinResponse>>
 
 public class ListPendekinResponse
 {
+    public string PendekinId { get; set; }
     public string ShortPath { get; set; }
     public string OriginalUrl { get; set; }
     public DateTime CreatedDate { get; set; }
@@ -16,15 +17,16 @@ public class ListPendekinHandler(DataFacade dataFacade) : IApiRequestHandler<Lis
 {
     public async Task<ApiResponseBase<List<ListPendekinResponse>>> Handle(ListPendekinRequest request, CancellationToken cancellationToken)
     {
-        var pendekinList = await dataFacade.MongoEf.PendekinMap.ToListAsync(cancellationToken: cancellationToken);
+        var listPendekin = await dataFacade.MongoEf.PendekinMap.AsNoTracking()
+            .Select(x => new ListPendekinResponse() {
+                PendekinId = x.Id.ToString(),
+                ShortPath = x.ShortPath,
+                OriginalUrl = x.OriginalUrl,
+                CreatedDate = x.CreatedDate,
+                UpdatedDate = x.UpdatedDate
+            })
+            .ToListAsync(cancellationToken: cancellationToken);
 
-        var data = pendekinList.Select(x => new ListPendekinResponse() {
-            ShortPath = x.ShortPath,
-            OriginalUrl = x.OriginalUrl,
-            CreatedDate = x.CreatedDate,
-            UpdatedDate = x.UpdatedDate
-        }).ToList();
-
-        return ApiResponseBase.ReturnSuccess("Get list Pendekin successfully", data);
+        return ApiResponseBase.ReturnSuccess("Get list Pendekin successfully", listPendekin);
     }
 }
