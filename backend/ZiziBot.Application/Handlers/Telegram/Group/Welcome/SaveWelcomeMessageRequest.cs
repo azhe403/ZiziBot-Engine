@@ -7,47 +7,39 @@ public class SaveWelcomeMessageRequest : BotRequestBase
 {
 }
 
-public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageRequest, BotResponseBase>
+public class SaveWelcomeMessageHandler(
+    TelegramService telegramService,
+    MongoDbContextBase mongoDbContext,
+    GroupRepository groupRepository)
+    : IRequestHandler<SaveWelcomeMessageRequest, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly GroupRepository _groupRepository;
-
-    public SaveWelcomeMessageHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext,
-        GroupRepository groupRepository)
-    {
-        _telegramService = telegramService;
-        _mongoDbContext = mongoDbContext;
-        _groupRepository = groupRepository;
-    }
-
     public async Task<BotResponseBase> Handle(SaveWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         if (request.ReplyToMessage == null)
         {
-            return await _telegramService.SendMessageAsync("Balas pesan untuk disimpan");
+            return await telegramService.SendMessageAsync("Balas pesan untuk disimpan");
         }
 
-        await _telegramService.SendMessageAsync("Sedang menyimpan..");
+        await telegramService.SendMessageAsync("Sedang menyimpan..");
 
-        var welcomeMessage = await _mongoDbContext.WelcomeMessage
+        var welcomeMessage = await mongoDbContext.WelcomeMessage
             .Where(e => e.ChatId == request.ChatIdentifier)
             .Where(e => e.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (welcomeMessage == null)
         {
-            _mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity() {
+            mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.User!.Id,
                 Status = (int)EventStatus.Complete,
             });
 
-            await _mongoDbContext.SaveChangesAsync(cancellationToken);
+            await mongoDbContext.SaveChangesAsync(cancellationToken);
 
-            welcomeMessage = await _groupRepository.GetWelcomeMessage(request.ChatIdentifier);
+            welcomeMessage = await groupRepository.GetWelcomeMessage(request.ChatIdentifier);
         }
 
         switch (request.Command)
@@ -66,8 +58,8 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
                 throw new ArgumentOutOfRangeException();
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        return await _telegramService.SendMessageAsync($"Berhasil menyimpan. {request.Command}");
+        return await telegramService.SendMessageAsync($"Berhasil menyimpan. {request.Command}");
     }
 }

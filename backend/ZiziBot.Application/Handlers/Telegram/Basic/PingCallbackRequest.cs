@@ -6,27 +6,18 @@ public class PingCallbackBotRequestModel : BotRequestBase
 {
 }
 
-public class PingCallbackRequestHandler : IRequestHandler<PingCallbackBotRequestModel, BotResponseBase>
+public class PingCallbackRequestHandler(SudoService sudoService, TelegramService telegramService) : IRequestHandler<PingCallbackBotRequestModel, BotResponseBase>
 {
-    private readonly SudoService _sudoService;
-    private readonly TelegramService _telegramService;
-
-    public PingCallbackRequestHandler(SudoService sudoService, TelegramService telegramService)
-    {
-        _sudoService = sudoService;
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(PingCallbackBotRequestModel request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        if (!await _sudoService.IsSudoAsync(request.UserId))
+        if (!await sudoService.IsSudoAsync(request.UserId))
         {
-            return await _telegramService.AnswerCallbackAsync("Kamu tidak memiliki akses");
+            return await telegramService.AnswerCallbackAsync("Kamu tidak memiliki akses");
         }
 
-        var webhookInfo = await _telegramService.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
+        var webhookInfo = await telegramService.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
 
         var messageCallback = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
@@ -41,10 +32,10 @@ public class PingCallbackRequestHandler : IRequestHandler<PingCallbackBotRequest
             htmlMessage.Text(messageCallback);
         }
 
-        await _telegramService.AnswerCallbackAsync(messageCallback, showAlert: true);
+        await telegramService.AnswerCallbackAsync(messageCallback, showAlert: true);
 
-        await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: request.UserId);
+        await telegramService.SendMessageText(htmlMessage.ToString(), chatId: request.UserId);
 
-        return _telegramService.Complete();
+        return telegramService.Complete();
     }
 }

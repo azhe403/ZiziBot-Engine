@@ -7,26 +7,17 @@ public class GetAboutBotRequest : BotRequestBase
 {
 }
 
-public class GetAboutHandler : IRequestHandler<GetAboutBotRequest, BotResponseBase>
+public class GetAboutHandler(TelegramService telegramService, AppSettingRepository appSettingRepository) : IRequestHandler<GetAboutBotRequest, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-    private readonly AppSettingRepository _appSettingRepository;
-
-    public GetAboutHandler(TelegramService telegramService, AppSettingRepository appSettingRepository)
-    {
-        _telegramService = telegramService;
-        _appSettingRepository = appSettingRepository;
-    }
-
     public async Task<BotResponseBase> Handle(GetAboutBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        var me = await _telegramService.Bot.GetMeAsync(cancellationToken: cancellationToken);
+        var me = await telegramService.Bot.GetMeAsync(cancellationToken: cancellationToken);
         var botFullMention = me.GetFullMention();
 
-        var config = await _appSettingRepository.GetConfigSectionAsync<EngineConfig>();
+        var config = await appSettingRepository.GetConfigSectionAsync<EngineConfig>();
 
         var versionNumber = VersionUtil.GetVersionNumber();
 
@@ -71,6 +62,6 @@ public class GetAboutHandler : IRequestHandler<GetAboutBotRequest, BotResponseBa
             }
         });
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        return await telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
     }
 }

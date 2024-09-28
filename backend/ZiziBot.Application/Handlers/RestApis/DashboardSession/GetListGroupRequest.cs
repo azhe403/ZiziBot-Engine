@@ -6,21 +6,14 @@ public class GetListGroupRequest : ApiRequestBase<List<ChatInfoDto>?>
 {
 }
 
-public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiResponseBase<List<ChatInfoDto>?>>
+public class GetListGroupHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<GetListGroupRequest, ApiResponseBase<List<ChatInfoDto>?>>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public GetListGroupHandler(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<List<ChatInfoDto>?>> Handle(GetListGroupRequest request, CancellationToken cancellationToken)
     {
         ApiResponseBase<List<ChatInfoDto>?> response = new();
 
         #region Check Dashboard Session
-        var dashboardSession = await _mongoDbContext.DashboardSessions
+        var dashboardSession = await mongoDbContext.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == request.BearerToken &&
                 entity.Status == (int)EventStatus.Complete
@@ -35,7 +28,7 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
         var userId = dashboardSession.TelegramUserId;
         #endregion
 
-        var chatAdmin = await _mongoDbContext.ChatAdmin
+        var chatAdmin = await mongoDbContext.ChatAdmin
             .Where(entity =>
                 entity.UserId == userId &&
                 entity.Status == (int)EventStatus.Complete
@@ -49,7 +42,7 @@ public class GetListGroupHandler : IRequestHandler<GetListGroupRequest, ApiRespo
 
         var chatIds = chatAdmin.Select(y => y.ChatId);
 
-        var listChatSetting = await _mongoDbContext.ChatSetting
+        var listChatSetting = await mongoDbContext.ChatSetting
             .Where(x => chatIds.Contains(x.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 

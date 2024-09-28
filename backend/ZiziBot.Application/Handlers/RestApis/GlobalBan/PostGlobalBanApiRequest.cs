@@ -25,21 +25,14 @@ public class PostGlobalBanApiValidator : AbstractValidator<PostGlobalBanApiReque
     }
 }
 
-public class PostGlobalBanApiHandler : IRequestHandler<PostGlobalBanApiRequest, ApiResponseBase<bool>>
+public class PostGlobalBanApiHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<PostGlobalBanApiRequest, ApiResponseBase<bool>>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public PostGlobalBanApiHandler(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<bool>> Handle(PostGlobalBanApiRequest request,
         CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<bool>();
 
-        var globalBan = await _mongoDbContext.GlobalBan.FirstOrDefaultAsync(entity =>
+        var globalBan = await mongoDbContext.GlobalBan.FirstOrDefaultAsync(entity =>
                 entity.UserId == request.Model.UserId &&
                 entity.Status == (int)EventStatus.Complete,
             cancellationToken: cancellationToken);
@@ -50,14 +43,14 @@ public class PostGlobalBanApiHandler : IRequestHandler<PostGlobalBanApiRequest, 
         }
         else
         {
-            _mongoDbContext.GlobalBan.Add(new GlobalBanEntity() {
+            mongoDbContext.GlobalBan.Add(new GlobalBanEntity() {
                 UserId = request.Model.UserId,
                 Reason = request.Model.Reason,
                 Status = (int)EventStatus.Complete
             });
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Global ban saved.", true);
     }

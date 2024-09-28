@@ -18,19 +18,13 @@ public class GetMirrorUserResponseDto
     public DateTime LastUpdate { get; set; }
 }
 
-public class GetMirrorUsersRequestHandler : IApiRequestHandler<GetMirrorUsersRequestDto, IEnumerable<GetMirrorUserResponseDto>>
+public class GetMirrorUsersRequestHandler(MongoDbContextBase mongoDbContext) : IApiRequestHandler<GetMirrorUsersRequestDto, IEnumerable<GetMirrorUserResponseDto>>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
     private readonly ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>> _response = new();
-
-    public GetMirrorUsersRequestHandler(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
 
     public async Task<ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>>> Handle(GetMirrorUsersRequestDto request, CancellationToken cancellationToken)
     {
-        var user = await _mongoDbContext.MirrorUsers
+        var user = await mongoDbContext.MirrorUsers
             .Where(mirrorUser => mirrorUser.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 

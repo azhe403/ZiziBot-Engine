@@ -10,18 +10,11 @@ public class GetSystemInfoRequest : BotRequestBase
 
 }
 
-public class GetSystemInfoHandler : IBotRequestHandler<GetSystemInfoRequest>
+public class GetSystemInfoHandler(TelegramService telegramService) : IBotRequestHandler<GetSystemInfoRequest>
 {
-    private readonly TelegramService _telegramService;
-
-    public GetSystemInfoHandler(TelegramService telegramService)
-    {
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(GetSystemInfoRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         var workingSet = Process.GetCurrentProcess().WorkingSet64.Bytes().ToString("#.##");
         var privateMemory = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("#.##");
@@ -45,6 +38,6 @@ public class GetSystemInfoHandler : IBotRequestHandler<GetSystemInfoRequest>
             .Bold("Executable: ").Code(Environment.ProcessPath!).Br();
 
 
-        return await _telegramService.SendMessageAsync(htmlMessage.ToString());
+        return await telegramService.SendMessageAsync(htmlMessage.ToString());
     }
 }

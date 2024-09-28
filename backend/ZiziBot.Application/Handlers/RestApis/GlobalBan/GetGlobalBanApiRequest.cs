@@ -17,20 +17,13 @@ public class GetGlobalBanApiResponse
     public DateTime UpdatedDate { get; set; }
 }
 
-public class GetGlobalBanApiHandler : IRequestHandler<GetGlobalBanApiRequest, ApiResponseBase<List<GetGlobalBanApiResponse>>>
+public class GetGlobalBanApiHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<GetGlobalBanApiRequest, ApiResponseBase<List<GetGlobalBanApiResponse>>>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public GetGlobalBanApiHandler(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<List<GetGlobalBanApiResponse>>> Handle(GetGlobalBanApiRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<List<GetGlobalBanApiResponse>>();
 
-        var globalBanEntities = await _mongoDbContext.GlobalBan.ToListAsync(cancellationToken: cancellationToken);
+        var globalBanEntities = await mongoDbContext.GlobalBan.ToListAsync(cancellationToken: cancellationToken);
 
         var listGlobalBan = globalBanEntities.Select(entity => new GetGlobalBanApiResponse()
         {

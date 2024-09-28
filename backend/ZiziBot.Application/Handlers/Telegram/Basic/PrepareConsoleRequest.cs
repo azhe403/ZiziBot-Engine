@@ -7,18 +7,11 @@ public class PrepareConsoleBotRequest : BotRequestBase
 {
 }
 
-public class PrepareConsoleHandler : IRequestHandler<PrepareConsoleBotRequest, BotResponseBase>
+public class PrepareConsoleHandler(TelegramService telegramService) : IRequestHandler<PrepareConsoleBotRequest, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-
-    public PrepareConsoleHandler(TelegramService telegramService)
-    {
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(PrepareConsoleBotRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         var sessionId = Guid.NewGuid().ToString();
         var consoleUrl = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL);
@@ -27,7 +20,7 @@ public class PrepareConsoleHandler : IRequestHandler<PrepareConsoleBotRequest, B
 
         if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))
         {
-            await _telegramService.SendMessageText("Maaf fitur ini belum dipersiapkan");
+            await telegramService.SendMessageText("Maaf fitur ini belum dipersiapkan");
         }
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
@@ -54,6 +47,6 @@ public class PrepareConsoleHandler : IRequestHandler<PrepareConsoleBotRequest, B
             }.ToButtonMarkup();
         }
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        return await telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
     }
 }

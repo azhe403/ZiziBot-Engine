@@ -31,15 +31,8 @@ public class DeleteWelcomeMessageRequestModel
     public ObjectId ObjectId => ObjectId.Parse(Id);
 }
 
-public class DeleteWelcomeMessageHandler : IRequestHandler<DeleteWelcomeMessageRequest, ApiResponseBase<object>>
+public class DeleteWelcomeMessageHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<DeleteWelcomeMessageRequest, ApiResponseBase<object>>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public DeleteWelcomeMessageHandler(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<object>> Handle(DeleteWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<object>();
@@ -49,7 +42,7 @@ public class DeleteWelcomeMessageHandler : IRequestHandler<DeleteWelcomeMessageR
             return response.BadRequest("You don't have access to this Group");
         }
 
-        var findWelcome = await _mongoDbContext.WelcomeMessage
+        var findWelcome = await mongoDbContext.WelcomeMessage
             .Where(x => x.ChatId == request.Model.ChatId)
             .Where(x => x.Status != (int)EventStatus.Deleted)
             .FirstOrDefaultAsync(x => x.Id == request.Model.ObjectId, cancellationToken);
@@ -63,7 +56,7 @@ public class DeleteWelcomeMessageHandler : IRequestHandler<DeleteWelcomeMessageR
         findWelcome.UserId = request.SessionUserId;
         findWelcome.TransactionId = request.TransactionId;
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Delete Welcome Message successfully", true);
     }

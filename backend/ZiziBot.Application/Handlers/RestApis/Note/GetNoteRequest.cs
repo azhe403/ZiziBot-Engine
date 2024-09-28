@@ -8,20 +8,13 @@ public class GetNoteRequest : ApiRequestBase<object>
     public string NoteId { get; set; }
 }
 
-public class GetNoteHandler : IRequestHandler<GetNoteRequest, ApiResponseBase<object>>
+public class GetNoteHandler(ChatSettingRepository chatSettingRepository) : IRequestHandler<GetNoteRequest, ApiResponseBase<object>>
 {
-    private readonly ChatSettingRepository _chatSettingRepository;
-
-    public GetNoteHandler(ChatSettingRepository chatSettingRepository)
-    {
-        _chatSettingRepository = chatSettingRepository;
-    }
-
     public async Task<ApiResponseBase<object>> Handle(GetNoteRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<object>();
 
-        var notes = await _chatSettingRepository.GetNote(request.NoteId);
+        var notes = await chatSettingRepository.GetNote(request.NoteId);
 
         return response.Success("Get detail Note successfully", notes);
     }

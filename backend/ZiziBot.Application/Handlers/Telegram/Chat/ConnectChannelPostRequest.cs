@@ -9,40 +9,34 @@ public class ConnectChannelPostRequest : BotRequestBase
     public long ChannelId { get; set; }
 }
 
-public class ConnectChannelPostHandler : IBotRequestHandler<ConnectChannelPostRequest>
+public class ConnectChannelPostHandler(
+    ILogger<ConnectChannelPostHandler> logger,
+    TelegramService telegramService,
+    MongoDbContextBase mongoDbContext)
+    : IBotRequestHandler<ConnectChannelPostRequest>
 {
-    private readonly ILogger<ConnectChannelPostHandler> _logger;
-    private readonly TelegramService _telegramService;
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public ConnectChannelPostHandler(ILogger<ConnectChannelPostHandler> logger, TelegramService telegramService,
-        MongoDbContextBase mongoDbContext)
-    {
-        _logger = logger;
-        _telegramService = telegramService;
-        _mongoDbContext = mongoDbContext;
-    }
+    private readonly ILogger<ConnectChannelPostHandler> _logger = logger;
 
     public async Task<BotResponseBase> Handle(ConnectChannelPostRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        await _telegramService.SendMessageText("Sedang menautkan Kanal..");
+        await telegramService.SendMessageText("Sedang menautkan Kanal..");
 
         if (request.ChannelId == 0)
         {
-            return await _telegramService.EditMessageText("Spesifikasikan ChannelId yang ingin ditautkan" +
+            return await telegramService.EditMessageText("Spesifikasikan ChannelId yang ingin ditautkan" +
                                                           "\nContoh: <code>/fch -1001139107957</code>");
         }
 
-        var channel = await _telegramService.GetChatAsync(request.ChannelId);
+        var channel = await telegramService.GetChatAsync(request.ChannelId);
         if (channel is null)
         {
-            return await _telegramService.EditMessageText("ChannelId tidak ditemukan. " +
+            return await telegramService.EditMessageText("ChannelId tidak ditemukan. " +
                                                           "\nPastikan Bot sudah ditambahkan ke Channel tersebut");
         }
 
-        var channelMap = await _mongoDbContext.ChannelMap.AsNoTracking()
+        var channelMap = await mongoDbContext.ChannelMap.AsNoTracking()
             .Where(entity => entity.ChannelId == request.ChannelId)
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
@@ -51,18 +45,18 @@ public class ConnectChannelPostHandler : IBotRequestHandler<ConnectChannelPostRe
 
         if (channelMap == null)
         {
-            _mongoDbContext.ChannelMap.Add(new ChannelMapEntity() {
+            mongoDbContext.ChannelMap.Add(new ChannelMapEntity() {
                 ChannelId = request.ChannelId,
                 ThreadId = request.MessageThreadId,
                 ChatId = request.ChatIdentifier,
                 Status = (int)EventStatus.Complete
             });
 
-            await _mongoDbContext.SaveChangesAsync(cancellationToken);
+            await mongoDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        await _telegramService.EditMessageText("Berhasil menautkan Kanal.");
+        await telegramService.EditMessageText("Berhasil menautkan Kanal.");
 
-        return _telegramService.Complete();
+        return telegramService.Complete();
     }
 }

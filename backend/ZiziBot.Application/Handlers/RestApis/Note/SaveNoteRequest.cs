@@ -37,17 +37,8 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
     }
 }
 
-public class CreateNoteHandler : IRequestHandler<SaveNoteRequest, ApiResponseBase<bool>>
+public class CreateNoteHandler(IHttpContextAccessor httpContextAccessor, NoteService noteService) : IRequestHandler<SaveNoteRequest, ApiResponseBase<bool>>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly NoteService _noteService;
-
-    public CreateNoteHandler(IHttpContextAccessor httpContextAccessor, NoteService noteService)
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _noteService = noteService;
-    }
-
     public async Task<ApiResponseBase<bool>> Handle(SaveNoteRequest request, CancellationToken cancellationToken)
     {
         ApiResponseBase<bool> response = new();
@@ -57,7 +48,7 @@ public class CreateNoteHandler : IRequestHandler<SaveNoteRequest, ApiResponseBas
             return response.BadRequest("You don't have permission to create note for this Chat");
         }
 
-        var save = await _noteService.Save(new NoteEntity() {
+        var save = await noteService.Save(new NoteEntity() {
             Id = request.Model.ObjectId,
             ChatId = request.Model.ChatId,
             Query = request.Model.Query,
@@ -66,8 +57,8 @@ public class CreateNoteHandler : IRequestHandler<SaveNoteRequest, ApiResponseBas
             RawButton = request.Model.RawButton,
             DataType = request.Model.DataType,
             Status = (int)EventStatus.Complete,
-            UserId = _httpContextAccessor.GetUserId(),
-            TransactionId = _httpContextAccessor.GetTransactionId()
+            UserId = httpContextAccessor.GetUserId(),
+            TransactionId = httpContextAccessor.GetTransactionId()
         });
 
         return response.Success(save.Message, true);

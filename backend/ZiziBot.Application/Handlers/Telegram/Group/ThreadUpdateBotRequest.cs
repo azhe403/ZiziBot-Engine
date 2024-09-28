@@ -7,25 +7,16 @@ public class ThreadUpdateBotRequest : BotRequestBase
 {
 }
 
-public class ThreadUpdateHandler : IBotRequestHandler<ThreadUpdateBotRequest>
+public class ThreadUpdateHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext) : IBotRequestHandler<ThreadUpdateBotRequest>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly TelegramService _telegramService;
-
-    public ThreadUpdateHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
-    {
-        _telegramService = telegramService;
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<BotResponseBase> Handle(ThreadUpdateBotRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         var prevTopicName = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
 
-        var findTopic = await _mongoDbContext.GroupTopic
+        var findTopic = await mongoDbContext.GroupTopic
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -50,7 +41,7 @@ public class ThreadUpdateHandler : IBotRequestHandler<ThreadUpdateBotRequest>
             if (request.TopicName != null)
                 entity.ThreadName = request.TopicName;
 
-            _mongoDbContext.GroupTopic.Add(entity);
+            mongoDbContext.GroupTopic.Add(entity);
         }
         else
         {
@@ -65,8 +56,8 @@ public class ThreadUpdateHandler : IBotRequestHandler<ThreadUpdateBotRequest>
 
         htmlMessage.Bold("Topic ID: ").Code(request.MessageThreadId.ToString());
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString());
+        return await telegramService.SendMessageText(htmlMessage.ToString());
     }
 }

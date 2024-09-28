@@ -6,18 +6,11 @@ public class GetIdBotRequestModel : BotRequestBase
 {
 }
 
-public class GetIdRequestHandler : IRequestHandler<GetIdBotRequestModel, BotResponseBase>
+public class GetIdRequestHandler(TelegramService telegramService) : IRequestHandler<GetIdBotRequestModel, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-
-    public GetIdRequestHandler(TelegramService telegramService)
-    {
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(GetIdBotRequestModel request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty;
 
@@ -38,6 +31,6 @@ public class GetIdRequestHandler : IRequestHandler<GetIdBotRequestModel, BotResp
             .BoldBr($"👤 {request.UserFullName}")
             .Bold("User ID: ").CodeBr(request.UserId.ToString());
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString());
+        return await telegramService.SendMessageText(htmlMessage.ToString());
     }
 }

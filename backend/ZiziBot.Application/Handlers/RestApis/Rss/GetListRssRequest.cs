@@ -23,20 +23,13 @@ public class GetListRssResponse
     public DateTime UpdatedDate { get; set; }
 }
 
-public class GetListRssHandler : IRequestHandler<GetListRssRequest, ApiResponseBase<List<GetListRssResponse>>>
+public class GetListRssHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<GetListRssRequest, ApiResponseBase<List<GetListRssResponse>>>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public GetListRssHandler(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<List<GetListRssResponse>>> Handle(GetListRssRequest request, CancellationToken cancellationToken)
     {
         ApiResponseBase<List<GetListRssResponse>> response = new();
 
-        var listRss = await _mongoDbContext.RssSetting
+        var listRss = await mongoDbContext.RssSetting
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .Where(entity => entity.Status == (int)EventStatus.Complete)

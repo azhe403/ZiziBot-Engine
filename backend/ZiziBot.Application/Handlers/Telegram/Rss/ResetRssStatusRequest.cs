@@ -5,18 +5,11 @@ public class ResetRssStatusRequest : IRequest<bool>
 
 }
 
-public class ResetRssStatusHandler : IRequestHandler<ResetRssStatusRequest, bool>
+public class ResetRssStatusHandler(MediatorService mediatorService) : IRequestHandler<ResetRssStatusRequest, bool>
 {
-    private readonly MediatorService _mediatorService;
-
-    public ResetRssStatusHandler(MediatorService mediatorService)
-    {
-        _mediatorService = mediatorService;
-    }
-
     public async Task<bool> Handle(ResetRssStatusRequest request, CancellationToken cancellationToken)
     {
-        await _mediatorService.Send(new RegisterRssJobAllRequest()
+        await mediatorService.Send(new RegisterRssJobAllRequest()
         {
             ResetStatus = true
         });

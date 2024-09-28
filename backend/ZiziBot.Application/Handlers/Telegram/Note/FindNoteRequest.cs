@@ -3,27 +3,17 @@ using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
-public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor<TRequest, TResponse>
+public class FindNoteRequestHandler<TRequest, TResponse>(ILogger<FindNoteRequestHandler<TRequest, TResponse>> logger, TelegramService telegramService, NoteService noteService)
+    : IRequestPostProcessor<TRequest, TResponse>
     where TRequest : BotRequestBase, IRequest<TResponse>
     where TResponse : BotResponseBase
 {
-    private readonly ILogger<FindNoteRequestHandler<TRequest, TResponse>> _logger;
-    private readonly TelegramService _telegramService;
-    private readonly NoteService _noteService;
-
-    public FindNoteRequestHandler(ILogger<FindNoteRequestHandler<TRequest, TResponse>> logger, TelegramService telegramService, NoteService noteService)
-    {
-        _logger = logger;
-        _telegramService = telegramService;
-        _noteService = noteService;
-    }
-
     public async Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
     {
         if (request.Source != ResponseSource.Bot ||
             request.ChatId == 0)
         {
-            _logger.LogDebug("Find Note stop because Source: {Source}", request.Source);
+            logger.LogDebug("Find Note stop because Source: {Source}", request.Source);
 
             return;
         }
@@ -34,13 +24,13 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
             CleanupTarget.None
         };
 
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        var listNote = await _noteService.GetAllByChat(request.ChatIdentifier);
+        var listNote = await noteService.GetAllByChat(request.ChatIdentifier);
 
         if (listNote.Count == 0)
         {
-            _logger.LogInformation("No note found in chat {chatId}", request.ChatIdentifier);
+            logger.LogInformation("No note found in chat {chatId}", request.ChatIdentifier);
             return;
         }
 
@@ -70,20 +60,20 @@ public class FindNoteRequestHandler<TRequest, TResponse> : IRequestPostProcessor
         {
             if (notes == null)
             {
-                _logger.LogDebug("No Notes for Send to ChatId: {ChatId}", request.ChatId);
+                logger.LogDebug("No Notes for Send to ChatId: {ChatId}", request.ChatId);
                 return;
             }
 
             var dataType = (CommonMediaType)notes.DataType;
 
-            _logger.LogInformation("Sending note {NoteId} with data type {DataType}", notes.Id, dataType);
+            logger.LogInformation("Sending note {NoteId} with data type {DataType}", notes.Id, dataType);
 
             var replyMarkup = notes.RawButton.ToButtonMarkup();
 
             if (dataType <= CommonMediaType.Text)
-                await _telegramService.SendMessageText(notes.Text, replyMarkup);
+                await telegramService.SendMessageText(notes.Text, replyMarkup);
             else
-                await _telegramService.SendMediaAsync(
+                await telegramService.SendMediaAsync(
                     notes.FileId,
                     caption: notes.Text,
                     mediaType: (CommonMediaType)notes.DataType,

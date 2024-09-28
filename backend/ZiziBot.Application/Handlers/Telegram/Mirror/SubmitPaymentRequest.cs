@@ -11,33 +11,18 @@ public class SubmitPaymentBotRequest : BotRequestBase
     public long ForUserId { get; set; }
 }
 
-public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBotRequest>
+public class SubmitPaymentBotRequestHandler(
+    ILogger<SubmitPaymentBotRequestHandler> logger,
+    TelegramService telegramService,
+    AppSettingRepository appSettingRepository,
+    MongoDbContextBase mongoDbContext,
+    MirrorPaymentService mirrorPaymentService)
+    : IBotRequestHandler<SubmitPaymentBotRequest>
 {
-    private readonly ILogger<SubmitPaymentBotRequestHandler> _logger;
-    private readonly TelegramService _telegramService;
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly MirrorPaymentService _mirrorPaymentService;
-    private readonly AppSettingRepository _appSettingRepository;
-
-    public SubmitPaymentBotRequestHandler(
-        ILogger<SubmitPaymentBotRequestHandler> logger,
-        TelegramService telegramService,
-        AppSettingRepository appSettingRepository,
-        MongoDbContextBase mongoDbContext,
-        MirrorPaymentService mirrorPaymentService
-    )
-    {
-        _logger = logger;
-        _telegramService = telegramService;
-        _appSettingRepository = appSettingRepository;
-        _mongoDbContext = mongoDbContext;
-        _mirrorPaymentService = mirrorPaymentService;
-    }
-
     public async Task<BotResponseBase> Handle(SubmitPaymentBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         var transactionId = string.Empty;
         var userId = request.UserId;
@@ -56,7 +41,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
                 .Bold("Contoh: ").CodeBr("/sp 9d16023b-67be-5a0b-bc47-47809f059013");
 
 
-            return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+            return await telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
         if (!guidOrderId.IsValidGuid())
@@ -65,7 +50,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
                 .Bold("OrderId sepertinya tidak valid").Br()
                 .Text("Pastikan <b>OrderId</b> Anda dapatkan dari Trakteer/Saweria");
 
-            return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+            return await telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
         if (request.ForUserId != 0)
@@ -73,8 +58,8 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
             userId = request.ForUserId;
         }
 
-        await _telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
-        var trakteerParsedDto = await _mirrorPaymentService.GetTrakteerApi(guidOrderId);
+        await telegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
+        var trakteerParsedDto = await mirrorPaymentService.GetTrakteerApi(guidOrderId);
 
         var orderId = trakteerParsedDto.OrderId;
         var orderDate = trakteerParsedDto.OrderDate;
@@ -85,7 +70,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
 
         if (!trakteerParsedDto.IsValid)
         {
-            var saweriaParsedDto = await _mirrorPaymentService.GetSaweriaApi(guidOrderId);
+            var saweriaParsedDto = await mirrorPaymentService.GetSaweriaApi(guidOrderId);
 
             orderId = saweriaParsedDto.OrderId;
             orderDate = saweriaParsedDto.OrderDate;
@@ -100,18 +85,18 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
             htmlMessage.BoldBr("Pembayaran gagal diverifikasi.")
                 .Text("Pastikan Order Id yang kamu dapatkan dari Trakteer/Saweria.");
 
-            return await _telegramService.EditMessageText(htmlMessage.ToString());
+            return await telegramService.EditMessageText(htmlMessage.ToString());
         }
 
-        var mirrorConfig = await _appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
+        var mirrorConfig = await appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
 
         if (orderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
         {
-            return await _telegramService.EditMessageText(
+            return await telegramService.EditMessageText(
                 "Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
         }
 
-        var mirrorApproval = await _mongoDbContext.MirrorApproval
+        var mirrorApproval = await mongoDbContext.MirrorApproval
             .Where(entity => entity.OrderId == orderId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
@@ -122,10 +107,10 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
                 .Bold("Pembayaran ini sudah diklaim.").Br()
                 .Text("Pastikan <b>OrderId</b> Anda dapatkan dari Trakteer/Saweria");
 
-            return await _telegramService.EditMessageText(htmlMessage.ToString(), replyMarkup);
+            return await telegramService.EditMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
-        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity() {
+        mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity() {
             UserId = request.UserId,
             PaymentUrl = paymentUrl,
             RawText = trakteerParsedDto.RawText,
@@ -139,7 +124,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
             TransactionId = transactionId
         });
 
-        var mirrorUser = await _mongoDbContext.MirrorUsers
+        var mirrorUser = await mongoDbContext.MirrorUsers
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -148,10 +133,10 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
 
         if (mirrorUser == null)
         {
-            _logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId,
+            logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId,
                 expireDate);
 
-            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
+            mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
                 UserId = userId,
                 ExpireDate = expireDate,
                 Status = (int)EventStatus.Complete,
@@ -160,7 +145,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
         }
         else
         {
-            _logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId,
+            logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId,
                 expireDate);
 
             expireDate = mirrorUser.ExpireDate < DateTime.Now
@@ -172,7 +157,7 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
             mirrorUser.TransactionId = transactionId;
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Langganan Mirror").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
@@ -182,12 +167,12 @@ public class SubmitPaymentBotRequestHandler : IBotRequestHandler<SubmitPaymentBo
             .Bold("Masa Aktif: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss zzz"))
             .Br();
 
-        await _telegramService.EditMessageText(htmlMessage.ToString());
+        await telegramService.EditMessageText(htmlMessage.ToString());
 
         htmlMessage.Bold("OrderID: ").CodeBr(orderId)
             .Bold("Url: ").Text(paymentUrl);
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId,
+        return await telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId,
             threadId: 0);
     }
 }

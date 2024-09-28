@@ -13,21 +13,15 @@ public class GetMirrorUserDto
     public DateTime? MemberSince { get; set; }
 }
 
-public class GetMirrorUserByUserIdRequestHandler : IApiRequestHandler<GetMirrorUserByUserIdRequestDto, GetMirrorUserDto>
+public class GetMirrorUserByUserIdRequestHandler(MongoDbContextBase mongoDbContext, MirrorUserRepository mirrorUserRepository)
+    : IApiRequestHandler<GetMirrorUserByUserIdRequestDto, GetMirrorUserDto>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly MirrorUserRepository _mirrorUserRepository;
+    private readonly MongoDbContextBase _mongoDbContext = mongoDbContext;
     private readonly ApiResponseBase<GetMirrorUserDto> _response = new();
-
-    public GetMirrorUserByUserIdRequestHandler(MongoDbContextBase mongoDbContext, MirrorUserRepository mirrorUserRepository)
-    {
-        _mongoDbContext = mongoDbContext;
-        _mirrorUserRepository = mirrorUserRepository;
-    }
 
     public async Task<ApiResponseBase<GetMirrorUserDto>> Handle(GetMirrorUserByUserIdRequestDto request, CancellationToken cancellationToken)
     {
-        var user = await _mirrorUserRepository.GetByUserId(request.UserId);
+        var user = await mirrorUserRepository.GetByUserId(request.UserId);
 
         if (user == null)
         {

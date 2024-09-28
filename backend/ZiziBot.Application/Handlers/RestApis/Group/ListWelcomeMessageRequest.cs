@@ -23,20 +23,13 @@ public class WelcomeMessageResponse
     public string StatusName { get; set; }
 }
 
-public class ListWelcomeMessageHandler : IRequestHandler<ListWelcomeMessageRequest, ApiResponseBase<List<WelcomeMessageResponse>>>
+public class ListWelcomeMessageHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<ListWelcomeMessageRequest, ApiResponseBase<List<WelcomeMessageResponse>>>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public ListWelcomeMessageHandler(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<List<WelcomeMessageResponse>>> Handle(ListWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<List<WelcomeMessageResponse>>();
 
-        var query = await _mongoDbContext.WelcomeMessage
+        var query = await mongoDbContext.WelcomeMessage
             .AsNoTracking()
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => entity.Status != (int)EventStatus.Deleted)

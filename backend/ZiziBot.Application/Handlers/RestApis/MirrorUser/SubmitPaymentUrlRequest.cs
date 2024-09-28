@@ -24,22 +24,14 @@ public class SubmitPaymentUrlValidation : AbstractValidator<SubmitPaymentUrlRequ
     }
 }
 
-public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUrlRequest, bool>
+public class SubmitPaymentUrlRequestHandler(MongoDbContextBase mongoDbContext, MirrorPaymentService mirrorPaymentService) : IApiRequestHandler<SubmitPaymentUrlRequest, bool>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly MirrorPaymentService _mirrorPaymentService;
     private readonly ApiResponseBase<bool> _response = new();
-
-    public SubmitPaymentUrlRequestHandler(MongoDbContextBase mongoDbContext, MirrorPaymentService mirrorPaymentService)
-    {
-        _mongoDbContext = mongoDbContext;
-        _mirrorPaymentService = mirrorPaymentService;
-    }
 
     public async Task<ApiResponseBase<bool>> Handle(SubmitPaymentUrlRequest request,
         CancellationToken cancellationToken)
     {
-        var mirrorApproval = await _mongoDbContext.MirrorApproval
+        var mirrorApproval = await mongoDbContext.MirrorApproval
             .FirstOrDefaultAsync(x =>
                     x.PaymentUrl == request.Body.Payload &&
                     x.Status == (int)EventStatus.Complete,
@@ -50,7 +42,7 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
             return _response.BadRequest("Pembayaran sudah terverifikasi sebelumnya.");
         }
 
-        var trakteerParsedDto = await _mirrorPaymentService.ParseTrakteerWeb(request.Body.Payload);
+        var trakteerParsedDto = await mirrorPaymentService.ParseTrakteerWeb(request.Body.Payload);
 
         if (!trakteerParsedDto.IsValid)
         {
@@ -58,7 +50,7 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
                 "Tautan Pembayaran tidak valid. Contoh: https://trakteer.id/payment-status/123456");
         }
 
-        _mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity() {
+        mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity() {
             UserId = request.SessionUserId,
             PaymentUrl = trakteerParsedDto.PaymentUrl,
             RawText = trakteerParsedDto.RawText,
@@ -76,7 +68,7 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
         var cendolCount = trakteerParsedDto.CendolCount;
 
 
-        var mirrorUser = await _mongoDbContext.MirrorUsers
+        var mirrorUser = await mongoDbContext.MirrorUsers
             .FirstOrDefaultAsync(x =>
                     x.UserId == request.SessionUserId &&
                     x.Status == (int)EventStatus.Complete,
@@ -87,7 +79,7 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
 
         if (mirrorUser == null)
         {
-            _mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
+            mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
                 UserId = request.SessionUserId,
                 ExpireDate = expireDate,
                 Status = (int)EventStatus.Complete,
@@ -106,7 +98,7 @@ public class SubmitPaymentUrlRequestHandler : IApiRequestHandler<SubmitPaymentUr
             mirrorUser.TransactionId = request.TransactionId;
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return _response.Success("Pembayaran berhasil diverifikasi.", true);
     }

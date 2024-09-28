@@ -6,20 +6,11 @@ public class PingBotRequestModel : BotRequestBase
 {
 }
 
-public class PingRequestHandler : IRequestHandler<PingBotRequestModel, BotResponseBase>
+public class PingRequestHandler(SudoService sudoService, TelegramService telegramService) : IRequestHandler<PingBotRequestModel, BotResponseBase>
 {
-    private readonly SudoService _sudoService;
-    private readonly TelegramService _telegramService;
-
-    public PingRequestHandler(SudoService sudoService, TelegramService telegramService)
-    {
-        _sudoService = sudoService;
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(PingBotRequestModel request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty
             .BoldBr("Pong!")
@@ -27,7 +18,7 @@ public class PingRequestHandler : IRequestHandler<PingBotRequestModel, BotRespon
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
 
-        if (await _sudoService.IsSudoAsync(request.UserId))
+        if (await sudoService.IsSudoAsync(request.UserId))
         {
             replyMarkup = new InlineKeyboardMarkup(
                 new[] {
@@ -43,6 +34,6 @@ public class PingRequestHandler : IRequestHandler<PingBotRequestModel, BotRespon
             );
         }
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        return await telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
     }
 }

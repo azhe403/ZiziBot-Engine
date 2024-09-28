@@ -11,54 +11,46 @@ public class MongoDbBackupRequest : IRequest<bool>
 {
 }
 
-public class MongoDbBackupHandler : IRequestHandler<MongoDbBackupRequest, bool>
+public class MongoDbBackupHandler(
+    ILogger<MongoDbBackupHandler> logger,
+    MongoDbContextBase mongoDbContext,
+    AppSettingRepository appSettingRepository)
+    : IRequestHandler<MongoDbBackupRequest, bool>
 {
-    private readonly ILogger<MongoDbBackupHandler> _logger;
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly AppSettingRepository _appSettingRepository;
-
-    public MongoDbBackupHandler(ILogger<MongoDbBackupHandler> logger, MongoDbContextBase mongoDbContext,
-        AppSettingRepository appSettingRepository)
-    {
-        _logger = logger;
-        _mongoDbContext = mongoDbContext;
-        _appSettingRepository = appSettingRepository;
-    }
-
     public async Task<bool> Handle(MongoDbBackupRequest request, CancellationToken cancellationToken)
     {
-        var botMain = await _appSettingRepository.GetBotMain();
+        var botMain = await appSettingRepository.GetBotMain();
 
-        var config = await _appSettingRepository.GetConfigSectionAsync<EventLogConfig>();
+        var config = await appSettingRepository.GetConfigSectionAsync<EventLogConfig>();
 
         if (config == null)
         {
-            _logger.LogWarning("Event Log seem not configured yet");
+            logger.LogWarning("Event Log seem not configured yet");
             return false;
         }
 
         var exportPath = PathConst.MONGODB_BACKUP.EnsureDirectory();
 
-        await _mongoDbContext.ExportAllAsync<AppSettingsEntity>();
-        await _mongoDbContext.ExportAllAsync<ApiKeyEntity>();
-        await _mongoDbContext.ExportAllAsync<BotCommandEntity>();
-        await _mongoDbContext.ExportAllAsync<BotSettingsEntity>();
-        await _mongoDbContext.ExportAllAsync<BangHasan_ShalatCityEntity>();
-        await _mongoDbContext.ExportAllAsync<ChannelMapEntity>();
-        await _mongoDbContext.ExportAllAsync<ChannelPostEntity>();
+        await mongoDbContext.ExportAllAsync<AppSettingsEntity>();
+        await mongoDbContext.ExportAllAsync<ApiKeyEntity>();
+        await mongoDbContext.ExportAllAsync<BotCommandEntity>();
+        await mongoDbContext.ExportAllAsync<BotSettingsEntity>();
+        await mongoDbContext.ExportAllAsync<BangHasan_ShalatCityEntity>();
+        await mongoDbContext.ExportAllAsync<ChannelMapEntity>();
+        await mongoDbContext.ExportAllAsync<ChannelPostEntity>();
         // await _mirrorDbContext.ExportAllAsync<BinderByteCheckAwbEntity>();
-        await _mongoDbContext.ExportAllAsync<ChatSettingEntity>();
-        await _mongoDbContext.ExportAllAsync<GlobalBanEntity>();
-        await _mongoDbContext.ExportAllAsync<GroupTopicEntity>();
-        await _mongoDbContext.ExportAllAsync<MirrorApprovalEntity>();
-        await _mongoDbContext.ExportAllAsync<MirrorUserEntity>();
-        await _mongoDbContext.ExportAllAsync<NoteEntity>();
-        await _mongoDbContext.ExportAllAsync<RssSettingEntity>();
-        await _mongoDbContext.ExportAllAsync<SudoerEntity>();
+        await mongoDbContext.ExportAllAsync<ChatSettingEntity>();
+        await mongoDbContext.ExportAllAsync<GlobalBanEntity>();
+        await mongoDbContext.ExportAllAsync<GroupTopicEntity>();
+        await mongoDbContext.ExportAllAsync<MirrorApprovalEntity>();
+        await mongoDbContext.ExportAllAsync<MirrorUserEntity>();
+        await mongoDbContext.ExportAllAsync<NoteEntity>();
+        await mongoDbContext.ExportAllAsync<RssSettingEntity>();
+        await mongoDbContext.ExportAllAsync<SudoerEntity>();
         // await _mirrorDbContext.ExportAllAsync<TonjooAwbEntity>();
-        await _mongoDbContext.ExportAllAsync<WebhookChatEntity>();
-        await _mongoDbContext.ExportAllAsync<WelcomeMessageDto>();
-        await _mongoDbContext.ExportAllAsync<WordFilterEntity>();
+        await mongoDbContext.ExportAllAsync<WebhookChatEntity>();
+        await mongoDbContext.ExportAllAsync<WelcomeMessageDto>();
+        await mongoDbContext.ExportAllAsync<WordFilterEntity>();
 
         var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
 

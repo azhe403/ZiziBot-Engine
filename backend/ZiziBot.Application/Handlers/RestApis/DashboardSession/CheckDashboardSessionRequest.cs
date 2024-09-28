@@ -16,20 +16,11 @@ public class CheckDashboardSessionResponseDto
     public string RoleName { get; set; }
 }
 
-public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboardSessionRequestDto, ApiResponseBase<CheckDashboardSessionResponseDto>>
+public class CheckDashboardSessionRequestHandler(
+    ILogger<CheckDashboardSessionRequestHandler> logger,
+    MongoDbContextBase mongoDbContext)
+    : IRequestHandler<CheckDashboardSessionRequestDto, ApiResponseBase<CheckDashboardSessionResponseDto>>
 {
-    private readonly ILogger<CheckDashboardSessionRequestHandler> _logger;
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public CheckDashboardSessionRequestHandler(
-        ILogger<CheckDashboardSessionRequestHandler> logger,
-        MongoDbContextBase mongoDbContext
-    )
-    {
-        _logger = logger;
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<CheckDashboardSessionResponseDto>> Handle(CheckDashboardSessionRequestDto request, CancellationToken cancellationToken)
     {
         ApiResponseBase<CheckDashboardSessionResponseDto> responseDto = new()
@@ -38,7 +29,7 @@ public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboar
         };
 
         #region Check Dashboard Session
-        var dashboardSession = await _mongoDbContext.DashboardSessions
+        var dashboardSession = await mongoDbContext.DashboardSessions
             .Where(
                 session =>
                     session.SessionId == request.SessionId &&
@@ -53,7 +44,7 @@ public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboar
         #endregion
 
         #region Get User Role
-        var checkSudo = await _mongoDbContext.Sudoers
+        var checkSudo = await mongoDbContext.Sudoers
             .FirstOrDefaultAsync(sudoer => sudoer.UserId == request.UserId, cancellationToken: cancellationToken);
 
         if (checkSudo != null)
@@ -63,7 +54,7 @@ public class CheckDashboardSessionRequestHandler : IRequestHandler<CheckDashboar
         }
         #endregion
 
-        _logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", request.SessionId, request.UserId, dashboardSession);
+        logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", request.SessionId, request.UserId, dashboardSession);
 
         return responseDto;
     }

@@ -10,32 +10,19 @@ public class NewChatMembersBotRequest : BotRequestBase
 }
 
 [UsedImplicitly]
-public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, BotResponseBase>
+public class NewChatMembersHandler(
+    ILogger<NewChatMembersHandler> logger,
+    MongoDbContextBase mongoDbContext,
+    TelegramService telegramService,
+    ChatSettingRepository chatSettingRepository)
+    : IRequestHandler<NewChatMembersBotRequest, BotResponseBase>
 {
-    private readonly ILogger<NewChatMembersHandler> _logger;
-    private readonly MongoDbContextBase _mongoDbContext;
-    private readonly TelegramService _telegramService;
-    private readonly ChatSettingRepository _chatSettingRepository;
-
-    public NewChatMembersHandler(
-        ILogger<NewChatMembersHandler> logger,
-        MongoDbContextBase mongoDbContext,
-        TelegramService telegramService,
-        ChatSettingRepository chatSettingRepository
-    )
-    {
-        _logger = logger;
-        _mongoDbContext = mongoDbContext;
-        _telegramService = telegramService;
-        _chatSettingRepository = chatSettingRepository;
-    }
-
     public async Task<BotResponseBase> Handle(NewChatMembersBotRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
-        _logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.ChatId);
+        telegramService.SetupResponse(request);
+        logger.LogInformation("New Chat Members. ChatId: {ChatId}", request.ChatId);
 
-        var create = await _chatSettingRepository.MeasureActivity(new ChatActivityDto {
+        var create = await chatSettingRepository.MeasureActivity(new ChatActivityDto {
             ChatId = request.ChatIdentifier,
             UserId = request.UserId,
             ActivityType = ChatActivityType.NewChatMember,
@@ -53,10 +40,10 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
                 .Text("Terdeteksi banyak anggota baru masuk ke grub dalam beberapa waktu terakhir. " +
                       "Untuk alasan keamanan, anggota baru yang masuk dalam {COOLDOWN_TIME} akan disenyapkan.").Br();
 
-            await _telegramService.SendMessageAsync(message.ToString());
-            await _telegramService.MuteMemberAsync(request.UserId, ValueConst.NEW_MEMBER_RAID_MODE_MUTE_DURATION);
+            await telegramService.SendMessageAsync(message.ToString());
+            await telegramService.MuteMemberAsync(request.UserId, ValueConst.NEW_MEMBER_RAID_MODE_MUTE_DURATION);
 
-            return _telegramService.Complete();
+            return telegramService.Complete();
         }
 
         var chatTitle = request.ChatTitle;
@@ -64,12 +51,12 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
         var allNewMember = request.NewUser.Select(user => user.GetFullMention())
             .Aggregate((s, next) => s + ", " + next);
         var greet = TimeUtil.GetTimeGreet();
-        var memberCount = await _telegramService.GetMemberCount();
+        var memberCount = await telegramService.GetMemberCount();
 
         var messageTemplate = "Hai {AllNewMember}\n" +
                               "Selamat datang di Kontrakan {ChatTitle}";
 
-        var welcomeMessage = await _mongoDbContext.WelcomeMessage.AsNoTracking()
+        var welcomeMessage = await mongoDbContext.WelcomeMessage.AsNoTracking()
             .Where(x => x.ChatId == request.ChatIdentifier)
             .Where(x => x.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
@@ -89,7 +76,7 @@ public class NewChatMembersHandler : IRequestHandler<NewChatMembersBotRequest, B
             ("MemberCount", memberCount.ToString())
         });
 
-        return await _telegramService.SendMessageAsync(
+        return await telegramService.SendMessageAsync(
             text: messageText,
             replyMarkup: welcomeMessage?.RawButton.ToButtonMarkup(),
             fileId: welcomeMessage?.Media,

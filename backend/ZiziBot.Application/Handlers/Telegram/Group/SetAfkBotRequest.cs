@@ -8,22 +8,13 @@ public class SetAfkBotRequest : BotRequestBase
     public string? Reason { get; set; }
 }
 
-public class SetAfkRequestHandler : IRequestHandler<SetAfkBotRequest, BotResponseBase>
+public class SetAfkRequestHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext) : IRequestHandler<SetAfkBotRequest, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public SetAfkRequestHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
-    {
-        _telegramService = telegramService;
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<BotResponseBase> Handle(SetAfkBotRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
-        var afkEntity = await _mongoDbContext.Afk
+        var afkEntity = await mongoDbContext.Afk
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == request.UserId &&
                     entity.Status == (int)EventStatus.Complete,
@@ -31,7 +22,7 @@ public class SetAfkRequestHandler : IRequestHandler<SetAfkBotRequest, BotRespons
 
         if (afkEntity == null)
         {
-            _mongoDbContext.Afk.Add(new AfkEntity() {
+            mongoDbContext.Afk.Add(new AfkEntity() {
                 UserId = request.UserId,
                 ChatId = request.ChatIdentifier,
                 Reason = request.Reason,
@@ -45,7 +36,7 @@ public class SetAfkRequestHandler : IRequestHandler<SetAfkBotRequest, BotRespons
             afkEntity.Status = (int)EventStatus.Complete;
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         var htmlMessage = HtmlMessage.Empty
             .User(request.User)
@@ -55,6 +46,6 @@ public class SetAfkRequestHandler : IRequestHandler<SetAfkBotRequest, BotRespons
             htmlMessage.Br()
                 .Bold("Alasan: ").Text(request.Reason);
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString());
+        return await telegramService.SendMessageText(htmlMessage.ToString());
     }
 }

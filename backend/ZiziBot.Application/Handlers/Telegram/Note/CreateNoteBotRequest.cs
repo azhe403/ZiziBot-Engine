@@ -25,25 +25,15 @@ public class CreateNoteValidator : AbstractValidator<CreateNoteBotRequest>
     }
 }
 
-public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotResponseBase>
+public class CreateNoteHandler(
+    TelegramService telegramService,
+    NoteService noteService,
+    MongoDbContextBase mongoDbContext)
+    : IRequestHandler<CreateNoteBotRequest, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-    private readonly NoteService _noteService;
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public CreateNoteHandler(
-        TelegramService telegramService,
-        NoteService noteService,
-        MongoDbContextBase mongoDbContext)
-    {
-        _telegramService = telegramService;
-        _noteService = noteService;
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<BotResponseBase> Handle(CreateNoteBotRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty;
 
@@ -52,15 +42,15 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
         if (!validationResult.IsValid)
         {
             htmlMessage.Text(validationResult.Errors.Select(x => x.ErrorMessage).Aggregate((x, y) => $"{x})\n{y}"));
-            return await _telegramService.SendMessageText(htmlMessage.ToString());
+            return await telegramService.SendMessageText(htmlMessage.ToString());
         }
 
         if (request.ReplyToMessage == null)
         {
-            await _telegramService.SendMessageText("Balas sebuah pesan yang akan disimpan");
+            await telegramService.SendMessageText("Balas sebuah pesan yang akan disimpan");
         }
 
-        var note = await _mongoDbContext.Note
+        var note = await mongoDbContext.Note
             .FirstOrDefaultAsync(entity =>
                     entity.ChatId == request.ChatIdentifier &&
                     entity.Query == request.Query &&
@@ -79,7 +69,7 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
         {
             if (request.RefreshNote ?? false)
             {
-                await _telegramService.SendMessageText("Sedang memperbarui catatan...");
+                await telegramService.SendMessageText("Sedang memperbarui catatan...");
 
                 note.Content = request.Content;
                 note.FileId = request.FileId;
@@ -92,14 +82,14 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
             {
                 htmlMessage.Text(
                     "Catatan sudah ada, silahkan gunakan nama lainnya. Atau gunakan perintah /renote untuk memperbarui catatan");
-                return await _telegramService.SendMessageText(htmlMessage.ToString());
+                return await telegramService.SendMessageText(htmlMessage.ToString());
             }
         }
         else
         {
-            await _telegramService.SendMessageText("Sedang membuat catatan...");
+            await telegramService.SendMessageText("Sedang membuat catatan...");
 
-            _mongoDbContext.Note.Add(new NoteEntity() {
+            mongoDbContext.Note.Add(new NoteEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 Query = request.Query,
@@ -112,11 +102,11 @@ public class CreateNoteHandler : IRequestHandler<CreateNoteBotRequest, BotRespon
             });
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
-        await _telegramService.EditMessageText("Memperbarui cache..");
-        await _noteService.GetAllByChat(request.ChatIdentifier, true);
+        await telegramService.EditMessageText("Memperbarui cache..");
+        await noteService.GetAllByChat(request.ChatIdentifier, true);
 
-        return await _telegramService.EditMessageText("Catatan berhasil disimpan");
+        return await telegramService.EditMessageText("Catatan berhasil disimpan");
     }
 }

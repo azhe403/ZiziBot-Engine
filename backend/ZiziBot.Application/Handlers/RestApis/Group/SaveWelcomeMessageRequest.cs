@@ -35,15 +35,8 @@ public class SaveWelcomeMessageRequestModel
     public ObjectId ObjectId => Id != null ? new ObjectId(Id) : ObjectId.Empty;
 }
 
-public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageRequest, ApiResponseBase<object>>
+public class SaveWelcomeMessageHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<SaveWelcomeMessageRequest, ApiResponseBase<object>>
 {
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public SaveWelcomeMessageHandler(MongoDbContextBase mongoDbContext)
-    {
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<object>> Handle(SaveWelcomeMessageRequest request,
         CancellationToken cancellationToken)
     {
@@ -54,15 +47,15 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
             return response.BadRequest("You don't have access to this Group");
         }
 
-        var findWelcome = await _mongoDbContext.WelcomeMessage
+        var findWelcome = await mongoDbContext.WelcomeMessage
             .FirstOrDefaultAsync(x => x.Id == request.Model.ObjectId, cancellationToken);
 
         if (findWelcome == null)
         {
-            var welcomeMessage = await _mongoDbContext.WelcomeMessage
+            var welcomeMessage = await mongoDbContext.WelcomeMessage
                 .FirstOrDefaultAsync(x => x.ChatId == request.Model.ChatId, cancellationToken);
 
-            _mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity {
+            mongoDbContext.WelcomeMessage.Add(new WelcomeMessageEntity {
                 ChatId = request.Model.ChatId,
                 Text = request.Model.Text,
                 RawButton = request.Model.RawButton,
@@ -82,7 +75,7 @@ public class SaveWelcomeMessageHandler : IRequestHandler<SaveWelcomeMessageReque
             findWelcome.Status = (int)EventStatus.InProgress;
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         return response.Success("Save Welcome Message successfully", true);
     }

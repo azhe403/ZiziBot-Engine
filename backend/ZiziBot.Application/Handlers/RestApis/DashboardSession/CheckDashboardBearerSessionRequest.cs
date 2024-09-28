@@ -24,26 +24,17 @@ public class UserFeature
     public int MinimumRole { get; set; }
 }
 
-public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDashboardBearerSessionRequestDto, ApiResponseBase<CheckDashboardBearerSessionResponseDto>>
+public class CheckDashboardBearerSessionRequestHandler(
+    ILogger<CheckDashboardSessionRequestHandler> logger,
+    MongoDbContextBase mongoDbContext)
+    : IRequestHandler<CheckDashboardBearerSessionRequestDto, ApiResponseBase<CheckDashboardBearerSessionResponseDto>>
 {
-    private readonly ILogger<CheckDashboardSessionRequestHandler> _logger;
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public CheckDashboardBearerSessionRequestHandler(
-        ILogger<CheckDashboardSessionRequestHandler> logger,
-        MongoDbContextBase mongoDbContext
-    )
-    {
-        _logger = logger;
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<ApiResponseBase<CheckDashboardBearerSessionResponseDto>> Handle(CheckDashboardBearerSessionRequestDto request, CancellationToken cancellationToken)
     {
         ApiResponseBase<CheckDashboardBearerSessionResponseDto> response = new();
 
         #region Check Dashboard Session
-        var dashboardSession = await _mongoDbContext.DashboardSessions
+        var dashboardSession = await mongoDbContext.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == request.BearerToken &&
                 entity.Status == (int)EventStatus.Complete
@@ -69,7 +60,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
             Features = new List<UserFeature>()
         };
 
-        var checkSudo = await _mongoDbContext.Sudoers
+        var checkSudo = await mongoDbContext.Sudoers
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == userId &&
                     entity.Status == (int)EventStatus.Complete,
@@ -84,7 +75,7 @@ public class CheckDashboardBearerSessionRequestHandler : IRequestHandler<CheckDa
 
         result.Features = GetFeatures(result.RoleId);
 
-        _logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", dashboardSession.SessionId, userId, dashboardSession);
+        logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", dashboardSession.SessionId, userId, dashboardSession);
 
         return response.Success("Session is valid", result);
     }

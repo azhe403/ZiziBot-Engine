@@ -4,21 +4,14 @@ public class DefaultBotRequestModel : BotRequestBase
 {
 }
 
-public class DefaultRequestHandler : IRequestHandler<DefaultBotRequestModel, BotResponseBase>
+public class DefaultRequestHandler(TelegramService telegramService) : IRequestHandler<DefaultBotRequestModel, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-
-    public DefaultRequestHandler(TelegramService telegramService)
-    {
-        _telegramService = telegramService;
-    }
-
     public async Task<BotResponseBase> Handle(DefaultBotRequestModel request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         await Task.Delay(1, cancellationToken);
 
-        return _telegramService.Complete();
+        return telegramService.Complete();
     }
 }

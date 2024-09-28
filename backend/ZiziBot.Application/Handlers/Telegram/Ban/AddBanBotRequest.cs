@@ -7,20 +7,11 @@ public class AddBanBotRequest : BotRequestBase
 {
 }
 
-public class AddBanBotHandler : IRequestHandler<AddBanBotRequest, BotResponseBase>
+public class AddBanBotHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext) : IRequestHandler<AddBanBotRequest, BotResponseBase>
 {
-    private readonly TelegramService _telegramService;
-    private readonly MongoDbContextBase _mongoDbContext;
-
-    public AddBanBotHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext)
-    {
-        _telegramService = telegramService;
-        _mongoDbContext = mongoDbContext;
-    }
-
     public async Task<BotResponseBase> Handle(AddBanBotRequest request, CancellationToken cancellationToken)
     {
-        _telegramService.SetupResponse(request);
+        telegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty;
         var userId = request.MessageTexts?.Skip(1).FirstOrDefault().Convert<long>();
@@ -33,17 +24,17 @@ public class AddBanBotHandler : IRequestHandler<AddBanBotRequest, BotResponseBas
 
         if (userId == 0)
         {
-            return await _telegramService.SendMessageText("Spesifikasikan User yang ingin diblokir.");
+            return await telegramService.SendMessageText("Spesifikasikan User yang ingin diblokir.");
         }
 
-        var globalBan = await _mongoDbContext.GlobalBan
+        var globalBan = await mongoDbContext.GlobalBan
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (globalBan == null)
         {
-            _mongoDbContext.GlobalBan.Add(new GlobalBanEntity() {
+            mongoDbContext.GlobalBan.Add(new GlobalBanEntity() {
                 UserId = userId.GetValueOrDefault(),
                 ChatId = request.ChatIdentifier,
                 Status = (int)EventStatus.Complete,
@@ -56,11 +47,11 @@ public class AddBanBotHandler : IRequestHandler<AddBanBotRequest, BotResponseBas
             globalBan.Reason = reason;
         }
 
-        await _mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Pengguna berhasi diban").Br()
             .Bold("UserID: ").CodeBr(userId.ToString());
 
-        return await _telegramService.SendMessageText(htmlMessage.ToString());
+        return await telegramService.SendMessageText(htmlMessage.ToString());
     }
 }
