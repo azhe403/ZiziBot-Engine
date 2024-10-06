@@ -18,17 +18,18 @@ public class CheckDashboardSessionResponseDto
 
 public class CheckDashboardSessionRequestHandler(
     ILogger<CheckDashboardSessionRequestHandler> logger,
-    MongoDbContextBase mongoDbContext)
+    MongoDbContextBase mongoDbContext
+)
     : IRequestHandler<CheckDashboardSessionRequestDto, ApiResponseBase<CheckDashboardSessionResponseDto>>
 {
     public async Task<ApiResponseBase<CheckDashboardSessionResponseDto>> Handle(CheckDashboardSessionRequestDto request, CancellationToken cancellationToken)
     {
-        ApiResponseBase<CheckDashboardSessionResponseDto> responseDto = new()
-        {
+        ApiResponseBase<CheckDashboardSessionResponseDto> responseDto = new() {
             Result = new CheckDashboardSessionResponseDto()
         };
 
         #region Check Dashboard Session
+
         var dashboardSession = await mongoDbContext.DashboardSessions
             .Where(
                 session =>
@@ -41,9 +42,11 @@ public class CheckDashboardSessionRequestHandler(
 
         if (dashboardSession == null)
             return responseDto;
+
         #endregion
 
         #region Get User Role
+
         var checkSudo = await mongoDbContext.Sudoers
             .FirstOrDefaultAsync(sudoer => sudoer.UserId == request.UserId, cancellationToken: cancellationToken);
 
@@ -52,6 +55,7 @@ public class CheckDashboardSessionRequestHandler(
             responseDto.Result.RoleId = 1;
             responseDto.Result.RoleName = "Sudo";
         }
+
         #endregion
 
         logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", request.SessionId, request.UserId, dashboardSession);

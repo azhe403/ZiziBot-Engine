@@ -1,12 +1,14 @@
 namespace ZiziBot.Application.Behaviours;
 
-public class CheckChatAdminBehavior(TelegramService telegramService) : IPipelineBehavior<BotRequestBase, BotResponseBase>
+public class CheckChatAdminBehavior(
+    ServiceFacade serviceFacade
+) : IPipelineBehavior<BotRequestBase, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(BotRequestBase request, RequestHandlerDelegate<BotResponseBase> next, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        var checkAdministration = await telegramService.CheckAdministration();
+        var checkAdministration = await serviceFacade.TelegramService.CheckAdministration();
 
         if (checkAdministration)
         {

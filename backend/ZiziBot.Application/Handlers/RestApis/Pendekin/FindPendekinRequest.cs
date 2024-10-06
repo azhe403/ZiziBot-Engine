@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ZiziBot.Application.Facades;
 
 public class ListPendekinRequest : ApiRequestBase<List<ListPendekinResponse>>
 { }
@@ -13,7 +12,9 @@ public class ListPendekinResponse
     public DateTime UpdatedDate { get; set; }
 }
 
-public class ListPendekinHandler(DataFacade dataFacade) : IApiRequestHandler<ListPendekinRequest, List<ListPendekinResponse>>
+public class ListPendekinHandler(
+    DataFacade dataFacade
+) : IApiRequestHandler<ListPendekinRequest, List<ListPendekinResponse>>
 {
     public async Task<ApiResponseBase<List<ListPendekinResponse>>> Handle(ListPendekinRequest request, CancellationToken cancellationToken)
     {

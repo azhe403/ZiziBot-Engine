@@ -16,13 +16,15 @@ public class DeleteGlobalBanApiValidator : AbstractValidator<DeleteGlobalBanApiR
     }
 }
 
-public class DeleteGlobalBanApiHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<DeleteGlobalBanApiRequest, ApiResponseBase<bool>>
+public class DeleteGlobalBanApiHandler(
+    DataFacade dataFacade
+) : IRequestHandler<DeleteGlobalBanApiRequest, ApiResponseBase<bool>>
 {
     public async Task<ApiResponseBase<bool>> Handle(DeleteGlobalBanApiRequest request, CancellationToken cancellationToken)
     {
         var response = new ApiResponseBase<bool>();
 
-        var globalBanEntities = await mongoDbContext.GlobalBan
+        var globalBanEntities = await dataFacade.MongoDb.GlobalBan
             .Where(e => e.UserId == request.UserId)
             .ToListAsync(cancellationToken: cancellationToken);
 
@@ -30,7 +32,7 @@ public class DeleteGlobalBanApiHandler(MongoDbContextBase mongoDbContext) : IReq
             entity.Status = (int)EventStatus.Deleted;
         });
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Global ban deleted.", true);
     }

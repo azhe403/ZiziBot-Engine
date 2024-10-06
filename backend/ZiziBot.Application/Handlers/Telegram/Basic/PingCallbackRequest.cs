@@ -3,21 +3,22 @@ using Telegram.Bot;
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
 public class PingCallbackBotRequestModel : BotRequestBase
-{
-}
+{ }
 
-public class PingCallbackRequestHandler(SudoService sudoService, TelegramService telegramService) : IRequestHandler<PingCallbackBotRequestModel, BotResponseBase>
+public class PingCallbackRequestHandler(
+    ServiceFacade serviceFacade
+) : IRequestHandler<PingCallbackBotRequestModel, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(PingCallbackBotRequestModel request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        if (!await sudoService.IsSudoAsync(request.UserId))
+        if (!await serviceFacade.SudoService.IsSudoAsync(request.UserId))
         {
-            return await telegramService.AnswerCallbackAsync("Kamu tidak memiliki akses");
+            return await serviceFacade.TelegramService.AnswerCallbackAsync("Kamu tidak memiliki akses");
         }
 
-        var webhookInfo = await telegramService.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
+        var webhookInfo = await serviceFacade.TelegramService.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
 
         var messageCallback = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
@@ -32,10 +33,8 @@ public class PingCallbackRequestHandler(SudoService sudoService, TelegramService
             htmlMessage.Text(messageCallback);
         }
 
-        await telegramService.AnswerCallbackAsync(messageCallback, showAlert: true);
+        await serviceFacade.TelegramService.AnswerCallbackAsync(messageCallback, showAlert: true);
 
-        await telegramService.SendMessageText(htmlMessage.ToString(), chatId: request.UserId);
-
-        return telegramService.Complete();
+        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString(), chatId: request.UserId);
     }
 }

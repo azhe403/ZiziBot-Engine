@@ -8,13 +8,17 @@ public class SetAfkBotRequest : BotRequestBase
     public string? Reason { get; set; }
 }
 
-public class SetAfkRequestHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext) : IRequestHandler<SetAfkBotRequest, BotResponseBase>
+public class SetAfkRequestHandler(
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+)
+    : IRequestHandler<SetAfkBotRequest, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(SetAfkBotRequest request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        var afkEntity = await mongoDbContext.Afk
+        var afkEntity = await dataFacade.MongoDb.Afk
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == request.UserId &&
                     entity.Status == (int)EventStatus.Complete,
@@ -22,7 +26,7 @@ public class SetAfkRequestHandler(TelegramService telegramService, MongoDbContex
 
         if (afkEntity == null)
         {
-            mongoDbContext.Afk.Add(new AfkEntity() {
+            dataFacade.MongoDb.Afk.Add(new AfkEntity() {
                 UserId = request.UserId,
                 ChatId = request.ChatIdentifier,
                 Reason = request.Reason,
@@ -36,7 +40,7 @@ public class SetAfkRequestHandler(TelegramService telegramService, MongoDbContex
             afkEntity.Status = (int)EventStatus.Complete;
         }
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         var htmlMessage = HtmlMessage.Empty
             .User(request.User)
@@ -46,6 +50,6 @@ public class SetAfkRequestHandler(TelegramService telegramService, MongoDbContex
             htmlMessage.Br()
                 .Bold("Alasan: ").Text(request.Reason);
 
-        return await telegramService.SendMessageText(htmlMessage.ToString());
+        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
     }
 }

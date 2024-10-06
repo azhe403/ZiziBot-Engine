@@ -12,21 +12,21 @@ public class SavePaymentBotRequestModel : BotRequestBase
 
 public class SavePaymentRequestHandler(
     ILogger<SavePaymentRequestHandler> logger,
-    TelegramService telegramService,
-    AppSettingRepository appSettingRepository,
-    MongoDbContextBase mongoDbContext)
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+)
     : IRequestHandler<SavePaymentBotRequestModel, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(SavePaymentBotRequestModel request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         var userId = request.UserId;
 
         if (request.ReplyToMessage == null)
         {
-            return await telegramService.SendMessageText("Balas sebuah pesan untuk menambahkan pengguna.");
+            return await serviceFacade.TelegramService.SendMessageText("Balas sebuah pesan untuk menambahkan pengguna.");
         }
 
         var replyToMessage = request.ReplyToMessage;
@@ -42,21 +42,21 @@ public class SavePaymentRequestHandler(
                 htmlMessage.Text("Sepertinya Pengguna disembunyikan, spesifikan ID pengguna.").Br()
                     .Bold("Contoh: ").Code($"/mp {cendolCount} (userId)");
 
-                return await telegramService.SendMessageText(htmlMessage.ToString());
+                return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
             }
 
-            var mirrorApproval = await mongoDbContext.MirrorApproval
+            var mirrorApproval = await dataFacade.MongoDb.MirrorApproval
                 .Where(entity => entity.TransactionId == transactionId)
                 .Where(entity => entity.Status == (int)EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
             if (mirrorApproval != null)
             {
-                return await telegramService.SendMessageText("Sepertinya tiket ini sudah diklaim");
+                return await serviceFacade.TelegramService.SendMessageText("Sepertinya tiket ini sudah diklaim");
             }
 
-            await telegramService.SendMessageText("Sedang menambahkan pengguna...");
-            mongoDbContext.MirrorApproval.Add(new MirrorApprovalEntity() {
+            await serviceFacade.TelegramService.SendMessageText("Sedang menambahkan pengguna...");
+            dataFacade.MongoDb.MirrorApproval.Add(new MirrorApprovalEntity() {
                 UserId = request.UserId,
                 RawText = request.ReplyToMessage.Text,
                 OrderId = messageId,
@@ -70,7 +70,7 @@ public class SavePaymentRequestHandler(
             htmlMessage.Text("Sertakan durasi berlangganan dengan benar.").Br()
                 .Bold("Contoh: ").Code("/mp (duration) [userId]");
 
-            return await telegramService.SendMessageText(htmlMessage.ToString());
+            return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
         }
 
         if (request.ForUserId != 0)
@@ -84,7 +84,7 @@ public class SavePaymentRequestHandler(
             userId = forwardMessage.Id;
         }
 
-        var mirrorUser = await mongoDbContext.MirrorUsers
+        var mirrorUser = await dataFacade.MongoDb.MirrorUsers
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -96,7 +96,7 @@ public class SavePaymentRequestHandler(
             logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId,
                 expireDate);
 
-            mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
+            dataFacade.MongoDb.MirrorUsers.Add(new MirrorUserEntity() {
                 UserId = userId,
                 ExpireDate = expireDate,
                 Status = (int)EventStatus.Complete,
@@ -108,9 +108,10 @@ public class SavePaymentRequestHandler(
             logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId,
                 expireDate);
 
-            expireDate = mirrorUser.ExpireDate < DateTime.Now
-                ? expireDate // If expired, will be started from now
-                : mirrorUser.ExpireDate
+            expireDate = mirrorUser.ExpireDate < DateTime.Now ?
+                expireDate // If expired, will be started from now
+                :
+                mirrorUser.ExpireDate
                     .AddMonths(cendolCount); // If not expired, it will be extended from current expire date
 
             mirrorUser.ExpireDate = expireDate;
@@ -118,18 +119,18 @@ public class SavePaymentRequestHandler(
             mirrorUser.TransactionId = transactionId;
         }
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Langganan Mirror").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
             .Bold("Jumlah Cendol: ").Code(cendolCount.ToString()).Br()
             .Bold("Masa Aktif: ").Code(expireDate.AddHours(Env.DEFAULT_TIMEZONE).ToString("yyyy-MM-dd HH:mm:ss")).Br();
 
-        await telegramService.EditMessageText(htmlMessage.ToString());
+        await serviceFacade.TelegramService.EditMessageText(htmlMessage.ToString());
 
-        var mirrorConfig = await appSettingRepository.GetConfigSectionAsync<MirrorConfig>();
+        var mirrorConfig = await dataFacade.AppSetting.GetConfigSectionAsync<MirrorConfig>();
 
-        return await telegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId,
+        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId,
             threadId: 0);
     }
 }

@@ -5,12 +5,14 @@ public class DeleteNoteRequest : BotRequestBase
     public string Note { get; set; }
 }
 
-public class DeleteNoteRequestHandler(TelegramService telegramService, NoteService noteService) : IRequestHandler<DeleteNoteRequest, BotResponseBase>
+public class DeleteNoteRequestHandler(
+    ServiceFacade serviceFacade
+) : IRequestHandler<DeleteNoteRequest, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(DeleteNoteRequest request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        return await noteService.Delete(request.ChatIdentifier, request.Note, async message => await telegramService.SendMessageText(message));
+        return await serviceFacade.NoteService.Delete(request.ChatIdentifier, request.Note, async message => await serviceFacade.TelegramService.SendMessageText(message));
     }
 }

@@ -3,34 +3,35 @@
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
 public class AddRssRequest : BotRequestBase
-{
+{ }
 
-}
-
-public class AddRssHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext, IMediator mediator) : IRequestHandler<AddRssRequest, BotResponseBase>
+public class AddRssHandler(
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+) : IRequestHandler<AddRssRequest, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(AddRssRequest request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         if (request.Param.IsNullOrEmpty())
         {
-            return await telegramService.SendMessageAsync("Masukkan RSS URL yang ingin ditambahkan");
+            return await serviceFacade.TelegramService.SendMessageAsync("Masukkan RSS URL yang ingin ditambahkan");
         }
 
         var rssUrl = request.Param.TryFixRssUrl();
 
         try
         {
-            await telegramService.SendMessageAsync("Sedang memverifikasi URL");
+            await serviceFacade.TelegramService.SendMessageAsync("Sedang memverifikasi URL");
             var feed = await rssUrl.ReadRssAsync();
         }
         catch (Exception e)
         {
-            return await telegramService.SendMessageAsync("Sepertinya bukan URL yang valid");
+            return await serviceFacade.TelegramService.SendMessageAsync("Sepertinya bukan URL yang valid");
         }
 
-        var rssSetting = await mongoDbContext.RssSetting
+        var rssSetting = await dataFacade.MongoDb.RssSetting
             .Where(entity => entity.RssUrl == rssUrl)
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
@@ -38,12 +39,11 @@ public class AddRssHandler(TelegramService telegramService, MongoDbContextBase m
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (rssSetting != null)
-            return await telegramService.SendMessageAsync("RSS Sudah disimpan");
+            return await serviceFacade.TelegramService.SendMessageAsync("RSS Sudah disimpan");
 
         var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
 
-        mongoDbContext.RssSetting.Add(new()
-        {
+        dataFacade.MongoDb.RssSetting.Add(new() {
             ChatId = request.ChatIdentifier,
             RssUrl = rssUrl,
             ThreadId = request.MessageThreadId,
@@ -52,19 +52,17 @@ public class AddRssHandler(TelegramService telegramService, MongoDbContextBase m
             Status = (int)EventStatus.Complete
         });
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
-        await telegramService.SendMessageAsync("Membuat Cron Job");
+        await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job");
 
-        await mediator.Send(new RegisterRssJobUrlRequest
-        {
+        await serviceFacade.Mediator.Send(new RegisterRssJobUrlRequest {
             ChatId = request.ChatIdentifier,
             ThreadId = request.MessageThreadId,
             Url = rssUrl,
             JobId = uniqueId
         }, cancellationToken);
 
-        return await telegramService.SendMessageAsync("RSS Berhasil disimpan");
-
+        return await serviceFacade.TelegramService.SendMessageAsync("RSS Berhasil disimpan");
     }
 }

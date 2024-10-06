@@ -6,15 +6,16 @@ using Environment = System.Environment;
 namespace ZiziBot.Application.Handlers.Telegram.Core;
 
 public class GetSystemInfoRequest : BotRequestBase
-{
+{ }
 
-}
-
-public class GetSystemInfoHandler(TelegramService telegramService) : IBotRequestHandler<GetSystemInfoRequest>
+public class GetSystemInfoHandler(
+    ServiceFacade serviceFacade
+)
+    : IBotRequestHandler<GetSystemInfoRequest>
 {
     public async Task<BotResponseBase> Handle(GetSystemInfoRequest request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         var workingSet = Process.GetCurrentProcess().WorkingSet64.Bytes().ToString("#.##");
         var privateMemory = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("#.##");
@@ -38,6 +39,6 @@ public class GetSystemInfoHandler(TelegramService telegramService) : IBotRequest
             .Bold("Executable: ").Code(Environment.ProcessPath!).Br();
 
 
-        return await telegramService.SendMessageAsync(htmlMessage.ToString());
+        return await serviceFacade.TelegramService.SendMessageAsync(htmlMessage.ToString());
     }
 }

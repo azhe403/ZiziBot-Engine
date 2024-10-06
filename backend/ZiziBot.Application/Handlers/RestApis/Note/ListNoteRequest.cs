@@ -5,7 +5,9 @@ public class ListNoteRequest : ApiRequestBase<List<NoteDto>>
     public long ChatId { get; set; }
 }
 
-public class ListNoteHandler(ChatSettingRepository chatSettingRepository) : IRequestHandler<ListNoteRequest, ApiResponseBase<List<NoteDto>>>
+public class ListNoteHandler(
+    DataFacade dataFacade
+) : IRequestHandler<ListNoteRequest, ApiResponseBase<List<NoteDto>>>
 {
     public async Task<ApiResponseBase<List<NoteDto>>> Handle(ListNoteRequest request, CancellationToken cancellationToken)
     {
@@ -16,7 +18,7 @@ public class ListNoteHandler(ChatSettingRepository chatSettingRepository) : IReq
             return response.BadRequest("ChatId is not in your list");
         }
 
-        var listNote = await chatSettingRepository.GetListNote(request.ChatId);
+        var listNote = await dataFacade.ChatSetting.GetListNote(request.ChatId);
 
         return response.Success("Get Note successfully", listNote);
     }

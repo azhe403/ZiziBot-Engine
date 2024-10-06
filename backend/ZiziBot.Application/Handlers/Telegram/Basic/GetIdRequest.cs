@@ -3,14 +3,15 @@ using Telegram.Bot.Types.Enums;
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
 public class GetIdBotRequestModel : BotRequestBase
-{
-}
+{ }
 
-public class GetIdRequestHandler(TelegramService telegramService) : IRequestHandler<GetIdBotRequestModel, BotResponseBase>
+public class GetIdRequestHandler(
+    ServiceFacade serviceFacade
+) : IRequestHandler<GetIdBotRequestModel, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(GetIdBotRequestModel request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty;
 
@@ -31,6 +32,6 @@ public class GetIdRequestHandler(TelegramService telegramService) : IRequestHand
             .BoldBr($"👤 {request.UserFullName}")
             .Bold("User ID: ").CodeBr(request.UserId.ToString());
 
-        return await telegramService.SendMessageText(htmlMessage.ToString());
+        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
     }
 }

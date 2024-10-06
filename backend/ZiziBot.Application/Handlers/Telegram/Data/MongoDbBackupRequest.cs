@@ -8,20 +8,19 @@ using File = System.IO.File;
 namespace ZiziBot.Application.Handlers.Telegram.Data;
 
 public class MongoDbBackupRequest : IRequest<bool>
-{
-}
+{ }
 
 public class MongoDbBackupHandler(
     ILogger<MongoDbBackupHandler> logger,
-    MongoDbContextBase mongoDbContext,
-    AppSettingRepository appSettingRepository)
+    DataFacade dataFacade
+)
     : IRequestHandler<MongoDbBackupRequest, bool>
 {
     public async Task<bool> Handle(MongoDbBackupRequest request, CancellationToken cancellationToken)
     {
-        var botMain = await appSettingRepository.GetBotMain();
+        var botMain = await dataFacade.AppSetting.GetBotMain();
 
-        var config = await appSettingRepository.GetConfigSectionAsync<EventLogConfig>();
+        var config = await dataFacade.AppSetting.GetConfigSectionAsync<EventLogConfig>();
 
         if (config == null)
         {
@@ -31,26 +30,26 @@ public class MongoDbBackupHandler(
 
         var exportPath = PathConst.MONGODB_BACKUP.EnsureDirectory();
 
-        await mongoDbContext.ExportAllAsync<AppSettingsEntity>();
-        await mongoDbContext.ExportAllAsync<ApiKeyEntity>();
-        await mongoDbContext.ExportAllAsync<BotCommandEntity>();
-        await mongoDbContext.ExportAllAsync<BotSettingsEntity>();
-        await mongoDbContext.ExportAllAsync<BangHasan_ShalatCityEntity>();
-        await mongoDbContext.ExportAllAsync<ChannelMapEntity>();
-        await mongoDbContext.ExportAllAsync<ChannelPostEntity>();
-        // await _mirrorDbContext.ExportAllAsync<BinderByteCheckAwbEntity>();
-        await mongoDbContext.ExportAllAsync<ChatSettingEntity>();
-        await mongoDbContext.ExportAllAsync<GlobalBanEntity>();
-        await mongoDbContext.ExportAllAsync<GroupTopicEntity>();
-        await mongoDbContext.ExportAllAsync<MirrorApprovalEntity>();
-        await mongoDbContext.ExportAllAsync<MirrorUserEntity>();
-        await mongoDbContext.ExportAllAsync<NoteEntity>();
-        await mongoDbContext.ExportAllAsync<RssSettingEntity>();
-        await mongoDbContext.ExportAllAsync<SudoerEntity>();
-        // await _mirrorDbContext.ExportAllAsync<TonjooAwbEntity>();
-        await mongoDbContext.ExportAllAsync<WebhookChatEntity>();
-        await mongoDbContext.ExportAllAsync<WelcomeMessageDto>();
-        await mongoDbContext.ExportAllAsync<WordFilterEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<AppSettingsEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<ApiKeyEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<BotCommandEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<BotSettingsEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<BangHasan_ShalatCityEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<ChannelMapEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<ChannelPostEntity>();
+        // await dataFacade.MongoDb.ExportAllAsync<BinderByteCheckAwbEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<ChatSettingEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<GlobalBanEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<GroupTopicEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<MirrorApprovalEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<MirrorUserEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<NoteEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<RssSettingEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<SudoerEntity>();
+        // await dataFacade.MongoDb.ExportAllAsync<TonjooAwbEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<WebhookChatEntity>();
+        await dataFacade.MongoDb.ExportAllAsync<WelcomeMessageDto>();
+        await dataFacade.MongoDb.ExportAllAsync<WordFilterEntity>();
 
         var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
 

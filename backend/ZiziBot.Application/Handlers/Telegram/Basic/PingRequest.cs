@@ -3,14 +3,15 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
 public class PingBotRequestModel : BotRequestBase
-{
-}
+{ }
 
-public class PingRequestHandler(SudoService sudoService, TelegramService telegramService) : IRequestHandler<PingBotRequestModel, BotResponseBase>
+public class PingRequestHandler(
+    ServiceFacade serviceFacade
+) : IRequestHandler<PingBotRequestModel, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(PingBotRequestModel request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         var htmlMessage = HtmlMessage.Empty
             .BoldBr("Pong!")
@@ -18,7 +19,7 @@ public class PingRequestHandler(SudoService sudoService, TelegramService telegra
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
 
-        if (await sudoService.IsSudoAsync(request.UserId))
+        if (await serviceFacade.SudoService.IsSudoAsync(request.UserId))
         {
             replyMarkup = new InlineKeyboardMarkup(
                 new[] {
@@ -34,6 +35,6 @@ public class PingRequestHandler(SudoService sudoService, TelegramService telegra
             );
         }
 
-        return await telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
     }
 }

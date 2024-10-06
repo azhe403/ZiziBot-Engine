@@ -4,8 +4,7 @@ using MongoFramework.Linq;
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
 public class CheckDashboardBearerSessionRequestDto : ApiRequestBase<CheckDashboardBearerSessionResponseDto>
-{
-}
+{ }
 
 public class CheckDashboardBearerSessionResponseDto
 {
@@ -26,7 +25,8 @@ public class UserFeature
 
 public class CheckDashboardBearerSessionRequestHandler(
     ILogger<CheckDashboardSessionRequestHandler> logger,
-    MongoDbContextBase mongoDbContext)
+    MongoDbContextBase mongoDbContext
+)
     : IRequestHandler<CheckDashboardBearerSessionRequestDto, ApiResponseBase<CheckDashboardBearerSessionResponseDto>>
 {
     public async Task<ApiResponseBase<CheckDashboardBearerSessionResponseDto>> Handle(CheckDashboardBearerSessionRequestDto request, CancellationToken cancellationToken)
@@ -34,6 +34,7 @@ public class CheckDashboardBearerSessionRequestHandler(
         ApiResponseBase<CheckDashboardBearerSessionResponseDto> response = new();
 
         #region Check Dashboard Session
+
         var dashboardSession = await mongoDbContext.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == request.BearerToken &&
@@ -47,11 +48,12 @@ public class CheckDashboardBearerSessionRequestHandler(
         }
 
         var userId = dashboardSession.TelegramUserId;
+
         #endregion
 
         #region Get User Role
-        var result = new CheckDashboardBearerSessionResponseDto()
-        {
+
+        var result = new CheckDashboardBearerSessionResponseDto() {
             IsSessionValid = true,
             UserName = dashboardSession.FirstName,
             PhotoUrl = dashboardSession.PhotoUrl,
@@ -71,6 +73,7 @@ public class CheckDashboardBearerSessionRequestHandler(
             result.RoleId = 1;
             result.RoleName = "Sudo";
         }
+
         #endregion
 
         result.Features = GetFeatures(result.RoleId);
@@ -82,28 +85,23 @@ public class CheckDashboardBearerSessionRequestHandler(
 
     private List<UserFeature> GetFeatures(int roleId)
     {
-        var features = new List<UserFeature>()
-        {
-            new()
-            {
+        var features = new List<UserFeature>() {
+            new() {
                 Title = "Mirror User",
                 Url = "/mirror-user/management",
                 MinimumRole = 1
             },
-            new()
-            {
+            new() {
                 Title = "Fed Management",
                 Url = "/antispam/fed-ban-management",
                 MinimumRole = 1
             },
-            new()
-            {
+            new() {
                 Title = "Notes Management",
                 Url = "/notes/notes-management",
                 MinimumRole = 1
             },
-            new()
-            {
+            new() {
                 Title = "Angular",
                 Url = "/angular",
                 MinimumRole = 9

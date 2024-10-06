@@ -11,14 +11,15 @@ public class PostMirrorUserRequestDto : ApiRequestBase<bool>
     public string? AdditionalNote { get; set; }
 }
 
-public class PostMirrorUserRequestHandler(MongoDbContextBase mongoDbContext) : IApiRequestHandler<PostMirrorUserRequestDto, bool>
+public class PostMirrorUserRequestHandler(
+    DataFacade dataFacade
+) : IApiRequestHandler<PostMirrorUserRequestDto, bool>
 {
     private readonly ApiResponseBase<bool> _response = new();
 
-    public async Task<ApiResponseBase<bool>> Handle(PostMirrorUserRequestDto request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<bool>> Handle(PostMirrorUserRequestDto request, CancellationToken cancellationToken)
     {
-        var mirrorUser = await mongoDbContext.MirrorUsers
+        var mirrorUser = await dataFacade.MongoDb.MirrorUsers
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == request.UserId &&
                     entity.Status == (int)EventStatus.Complete,
@@ -26,7 +27,7 @@ public class PostMirrorUserRequestHandler(MongoDbContextBase mongoDbContext) : I
 
         if (mirrorUser == null)
         {
-            mongoDbContext.MirrorUsers.Add(new MirrorUserEntity() {
+            dataFacade.MongoDb.MirrorUsers.Add(new MirrorUserEntity() {
                 UserId = request.UserId,
                 ExpireDate = DateTime.UtcNow.AddDays(request.AddDays),
                 Status = (int)EventStatus.Complete
@@ -37,7 +38,7 @@ public class PostMirrorUserRequestHandler(MongoDbContextBase mongoDbContext) : I
             mirrorUser.ExpireDate = mirrorUser.ExpireDate.AddMonths(request.MonthDuration);
         }
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return _response.Success("Mirror User saved", true);
     }

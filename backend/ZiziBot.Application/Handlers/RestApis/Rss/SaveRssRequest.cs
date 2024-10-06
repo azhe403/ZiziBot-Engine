@@ -7,8 +7,7 @@ namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
 public class SaveRssRequest : ApiRequestBase<bool>
 {
-    [FromBody]
-    public SaveRssRequestBody Body { get; set; }
+    [FromBody] public SaveRssRequestBody Body { get; set; }
 }
 
 public class SaveRssRequestBody
@@ -26,7 +25,9 @@ public class SaveRssValidation : AbstractValidator<SaveRssRequest>
     }
 }
 
-public class SaveRssHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<SaveRssRequest, ApiResponseBase<bool>>
+public class SaveRssHandler(
+    DataFacade dataFacade
+) : IRequestHandler<SaveRssRequest, ApiResponseBase<bool>>
 {
     public async Task<ApiResponseBase<bool>> Handle(SaveRssRequest request, CancellationToken cancellationToken)
     {
@@ -37,7 +38,7 @@ public class SaveRssHandler(MongoDbContextBase mongoDbContext) : IRequestHandler
             return response.BadRequest($"Kamu tidak mempunyai akses ke ChatId: {request.Body.ChatId}");
         }
 
-        var rss = await mongoDbContext.RssSetting
+        var rss = await dataFacade.MongoDb.RssSetting
             .Where(entity => entity.ChatId == request.Body.ChatId)
             .Where(entity => entity.RssUrl == request.Body.Url)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -45,17 +46,16 @@ public class SaveRssHandler(MongoDbContextBase mongoDbContext) : IRequestHandler
 
         if (rss == null)
         {
-            mongoDbContext.RssSetting.Add(new RssSettingEntity() {
+            dataFacade.MongoDb.RssSetting.Add(new RssSettingEntity() {
                 RssUrl = request.Body.Url,
                 ChatId = request.Body.ChatId,
                 Status = (int)EventStatus.Complete
             });
         }
         else
-        {
-        }
+        { }
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("RSS Berhasil disimpan", true);
     }

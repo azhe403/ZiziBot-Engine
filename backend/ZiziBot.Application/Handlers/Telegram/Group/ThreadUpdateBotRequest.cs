@@ -4,19 +4,22 @@ using ZiziBot.DataSource.MongoDb.Entities;
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
 public class ThreadUpdateBotRequest : BotRequestBase
-{
-}
+{ }
 
-public class ThreadUpdateHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext) : IBotRequestHandler<ThreadUpdateBotRequest>
+public class ThreadUpdateHandler(
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+)
+    : IBotRequestHandler<ThreadUpdateBotRequest>
 {
     public async Task<BotResponseBase> Handle(ThreadUpdateBotRequest request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         var prevTopicName = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
 
-        var findTopic = await mongoDbContext.GroupTopic
+        var findTopic = await dataFacade.MongoDb.GroupTopic
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
             .Where(entity => entity.Status == (int)EventStatus.Complete)
@@ -41,7 +44,7 @@ public class ThreadUpdateHandler(TelegramService telegramService, MongoDbContext
             if (request.TopicName != null)
                 entity.ThreadName = request.TopicName;
 
-            mongoDbContext.GroupTopic.Add(entity);
+            dataFacade.MongoDb.GroupTopic.Add(entity);
         }
         else
         {
@@ -56,8 +59,8 @@ public class ThreadUpdateHandler(TelegramService telegramService, MongoDbContext
 
         htmlMessage.Bold("Topic ID: ").Code(request.MessageThreadId.ToString());
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
-        return await telegramService.SendMessageText(htmlMessage.ToString());
+        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
     }
 }

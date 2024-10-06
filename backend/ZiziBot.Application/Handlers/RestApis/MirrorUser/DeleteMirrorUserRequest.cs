@@ -7,13 +7,15 @@ public class DeleteMirrorUserRequestDto : ApiRequestBase<bool>
     public long UserId { get; set; }
 }
 
-public class DeleteMirrorUserRequestHandler(MongoDbContextBase mongoDbContext) : IApiRequestHandler<DeleteMirrorUserRequestDto, bool>
+public class DeleteMirrorUserRequestHandler(
+    DataFacade dataFacade
+) : IApiRequestHandler<DeleteMirrorUserRequestDto, bool>
 {
     private readonly ApiResponseBase<bool> _response = new();
 
     public async Task<ApiResponseBase<bool>> Handle(DeleteMirrorUserRequestDto request, CancellationToken cancellationToken)
     {
-        var mirrorUser = await mongoDbContext.MirrorUsers
+        var mirrorUser = await dataFacade.MongoDb.MirrorUsers
             .Where(x => x.Status == (int)EventStatus.Complete)
             .Where(x => x.UserId == request.UserId)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -25,7 +27,7 @@ public class DeleteMirrorUserRequestHandler(MongoDbContextBase mongoDbContext) :
 
         mirrorUser.Status = (int)EventStatus.Deleted;
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return _response.Success("Mirror User deleted", true);
     }

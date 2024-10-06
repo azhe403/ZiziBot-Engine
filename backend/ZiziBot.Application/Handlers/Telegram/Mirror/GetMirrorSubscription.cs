@@ -4,31 +4,30 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
 public class GetMirrorSubscriptionBotRequest : BotRequestBase
-{
+{ }
 
-}
-
-public class GetMirrorSubscriptionHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext) : IRequestHandler<GetMirrorSubscriptionBotRequest, BotResponseBase>
+public class GetMirrorSubscriptionHandler(
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+)
+    : IRequestHandler<GetMirrorSubscriptionBotRequest, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(GetMirrorSubscriptionBotRequest request, CancellationToken cancellationToken)
     {
         var htmlMessage = HtmlMessage.Empty;
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        var mirrorSubscription = await mongoDbContext.MirrorUsers
+        var mirrorSubscription = await dataFacade.MongoDb.MirrorUsers
             .FirstOrDefaultAsync(x =>
                     x.UserId == request.UserId &&
                     x.Status == (int)EventStatus.Complete,
                 cancellationToken: cancellationToken);
 
-        var replyMarkup = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
+        var replyMarkup = new InlineKeyboardMarkup(new[] {
+            new[] {
                 InlineKeyboardButton.WithUrl("Mengapa donasi?", "https://docs.mirror.winten.my.id/donasi")
             },
-            new[]
-            {
+            new[] {
                 InlineKeyboardButton.WithUrl("Donasi", "https://t.me/ContactWinTenBot?start=donate"),
                 InlineKeyboardButton.WithUrl("Donate", "https://t.me/ContactWinTenBot?start=donate")
             }
@@ -39,7 +38,7 @@ public class GetMirrorSubscriptionHandler(TelegramService telegramService, Mongo
             htmlMessage.Bold("Anda belum berlangganan Mirror").Br()
                 .Text("Silahkan Donasi untuk mendapatkan akses mirror").Br();
 
-            return await telegramService.SendMessageText(text: htmlMessage.ToString(), replyMarkup: replyMarkup);
+            return await serviceFacade.TelegramService.SendMessageText(text: htmlMessage.ToString(), replyMarkup: replyMarkup);
         }
 
         htmlMessage.BoldBr("🪞 Langganan Mirror")
@@ -49,6 +48,6 @@ public class GetMirrorSubscriptionHandler(TelegramService telegramService, Mongo
             .Bold("⏱ Sejak: ").CodeBr(mirrorSubscription.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss"))
             .Bold("⏳ Durasi: ").CodeBr(mirrorSubscription.Duration.ForHuman(4));
 
-        return await telegramService.SendMessageText(text: htmlMessage.ToString(), replyMarkup: replyMarkup);
+        return await serviceFacade.TelegramService.SendMessageText(text: htmlMessage.ToString(), replyMarkup: replyMarkup);
     }
 }

@@ -5,13 +5,13 @@ using ZiziBot.DataSource.MongoDb.Entities;
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
 public class GetSettingPanelBotRequestModel : BotRequestBase
-{
-}
+{ }
 
 public class GetSettingPanelRequestHandler(
     ILogger<GetSettingPanelRequestHandler> logger,
-    TelegramService telegramService,
-    MongoDbContextBase mongoDbContext)
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+)
     : IRequestHandler<GetSettingPanelBotRequestModel, BotResponseBase>
 {
     private readonly ILogger<GetSettingPanelRequestHandler> _logger = logger;
@@ -19,21 +19,22 @@ public class GetSettingPanelRequestHandler(
     public async Task<BotResponseBase> Handle(GetSettingPanelBotRequestModel request,
         CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        var chat = await mongoDbContext.ChatSetting.FirstOrDefaultAsync(x => x.ChatId == request.ChatIdentifier,
+        var chat = await dataFacade.MongoDb.ChatSetting.FirstOrDefaultAsync(x => x.ChatId == request.ChatIdentifier,
             cancellationToken);
+
         if (chat == null)
         {
-            mongoDbContext.ChatSetting.Add(new ChatSettingEntity() {
+            dataFacade.MongoDb.ChatSetting.Add(new ChatSettingEntity() {
                 ChatId = request.ChatIdentifier,
             });
 
-            await mongoDbContext.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
         }
 
-        await telegramService.SendMessageText("Sedang memuat tombol..");
+        await serviceFacade.TelegramService.SendMessageText("Sedang memuat tombol..");
 
-        return telegramService.Complete();
+        return serviceFacade.TelegramService.Complete();
     }
 }

@@ -6,8 +6,7 @@ namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
 public class GetListRssRequest : ApiRequestBase<List<GetListRssResponse>>
 {
-    [FromQuery]
-    public long ChatId { get; set; }
+    [FromQuery] public long ChatId { get; set; }
 }
 
 public class GetListRssResponse
@@ -23,20 +22,21 @@ public class GetListRssResponse
     public DateTime UpdatedDate { get; set; }
 }
 
-public class GetListRssHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<GetListRssRequest, ApiResponseBase<List<GetListRssResponse>>>
+public class GetListRssHandler(
+    DataFacade dataFacade
+) : IRequestHandler<GetListRssRequest, ApiResponseBase<List<GetListRssResponse>>>
 {
     public async Task<ApiResponseBase<List<GetListRssResponse>>> Handle(GetListRssRequest request, CancellationToken cancellationToken)
     {
         ApiResponseBase<List<GetListRssResponse>> response = new();
 
-        var listRss = await mongoDbContext.RssSetting
+        var listRss = await dataFacade.MongoDb.RssSetting
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        var result = listRss.Select(x => new GetListRssResponse
-        {
+        var result = listRss.Select(x => new GetListRssResponse {
             Id = x.Id,
             Url = x.RssUrl,
             ChatId = x.ChatId,

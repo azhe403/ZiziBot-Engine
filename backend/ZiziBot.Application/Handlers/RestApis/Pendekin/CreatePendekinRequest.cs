@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.Application.Facades;
 using ZiziBot.DataSource.MongoEf.Entities;
 
 public class CreatePendekinRequest : ApiPostRequestBase<CreatePendekinRequestBody, CreatePendekinResponse>
@@ -30,7 +29,9 @@ public class CreatePendekinResponse
     public string ShortPath { get; set; }
 }
 
-public class CreatePendekinHandler(DataFacade dataFacade) : IApiRequestHandler<CreatePendekinRequest, CreatePendekinResponse>
+public class CreatePendekinHandler(
+    DataFacade dataFacade
+) : IApiRequestHandler<CreatePendekinRequest, CreatePendekinResponse>
 {
     public async Task<ApiResponseBase<CreatePendekinResponse>> Handle(CreatePendekinRequest request, CancellationToken cancellationToken)
     {

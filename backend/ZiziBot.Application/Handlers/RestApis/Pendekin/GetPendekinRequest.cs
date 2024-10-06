@@ -1,13 +1,11 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.Application.Facades;
 using ZiziBot.DataSource.Utils;
 
 public class GetPendekinRequest : ApiRequestBase<GetPendekinResponse>
 {
-    [FromRoute]
-    public string ShortPath { get; set; }
+    [FromRoute] public string ShortPath { get; set; }
 }
 
 public class GetPendekinRequestValidator : AbstractValidator<GetPendekinRequest>
@@ -26,7 +24,9 @@ public class GetPendekinResponse
     public DateTime UpdatedDate { get; set; }
 }
 
-public class GetPendekinHandler(DataFacade dataFacade) : IApiRequestHandler<GetPendekinRequest, GetPendekinResponse>
+public class GetPendekinHandler(
+    DataFacade dataFacade
+) : IApiRequestHandler<GetPendekinRequest, GetPendekinResponse>
 {
     public async Task<ApiResponseBase<GetPendekinResponse>> Handle(GetPendekinRequest request, CancellationToken cancellationToken)
     {

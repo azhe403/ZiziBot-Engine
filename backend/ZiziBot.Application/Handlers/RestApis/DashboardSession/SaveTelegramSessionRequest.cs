@@ -11,8 +11,7 @@ namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
 public class SaveTelegramSessionRequest : ApiRequestBase<SaveDashboardSessionIdResponseDto>
 {
-    [FromBody]
-    public TelegramSessionDto Model { get; set; }
+    [FromBody] public TelegramSessionDto Model { get; set; }
 }
 
 public class SaveDashboardSessionIdResponseDto
@@ -23,17 +22,16 @@ public class SaveDashboardSessionIdResponseDto
 
 public class SaveTelegramSessionRequestHandler(
     ILogger<SaveTelegramSessionRequestHandler> logger,
-    MongoDbContextBase mongoDbContext,
-    AppSettingRepository appSettingRepository)
-    : IRequestHandler<SaveTelegramSessionRequest,
-        ApiResponseBase<SaveDashboardSessionIdResponseDto>>
+    DataFacade dataFacade
+)
+    : IRequestHandler<SaveTelegramSessionRequest, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
 {
     public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(SaveTelegramSessionRequest request,
         CancellationToken cancellationToken)
     {
         ApiResponseBase<SaveDashboardSessionIdResponseDto> response = new();
 
-        var botSetting = await mongoDbContext.BotSettings
+        var botSetting = await dataFacade.MongoDb.BotSettings
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .Where(entity => entity.Name == "Main")
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -55,11 +53,12 @@ public class SaveTelegramSessionRequestHandler(
         {
             logger.LogDebug("Session is not valid for SessionId: {SessionId}. Result: {Result}",
                 request.Model.SessionId, checkAuthorization);
+
             return response.Unauthorized(
                 $"Sesi tidak valid, silakan kirim ulang perintah '/console' di Bot untuk membuat sesi baru.");
         }
 
-        var jwtConfig = await appSettingRepository.GetConfigSectionAsync<JwtConfig>();
+        var jwtConfig = await dataFacade.AppSetting.GetConfigSectionAsync<JwtConfig>();
 
         if (jwtConfig == null)
         {
@@ -78,9 +77,10 @@ public class SaveTelegramSessionRequestHandler(
 
         var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims,
             expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
+
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        mongoDbContext.DashboardSessions.Add(new DashboardSessionEntity() {
+        dataFacade.MongoDb.DashboardSessions.Add(new DashboardSessionEntity() {
             TelegramUserId = request.Model.Id,
             FirstName = request.Model.FirstName,
             LastName = request.Model.LastName,
@@ -93,7 +93,7 @@ public class SaveTelegramSessionRequestHandler(
             Status = (int)EventStatus.Complete
         });
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto() {
             IsSessionValid = true,

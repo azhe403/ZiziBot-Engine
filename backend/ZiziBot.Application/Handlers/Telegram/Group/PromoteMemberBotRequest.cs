@@ -5,28 +5,29 @@ public class PromoteMemberBotRequest : BotRequestBase
     public bool Promote { get; set; }
 }
 
-public class PromoteMemberHandler(TelegramService telegramService) : IRequestHandler<PromoteMemberBotRequest, BotResponseBase>
+public class PromoteMemberHandler(
+    ServiceFacade serviceFacade
+) : IRequestHandler<PromoteMemberBotRequest, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(PromoteMemberBotRequest request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         if (request.Promote)
         {
+            if (await serviceFacade.TelegramService.CheckAdministration())
+                return await serviceFacade.TelegramService.SendMessageText("Pengguna sudah menjadi admin");
 
-            if (await telegramService.CheckAdministration())
-                return await telegramService.SendMessageText("Pengguna sudah menjadi admin");
-
-            await telegramService.PromoteMember(request.UserId);
-            return await telegramService.SendMessageText("Promote berhasil");
+            await serviceFacade.TelegramService.PromoteMember(request.UserId);
+            return await serviceFacade.TelegramService.SendMessageText("Promote berhasil");
         }
         else
         {
-            if (!await telegramService.CheckAdministration())
-                return await telegramService.SendMessageText("Pengguna sudah bukan lagi admin");
+            if (!await serviceFacade.TelegramService.CheckAdministration())
+                return await serviceFacade.TelegramService.SendMessageText("Pengguna sudah bukan lagi admin");
 
-            await telegramService.DemoteMember(request.UserId);
-            return await telegramService.SendMessageText("Demote berhasil");
+            await serviceFacade.TelegramService.DemoteMember(request.UserId);
+            return await serviceFacade.TelegramService.SendMessageText("Demote berhasil");
         }
     }
 }

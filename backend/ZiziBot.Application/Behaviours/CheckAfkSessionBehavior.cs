@@ -6,8 +6,9 @@ namespace ZiziBot.Application.Behaviours;
 
 public class CheckAfkSessionBehavior<TRequest, TResponse>(
     ILogger<CheckAfkSessionBehavior<TRequest, TResponse>> logger,
-    TelegramService telegramService,
-    MongoDbContextBase mongoDbContext)
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+)
     : IRequestPostProcessor<TRequest, TResponse>
     where TRequest : BotRequestBase, IRequest<TResponse>
     where TResponse : BotResponseBase
@@ -20,15 +21,14 @@ public class CheckAfkSessionBehavior<TRequest, TResponse>(
 
         request.ReplyMessage = true;
         request.DeleteAfter = TimeSpan.FromMinutes(1);
-        request.CleanupTargets = new[]
-        {
+        request.CleanupTargets = new[] {
             CleanupTarget.FromBot
         };
 
 
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        if (telegramService.IsCommand("/afk"))
+        if (serviceFacade.TelegramService.IsCommand("/afk"))
             return;
 
         logger.LogInformation("CheckAfkSessionBehavior Started");
@@ -42,7 +42,7 @@ public class CheckAfkSessionBehavior<TRequest, TResponse>(
             userName = request.ReplyToMessage.From.GetFullMention();
         }
 
-        var afkEntity = await mongoDbContext.Afk
+        var afkEntity = await dataFacade.MongoDb.Afk
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == userId &&
                     entity.Status == (int)EventStatus.Complete,
@@ -53,15 +53,15 @@ public class CheckAfkSessionBehavior<TRequest, TResponse>(
 
         if (userId == request.UserId)
         {
-            await telegramService.SendMessageText($"{userName} sudah tidak AFK");
+            await serviceFacade.TelegramService.SendMessageText($"{userName} sudah tidak AFK");
             afkEntity.Status = (int)EventStatus.Deleted;
         }
         else
         {
-            await telegramService.SendMessageText($"{userName} sedang AFK");
+            await serviceFacade.TelegramService.SendMessageText($"{userName} sedang AFK");
         }
 
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
     }
 }

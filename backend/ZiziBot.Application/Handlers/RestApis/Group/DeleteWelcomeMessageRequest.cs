@@ -8,8 +8,7 @@ namespace ZiziBot.Application.Handlers.RestApis.Group;
 
 public class DeleteWelcomeMessageRequest : ApiRequestBase<object>
 {
-    [FromBody]
-    public DeleteWelcomeMessageRequestModel Model { get; set; }
+    [FromBody] public DeleteWelcomeMessageRequestModel Model { get; set; }
 }
 
 public class DeleteWelcomeMessageValidation : AbstractValidator<DeleteWelcomeMessageRequest>
@@ -26,12 +25,12 @@ public class DeleteWelcomeMessageRequestModel
     public string Id { get; set; }
     public long ChatId { get; set; }
 
-    [BindNever]
-    [SwaggerIgnore]
-    public ObjectId ObjectId => ObjectId.Parse(Id);
+    [BindNever] [SwaggerIgnore] public ObjectId ObjectId => ObjectId.Parse(Id);
 }
 
-public class DeleteWelcomeMessageHandler(MongoDbContextBase mongoDbContext) : IRequestHandler<DeleteWelcomeMessageRequest, ApiResponseBase<object>>
+public class DeleteWelcomeMessageHandler(
+    DataFacade dataFacade
+) : IRequestHandler<DeleteWelcomeMessageRequest, ApiResponseBase<object>>
 {
     public async Task<ApiResponseBase<object>> Handle(DeleteWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
@@ -42,7 +41,7 @@ public class DeleteWelcomeMessageHandler(MongoDbContextBase mongoDbContext) : IR
             return response.BadRequest("You don't have access to this Group");
         }
 
-        var findWelcome = await mongoDbContext.WelcomeMessage
+        var findWelcome = await dataFacade.MongoDb.WelcomeMessage
             .Where(x => x.ChatId == request.Model.ChatId)
             .Where(x => x.Status != (int)EventStatus.Deleted)
             .FirstOrDefaultAsync(x => x.Id == request.Model.ObjectId, cancellationToken);
@@ -56,7 +55,7 @@ public class DeleteWelcomeMessageHandler(MongoDbContextBase mongoDbContext) : IR
         findWelcome.UserId = request.SessionUserId;
         findWelcome.TransactionId = request.TransactionId;
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Delete Welcome Message successfully", true);
     }

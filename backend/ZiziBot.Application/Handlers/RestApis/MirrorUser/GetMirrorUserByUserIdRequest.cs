@@ -13,23 +13,23 @@ public class GetMirrorUserDto
     public DateTime? MemberSince { get; set; }
 }
 
-public class GetMirrorUserByUserIdRequestHandler(MongoDbContextBase mongoDbContext, MirrorUserRepository mirrorUserRepository)
+public class GetMirrorUserByUserIdRequestHandler(
+    DataFacade dataFacade
+)
     : IApiRequestHandler<GetMirrorUserByUserIdRequestDto, GetMirrorUserDto>
 {
-    private readonly MongoDbContextBase _mongoDbContext = mongoDbContext;
     private readonly ApiResponseBase<GetMirrorUserDto> _response = new();
 
     public async Task<ApiResponseBase<GetMirrorUserDto>> Handle(GetMirrorUserByUserIdRequestDto request, CancellationToken cancellationToken)
     {
-        var user = await mirrorUserRepository.GetByUserId(request.UserId);
+        var user = await dataFacade.MirrorUser.GetByUserId(request.UserId);
 
         if (user == null)
         {
             return _response.NotFound("Mirror User not found");
         }
 
-        return _response.Success("Mirror User found", new GetMirrorUserDto
-        {
+        return _response.Success("Mirror User found", new GetMirrorUserDto {
             UserId = request.UserId,
             HasSubscription = user.ExpireDate > DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE),
             SubscriptionUntil = user.ExpireDate.AddHours(Env.DEFAULT_TIMEZONE),

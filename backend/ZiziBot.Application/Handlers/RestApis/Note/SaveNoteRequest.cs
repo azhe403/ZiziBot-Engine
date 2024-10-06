@@ -9,8 +9,7 @@ namespace ZiziBot.Application.Handlers.RestApis.Note;
 
 public class SaveNoteRequest : ApiRequestBase<bool>
 {
-    [FromBody]
-    public SaveNoteRequestModel Model { get; set; }
+    [FromBody] public SaveNoteRequestModel Model { get; set; }
 }
 
 public class SaveNoteRequestModel
@@ -25,7 +24,9 @@ public class SaveNoteRequestModel
 
     [BindNever]
     [SwaggerIgnore]
-    public ObjectId ObjectId => Id != null ? new ObjectId(Id) : ObjectId.Empty;
+    public ObjectId ObjectId => Id != null ?
+        new ObjectId(Id) :
+        ObjectId.Empty;
 }
 
 public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
@@ -37,7 +38,10 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
     }
 }
 
-public class CreateNoteHandler(IHttpContextAccessor httpContextAccessor, NoteService noteService) : IRequestHandler<SaveNoteRequest, ApiResponseBase<bool>>
+public class CreateNoteHandler(
+    IHttpContextAccessor httpContextAccessor,
+    ServiceFacade serviceFacade
+) : IRequestHandler<SaveNoteRequest, ApiResponseBase<bool>>
 {
     public async Task<ApiResponseBase<bool>> Handle(SaveNoteRequest request, CancellationToken cancellationToken)
     {
@@ -48,7 +52,7 @@ public class CreateNoteHandler(IHttpContextAccessor httpContextAccessor, NoteSer
             return response.BadRequest("You don't have permission to create note for this Chat");
         }
 
-        var save = await noteService.Save(new NoteEntity() {
+        var save = await serviceFacade.NoteService.Save(new NoteEntity() {
             Id = request.Model.ObjectId,
             ChatId = request.Model.ChatId,
             Query = request.Model.Query,

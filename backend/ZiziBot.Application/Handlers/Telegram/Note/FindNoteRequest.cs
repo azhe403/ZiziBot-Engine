@@ -3,7 +3,10 @@ using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
-public class FindNoteRequestHandler<TRequest, TResponse>(ILogger<FindNoteRequestHandler<TRequest, TResponse>> logger, TelegramService telegramService, NoteService noteService)
+public class FindNoteRequestHandler<TRequest, TResponse>(
+    ILogger<FindNoteRequestHandler<TRequest, TResponse>> logger,
+    ServiceFacade serviceFacade
+)
     : IRequestPostProcessor<TRequest, TResponse>
     where TRequest : BotRequestBase, IRequest<TResponse>
     where TResponse : BotResponseBase
@@ -19,14 +22,13 @@ public class FindNoteRequestHandler<TRequest, TResponse>(ILogger<FindNoteRequest
         }
 
         request.ReplyMessage = true;
-        request.CleanupTargets = new[]
-        {
+        request.CleanupTargets = new[] {
             CleanupTarget.None
         };
 
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        var listNote = await noteService.GetAllByChat(request.ChatIdentifier);
+        var listNote = await serviceFacade.NoteService.GetAllByChat(request.ChatIdentifier);
 
         if (listNote.Count == 0)
         {
@@ -71,9 +73,9 @@ public class FindNoteRequestHandler<TRequest, TResponse>(ILogger<FindNoteRequest
             var replyMarkup = notes.RawButton.ToButtonMarkup();
 
             if (dataType <= CommonMediaType.Text)
-                await telegramService.SendMessageText(notes.Text, replyMarkup);
+                await serviceFacade.TelegramService.SendMessageText(notes.Text, replyMarkup);
             else
-                await telegramService.SendMediaAsync(
+                await serviceFacade.TelegramService.SendMediaAsync(
                     notes.FileId,
                     caption: notes.Text,
                     mediaType: (CommonMediaType)notes.DataType,

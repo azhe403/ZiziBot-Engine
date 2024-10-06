@@ -8,25 +8,28 @@ public class RegisterRssJobAllRequest : IRequest<bool>
     public bool ResetStatus { get; set; }
 }
 
-public class RegisterRssJobAllHandler(ILogger<RegisterRssJobAllHandler> logger, MongoDbContextBase mongoDbContext, IMediator mediator)
-    : IRequestHandler<RegisterRssJobAllRequest, bool>
+public class RegisterRssJobAllHandler(
+    ILogger<RegisterRssJobAllHandler> logger,
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+) : IRequestHandler<RegisterRssJobAllRequest, bool>
 {
     public async Task<bool> Handle(RegisterRssJobAllRequest request, CancellationToken cancellationToken)
     {
         if (request.ResetStatus)
         {
-            var rssSettingsAll = await mongoDbContext.RssSetting.ToListAsync(cancellationToken: cancellationToken);
+            var rssSettingsAll = await dataFacade.MongoDb.RssSetting.ToListAsync(cancellationToken: cancellationToken);
             rssSettingsAll.ForEach(entity => {
                 entity.LastErrorMessage = string.Empty;
                 entity.Status = (int)EventStatus.Complete;
             });
 
-            await mongoDbContext.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
         }
 
         HangfireUtil.RemoveRssJobs();
 
-        var rssSettings = await mongoDbContext.RssSetting
+        var rssSettings = await dataFacade.MongoDb.RssSetting
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
@@ -36,8 +39,7 @@ public class RegisterRssJobAllHandler(ILogger<RegisterRssJobAllHandler> logger, 
         {
             var jobId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
 
-            await mediator.Send(new RegisterRssJobUrlRequest
-            {
+            await serviceFacade.Mediator.Send(new RegisterRssJobUrlRequest {
                 ChatId = rssSettingEntity.ChatId,
                 ThreadId = rssSettingEntity.ThreadId,
                 Url = rssSettingEntity.RssUrl,
@@ -47,7 +49,7 @@ public class RegisterRssJobAllHandler(ILogger<RegisterRssJobAllHandler> logger, 
             rssSettingEntity.CronJobId = jobId;
         }
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return true;
     }

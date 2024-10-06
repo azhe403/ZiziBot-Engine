@@ -1,27 +1,26 @@
 ﻿namespace ZiziBot.Application.Handlers.Telegram.Group.Welcome;
 
 public class ShowWelcomeMessageRequest : BotRequestBase
-{
+{ }
 
-}
-
-public class ShowWelcomeMessageHandler(TelegramService telegramService, MongoDbContextBase mongoDbContext, GroupRepository groupRepository)
+public class ShowWelcomeMessageHandler(
+    DataFacade dataFacade,
+    ServiceFacade serviceFacade
+)
     : IRequestHandler<ShowWelcomeMessageRequest, BotResponseBase>
 {
-    private readonly MongoDbContextBase _mongoDbContext = mongoDbContext;
-
     public async Task<BotResponseBase> Handle(ShowWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
-        var welcomeMessage = await groupRepository.GetWelcomeMessage(request.ChatIdentifier);
+        var welcomeMessage = await dataFacade.Group.GetWelcomeMessage(request.ChatIdentifier);
 
         if (welcomeMessage == null)
         {
-            return await telegramService.SendMessageAsync("Belum ada Welcome yang diatur, konfigurasi default akan diterapkan.");
+            return await serviceFacade.TelegramService.SendMessageAsync("Belum ada Welcome yang diatur, konfigurasi default akan diterapkan.");
         }
 
-        return await telegramService.SendMessageAsync(
+        return await serviceFacade.TelegramService.SendMessageAsync(
             text: welcomeMessage.Text,
             replyMarkup: welcomeMessage.RawButton.ToButtonMarkup(),
             fileId: welcomeMessage.Media,

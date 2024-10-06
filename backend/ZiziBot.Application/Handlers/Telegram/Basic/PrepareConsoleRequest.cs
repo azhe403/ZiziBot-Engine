@@ -4,14 +4,15 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
 public class PrepareConsoleBotRequest : BotRequestBase
-{
-}
+{ }
 
-public class PrepareConsoleHandler(TelegramService telegramService) : IRequestHandler<PrepareConsoleBotRequest, BotResponseBase>
+public class PrepareConsoleHandler(
+    ServiceFacade serviceFacade
+) : IRequestHandler<PrepareConsoleBotRequest, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(PrepareConsoleBotRequest request, CancellationToken cancellationToken)
     {
-        telegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request);
 
         var sessionId = Guid.NewGuid().ToString();
         var consoleUrl = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL);
@@ -20,7 +21,7 @@ public class PrepareConsoleHandler(TelegramService telegramService) : IRequestHa
 
         if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))
         {
-            await telegramService.SendMessageText("Maaf fitur ini belum dipersiapkan");
+            await serviceFacade.TelegramService.SendMessageText("Maaf fitur ini belum dipersiapkan");
         }
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
@@ -35,18 +36,15 @@ public class PrepareConsoleHandler(TelegramService telegramService) : IRequestHa
         }
         else
         {
-            replyMarkup = new[]
-            {
-                new[]
-                {
-                    InlineKeyboardButton.WithLoginUrl("Buka Console", new LoginUrl()
-                    {
+            replyMarkup = new[] {
+                new[] {
+                    InlineKeyboardButton.WithLoginUrl("Buka Console", new LoginUrl() {
                         Url = webUrl
                     })
                 }
             }.ToButtonMarkup();
         }
 
-        return await telegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
     }
 }
