@@ -55,7 +55,7 @@ public class AnswerInlineQuerySubdlHandler(
                 title: name,
                 inputMessageContent: new InputTextMessageContent(htmlContent.ToString()) {
                     ParseMode = ParseMode.Html,
-                    DisableWebPagePreview = false
+                    LinkPreviewOptions = false
                 }
             ) {
                 Description = subtitleUrl,

@@ -9,8 +9,8 @@
     <ItemGroup>
         <PackageReference Include="Kot.MongoDB.Migrations.DI" Version="2.1.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1"/>
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1"/>
     </ItemGroup>
 
     <ItemGroup>

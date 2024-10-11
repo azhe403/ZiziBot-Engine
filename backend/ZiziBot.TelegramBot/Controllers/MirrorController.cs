@@ -1,26 +1,25 @@
-using Allowed.Telegram.Bot.Attributes;
-using Allowed.Telegram.Bot.Controllers;
-using Allowed.Telegram.Bot.Models;
+using ZiziBot.TelegramBot.Framework.Attributes;
+using ZiziBot.TelegramBot.Framework.Models;
 
-namespace ZiziBot.Allowed.TelegramBot.Controllers;
+namespace ZiziBot.TelegramBot.Controllers;
 
-[BotName("Main")]
+// [BotName("Main")]
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class MirrorController(MediatorService mediatorService) : CommandController
+public class MirrorController(
+    MediatorService mediatorService
+) : BotCommandController
 {
     [Command("mp")]
-    public async Task SaveMirrorPayment(MessageData data)
+    public async Task SaveMirrorPayment(CommandData data)
     {
-        await mediatorService.EnqueueAsync(new SavePaymentBotRequestModel()
-        {
-            BotToken = data.Options.Token,
+        await mediatorService.EnqueueAsync(new SavePaymentBotRequestModel() {
+            BotToken = data.BotToken,
             ReplyMessage = true,
             Message = data.Message,
             Payload = data.Params.GetCommandParamAt<string>(0),
             ForUserId = data.Params.GetCommandParamAt<long>(1),
             MinimumRole = RoleLevel.Sudo,
-            CleanupTargets = new[]
-            {
+            CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -28,17 +27,15 @@ public class MirrorController(MediatorService mediatorService) : CommandControll
     }
 
     [Command("sp")]
-    public async Task SubmitMirrorPayment(MessageData data)
+    public async Task SubmitMirrorPayment(CommandData data)
     {
-        await mediatorService.EnqueueAsync(new SubmitPaymentBotRequest()
-        {
-            BotToken = data.Options.Token,
+        await mediatorService.EnqueueAsync(new SubmitPaymentBotRequest() {
+            BotToken = data.BotToken,
             ReplyMessage = true,
             Message = data.Message,
             Payload = data.Params.GetCommandParamAt<string>(0),
             ForUserId = data.Params.GetCommandParamAt<long>(1),
-            CleanupTargets = new[]
-            {
+            CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -46,15 +43,13 @@ public class MirrorController(MediatorService mediatorService) : CommandControll
     }
 
     [Command("ms")]
-    public async Task MirrorSubscription(MessageData data)
+    public async Task MirrorSubscription(CommandData data)
     {
-        await mediatorService.EnqueueAsync(new GetMirrorSubscriptionBotRequest()
-        {
-            BotToken = data.Options.Token,
+        await mediatorService.EnqueueAsync(new GetMirrorSubscriptionBotRequest() {
+            BotToken = data.BotToken,
             ReplyMessage = true,
             Message = data.Message,
-            CleanupTargets = new[]
-            {
+            CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

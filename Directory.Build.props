@@ -4,21 +4,21 @@
     <BaseOutputPath>.bin\</BaseOutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>224.10.9045.12576</Version>
+    <Version>224.10.9050.16010</Version>
     <Company>AZ Corp</Company>
     <Authors>azhe403</Authors>
     <Product>ZiziBot</Product>
   </PropertyGroup>
-  <!-- Store Build Date -->
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <AssemblyAttribute Include="ZiziBot.Attributes.BuildStampAttribute">
-      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <AssemblyAttribute Include="ZiziBot.Attributes.BuildStampAttribute">
-      <_Parameter1>20231020144910</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-  <!-- Store Build Date -->
+  <!--  &lt;!&ndash; Store Build Date &ndash;&gt;-->
+  <!--  <ItemGroup Condition="'$(Configuration)' == 'Release'">-->
+  <!--    <AssemblyAttribute Include="ZiziBot.Attributes.BuildStampAttribute">-->
+  <!--      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>-->
+  <!--    </AssemblyAttribute>-->
+  <!--  </ItemGroup>-->
+  <!--  <ItemGroup Condition="'$(Configuration)' == 'Debug'">-->
+  <!--    <AssemblyAttribute Include="ZiziBot.Attributes.BuildStampAttribute">-->
+  <!--      <_Parameter1>20231020144910</_Parameter1>-->
+  <!--    </AssemblyAttribute>-->
+  <!--  </ItemGroup>-->
+  <!--  &lt;!&ndash; Store Build Date &ndash;&gt;-->
 </Project>

@@ -43,7 +43,7 @@ public class SendWebhookMessageRequestHandler(
                     lastMessageId,
                     request.FormattedHtml,
                     ParseMode.Html,
-                    disableWebPagePreview: true,
+                    linkPreviewOptions: true,
                     cancellationToken: cancellationToken);
             else
                 sentMessage = await botClient.SendTextMessageAsync(
@@ -51,7 +51,7 @@ public class SendWebhookMessageRequestHandler(
                     request.FormattedHtml,
                     webhookChat.MessageThreadId,
                     ParseMode.Html,
-                    disableWebPagePreview: true,
+                    linkPreviewOptions: true,
                     cancellationToken: cancellationToken);
         }
         catch (Exception exception)
@@ -63,7 +63,7 @@ public class SendWebhookMessageRequestHandler(
                     webhookChat.ChatId,
                     request.FormattedHtml,
                     parseMode: ParseMode.Html,
-                    disableWebPagePreview: true,
+                    linkPreviewOptions: true,
                     cancellationToken: cancellationToken);
             }
             else

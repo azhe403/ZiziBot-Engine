@@ -1,18 +1,19 @@
-using Allowed.Telegram.Bot.Attributes;
-using Allowed.Telegram.Bot.Controllers;
-using Allowed.Telegram.Bot.Models;
+using ZiziBot.TelegramBot.Framework.Attributes;
+using ZiziBot.TelegramBot.Framework.Models;
 
-namespace ZiziBot.Allowed.TelegramBot.Controllers;
+namespace ZiziBot.TelegramBot.Controllers;
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class PingController(MediatorService mediatorService) : CommandController
+public class PingController(
+    MediatorService mediatorService
+) : BotCommandController
 {
     [Command("ping")]
     [TextCommand("ping")]
-    public async Task Ping(MessageData data)
+    public async Task Ping(CommandData data)
     {
         await mediatorService.EnqueueAsync(new PingBotRequestModel() {
-                BotToken = data.Options.Token,
+                BotToken = data.BotToken,
                 Message = data.Message,
                 DeleteAfter = TimeSpan.FromMinutes(1),
                 ReplyMessage = true,
@@ -24,11 +25,11 @@ public class PingController(MediatorService mediatorService) : CommandController
         );
     }
 
-    [CallbackQuery(CallbackConst.BOT)]
-    public async Task PingCallback(CallbackQueryData data, PingCallbackQueryModel model)
+    // [CallbackQuery(CallbackConst.BOT)]
+    public async Task PingCallback(CommandData data, PingCallbackQueryModel model)
     {
         await mediatorService.EnqueueAsync(new PingCallbackBotRequestModel() {
-                BotToken = data.Options.Token,
+                BotToken = data.BotToken,
                 CallbackQuery = data.CallbackQuery,
                 ExecutionStrategy = ExecutionStrategy.Hangfire
             }
@@ -36,11 +37,11 @@ public class PingController(MediatorService mediatorService) : CommandController
     }
 
     [DefaultCommand]
-    [TextCommand()]
-    public async Task Default(MessageData data)
+    // [TextCommand()]
+    public async Task Default(CommandData data)
     {
         await mediatorService.EnqueueAsync(new DefaultBotRequestModel() {
-                BotToken = data.Options.Token,
+                BotToken = data.BotToken,
                 Message = data.Message
             }
         );

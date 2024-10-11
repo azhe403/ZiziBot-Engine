@@ -1,19 +1,20 @@
-using Allowed.Telegram.Bot.Attributes;
-using Allowed.Telegram.Bot.Controllers;
-using Allowed.Telegram.Bot.Models;
+using ZiziBot.TelegramBot.Framework.Attributes;
+using ZiziBot.TelegramBot.Framework.Models;
 
-namespace ZiziBot.Allowed.TelegramBot.Controllers;
+namespace ZiziBot.TelegramBot.Controllers;
 
-[BotName("Main")]
+// [BotName("Main")]
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class NotesController(MediatorService mediatorService) : CommandController
+public class NotesController(
+    MediatorService mediatorService
+) : BotCommandController
 {
     [Command("notes")]
     [Command("tags")]
-    public async Task GetNotes(MessageData data)
+    public async Task GetNotes(CommandData data)
     {
         await mediatorService.EnqueueAsync(new GetNoteBotRequestModel() {
-            BotToken = data.Options.Token,
+            BotToken = data.BotToken,
             Message = data.Message,
             ReplyMessage = true,
             DeleteAfter = TimeSpan.FromHours(1),
@@ -26,13 +27,13 @@ public class NotesController(MediatorService mediatorService) : CommandControlle
 
     [Command("note")]
     [Command("renote")]
-    public async Task CreateNote(MessageData data)
+    public async Task CreateNote(CommandData data)
     {
         var query = data.Params.GetCommandParamAt<string>(0, separator: "\n");
         var rawButton = data.Params.TrimStart(query);
 
         await mediatorService.EnqueueAsync(new CreateNoteBotRequest() {
-            BotToken = data.Options.Token,
+            BotToken = data.BotToken,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
             Message = data.Message,
             ReplyMessage = true,
@@ -51,10 +52,10 @@ public class NotesController(MediatorService mediatorService) : CommandControlle
     }
 
     [Command("dnote")]
-    public async Task DeleteNote(MessageData data)
+    public async Task DeleteNote(CommandData data)
     {
         await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
-            BotToken = data.Options.Token,
+            BotToken = data.BotToken,
             Message = data.Message,
             Note = data.Params,
             ReplyMessage = true,

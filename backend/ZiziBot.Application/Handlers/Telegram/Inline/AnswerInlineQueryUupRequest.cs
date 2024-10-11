@@ -53,7 +53,7 @@ public class AnswerInlineQueryUupRequestHandler(
                     title: $"{build.BuildNumber} - {build.Arch}",
                     inputMessageContent: new InputTextMessageContent(htmlContent.ToString()) {
                         ParseMode = ParseMode.Html,
-                        DisableWebPagePreview = true
+                        LinkPreviewOptions = true
                     }
                 ) {
                     Description = htmlDescription.ToString(),

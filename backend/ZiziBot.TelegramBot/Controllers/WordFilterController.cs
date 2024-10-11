@@ -1,19 +1,20 @@
-using Allowed.Telegram.Bot.Attributes;
-using Allowed.Telegram.Bot.Controllers;
-using Allowed.Telegram.Bot.Models;
 using ZiziBot.Application.Handlers.Telegram.WordFilter;
+using ZiziBot.TelegramBot.Framework.Attributes;
+using ZiziBot.TelegramBot.Framework.Models;
 
-namespace ZiziBot.Allowed.TelegramBot.Controllers;
+namespace ZiziBot.TelegramBot.Controllers;
 
-[BotName("Main")]
+// [BotName("Main")]
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class WordFilterController(MediatorService mediatorService) : CommandController
+public class WordFilterController(
+    MediatorService mediatorService
+) : BotCommandController
 {
     [Command("awf")]
-    public async Task AddBadWordCommand(MessageData data)
+    public async Task AddBadWordCommand(CommandData data)
     {
         await mediatorService.EnqueueAsync(new AddWordFilterRequest() {
-            BotToken = data.Options.Token,
+            BotToken = data.BotToken,
             Message = data.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.Sudo,
@@ -26,10 +27,10 @@ public class WordFilterController(MediatorService mediatorService) : CommandCont
     }
 
     [Command("dwf")]
-    public async Task DisableBadWordCommand(MessageData data)
+    public async Task DisableBadWordCommand(CommandData data)
     {
         await mediatorService.EnqueueAsync(new DisableWordFilterRequest() {
-            BotToken = data.Options.Token,
+            BotToken = data.BotToken,
             Message = data.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.Sudo,

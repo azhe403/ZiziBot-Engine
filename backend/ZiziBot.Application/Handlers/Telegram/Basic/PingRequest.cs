@@ -6,7 +6,8 @@ public class PingBotRequestModel : BotRequestBase
 { }
 
 public class PingRequestHandler(
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 ) : IRequestHandler<PingBotRequestModel, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(PingBotRequestModel request, CancellationToken cancellationToken)
@@ -19,20 +20,20 @@ public class PingRequestHandler(
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
 
-        if (await serviceFacade.SudoService.IsSudoAsync(request.UserId))
+        if (await dataFacade.ChatSetting.IsSudoAsync(request.UserId))
         {
-            replyMarkup = new InlineKeyboardMarkup(
-                new[] {
-                    new[] {
-                        new InlineKeyboardButton("WebHook Info") {
-                            CallbackData = new PingCallbackQueryModel() {
-                                Path = CallbackConst.BOT,
-                                Data = "webhook-info"
-                            }
-                        }
-                    }
-                }
-            );
+            // replyMarkup = new InlineKeyboardMarkup(
+            //     new[] {
+            //         new[] {
+            //             new InlineKeyboardButton("WebHook Info") {
+            //                 CallbackData = new PingCallbackQueryModel() {
+            //                     Path = CallbackConst.BOT,
+            //                     Data = "webhook-info"
+            //                 }
+            //             }
+            //         }
+            //     }
+            // );
         }
 
         return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);

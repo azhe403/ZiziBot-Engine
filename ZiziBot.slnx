@@ -1,0 +1,42 @@
+﻿<Solution>
+  <Folder Name="/01. Host/">
+    <Project Path="backend\ZiziBot.Cli\ZiziBot.Cli.csproj"/>
+    <Project Path="backend\ZiziBot.Engine\ZiziBot.Engine.csproj"/>
+  </Folder>
+  <Folder Name="/02. Bots/">
+    <Project Path="backend\ZiziBot.Allowed.TelegramBot\ZiziBot.Allowed.TelegramBot.csproj"/>
+    <Project Path="backend\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj"/>
+  </Folder>
+  <Folder Name="/03. Infrastructure/">
+    <Project Path="backend\ZiziBot.Caching\ZiziBot.Caching.csproj"/>
+    <Project Path="backend\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
+    <Project Path="backend\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj"/>
+  </Folder>
+  <Folder Name="/04. Usecase/">
+    <Project Path="backend\ZiziBot.Application\ZiziBot.Application.csproj"/>
+    <Project Path="backend\ZiziBot.Services\ZiziBot.Services.csproj"/>
+  </Folder>
+  <Folder Name="/05. Features/">
+    <Project Path="backend\ZiziBot.DataMigration\ZiziBot.DataMigration.csproj" Type="Classic C#"/>
+    <Project Path="backend\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj"/>
+    <Project Path="backend\ZiziBot.Kot.MongoMigrations\ZiziBot.Kot.MongoMigrations.csproj"/>
+    <Project Path="backend\ZiziBot.WebApi\ZiziBot.WebApi.csproj"/>
+  </Folder>
+  <Folder Name="/06. Console/">
+    <Project Path="backend\ZiziBot.Console\ZiziBot.Console.csproj"/>
+  </Folder>
+  <Folder Name="/07. Stuff/">
+    <Project Path="backend\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
+    <Project Path="backend\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
+  </Folder>
+  <Folder Name="/09. Data/">
+    <Project Path="backend\ZiziBot.Attributes\ZiziBot.Attributes.csproj"/>
+    <Project Path="backend\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
+    <Project Path="backend\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
+    <Project Path="backend\ZiziBot.Exceptions\ZiziBot.Exceptions.csproj"/>
+    <Project Path="backend\ZiziBot.Types\ZiziBot.Types.csproj"/>
+  </Folder>
+  <Folder Name="/11. Tests/">
+    <Project Path="backend\ZiziBot.Tests\ZiziBot.Tests.csproj"/>
+  </Folder>
+</Solution>
