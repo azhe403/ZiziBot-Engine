@@ -43,6 +43,8 @@ public static class TelegramExtension
             .ToList();
 
         services.AddZiziBotTelegramBot(new BotEngineConfig() {
+            EngineMode = config.TelegramEngineMode,
+            WebhookUrl = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL),
             Bot = listBotData.Select(x => new BotTokenConfig() {
                 Name = x.Name,
                 Token = x.Token

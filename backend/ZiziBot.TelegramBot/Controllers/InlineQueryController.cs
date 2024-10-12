@@ -46,7 +46,7 @@ public class InlineQueryController(
         await mediatorService.EnqueueAsync(new AnswerInlineQueryApiDocBotRequestModel() {
             BotToken = data.BotToken,
             InlineQuery = data.InlineQuery,
-            Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
+            Query = data.InlineQueryQueryParam
         });
     }
 

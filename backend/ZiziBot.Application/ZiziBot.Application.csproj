@@ -26,6 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>
         <ProjectReference Include="..\ZiziBot.Exceptions\ZiziBot.Exceptions.csproj" />
         <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj" />
         <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
