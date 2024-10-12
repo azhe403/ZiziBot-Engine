@@ -4,8 +4,8 @@
     <Project Path="backend\ZiziBot.Engine\ZiziBot.Engine.csproj"/>
   </Folder>
   <Folder Name="/02. Bots/">
-    <Project Path="backend\ZiziBot.Allowed.TelegramBot\ZiziBot.Allowed.TelegramBot.csproj"/>
     <Project Path="backend\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj"/>
+    <Project Path="backend\ZiziBot.TelegramBot\ZiziBot.TelegramBot.csproj"/>
   </Folder>
   <Folder Name="/03. Infrastructure/">
     <Project Path="backend\ZiziBot.Caching\ZiziBot.Caching.csproj"/>
@@ -29,12 +29,18 @@
     <Project Path="backend\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
     <Project Path="backend\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
   </Folder>
+  <Folder Name="/08. Libs/">
+    <Project Path="backend\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj" Type="Classic C#"/>
+  </Folder>
   <Folder Name="/09. Data/">
     <Project Path="backend\ZiziBot.Attributes\ZiziBot.Attributes.csproj"/>
     <Project Path="backend\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
     <Project Path="backend\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
     <Project Path="backend\ZiziBot.Exceptions\ZiziBot.Exceptions.csproj"/>
     <Project Path="backend\ZiziBot.Types\ZiziBot.Types.csproj"/>
+  </Folder>
+  <Folder Name="/10. Labs/">
+    <Project Path="backend\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Sample\ZiziBot.TelegramBot.Sample.csproj" Type="Classic C#"/>
   </Folder>
   <Folder Name="/11. Tests/">
     <Project Path="backend\ZiziBot.Tests\ZiziBot.Tests.csproj"/>

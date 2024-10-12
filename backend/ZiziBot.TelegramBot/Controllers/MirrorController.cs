@@ -16,8 +16,8 @@ public class MirrorController(
             BotToken = data.BotToken,
             ReplyMessage = true,
             Message = data.Message,
-            Payload = data.Params.GetCommandParamAt<string>(0),
-            ForUserId = data.Params.GetCommandParamAt<long>(1),
+            Payload = data.CommandParam.GetCommandParamAt<string>(0),
+            ForUserId = data.CommandParam.GetCommandParamAt<long>(1),
             MinimumRole = RoleLevel.Sudo,
             CleanupTargets = new[] {
                 CleanupTarget.FromBot,
@@ -33,8 +33,8 @@ public class MirrorController(
             BotToken = data.BotToken,
             ReplyMessage = true,
             Message = data.Message,
-            Payload = data.Params.GetCommandParamAt<string>(0),
-            ForUserId = data.Params.GetCommandParamAt<long>(1),
+            Payload = data.CommandParam.GetCommandParamAt<string>(0),
+            ForUserId = data.CommandParam.GetCommandParamAt<long>(1),
             CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender

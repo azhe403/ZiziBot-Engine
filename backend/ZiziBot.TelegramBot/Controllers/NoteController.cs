@@ -29,8 +29,8 @@ public class NotesController(
     [Command("renote")]
     public async Task CreateNote(CommandData data)
     {
-        var query = data.Params.GetCommandParamAt<string>(0, separator: "\n");
-        var rawButton = data.Params.TrimStart(query);
+        var query = data.CommandParam.GetCommandParamAt<string>(0, separator: "\n");
+        var rawButton = data.CommandParam.TrimStart(query);
 
         await mediatorService.EnqueueAsync(new CreateNoteBotRequest() {
             BotToken = data.BotToken,
@@ -57,7 +57,7 @@ public class NotesController(
         await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = data.BotToken,
             Message = data.Message,
-            Note = data.Params,
+            Note = data.CommandParam,
             ReplyMessage = true,
             DeleteAfter = TimeSpan.FromMinutes(1),
             CleanupTargets = new[] {

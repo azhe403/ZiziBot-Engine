@@ -17,7 +17,7 @@ public class ChatController(
             BotToken = data.BotToken,
             Message = data.Message,
             ReplyMessage = true,
-            ChannelId = data.Params.GetCommandParamAt<long>(0),
+            ChannelId = data.CommandParam.GetCommandParamAt<long>(0),
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
             CleanupTargets = new[] {
                 CleanupTarget.FromBot,

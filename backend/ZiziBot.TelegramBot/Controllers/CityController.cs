@@ -18,7 +18,7 @@ public class CityController(
             BotToken = data.BotToken,
             Message = data.Message,
             ReplyMessage = true,
-            CityName = data.Params,
+            CityName = data.CommandParam,
             CleanupTargets = new[] {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender

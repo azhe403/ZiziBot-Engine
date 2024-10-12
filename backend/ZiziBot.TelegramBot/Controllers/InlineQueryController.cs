@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using ZiziBot.TelegramBot.Framework.Attributes;
 using ZiziBot.TelegramBot.Framework.Models;
 
 namespace ZiziBot.TelegramBot.Controllers;
@@ -10,17 +11,12 @@ public class InlineQueryController(
     MediatorService mediatorService
 ) : BotCommandController
 {
-    // [InlineQuery()]
+    [InlineQuery()]
     public async Task InlineSearchBotApi(CommandData data)
     {
         var inlineCmd = data.InlineQuery.Query.GetInlineQueryAt<string>(0);
 
         var result = inlineCmd switch {
-            "api-doc" => await mediatorService.EnqueueAsync(new AnswerInlineQueryApiDocBotRequestModel() {
-                BotToken = data.BotToken,
-                InlineQuery = data.InlineQuery,
-                Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
-            }),
             "uup" => await mediatorService.EnqueueAsync(new AnswerInlineQueryUupBotRequestModel() {
                 BotToken = data.BotToken,
                 InlineQuery = data.InlineQuery,
@@ -43,4 +39,17 @@ public class InlineQueryController(
 
         logger.LogInformation("InlineSearchBotApi: {@Result}", result);
     }
+
+    [InlineQuery("api-doc")]
+    public async Task SearchApiDoc(CommandData data)
+    {
+        await mediatorService.EnqueueAsync(new AnswerInlineQueryApiDocBotRequestModel() {
+            BotToken = data.BotToken,
+            InlineQuery = data.InlineQuery,
+            Query = data.InlineQuery.Query.GetInlineQueryAt<string>(1)
+        });
+    }
+
+    public async Task WebSearch(CommandData data)
+    { }
 }

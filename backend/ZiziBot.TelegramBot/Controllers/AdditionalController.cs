@@ -15,7 +15,7 @@ public class AdditionalController(
         await mediatorService.EnqueueAsync(new SetAfkBotRequest() {
             BotToken = data.BotToken,
             Message = data.Message,
-            Reason = data.Params,
+            Reason = data.CommandParam,
             ReplyMessage = true,
             CleanupTargets = new[] {
                 CleanupTarget.FromBot,
