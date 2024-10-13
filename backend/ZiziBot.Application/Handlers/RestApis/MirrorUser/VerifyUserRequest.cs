@@ -33,9 +33,9 @@ public class VerifyUserResponse
 {
     public long UserId { get; set; }
     public bool HasSubscription { get; set; }
+    public DateTime? JoinDate { get; set; }
     public DateTime? ExpireDate { get; set; }
     public string TimeToExpiration { get; set; }
-    public DateTime? JoinDate { get; set; }
 }
 
 public class VerifyUserHandler(
@@ -66,9 +66,9 @@ public class VerifyUserHandler(
         return Response.Success("Mirror User verified successfully", new VerifyUserResponse {
             UserId = mirrorUser.UserId,
             HasSubscription = mirrorUser.ExpireDate > DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE),
-            TimeToExpiration = mirrorUser.ExpireDate.Subtract(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE)).ForHuman(5, "en-us"),
+            JoinDate = mirrorUser.CreatedDate.AddHours(Env.DEFAULT_TIMEZONE),
             ExpireDate = mirrorUser.ExpireDate.AddHours(Env.DEFAULT_TIMEZONE),
-            JoinDate = mirrorUser.CreatedDate.AddHours(Env.DEFAULT_TIMEZONE)
+            TimeToExpiration = mirrorUser.ExpireDate.Subtract(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE)).ForHuman(5, "en-us"),
         });
     }
 }
