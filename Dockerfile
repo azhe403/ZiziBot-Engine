@@ -4,13 +4,13 @@ ARG DOTNET_TAG=8.0-alpine
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_TAG} AS base
 WORKDIR /app
+RUN apk add --no-cache icu-data-full icu-libs
 EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_TAG} AS build
 WORKDIR /build
 COPY . .
-RUN apk add --no-cache icu-data-full icu-libs
 RUN git submodule update --init --recursive
 RUN dotnet restore "backend/ZiziBot.Engine/ZiziBot.Engine.csproj"
 
