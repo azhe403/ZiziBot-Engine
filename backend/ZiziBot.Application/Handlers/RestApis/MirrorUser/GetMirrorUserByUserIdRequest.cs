@@ -29,6 +29,11 @@ public class GetMirrorUserByUserIdRequestHandler(
             return _response.NotFound("Mirror User not found");
         }
 
+        if (user.Status > (int)EventStatus.Complete)
+        {
+            return _response.NotFound("Mirror User suspended");
+        }
+
         return _response.Success("Mirror User found", new GetMirrorUserDto {
             UserId = request.UserId,
             HasSubscription = user.ExpireDate > DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE),
