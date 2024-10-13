@@ -10,6 +10,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_TAG} AS build
 WORKDIR /build
 COPY . .
+RUN apk add --no-cache icu-data-full icu-libs
 RUN git submodule update --init --recursive
 RUN dotnet restore "backend/ZiziBot.Engine/ZiziBot.Engine.csproj"
 
