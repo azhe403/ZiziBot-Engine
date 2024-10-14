@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
-using ZiziBot.Interfaces;
+using ZiziBot.Contracts.Enums;
+using ZiziBot.DataSource.MongoDb;
 
-namespace ZiziBot.Application.Services;
+namespace ZiziBot.Services;
 
 public class ApiKeyService(
     ILogger<ApiKeyService> logger,

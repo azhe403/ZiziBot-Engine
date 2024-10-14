@@ -23,7 +23,7 @@ public class SendMessageTextRequestHandler(
         var sentMessage = await serviceFacade.TelegramService.Bot.SendTextMessageAsync(
             chatId: request.ChatId,
             text: request.Text,
-            replyToMessageId: request.ReplyToMessageId,
+            replyParameters: request.ReplyToMessageId,
             cancellationToken: cancellationToken
         );
 

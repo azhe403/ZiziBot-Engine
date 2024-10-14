@@ -10,7 +10,6 @@ public class ServiceFacade(
     MediatorService mediatorService,
     TelegramService telegramService,
     AntiSpamService antiSpamService,
-    SudoService sudoService,
     TonjooService tonjooService,
     BinderByteService binderByteService,
     FathimahApiService fathimahApiService,
@@ -28,7 +27,6 @@ public class ServiceFacade(
     public MediatorService MediatorService { get; } = mediatorService;
     public TelegramService TelegramService { get; } = telegramService;
     public AntiSpamService AntiSpamService { get; } = antiSpamService;
-    public SudoService SudoService { get; } = sudoService;
     public TonjooService TonjooService { get; } = tonjooService;
     public BinderByteService BinderByteService { get; } = binderByteService;
     public FathimahApiService FathimahApiService { get; } = fathimahApiService;

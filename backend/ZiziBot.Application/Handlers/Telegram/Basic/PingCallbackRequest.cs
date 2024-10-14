@@ -6,14 +6,15 @@ public class PingCallbackBotRequestModel : BotRequestBase
 { }
 
 public class PingCallbackRequestHandler(
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 ) : IRequestHandler<PingCallbackBotRequestModel, BotResponseBase>
 {
     public async Task<BotResponseBase> Handle(PingCallbackBotRequestModel request, CancellationToken cancellationToken)
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
-        if (!await serviceFacade.SudoService.IsSudoAsync(request.UserId))
+        if (!await dataFacade.ChatSetting.IsSudoAsync(request.UserId))
         {
             return await serviceFacade.TelegramService.AnswerCallbackAsync("Kamu tidak memiliki akses");
         }

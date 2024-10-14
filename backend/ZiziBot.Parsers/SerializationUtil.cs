@@ -32,7 +32,7 @@ public static class SerializationUtil
     }
 
 
-    public static string? GetTransactionId(this HttpContext context)
+    public static string GetTransactionId(this HttpContext context)
     {
         return context.TraceIdentifier;
     }

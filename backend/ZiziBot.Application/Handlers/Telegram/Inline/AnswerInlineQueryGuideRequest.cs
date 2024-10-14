@@ -19,7 +19,7 @@ public class AnswerInlineQueryGuideRequestHandler(
                 id: "guide-1",
                 title: "Bagaimana cara menggunakannya?",
                 inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText) {
-                    DisableWebPagePreview = true
+                    LinkPreviewOptions = true
                 }
             ) {
                 ReplyMarkup = InlineDefaults.DefaultButtonMarkup
@@ -28,7 +28,7 @@ public class AnswerInlineQueryGuideRequestHandler(
                 id: "guide-2",
                 title: "Cobalah ketikkan 'ping'",
                 inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText) {
-                    DisableWebPagePreview = true
+                    LinkPreviewOptions = true
                 }
             ) {
                 ReplyMarkup = InlineDefaults.DefaultButtonMarkup

@@ -93,7 +93,7 @@ public class FetchRssHandler(
                     messageThreadId: request.ThreadId,
                     text: truncatedMessageText,
                     parseMode: ParseMode.Html,
-                    disableWebPagePreview: true,
+                    linkPreviewOptions: true,
                     cancellationToken: cancellationToken
                 );
             }
@@ -106,7 +106,7 @@ public class FetchRssHandler(
                         chatId: request.ChatId,
                         text: truncatedMessageText,
                         parseMode: ParseMode.Html,
-                        disableWebPagePreview: true,
+                        linkPreviewOptions: true,
                         cancellationToken: cancellationToken
                     );
                 }

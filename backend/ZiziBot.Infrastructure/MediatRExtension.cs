@@ -20,16 +20,13 @@ public static class MediatRExtension
                     .AddOpenBehavior(typeof(CheckAntispamPipelineBehavior<,>))
                     .AddOpenBehavior(typeof(CheckUsernamePipelineBehavior<,>))
                     .AddOpenBehavior(typeof(ActionResultPipelineBehavior<,>))
+                    .AddOpenRequestPostProcessor(typeof(FindNoteRequestHandler<,>))
                     .AddOpenRequestPostProcessor(typeof(CheckAfkSessionBehavior<,>))
                     .AddOpenRequestPostProcessor(typeof(EnsureChatAdminRequestHandler<,>))
                     .AddOpenRequestPostProcessor(typeof(EnsureChatSettingBehavior<,>))
-                    .AddOpenRequestPostProcessor(typeof(FindNoteRequestHandler<,>))
                     .AddOpenRequestPostProcessor(typeof(UpsertBotUserHandler<,>))
                     .AddOpenRequestPostProcessor(typeof(InsertChatActivityHandler<,>))
         );
-
-        // services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(GlobalExceptionHandler<,,>));
-        // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
 
         services.AddMediatRAttributedBehaviors(assembly);
 

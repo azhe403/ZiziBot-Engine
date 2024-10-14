@@ -26,7 +26,7 @@ public class CacheTowerSqliteProvider : ICacheLayer
     {
         var dbContext = GetContext();
 
-        await dbContext.SqliteCache.Where(x => x.Expiry < DateTime.UtcNow).ExecuteDeleteAsync();
+        await dbContext.SqliteCache.Where(x => x.ExpiryDate < DateTime.UtcNow).ExecuteDeleteAsync();
         await dbContext.SaveChangesAsync();
     }
 
@@ -48,7 +48,7 @@ public class CacheTowerSqliteProvider : ICacheLayer
         if (obj != null)
         {
             var value = obj.Value.ToObject<T>();
-            return new CacheEntry<T>(value, obj.Expiry);
+            return new CacheEntry<T>(value, obj.ExpiryDate);
         }
 
         return cacheEntry;
@@ -63,14 +63,15 @@ public class CacheTowerSqliteProvider : ICacheLayer
         {
             await dbContext.SqliteCache.AddAsync(new SqliteCacheEntity() {
                 CacheKey = cacheKey,
+                ExpiryDate = cacheEntry.Expiry,
+                CreatedDate = DateTime.UtcNow,
                 Value = cacheEntry.Value.ToJson(),
-                Expiry = cacheEntry.Expiry
             });
         }
         else
         {
+            findCache.ExpiryDate = cacheEntry.Expiry;
             findCache.Value = cacheEntry.Value.ToJson();
-            findCache.Expiry = cacheEntry.Expiry;
         }
 
         await dbContext.SaveChangesAsync();

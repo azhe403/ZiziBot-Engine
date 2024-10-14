@@ -19,10 +19,8 @@ public class AddSudoRequestHandler(
 
         await serviceFacade.TelegramService.SendMessageText("Adding sudo user...");
 
-        var serviceResult = await serviceFacade.SudoService.SaveSudo(new SudoerEntity() {
-            UserId = request.CustomUserId == 0 ?
-                request.UserId :
-                request.CustomUserId,
+        var serviceResult = await dataFacade.ChatSetting.SaveSudo(new SudoerEntity() {
+            UserId = request.CustomUserId == 0 ? request.UserId : request.CustomUserId,
             PromotedBy = request.UserId,
             PromotedFrom = request.ChatIdentifier,
             Status = (int)EventStatus.Complete

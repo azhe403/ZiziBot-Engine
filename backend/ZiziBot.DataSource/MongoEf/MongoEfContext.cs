@@ -13,6 +13,8 @@ public class MongoEfContext : DbContext
 
     public DbSet<WebhookHistoryEntity> WebhookHistory { get; set; }
 
+    public DbSet<MirrorActivityEntity> MirrorActivity { get; set; }
+
     public DbSet<PendekinMapEntity> PendekinMap { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

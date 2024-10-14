@@ -68,7 +68,7 @@ public class AnswerInlineQueryApiDocRequestHandler(
                     title: method.Name,
                     inputMessageContent: new InputTextMessageContent(htmlContent.ToString()) {
                         ParseMode = ParseMode.Html,
-                        DisableWebPagePreview = true
+                        LinkPreviewOptions = true
                     }
                 ) {
                     Description = description,

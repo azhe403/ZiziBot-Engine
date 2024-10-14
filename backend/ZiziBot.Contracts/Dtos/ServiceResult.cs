@@ -1,4 +1,4 @@
-namespace ZiziBot.Application.Core;
+namespace ZiziBot.Contracts.Dtos;
 
 public class ServiceResult
 {
