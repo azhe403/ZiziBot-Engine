@@ -6,6 +6,7 @@ using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.DataSource.MongoDb;
 
+[Obsolete("MongoDbContext has marked as obsolete. Please use MongoEfContext instead.")]
 public class MongoDbContextBase(string connectionStr) : MongoDbContext(MongoDbConnection.FromConnectionString(connectionStr))
 {
     public MongoDbSet<AppSettingsEntity> AppSettings { get; set; }
