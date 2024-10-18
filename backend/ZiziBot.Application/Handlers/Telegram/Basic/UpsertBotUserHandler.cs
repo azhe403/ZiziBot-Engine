@@ -33,14 +33,9 @@ public class UpsertBotUserHandler<TRequest, TResponse>(
             TransactionId = request.TransactionId
         });
 
-
         if (!string.IsNullOrEmpty(userActivity))
         {
-            var message = HtmlMessage.Empty
-                .Bold("Pengguna: ").User(request.User).Br()
-                .Append(new HtmlMessage());
-
-            await serviceFacade.TelegramService.SendMessageAsync(message.ToString());
+            await serviceFacade.TelegramService.SendMessageAsync(userActivity);
         }
 
         logger.LogInformation("User information for UserId: {UserId} has been updated", request.UserId);
