@@ -1,29 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10"/>
-      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10"/>
-        <PackageReference Include="Microsoft.AspNetCore.RateLimiting" Version="7.0.0-rc.2.22476.2" />
-        <PackageReference Include="Scrutor" Version="5.0.1" />
-      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10"/>
+    <PackageReference Include="Microsoft.AspNetCore.RateLimiting" Version="7.0.0-rc.2.22476.2"/>
+    <PackageReference Include="Scrutor" Version="5.0.1"/>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
-        <ProjectReference Include="..\ZiziBot.Caching\ZiziBot.Caching.csproj" />
-        <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj" />
-        <ProjectReference Include="..\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj" />
-        <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Caching\ZiziBot.Caching.csproj"/>
+    <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Interfaces\ZiziBot.Interfaces.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
+  </ItemGroup>
 </Project>

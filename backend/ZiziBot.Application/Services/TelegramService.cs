@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Ardalis.GuardClauses;
 using AsyncAwaitBestPractices;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
@@ -31,9 +32,7 @@ public class TelegramService(
 
     public void SetupResponse(BotRequestBase request)
     {
-        ArgumentNullException.ThrowIfNull(request);
-
-        _request = request;
+        _request = Guard.Against.Null(request);
 
         _timeInit = request.MessageDate.GetDelay();
         Bot = new TelegramBotClient(request.BotToken);
@@ -403,6 +402,7 @@ public class TelegramService(
     {
         if (SentMessage != null)
         {
+            Guard.Against.NullOrEmpty(text);
             await EditMessageText(text, replyMarkup);
         }
         else

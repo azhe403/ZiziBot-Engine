@@ -16,6 +16,9 @@ resharper_csharp_wrap_before_declaration_rpar = true
 resharper_csharp_wrap_parameters_style = chop_if_long
 resharper_wrap_primary_constructor_parameters_style = chop_if_long
 
+# Microsoft .NET properties
+csharp_style_namespace_declarations = file_scoped:suggestion
+
 [*.cs]
 indent_size = 4
 csharp_new_line_before_open_brace = accessors, control_blocks, events, indexers, local_functions, methods, properties, types
