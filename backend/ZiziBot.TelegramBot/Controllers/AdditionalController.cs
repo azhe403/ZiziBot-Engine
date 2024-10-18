@@ -1,5 +1,6 @@
 using ZiziBot.TelegramBot.Framework.Attributes;
 using ZiziBot.TelegramBot.Framework.Models;
+using ZiziBot.TelegramBot.Framework.Models.Enums;
 
 namespace ZiziBot.TelegramBot.Controllers;
 
@@ -40,16 +41,16 @@ public class AdditionalController(
         });
     }
 
-    // [TextCommand("anteraja", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("jne", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("jnt", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("lion", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("ncs", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("tiki", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("trawl", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("trawlbens", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("sicepat", Type = ComparisonTypes.Parameterized)]
-    // [TextCommand("wahana", Type = ComparisonTypes.Parameterized)]
+    [TextCommand("anteraja", ComparisonType.CommandLike)]
+    [TextCommand("jne", ComparisonType.CommandLike)]
+    [TextCommand("jnt", ComparisonType.CommandLike)]
+    [TextCommand("lion", ComparisonType.CommandLike)]
+    [TextCommand("ncs", ComparisonType.CommandLike)]
+    [TextCommand("tiki", ComparisonType.CommandLike)]
+    [TextCommand("trawl", ComparisonType.CommandLike)]
+    [TextCommand("trawlbens", ComparisonType.CommandLike)]
+    [TextCommand("sicepat", ComparisonType.CommandLike)]
+    [TextCommand("wahana", ComparisonType.CommandLike)]
     public async Task CheckAwb(CommandData data)
     {
         await mediatorService.EnqueueAsync(new CheckAwbRequest() {
