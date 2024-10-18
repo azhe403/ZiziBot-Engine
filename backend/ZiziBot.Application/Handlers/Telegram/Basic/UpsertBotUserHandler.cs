@@ -35,7 +35,7 @@ public class UpsertBotUserHandler<TRequest, TResponse>(
 
         if (!string.IsNullOrEmpty(userActivity))
         {
-            await serviceFacade.TelegramService.SendMessageAsync(userActivity);
+            await serviceFacade.TelegramService.SendMessageText(userActivity);
         }
 
         logger.LogInformation("User information for UserId: {UserId} has been updated", request.UserId);
