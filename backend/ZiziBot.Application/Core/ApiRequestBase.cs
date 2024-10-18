@@ -16,7 +16,7 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
 
     [BindNever]
     [SwaggerIgnore]
-    public string? TransactionId => HttpContextAccessor.GetTransactionId();
+    public string TransactionId => HttpContextAccessor?.HttpContext?.GetTransactionId() ?? Guid.NewGuid().ToString();
 
     [BindNever]
     [SwaggerIgnore]
@@ -43,4 +43,10 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
     public string? BearerToken => Authorization?.Replace("Bearer ", string.Empty);
 
     public async Task<string> RequestBody() => await HttpContextAccessor?.HttpContext?.GetBodyAsync();
+}
+
+public class ApiRequestBase<T, TBody> : ApiRequestBase<T>
+{
+    [FromBody]
+    public TBody Body { get; set; }
 }

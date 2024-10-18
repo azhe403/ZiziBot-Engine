@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-    </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\ZiziBot.Attributes\ZiziBot.Attributes.csproj"/>
-        <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
-        <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZiziBot.Attributes\ZiziBot.Attributes.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="MongoDB.Driver" Version="2.29.0" />
-        <PackageReference Include="MongoDB.EntityFrameworkCore" Version="8.1.1" />
-        <PackageReference Include="Scrutor" Version="5.0.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.30.0"/>
+    <PackageReference Include="MongoDB.EntityFrameworkCore" Version="8.1.1"/>
+    <PackageReference Include="Scrutor" Version="5.0.1"/>
+  </ItemGroup>
 
 </Project>

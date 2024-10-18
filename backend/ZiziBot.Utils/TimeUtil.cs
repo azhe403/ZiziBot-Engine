@@ -34,9 +34,9 @@ public static class TimeUtil
         return TimeSpanParser.Parse(dateTime);
     }
 
-    public static string ForHuman(this TimeSpan timeSpan, int precision = 10)
+    public static string ForHuman(this TimeSpan timeSpan, int precision = 10, string cultureInfo = "id-id")
     {
-        return timeSpan.Humanize(precision: precision, maxUnit: TimeUnit.Year, culture: CultureInfo.GetCultureInfo("id-Id"));
+        return timeSpan.Humanize(precision: precision, maxUnit: TimeUnit.Year, culture: CultureInfo.GetCultureInfo(cultureInfo));
     }
 
     public static string GetTimeGreet()
@@ -44,8 +44,7 @@ public static class TimeUtil
         var greet = "dini hari";
         var hour = DateTime.Now.Hour;
 
-        greet = hour switch
-        {
+        greet = hour switch {
             <= 3 => "dini hari",
             <= 10 => "pagi",
             <= 14 => "siang",
@@ -83,5 +82,4 @@ public static class TimeUtil
     /// <param name="interval">The number of months to wait between every activation.</param>
     public static string MonthInterval(int interval) => $"0 0 1 */{interval} *";
     #endregion Cron
-
 }

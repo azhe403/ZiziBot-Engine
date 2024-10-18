@@ -1,4 +1,3 @@
-using Allowed.Telegram.Bot.Models;
 using dotenv.net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,18 +33,18 @@ public static class ConfigurationExtension
         services.Configure<JwtConfig>(config.GetSection("Jwt"));
         services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
 
-        services.Configure<List<SimpleTelegramBotClientOptions>>(
-            list => {
-                var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
-                var listBotData = appSettingDbContext.BotSettings
-                    .Where(settings => settings.Status == (int)EventStatus.Complete)
-                    .AsEnumerable()
-                    .Select(settings => new SimpleTelegramBotClientOptions(settings.Name, settings.Token, host, null, false))
-                    .ToList();
-
-                list.AddRange(listBotData);
-            }
-        );
+        // services.Configure<List<BotClientItem>>(
+        //     list => {
+        //         var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
+        //         var listBotData = appSettingDbContext.BotSettings
+        //             .Where(settings => settings.Status == (int)EventStatus.Complete)
+        //             .AsEnumerable()
+        //             .Select(settings => new BotClientItem(settings.Name, new TelegramBotClientOptions(settings.Token)))
+        //             .ToList();
+        //
+        //         list.AddRange(listBotData);
+        //     }
+        // );
 
 
         return services;

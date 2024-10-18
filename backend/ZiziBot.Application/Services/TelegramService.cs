@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Ardalis.GuardClauses;
 using AsyncAwaitBestPractices;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,7 @@ public class TelegramService(
     CacheService cacheService,
     MongoDbContextBase mongoDbContext,
     MediatorService mediatorService,
-    SudoService sudoService
+    DataFacade dataFacade
 )
 {
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
@@ -31,9 +32,7 @@ public class TelegramService(
 
     public void SetupResponse(BotRequestBase request)
     {
-        ArgumentNullException.ThrowIfNull(request);
-
-        _request = request;
+        _request = Guard.Against.Null(request);
 
         _timeInit = request.MessageDate.GetDelay();
         Bot = new TelegramBotClient(request.BotToken);
@@ -86,7 +85,6 @@ public class TelegramService(
     }
 
     #region Response
-
     public async Task<BotResponseBase> SendMessageText(
         HtmlMessage text,
         IReplyMarkup? replyMarkup = null,
@@ -128,11 +126,10 @@ public class TelegramService(
                 chatId: targetChatId,
                 messageThreadId: threadId,
                 text: text,
-                replyToMessageId: replyToMessageId,
+                replyParameters: replyToMessageId,
                 parseMode: ParseMode.Html,
-                allowSendingWithoutReply: true,
                 replyMarkup: replyMarkup,
-                disableWebPagePreview: true
+                linkPreviewOptions: true
             );
         }
         catch (Exception exception)
@@ -143,11 +140,10 @@ public class TelegramService(
                 SentMessage = await Bot.SendTextMessageAsync(
                     chatId: targetChatId,
                     text: text,
-                    replyToMessageId: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
+                    replyParameters: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
                     parseMode: ParseMode.Html,
-                    allowSendingWithoutReply: true,
                     replyMarkup: replyMarkup,
-                    disableWebPagePreview: true
+                    linkPreviewOptions: true
                 );
             }
         }
@@ -250,8 +246,7 @@ public class TelegramService(
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId,
-                    allowSendingWithoutReply: true,
+                    replyParameters: _request.ReplyToMessageId,
                     messageThreadId: targetThreadId
                 );
 
@@ -270,8 +265,7 @@ public class TelegramService(
                         caption: caption,
                         parseMode: ParseMode.Html,
                         replyMarkup: replyMarkup,
-                        replyToMessageId: _request.ReplyToMessageId,
-                        allowSendingWithoutReply: true,
+                        replyParameters: _request.ReplyToMessageId,
                         messageThreadId: targetThreadId
                     );
                 }
@@ -285,8 +279,7 @@ public class TelegramService(
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId,
-                    allowSendingWithoutReply: true,
+                    replyParameters: _request.ReplyToMessageId,
                     messageThreadId: targetThreadId
                 );
 
@@ -299,8 +292,7 @@ public class TelegramService(
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId,
-                    allowSendingWithoutReply: true,
+                    replyParameters: _request.ReplyToMessageId,
                     messageThreadId: targetThreadId
                 );
 
@@ -313,8 +305,7 @@ public class TelegramService(
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId,
-                    allowSendingWithoutReply: true,
+                    replyParameters: _request.ReplyToMessageId,
                     messageThreadId: targetThreadId
                 );
 
@@ -325,8 +316,7 @@ public class TelegramService(
                     chatId: targetChatId,
                     sticker: inputFile,
                     replyMarkup: replyMarkup,
-                    replyToMessageId: _request.ReplyToMessageId,
-                    allowSendingWithoutReply: true,
+                    replyParameters: _request.ReplyToMessageId,
                     messageThreadId: targetThreadId
                 );
 
@@ -412,6 +402,7 @@ public class TelegramService(
     {
         if (SentMessage != null)
         {
+            Guard.Against.NullOrEmpty(text);
             await EditMessageText(text, replyMarkup);
         }
         else
@@ -490,12 +481,10 @@ public class TelegramService(
     {
         await Bot.LeaveChatAsync(_request.ChatId);
     }
-
     #endregion
 
 
     #region Command
-
     public string? GetCommand(bool withoutSlash = false, bool withoutUsername = true)
     {
         var cmd = string.Empty;
@@ -517,11 +506,9 @@ public class TelegramService(
     {
         return GetCommand() == command;
     }
-
     #endregion
 
     #region Chat
-
     public async Task<Chat?> GetChatAsync(long chatId)
     {
         try
@@ -541,11 +528,9 @@ public class TelegramService(
         await Bot.UnpinChatMessageAsync(_request.ChatId, messageId);
         await Bot.PinChatMessageAsync(_request.ChatId, messageId);
     }
-
     #endregion
 
     #region Member
-
     public async Task<int> GetMemberCount()
     {
         var memberCount = await Bot.GetChatMemberCountAsync(_request.ChatId);
@@ -575,7 +560,7 @@ public class TelegramService(
 
     public async Task AnswerJoinRequestAsync(ChatJoinRequest joinRequest)
     {
-        var result = await Bot.ApproveChatJoinRequest(_request.ChatId, joinRequest.From.Id);
+        await Bot.ApproveChatJoinRequest(_request.ChatId, joinRequest.From.Id);
     }
 
     public async Task<string[]> GetChatUsernames()
@@ -624,11 +609,9 @@ public class TelegramService(
 
         return usernames.Any();
     }
-
     #endregion
 
     #region Role
-
     public async Task PromoteMember(long userId)
     {
         logger.LogInformation("Promoting user {UserId} in chat {ChatId}", userId, _request.ChatId);
@@ -708,7 +691,7 @@ public class TelegramService(
         _request.RolesLevels.Add(RoleLevel.Guest);
         _request.RolesLevels.Add(RoleLevel.None);
 
-        if (await sudoService.IsSudoAsync(_request.UserId))
+        if (await dataFacade.ChatSetting.IsSudoAsync(_request.UserId))
         {
             _request.RolesLevels.Add(RoleLevel.Sudo);
         }
@@ -745,6 +728,5 @@ public class TelegramService(
 
         return isRoleMeet;
     }
-
     #endregion
 }

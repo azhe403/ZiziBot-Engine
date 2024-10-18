@@ -1,4 +1,6 @@
 using Serilog;
+using ZiziBot.TelegramBot;
+using ZiziBot.TelegramBot.Framework.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,8 +34,8 @@ app.MapControllers();
 app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
 app.ConfigureConsole();
 app.ConfigureApi();
-
 app.UseHangfire();
-await app.RunTelegramBot();
+await app.UseZiziBotTelegramBot();
+// await app.RunTelegramBot();
 
 await app.RunAsync();

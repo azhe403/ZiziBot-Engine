@@ -48,9 +48,14 @@ public class MirrorUserController : ApiControllerBase
     [AccessFilter(checkHeader: true)]
     public async Task<IActionResult> Index([FromQuery] string orderId)
     {
-        return await SendRequest(new CheckPaymentOrderIdRequest()
-        {
+        return await SendRequest(new CheckPaymentOrderIdRequest() {
             OrderId = orderId
         });
+    }
+
+    [HttpPost("verify-user")]
+    public async Task<IActionResult> VerifyUser(VerifyUserRequest request)
+    {
+        return await SendRequest(request);
     }
 }

@@ -11,7 +11,13 @@ end_of_line = lf
 resharper_csharp_empty_block_style = together
 resharper_html_pi_attribute_style = first_attribute_on_single_line
 resharper_wrap_before_primary_constructor_declaration_rpar = true
-resharper_wrap_primary_constructor_parameters_style = chop_always
+resharper_csharp_wrap_after_declaration_lpar = true
+resharper_csharp_wrap_before_declaration_rpar = true
+resharper_csharp_wrap_parameters_style = chop_if_long
+resharper_wrap_primary_constructor_parameters_style = chop_if_long
+
+# Microsoft .NET properties
+csharp_style_namespace_declarations = file_scoped:suggestion
 
 [*.cs]
 indent_size = 4

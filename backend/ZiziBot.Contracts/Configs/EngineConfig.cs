@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using ZiziBot.TelegramBot.Framework.Models.Enums;
 
 namespace ZiziBot.Contracts.Configs;
 

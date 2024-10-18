@@ -6,7 +6,7 @@ using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoFramework;
-using StackExchange.Redis;
+using ZiziBot.Caching.Redis;
 
 namespace ZiziBot.Caching.Extensions;
 
@@ -41,14 +41,14 @@ public static class CacheTowerExtension
         if (string.IsNullOrEmpty(cacheConfig.RedisConnection))
             return builder;
 
-        builder.AddRedisCacheLayer(
-            connection: ConnectionMultiplexer.Connect(cacheConfig.RedisConnection),
+        builder.CacheLayers.Add(new CacheTowerRedisProvider(
+            connectionString: cacheConfig.RedisConnection,
             options: new RedisCacheLayerOptions(
                 new SystemTextJsonCacheSerializer(new JsonSerializerOptions() {
                     WriteIndented = true
                 })
             )
-        );
+        ));
 
         return builder;
     }

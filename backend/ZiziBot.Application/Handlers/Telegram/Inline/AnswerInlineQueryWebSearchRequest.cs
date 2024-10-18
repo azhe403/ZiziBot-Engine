@@ -25,7 +25,7 @@ public class AnswerInlineQueryWebSearchRequestHandler(
                     id: "guide-1",
                     title: "Ketikkan sebuah kueri untuk memulai pencarian..",
                     inputMessageContent: new InputTextMessageContent(InlineDefaults.DefaultGuideText) {
-                        DisableWebPagePreview = true
+                        LinkPreviewOptions = true
                     }
                 ) {
                     ReplyMarkup = InlineDefaults.DefaultButtonMarkup
@@ -55,7 +55,7 @@ public class AnswerInlineQueryWebSearchRequestHandler(
                 title: x.Title,
                 inputMessageContent: new InputTextMessageContent(htmlContent.ToString()) {
                     ParseMode = ParseMode.Html,
-                    DisableWebPagePreview = false
+                    LinkPreviewOptions = false
                 }
             ) {
                 Description = x.Url,

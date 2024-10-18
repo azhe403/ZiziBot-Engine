@@ -1,31 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
 
-    <ItemGroup>
-        <SupportedPlatform Include="browser"/>
-    </ItemGroup>
+  <ItemGroup>
+    <SupportedPlatform Include="browser"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Blazored.LocalStorage" Version="4.5.0"/>
-        <PackageReference Include="BlazorStateManager" Version="1.2.2"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8"/>
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.8"/>
-      <PackageReference Include="Radzen.Blazor" Version="5.2.9"/>
-        <PackageReference Include="ReactiveUI.Blazor" Version="20.1.63" />
-        <PackageReference Include="ReactiveUI.Fody" Version="19.5.41"/>
-        <PackageReference Include="Scrutor" Version="5.0.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0"/>
+    <PackageReference Include="BlazorStateManager" Version="1.2.2"/>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.10"/>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.10"/>
+    <PackageReference Include="Radzen.Blazor" Version="5.3.1"/>
+    <PackageReference Include="ReactiveUI.Blazor" Version="20.1.63"/>
+    <PackageReference Include="ReactiveUI.Fody" Version="19.5.41"/>
+    <PackageReference Include="Scrutor" Version="5.0.1"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
-        <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
+  </ItemGroup>
 
 
 </Project>
