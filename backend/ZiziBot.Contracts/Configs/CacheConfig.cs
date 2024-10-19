@@ -10,6 +10,7 @@ public class CacheConfig
     public bool UseJsonFile { get; set; }
     public bool UseMongoDb { get; set; }
     public bool UseSqlite { get; set; }
+    public string PrefixRoot { get; set; }
     public string? RedisConnection { get; set; }
     public string? FirebaseProjectUrl { get; set; }
     public string? FirebaseServiceAccountJson { get; set; }

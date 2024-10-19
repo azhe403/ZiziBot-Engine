@@ -90,6 +90,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                     { "UseMongoDb", false },
                     { "UseRedis", false },
                     { "UseSqlite", false },
+                    { "PrefixRoot", "zizi_dev" },
                     { "RedisConnection", "localhost:6379" }
                 }
             },

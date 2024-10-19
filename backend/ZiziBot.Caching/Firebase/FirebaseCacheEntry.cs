@@ -1,6 +1,6 @@
 namespace ZiziBot.Caching.Firebase;
 
-public class FirebaseCacheEntry<T>
+internal class FirebaseCacheEntry<T>
 {
     public string CacheKey { get; set; }
     public T? Value { get; set; }
