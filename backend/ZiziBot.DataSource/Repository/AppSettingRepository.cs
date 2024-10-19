@@ -1,19 +1,19 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
-using ZiziBot.DataSource.MongoDb;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
-public class AppSettingRepository(MongoDbContextBase mongoDbContext)
+public class AppSettingRepository(MongoEfContext mongoEfContext)
 {
     public TelegramSinkConfigDto GetTelegramSinkConfig()
     {
-        var chatId = mongoDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
-        var threadId = mongoDbContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ThreadId")?.Value;
-        var botToken = mongoDbContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main")?.Token;
+        var chatId = mongoEfContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
+        var threadId = mongoEfContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ThreadId")?.Value;
+        var botToken = mongoEfContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main")?.Token;
         var eventLogConfig = GetConfigSection<EventLogConfig>();
 
         return new TelegramSinkConfigDto() {
@@ -34,7 +34,7 @@ public class AppSettingRepository(MongoDbContextBase mongoDbContext)
 
         var sectionName = attribute.DisplayName;
 
-        var appSettings = await mongoDbContext.AppSettings.AsNoTracking()
+        var appSettings = await mongoEfContext.AppSettings.AsNoTracking()
             .Where(entity => entity.Name.StartsWith(sectionName))
             .Select(x => new { x.Name, x.Value })
             .ToListAsync();
@@ -56,7 +56,7 @@ public class AppSettingRepository(MongoDbContextBase mongoDbContext)
 
         var sectionName = attribute.DisplayName;
 
-        var appSettings = mongoDbContext.AppSettings.AsNoTracking()
+        var appSettings = mongoEfContext.AppSettings.AsNoTracking()
             .Where(entity => entity.Name.StartsWith(sectionName))
             .Select(x => new { x.Name, x.Value })
             .ToList();
@@ -76,9 +76,9 @@ public class AppSettingRepository(MongoDbContextBase mongoDbContext)
 
     public async Task UpdateAppSetting(string name, string value)
     {
-        var appSettings = await mongoDbContext.AppSettings
+        var appSettings = await mongoEfContext.AppSettings
             .Where(entity => entity.Name == name)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (appSettings == null)
@@ -86,14 +86,14 @@ public class AppSettingRepository(MongoDbContextBase mongoDbContext)
 
         appSettings.Value = value;
 
-        await mongoDbContext.SaveChangesAsync();
+        await mongoEfContext.SaveChangesAsync();
     }
 
-    public async Task<BotSettingsEntity> GetBotMain()
+    public async Task<BotSettingsEntity?> GetBotMain()
     {
-        var botSetting = await mongoDbContext.BotSettings.AsNoTracking()
+        var botSetting = await mongoEfContext.BotSettings.AsNoTracking()
             .Where(entity => entity.Name == "Main")
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         return botSetting;
@@ -101,9 +101,9 @@ public class AppSettingRepository(MongoDbContextBase mongoDbContext)
 
     public async Task<FeatureFlagEntity?> GetFlag(string flagName)
     {
-        var flag = await mongoDbContext.FeatureFlag.AsNoTracking()
+        var flag = await mongoEfContext.FeatureFlag.AsNoTracking()
             .Where(x => x.Name == flagName)
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         return flag;

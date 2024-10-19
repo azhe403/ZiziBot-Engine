@@ -9,6 +9,11 @@ public class MongoEfContext : DbContext
     private readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
     public DbSet<SudoerEntity> Sudoers { get; set; }
+    public DbSet<AppSettingsEntity> AppSettings { get; set; }
+    public DbSet<BotSettingsEntity> BotSettings { get; set; }
+
+    public DbSet<FeatureFlagEntity> FeatureFlag { get; set; }
+
     public DbSet<ChatRestrictionEntity> ChatRestriction { get; set; }
     public DbSet<ChatAdminEntity> ChatAdmin { get; set; }
     public DbSet<ChatSettingEntity> ChatSetting { get; set; }
@@ -27,6 +32,8 @@ public class MongoEfContext : DbContext
     public DbSet<BangHasan_ShalatCityEntity> BangHasan_ShalatCity { get; set; }
 
     public DbSet<PendekinMapEntity> PendekinMap { get; set; }
+
+    public DbSet<TonjooAwbEntity> TonjooAwb { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
