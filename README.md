@@ -27,6 +27,7 @@ The **ZiziBot** project is made possible by these awesome open source projects:
 <ul>
     <li><a href="https://github.com/dotnet" target="_blank">.NET</a></li>
     <li><a href="https://github.com/azhe403/ZiziBot.TelegramBot" target="_blank">ZiziBot.TelegramBot</a></li>
+    <li><a href="https://github.com/wiz0u/WTelegramBot" target="_blank">WTelegramBot</a></li>
     <li><a href="https://github.com/HangfireIO" target="_blank">Hangfire</a></li>
     <li><a href="https://github.com/jbogard/MediatR" target="_blank">MediatR</a></li>
     <li><a href="https://github.com/TurnerSoftware/MongoFramework" target="_blank">MongoFramework</a></li>
