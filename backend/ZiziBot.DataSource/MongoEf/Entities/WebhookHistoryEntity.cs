@@ -1,5 +1,4 @@
 ﻿using MongoDB.EntityFrameworkCore;
-using ZiziBot.Types.Types;
 
 namespace ZiziBot.DataSource.MongoEf.Entities;
 
@@ -11,7 +10,8 @@ public class WebhookHistoryEntity : EntityBase
     public int MessageId { get; set; }
     public int MessageThreadId { get; set; }
     public WebhookSource WebhookSource { get; set; }
-    public TimeSpan Elapsed { get; set; }
-    public WebhookHeader? Header { get; set; }
+    public string? Header { get; set; }
+    public string EventName { get; set; }
     public string? Payload { get; set; }
+    public TimeSpan Elapsed { get; set; }
 }

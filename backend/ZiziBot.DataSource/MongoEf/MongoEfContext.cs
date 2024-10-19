@@ -8,12 +8,23 @@ public class MongoEfContext : DbContext
 {
     private readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
+    public DbSet<SudoerEntity> Sudoers { get; set; }
+    public DbSet<ChatRestrictionEntity> ChatRestriction { get; set; }
     public DbSet<ChatAdminEntity> ChatAdmin { get; set; }
+    public DbSet<ChatSettingEntity> ChatSetting { get; set; }
+    public DbSet<ChatActivityEntity> ChatActivity { get; set; }
     public DbSet<WordFilterEntity> WordFilter { get; set; }
+    public DbSet<GlobalBanEntity> GlobalBan { get; set; }
+    public DbSet<BotUserEntity> BotUser { get; set; }
+    public DbSet<NoteEntity> Note { get; set; }
+    public DbSet<DashboardSessionEntity> DashboardSessions { get; set; }
 
+    public DbSet<WebhookChatEntity> WebhookChat { get; set; }
     public DbSet<WebhookHistoryEntity> WebhookHistory { get; set; }
 
     public DbSet<MirrorActivityEntity> MirrorActivity { get; set; }
+
+    public DbSet<BangHasan_ShalatCityEntity> BangHasan_ShalatCity { get; set; }
 
     public DbSet<PendekinMapEntity> PendekinMap { get; set; }
 

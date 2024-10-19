@@ -11,5 +11,5 @@ public class ChatActivityDto
     public required Chat Chat { get; set; }
     public required User User { get; set; }
     public EventStatus Status { get; set; }
-    public required string TransactionId { get; set; }
+    public string? TransactionId { get; set; }
 }
