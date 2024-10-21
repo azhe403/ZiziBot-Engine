@@ -202,15 +202,33 @@ public class ChatSettingRepository(
             .Where(x => x.EventName == eventName)
             .Where(x => x.Status == EventStatus.Complete)
             .OrderByDescending(o => o.CreatedDate)
+            .Select(x => new {
+                x.ChatId,
+                x.EventName,
+                x.RouteId,
+                x.MessageId,
+                x.MessageThreadId,
+                x.WebhookSource
+            })
             .FirstOrDefaultAsync();
+
+        if (lastWebhookHistory == null)
+            return default;
 
         var lastChatActivity = await mongoDbContext.ChatActivity.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
             .Where(x => x.ChatId == chatId)
             .OrderByDescending(o => o.CreatedDate)
+            .Select(x => new {
+                x.ChatId,
+                x.MessageId,
+            })
             .FirstOrDefaultAsync();
 
-        if (lastChatActivity?.MessageId != lastWebhookHistory?.MessageId)
+        if (lastChatActivity == null)
+            return default;
+
+        if (lastChatActivity.MessageId != lastWebhookHistory.MessageId)
             return default;
 
         logger.LogDebug("Last Webhook Message for Better Edit: {MessageId}", lastWebhookHistory.MessageId);
