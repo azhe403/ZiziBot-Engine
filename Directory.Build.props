@@ -4,7 +4,7 @@
   <!--    <BaseOutputPath>.bin\</BaseOutputPath>-->
   <!--  </PropertyGroup>-->
   <PropertyGroup>
-    <Version>224.10.9058.35805</Version>
+    <Version>224.10.9058.40270</Version>
     <Company>AZ Corp</Company>
     <Authors>azhe403</Authors>
     <Product>ZiziBot</Product>

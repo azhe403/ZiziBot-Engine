@@ -102,6 +102,10 @@ public class TelegramService(
         TimeSpan deleteAfter = default
     )
     {
+        var replyParameters = new ReplyParameters() {
+            AllowSendingWithoutReply = true,
+        };
+
         if (text.IsNullOrEmpty())
             return Complete();
 
@@ -112,39 +116,46 @@ public class TelegramService(
         if (threadId == -1)
             threadId = _request.MessageThreadId;
 
-        var replyToMessageId = _request.ReplyMessage ? _request.ReplyToMessageId : -1;
+        replyParameters.MessageId = _request.ReplyMessage ? _request.ReplyToMessageId : -1;
 
         if (_request.ReplyToMessage != null)
         {
-            replyToMessageId = _request.ReplyToMessage.MessageId;
+            replyParameters.MessageId = _request.ReplyToMessage.MessageId;
         }
 
-        logger.LogInformation("Sending message to chat {ChatId}", _request.ChatId);
+        logger.LogInformation("Sending message to chat {ChatId}", targetChatId);
         try
         {
             SentMessage = await Bot.SendTextMessageAsync(
                 chatId: targetChatId,
                 messageThreadId: threadId,
                 text: text,
-                replyParameters: replyToMessageId,
+                replyParameters: replyParameters,
                 parseMode: ParseMode.Html,
                 replyMarkup: replyMarkup,
                 linkPreviewOptions: true
             );
         }
-        catch (Exception exception)
+        catch (Exception exception1)
         {
-            if (exception.Message.Contains("thread not found"))
+            if (exception1.Message.Contains("thread not found"))
             {
-                logger.LogWarning("Trying send message without thread to ChatId: {ChatId}", _request.ChatId);
-                SentMessage = await Bot.SendTextMessageAsync(
-                    chatId: targetChatId,
-                    text: text,
-                    replyParameters: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
-                    parseMode: ParseMode.Html,
-                    replyMarkup: replyMarkup,
-                    linkPreviewOptions: true
-                );
+                try
+                {
+                    logger.LogWarning("Trying send message without thread to ChatId: {ChatId}", targetChatId);
+                    SentMessage = await Bot.SendTextMessageAsync(
+                        chatId: targetChatId,
+                        text: text,
+                        replyParameters: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
+                        parseMode: ParseMode.Html,
+                        replyMarkup: replyMarkup,
+                        linkPreviewOptions: true
+                    );
+                }
+                catch (Exception exception2)
+                {
+                    logger.LogError(exception2, "Error when Sending message to {ChatId}", targetChatId);
+                }
             }
         }
 
@@ -157,15 +168,14 @@ public class TelegramService(
             TransactionId = _request.TransactionId
         });
 
-        logger.LogInformation("Message sent to chat {ChatId}", _request.ChatId);
+        logger.LogInformation("Message sent to chat {ChatId}", targetChatId);
 
         var deleteAfterExec = deleteAfter != default ? deleteAfter : _request.DeleteAfter;
 
         if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfterExec == default)
             return Complete();
 
-        logger.LogDebug("Schedule delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds",
-            SentMessage.MessageId, _request.ChatId, _request.DeleteAfter.TotalSeconds);
+        logger.LogDebug("Schedule delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds", SentMessage.MessageId, targetChatId, _request.DeleteAfter.TotalSeconds);
 
         mediatorService.Schedule(new DeleteMessageBotRequestModel {
             BotToken = _request.BotToken,
@@ -185,8 +195,7 @@ public class TelegramService(
             }, delayExecution: deleteAfterExec);
         }
 
-        logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds",
-            SentMessage.MessageId, _request.DeleteAfter.TotalSeconds);
+        logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", SentMessage.MessageId, _request.DeleteAfter.TotalSeconds);
 
         return Complete();
     }
