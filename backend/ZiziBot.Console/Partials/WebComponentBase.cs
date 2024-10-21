@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Microsoft.AspNetCore.Components.Authorization;
+using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Console.Partials;
 
@@ -21,6 +22,9 @@ public class WebComponentBase<T> : ReactiveInjectableComponentBase<T> where T : 
     public required MongoDbContextBase MongoDbContextBase { get; set; }
 
     [Inject]
+    public required MongoEfContext MongoEfContext { get; set; }
+
+    [Inject]
     public required ILogger<T> Logger { get; set; }
 
     [CascadingParameter]
@@ -31,5 +35,4 @@ public class WebComponentBase<T> : ReactiveInjectableComponentBase<T> where T : 
 
     [Inject]
     protected NotificationService NotificationService { get; set; }
-
 }
