@@ -12,9 +12,10 @@ builder.WebHost.ConfigureCustomListenPort();
 builder.Services.ConfigureServices();
 builder.Services.ConfigureApi();
 builder.Services.ConfigureHangfire();
-builder.Services.ConfigureTelegramBot();
 builder.Services.AddAllMiddleware();
 builder.Services.AddConsole();
+
+await builder.Services.ConfigureTelegramBot();
 
 var app = builder.Build();
 
@@ -34,6 +35,7 @@ app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{i
 app.ConfigureConsole();
 app.ConfigureApi();
 app.UseHangfire();
+
 await app.RunTelegramBot();
 
 await app.RunAsync();

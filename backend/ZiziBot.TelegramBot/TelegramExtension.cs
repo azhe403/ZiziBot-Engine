@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using ZiziBot.DataSource.MongoEf;
+using ZiziBot.Application.Facades;
 using ZiziBot.DataSource.MongoEf.Entities;
 using ZiziBot.TelegramBot.Framework.Extensions;
 using ZiziBot.TelegramBot.Framework.Models.Configs;
@@ -11,16 +10,13 @@ namespace ZiziBot.TelegramBot;
 
 public static class TelegramExtension
 {
-    public static IServiceCollection ConfigureTelegramBot(this IServiceCollection services)
+    public async static Task<IServiceCollection> ConfigureTelegramBot(this IServiceCollection services)
     {
         var provider = services.BuildServiceProvider();
-        var environment = provider.GetRequiredService<IWebHostEnvironment>();
         var config = provider.GetRequiredService<IOptions<EngineConfig>>().Value;
-        var appSettingDbContext = provider.GetRequiredService<MongoEfContext>();
+        var dataFacade = provider.GetRequiredService<DataFacade>();
 
-        var listBotData = appSettingDbContext.BotSettings
-            .Where(settings => settings.Status == EventStatus.Complete)
-            .ToList();
+        var listBotData = await dataFacade.AppSetting.ListBots();
 
         services.AddZiziBotTelegramBot(new BotEngineConfig() {
             EngineMode = config.TelegramEngineMode,
@@ -36,20 +32,20 @@ public static class TelegramExtension
 
     public async static Task<IApplicationBuilder> RunTelegramBot(this IApplicationBuilder app)
     {
-        var provider = app.ApplicationServices;
-        var appSettingsDbContext = provider.GetRequiredService<MongoEfContext>();
+        var provider = app.ApplicationServices.CreateScope().ServiceProvider;
+        var dataFacade = provider.GetRequiredService<DataFacade>();
 
         var listBotOptions = provider.GetRequiredService<List<BotTokenConfig>>();
 
         if (listBotOptions.Count == 0)
         {
-            appSettingsDbContext.BotSettings.Add(new BotSettingsEntity() {
-                Name = "BOT_NAME",
-                Token = "BOT_TOKEN",
+            dataFacade.MongoEf.BotSettings.Add(new BotSettingsEntity() {
+                Name = "Main",
+                Token = "BOT_TOKEN_HERE",
                 Status = EventStatus.InProgress
             });
 
-            await appSettingsDbContext.SaveChangesAsync();
+            await dataFacade.MongoEf.SaveChangesAsync();
 
             throw new ApplicationException("No bot data found. Please ensure config for 'BotSettings'");
         }

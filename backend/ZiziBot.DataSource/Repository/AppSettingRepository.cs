@@ -2,6 +2,7 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using ZiziBot.Contracts.Dtos.Entity;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
 
@@ -11,13 +12,14 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
 {
     public TelegramSinkConfigDto GetTelegramSinkConfig()
     {
-        var chatId = mongoEfContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
-        var threadId = mongoEfContext.AppSettings.FirstOrDefault(entity => entity.Name == "EventLog:ThreadId")?.Value;
-        var botToken = mongoEfContext.BotSettings.FirstOrDefault(entity => entity.Name == "Main")?.Token;
+        var chatId = mongoEfContext.AppSettings.Select(x => new { x.Name, x.Value }).FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
+        var threadId = mongoEfContext.AppSettings.Select(x => new { x.Name, x.Value }).FirstOrDefault(entity => entity.Name == "EventLog:ThreadId")?.Value;
+        var botToken = mongoEfContext.BotSettings.Select(x => new { x.Name, x.Token }).FirstOrDefault(entity => entity.Name == "Main");
+
         var eventLogConfig = GetConfigSection<EventLogConfig>();
 
         return new TelegramSinkConfigDto() {
-            BotToken = botToken,
+            BotToken = botToken?.Token,
             ChatId = chatId.Convert<long>(),
             ThreadId = eventLogConfig?.EventLog
         };
@@ -89,14 +91,34 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
         await mongoEfContext.SaveChangesAsync();
     }
 
-    public async Task<BotSettingsEntity?> GetBotMain()
+    public async Task<BotSettingDto> GetBotMain()
     {
         var botSetting = await mongoEfContext.BotSettings.AsNoTracking()
             .Where(entity => entity.Name == "Main")
             .Where(entity => entity.Status == EventStatus.Complete)
+            .Select(x => new BotSettingDto {
+                Name = x.Name,
+                Token = x.Token
+            })
             .FirstOrDefaultAsync();
 
+        ArgumentNullException.ThrowIfNull(botSetting);
+
         return botSetting;
+    }
+
+
+    public async Task<List<BotSettingDto>> ListBots()
+    {
+        var listBotData = mongoEfContext.BotSettings
+            .Where(settings => settings.Status == EventStatus.Complete)
+            .Select(x => new BotSettingDto {
+                Name = x.Name,
+                Token = x.Token
+            })
+            .ToList();
+
+        return listBotData;
     }
 
     public async Task<FeatureFlagEntity?> GetFlag(string flagName)
