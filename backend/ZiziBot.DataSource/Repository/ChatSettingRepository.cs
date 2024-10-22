@@ -320,13 +320,22 @@ public class ChatSettingRepository(
 
     public async Task<bool> IsSudoAsync(long userId)
     {
+        var sudoers = await GetSudoers();
+
+        var isSudo = sudoers.Any(x => x.UserId == userId);
+        logger.LogDebug("UserId: {UserId} is Sudo: {IsSudo}", userId, isSudo);
+
+        return isSudo;
+    }
+
+    public async Task<List<SudoerEntity>> GetSudoers()
+    {
         var cache = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.GLOBAL_SUDO + userId,
+            cacheKey: CacheKey.GLOBAL_SUDO,
             action: async () => {
-                return await mongoDbContext.Sudoers.AnyAsync(x =>
-                    x.UserId == userId &&
-                    x.Status == EventStatus.Complete
-                );
+                return await mongoDbContext.Sudoers.AsNoTracking()
+                    .Where(x => x.Status == EventStatus.Complete)
+                    .ToListAsync();
             }
         );
 
