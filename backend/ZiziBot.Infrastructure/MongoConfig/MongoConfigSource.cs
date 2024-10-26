@@ -35,9 +35,9 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                 KeyPair = new() {
                     { "ProductName", "ZiziBot" },
                     { "Description", "ZiziBot is a Telegram bot that can help you manage your group." },
-                    { "Vendor", "WinTenDev" },
-                    { "Website", "https://winten.my.id" },
-                    { "Support", "https://t.me/WinTenDevSupport" },
+                    { "Vendor", "@TeknoLugu" },
+                    { "Website", "https://azhe.my.id" },
+                    { "Support", "https://t.me/TeknoLuguDev" },
                     { "EnableChatRestriction", false },
                     { "TelegramEngineMode", "Auto" }
                 }

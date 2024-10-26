@@ -13,7 +13,7 @@ public class AnswerInlineQueryGuideRequestHandler(
 {
     public async Task<BotResponseBase> Handle(AnswerInlineQueryGuideBotRequestModel request, CancellationToken cancellationToken)
     {
-        serviceFacade.TelegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(request: request);
 
         return await serviceFacade.TelegramService.AnswerInlineQueryAsync(new List<InlineQueryResult>() {
             new InlineQueryResultArticle(
@@ -40,18 +40,18 @@ public class AnswerInlineQueryGuideRequestHandler(
 
 public static class InlineDefaults
 {
+    public const string InlineQueryDoc = "https://docs.zizibot.azhe.my.id/features/inline-query";
+
     public readonly static InlineKeyboardMarkup DefaultButtonMarkup = new(new[] {
         new[] {
-            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Ping", $"ping "),
-            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Api doc", $"api-doc ")
+            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Ping", switchInlineQueryCurrentChat: $"ping "),
+            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Api doc", switchInlineQueryCurrentChat: $"api-doc ")
         },
         new[] {
-            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Web Search", $"search "),
-            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Windows UUPs", $"uup ")
+            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Web Search", switchInlineQueryCurrentChat: $"search "),
+            InlineKeyboardButton.WithSwitchInlineQueryCurrentChat("Windows UUPs", switchInlineQueryCurrentChat: $"uup ")
         }
     });
-
-    public const string InlineQueryDoc = "https://docs.zizibot.winten.my.id/features/inline-query";
 
     public readonly static string DefaultGuideText = $"Silakan pelajari selengkapnya" +
                                                      $"\n{InlineQueryDoc}" +

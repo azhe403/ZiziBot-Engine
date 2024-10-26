@@ -81,7 +81,7 @@ public class AnswerInlineQueryApiDocRequestHandler(
                 return fields;
             });
 
-        var learnMore = "https://docs.zizibot.winten.my.id/features/inline-query";
+        var learnMore = "https://docs.zizibot.azhe.my.id/features/inline-query";
         var learnMoreContent = $"Silakan mauskkan nama method/typw";
 
 

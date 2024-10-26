@@ -5,7 +5,7 @@ namespace ZiziBot.Contracts.Constants;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class UrlConst
 {
-    public static readonly string TG_APPLY_USERNAME = "https://t.me/WinTenDev/29";
+    public const string TG_APPLY_USERNAME = "https://t.me/TeknoLuguDev/29";
 
     public const string OCR_URL_API = "https://api.optiic.dev/process";
     public const string OCR_SPACE_URL_API = "https://api.ocr.space/parse/image";
@@ -19,7 +19,7 @@ public static class UrlConst
     public const string API_TRAKTEER_PARSER = "https://api.wintin.eu.org/trakteer.php";
     public const string API_SAWERIA_PARSER = "https://api.wintin.eu.org/saweria.php";
 
-    public const string DOC_MIRROR_VERIFY_DONATION = "https://docs.mirror.winten.my.id/verifikasi-donasi";
+    public const string DOC_MIRROR_VERIFY_DONATION = "https://docs.mirror.azhe.my.id/verifikasi-donasi";
 
     public const string API_BINDERBYTE = "https://api.binderbyte.com/v1/";
     public const string API_TONJOO_ONGKIR = "https://pluginongkoskirim.com";
