@@ -13,7 +13,7 @@ public class CheckPaymentOrderIdHandler(
 
     public async Task<ApiResponseBase<TrakteerParsedDto>> Handle(CheckPaymentOrderIdRequest request, CancellationToken cancellationToken)
     {
-        var parsedTrakteer = await serviceFacade.MirrorPaymentService.ParseSaweriaWeb(request.OrderId);
+        var parsedTrakteer = await serviceFacade.MirrorPaymentService.ParseTrakteerWeb(request.OrderId);
 
         if (parsedTrakteer.IsValid)
         {
