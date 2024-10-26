@@ -19,9 +19,6 @@ public class WebComponentBase<T> : ReactiveInjectableComponentBase<T> where T : 
     public required ProtectedLocalStorage ProtectedLocalStorage { get; set; }
 
     [Inject]
-    public required MongoDbContextBase MongoDbContextBase { get; set; }
-
-    [Inject]
     public required MongoEfContext MongoEfContext { get; set; }
 
     [Inject]

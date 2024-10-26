@@ -29,7 +29,7 @@ public class CreateNoteHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<CreateNoteBotRequest, BotResponseBase>
+    : IBotRequestHandler<CreateNoteBotRequest>
 {
     public async Task<BotResponseBase> Handle(CreateNoteBotRequest request, CancellationToken cancellationToken)
     {

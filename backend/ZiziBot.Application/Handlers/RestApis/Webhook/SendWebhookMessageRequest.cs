@@ -22,7 +22,8 @@ public class SendWebhookMessageRequest : IRequest<object>
 public class SendWebhookMessageRequestHandler(
     ILogger<SendWebhookMessageRequestHandler> logger,
     DataFacade dataFacade
-) : IRequestHandler<SendWebhookMessageRequest, object>
+)
+    : IRequestHandler<SendWebhookMessageRequest, object>
 {
     public async Task<object> Handle(SendWebhookMessageRequest request, CancellationToken cancellationToken)
     {

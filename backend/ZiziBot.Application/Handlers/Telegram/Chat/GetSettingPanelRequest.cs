@@ -12,12 +12,14 @@ public class GetSettingPanelRequestHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<GetSettingPanelBotRequestModel, BotResponseBase>
+    : IBotRequestHandler<GetSettingPanelBotRequestModel>
 {
     private readonly ILogger<GetSettingPanelRequestHandler> _logger = logger;
 
-    public async Task<BotResponseBase> Handle(GetSettingPanelBotRequestModel request,
-        CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(
+        GetSettingPanelBotRequestModel request,
+        CancellationToken cancellationToken
+    )
     {
         serviceFacade.TelegramService.SetupResponse(request);
 

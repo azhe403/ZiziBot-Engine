@@ -18,7 +18,7 @@ public class GetMirrorUserByUserIdRequestHandler(
 )
     : IApiRequestHandler<GetMirrorUserByUserIdRequestDto, GetMirrorUserDto>
 {
-    private readonly ApiResponseBase<GetMirrorUserDto> _response = new();
+    readonly ApiResponseBase<GetMirrorUserDto> _response = new();
 
     public async Task<ApiResponseBase<GetMirrorUserDto>> Handle(GetMirrorUserByUserIdRequestDto request, CancellationToken cancellationToken)
     {
@@ -29,12 +29,12 @@ public class GetMirrorUserByUserIdRequestHandler(
             return _response.NotFound("Mirror User not found");
         }
 
-        if (user.Status > (int)EventStatus.Complete)
+        if (user.Status > EventStatus.Complete)
         {
             return _response.NotFound("Mirror User suspended");
         }
 
-        return _response.Success("Mirror User found", new GetMirrorUserDto {
+        return _response.Success("Mirror User found", new() {
             UserId = request.UserId,
             HasSubscription = user.ExpireDate > DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE),
             SubscriptionUntil = user.ExpireDate.AddHours(Env.DEFAULT_TIMEZONE),

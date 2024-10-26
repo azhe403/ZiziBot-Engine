@@ -6,7 +6,8 @@ namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
 public class GetListRssRequest : ApiRequestBase<List<GetListRssResponse>>
 {
-    [FromQuery] public long ChatId { get; set; }
+    [FromQuery]
+    public long ChatId { get; set; }
 }
 
 public class GetListRssResponse
@@ -24,7 +25,7 @@ public class GetListRssResponse
 
 public class GetListRssHandler(
     DataFacade dataFacade
-) : IRequestHandler<GetListRssRequest, ApiResponseBase<List<GetListRssResponse>>>
+) : IApiRequestHandler<GetListRssRequest, List<GetListRssResponse>>
 {
     public async Task<ApiResponseBase<List<GetListRssResponse>>> Handle(GetListRssRequest request, CancellationToken cancellationToken)
     {

@@ -23,7 +23,6 @@ public static class ConfigurationExtension
         var provider = services.BuildServiceProvider();
 
         var config = provider.GetRequiredService<IConfiguration>();
-        var appSettingDbContext = provider.GetRequiredService<MongoDbContextBase>();
 
         services.Configure<CacheConfig>(config.GetSection("Cache"));
         services.Configure<EngineConfig>(config.GetSection("Engine"));
@@ -50,7 +49,7 @@ public static class ConfigurationExtension
         return services;
     }
 
-    private static IConfigurationBuilder LoadLocalSettings(this IConfigurationBuilder builder)
+    static IConfigurationBuilder LoadLocalSettings(this IConfigurationBuilder builder)
     {
         var settingsPath = Path.Combine(Environment.CurrentDirectory, "Storage", "AppSettings", "Current");
 
@@ -69,7 +68,7 @@ public static class ConfigurationExtension
     }
 
 
-    private static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
+    static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
     {
         var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
         var url = mongodbConnectionString.ToMongoUrl();

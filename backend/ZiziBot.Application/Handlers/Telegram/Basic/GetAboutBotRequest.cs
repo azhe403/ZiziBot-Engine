@@ -10,7 +10,7 @@ public class GetAboutHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<GetAboutBotRequest, BotResponseBase>
+    : IBotRequestHandler<GetAboutBotRequest>
 {
     public async Task<BotResponseBase> Handle(GetAboutBotRequest request, CancellationToken cancellationToken)
     {

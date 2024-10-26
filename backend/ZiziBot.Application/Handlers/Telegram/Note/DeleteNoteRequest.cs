@@ -7,7 +7,8 @@ public class DeleteNoteRequest : BotRequestBase
 
 public class DeleteNoteRequestHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<DeleteNoteRequest, BotResponseBase>
+)
+    : IBotRequestHandler<DeleteNoteRequest>
 {
     public async Task<BotResponseBase> Handle(DeleteNoteRequest request, CancellationToken cancellationToken)
     {

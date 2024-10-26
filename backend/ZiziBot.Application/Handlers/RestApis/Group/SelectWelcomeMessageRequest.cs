@@ -5,7 +5,8 @@ namespace ZiziBot.Application.Handlers.RestApis.Group;
 
 public class SelectWelcomeMessageRequest : ApiRequestBase<object>
 {
-    [FromBody] public SelectWelcomeMessageRequestModel Model { get; set; }
+    [FromBody]
+    public SelectWelcomeMessageRequestModel Model { get; set; }
 }
 
 public class SelectWelcomeMessageRequestModel
@@ -16,7 +17,7 @@ public class SelectWelcomeMessageRequestModel
 
 public class SelectWelcomeMessageHandler(
     DataFacade dataFacade
-) : IRequestHandler<SelectWelcomeMessageRequest, ApiResponseBase<object>>
+) : IApiRequestHandler<SelectWelcomeMessageRequest, object>
 {
     public async Task<ApiResponseBase<object>> Handle(SelectWelcomeMessageRequest request, CancellationToken cancellationToken)
     {

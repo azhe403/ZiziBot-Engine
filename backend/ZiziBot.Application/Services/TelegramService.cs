@@ -2,8 +2,8 @@ using System.Diagnostics;
 using Ardalis.GuardClauses;
 using AsyncAwaitBestPractices;
 using Flurl.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -17,14 +17,13 @@ public class TelegramService(
     ILogger<TelegramService> logger,
     IMediator mediator,
     CacheService cacheService,
-    MongoDbContextBase mongoDbContext,
     MediatorService mediatorService,
     DataFacade dataFacade
 )
 {
-    private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-    private BotRequestBase _request = new();
-    private string _timeInit = string.Empty;
+    readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+    BotRequestBase _request = new();
+    string _timeInit = string.Empty;
 
     public ITelegramBotClient Bot { get; set; }
     public Message? SentMessage { get; set; }
@@ -43,13 +42,13 @@ public class TelegramService(
 
     public async Task<bool> IsBotName(string name)
     {
-        var botSettings = await mongoDbContext.BotSettings
+        var botSettings = await dataFacade.MongoEf.BotSettings
             .FirstOrDefaultAsync(x => x.Token == _request.BotToken);
 
         return botSettings.Name == name;
     }
 
-    private string GetExecStamp()
+    string GetExecStamp()
     {
         var timeProc = _request.MessageDate.GetDelay();
         var stamp = $"⏳ <code>{_timeInit} s</code> | ⏱ <code>{timeProc} s</code>";
@@ -103,7 +102,7 @@ public class TelegramService(
     )
     {
         var replyParameters = new ReplyParameters() {
-            AllowSendingWithoutReply = true,
+            AllowSendingWithoutReply = true
         };
 
         if (text.IsNullOrEmpty())
@@ -127,7 +126,7 @@ public class TelegramService(
         try
         {
             SentMessage = await Bot.SendTextMessageAsync(
-                chatId: targetChatId,
+                targetChatId,
                 messageThreadId: threadId,
                 text: text,
                 replyParameters: replyParameters,
@@ -144,8 +143,8 @@ public class TelegramService(
                 {
                     logger.LogWarning("Trying send message without thread to ChatId: {ChatId}", targetChatId);
                     SentMessage = await Bot.SendTextMessageAsync(
-                        chatId: targetChatId,
-                        text: text,
+                        targetChatId,
+                        text,
                         replyParameters: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
                         parseMode: ParseMode.Html,
                         replyMarkup: replyMarkup,
@@ -182,7 +181,7 @@ public class TelegramService(
             Message = _request.Message,
             MessageId = SentMessage.MessageId,
             Source = ResponseSource.Hangfire
-        }, delayExecution: deleteAfterExec);
+        }, deleteAfterExec);
 
         if (_request.CleanupTargets.Contains(CleanupTarget.FromSender))
         {
@@ -192,7 +191,7 @@ public class TelegramService(
                 MessageId = _request.MessageId,
                 DeleteAfter = _request.DeleteAfter,
                 Source = ResponseSource.Hangfire
-            }, delayExecution: deleteAfterExec);
+            }, deleteAfterExec);
         }
 
         logger.LogInformation("Message {MessageId} scheduled for deletion in {DeleteAfter} seconds", SentMessage.MessageId, _request.DeleteAfter.TotalSeconds);
@@ -250,8 +249,8 @@ public class TelegramService(
                 }
 
                 SentMessage = await Bot.SendDocumentAsync(
-                    chatId: targetChatId,
-                    document: inputFile,
+                    targetChatId,
+                    inputFile,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -262,15 +261,15 @@ public class TelegramService(
                 break;
 
             case CommonMediaType.LocalDocument:
-                var fileName = Path.GetFileName(path: fileId);
+                var fileName = Path.GetFileName(fileId);
 
-                await using (var fileStream = File.OpenRead(path: fileId))
+                await using (var fileStream = File.OpenRead(fileId))
                 {
-                    var inputOnlineFile = InputFile.FromStream(stream: fileStream, fileName: fileName);
+                    var inputOnlineFile = InputFile.FromStream(fileStream, fileName);
 
                     SentMessage = await Bot.SendDocumentAsync(
-                        chatId: targetChatId,
-                        document: inputOnlineFile,
+                        targetChatId,
+                        inputOnlineFile,
                         caption: caption,
                         parseMode: ParseMode.Html,
                         replyMarkup: replyMarkup,
@@ -283,8 +282,8 @@ public class TelegramService(
 
             case CommonMediaType.Photo:
                 SentMessage = await Bot.SendPhotoAsync(
-                    chatId: targetChatId,
-                    photo: inputFile,
+                    targetChatId,
+                    inputFile,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -296,8 +295,8 @@ public class TelegramService(
 
             case CommonMediaType.Audio:
                 SentMessage = await Bot.SendAudioAsync(
-                    chatId: targetChatId,
-                    audio: inputFile,
+                    targetChatId,
+                    inputFile,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -309,8 +308,8 @@ public class TelegramService(
 
             case CommonMediaType.Video:
                 SentMessage = await Bot.SendVideoAsync(
-                    chatId: targetChatId,
-                    video: inputFile,
+                    targetChatId,
+                    inputFile,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -322,8 +321,8 @@ public class TelegramService(
 
             case CommonMediaType.Sticker:
                 SentMessage = await Bot.SendStickerAsync(
-                    chatId: targetChatId,
-                    sticker: inputFile,
+                    targetChatId,
+                    inputFile,
                     replyMarkup: replyMarkup,
                     replyParameters: _request.ReplyToMessageId,
                     messageThreadId: targetThreadId
@@ -369,10 +368,10 @@ public class TelegramService(
             targetMessageId);
 
         Bot.EditMessageCaptionAsync(
-            chatId: targetChatId,
-            messageId: targetMessageId,
-            caption: caption,
-            parseMode: ParseMode.Html,
+            targetChatId,
+            targetMessageId,
+            caption,
+            ParseMode.Html,
             replyMarkup: replyMarkup as InlineKeyboardMarkup
         ).SafeFireAndForget(e => logger.LogWarning(e, "Error updating media caption"));
 
@@ -388,10 +387,10 @@ public class TelegramService(
             targetMessageId);
 
         Bot.EditMessageMediaAsync(
-            chatId: targetChatId,
-            messageId: targetMessageId,
-            media: media,
-            replyMarkup: replyMarkup as InlineKeyboardMarkup
+            targetChatId,
+            targetMessageId,
+            media,
+            replyMarkup as InlineKeyboardMarkup
         ).SafeFireAndForget(e => logger.LogWarning(e, "Error updating media file"));
 
         return Complete();
@@ -421,22 +420,22 @@ public class TelegramService(
                 mediaType == CommonMediaType.Unknown)
             {
                 await SendMessageText(
-                    text: text,
-                    replyMarkup: replyMarkup,
-                    chatId: customChatId,
-                    threadId: threadId,
-                    deleteAfter: deleteAfter
+                    text,
+                    replyMarkup,
+                    customChatId,
+                    threadId,
+                    deleteAfter
                 );
             }
             else
             {
                 await SendMediaAsync(
-                    fileId: fileId,
-                    mediaType: mediaType,
-                    caption: text,
-                    replyMarkup: replyMarkup,
-                    customChatId: customChatId,
-                    customFileName: customFileName
+                    fileId,
+                    mediaType,
+                    text,
+                    replyMarkup,
+                    customChatId,
+                    customFileName
                 );
             }
         }
@@ -476,7 +475,7 @@ public class TelegramService(
             }
 
             var reducedResults = results.Take(50);
-            await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, reducedResults, cacheTime: 60);
+            await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, reducedResults, 60);
         }
         catch (Exception e)
         {
@@ -549,7 +548,7 @@ public class TelegramService(
     public async Task MuteMemberAsync(long userId, TimeSpan duration)
     {
         var untilDate = DateTime.UtcNow + duration;
-        await Bot.RestrictChatMemberAsync(chatId: _request.ChatId, userId: userId, permissions: new ChatPermissions() {
+        await Bot.RestrictChatMemberAsync(_request.ChatId, userId, new() {
             CanSendAudios = false,
             CanSendPhotos = false,
             CanSendVideos = false,
@@ -575,8 +574,8 @@ public class TelegramService(
     public async Task<string[]> GetChatUsernames()
     {
         var cache = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.CHAT_ACTIVE_USERNAMES + _request.ChatId,
-            action: async () => {
+            CacheKey.CHAT_ACTIVE_USERNAMES + _request.ChatId,
+            async () => {
                 var chat = await Bot.GetChatAsync(_request.ChatId);
                 var activeUsernames = chat.ActiveUsernames;
 
@@ -589,8 +588,8 @@ public class TelegramService(
     public async Task<string[]> GetUserUsernames()
     {
         var cache = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.USER_ACTIVE_USERNAMES + _request.UserId,
-            action: async () => {
+            CacheKey.USER_ACTIVE_USERNAMES + _request.UserId,
+            async () => {
                 var chat = await Bot.GetChatAsync(_request.UserId);
                 var activeUsernames = chat.ActiveUsernames;
 
@@ -626,8 +625,8 @@ public class TelegramService(
         logger.LogInformation("Promoting user {UserId} in chat {ChatId}", userId, _request.ChatId);
 
         await Bot.PromoteChatMemberAsync(
-            chatId: _request.ChatId,
-            userId: _request.UserId,
+            _request.ChatId,
+            _request.UserId,
             canPostMessages: true,
             canEditMessages: true,
             canDeleteMessages: true,
@@ -644,8 +643,8 @@ public class TelegramService(
         logger.LogInformation("Demoting user {UserId} in chat {ChatId}", userId, _request.ChatId);
 
         await Bot.PromoteChatMemberAsync(
-            chatId: _request.ChatId,
-            userId: _request.UserId,
+            _request.ChatId,
+            _request.UserId,
             canPostMessages: false,
             canEditMessages: false,
             canDeleteMessages: false,
@@ -663,8 +662,8 @@ public class TelegramService(
             return [];
 
         var cacheValue = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.CHAT_ADMIN + _request.ChatId,
-            action: async () => {
+            CacheKey.CHAT_ADMIN + _request.ChatId,
+            async () => {
                 var chatAdmins = await Bot.GetChatAdministratorsAsync(_request.ChatId);
                 return chatAdmins.ToList();
             }
@@ -695,7 +694,7 @@ public class TelegramService(
         return isAdmin;
     }
 
-    private async Task GetRoles()
+    async Task GetRoles()
     {
         _request.RolesLevels.Add(RoleLevel.Guest);
         _request.RolesLevels.Add(RoleLevel.None);

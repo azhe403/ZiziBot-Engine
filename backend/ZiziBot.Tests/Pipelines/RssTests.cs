@@ -1,9 +1,10 @@
 ﻿using MongoFramework.Linq;
 using Xunit;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Tests.Pipelines;
 
-public class RssTests(MediatorService mediatorService, MongoDbContextBase mongoDbContextBase)
+public class RssTests(MediatorService mediatorService, DataFacade dataFacade)
 {
     [Theory]
     [InlineData("https://devblogs.microsoft.com/dotnet/feed/")]
@@ -11,7 +12,7 @@ public class RssTests(MediatorService mediatorService, MongoDbContextBase mongoD
     [InlineData("https://github.com/revanced-apks/build-apps/releases.atom")]
     public async Task FetchTest(string url)
     {
-        var historyEntity = await mongoDbContextBase.RssHistory
+        var historyEntity = await dataFacade.MongoDb.RssHistory
             .Where(entity => entity.RssUrl == url)
             .ToListAsync();
 
@@ -19,11 +20,10 @@ public class RssTests(MediatorService mediatorService, MongoDbContextBase mongoD
             x.Status = (int)EventStatus.Deleted;
         });
 
-        await mongoDbContextBase.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
 
-        await mediatorService.Send(new FetchRssRequest()
-        {
+        await mediatorService.Send(new FetchRssRequest() {
             ChatId = -1001710313973,
             RssUrl = url
         });

@@ -11,7 +11,8 @@ namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
 public class SaveTelegramSessionRequest : ApiRequestBase<SaveDashboardSessionIdResponseDto>
 {
-    [FromBody] public TelegramSessionDto Model { get; set; }
+    [FromBody]
+    public TelegramSessionDto Model { get; set; }
 }
 
 public class SaveDashboardSessionIdResponseDto
@@ -24,10 +25,12 @@ public class SaveTelegramSessionRequestHandler(
     ILogger<SaveTelegramSessionRequestHandler> logger,
     DataFacade dataFacade
 )
-    : IRequestHandler<SaveTelegramSessionRequest, ApiResponseBase<SaveDashboardSessionIdResponseDto>>
+    : IApiRequestHandler<SaveTelegramSessionRequest, SaveDashboardSessionIdResponseDto>
 {
-    public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(SaveTelegramSessionRequest request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(
+        SaveTelegramSessionRequest request,
+        CancellationToken cancellationToken
+    )
     {
         ApiResponseBase<SaveDashboardSessionIdResponseDto> response = new();
 

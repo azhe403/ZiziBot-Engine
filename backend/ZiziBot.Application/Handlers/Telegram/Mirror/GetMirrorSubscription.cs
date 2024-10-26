@@ -10,7 +10,7 @@ public class GetMirrorSubscriptionHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<GetMirrorSubscriptionBotRequest, BotResponseBase>
+    : IBotRequestHandler<GetMirrorSubscriptionBotRequest>
 {
     public async Task<BotResponseBase> Handle(GetMirrorSubscriptionBotRequest request, CancellationToken cancellationToken)
     {

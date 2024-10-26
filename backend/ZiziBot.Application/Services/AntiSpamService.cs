@@ -1,8 +1,9 @@
 using System.Net;
 using Flurl;
 using Flurl.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoEf;
 using ZiziBot.Interfaces;
 
 namespace ZiziBot.Application.Services;
@@ -10,11 +11,11 @@ namespace ZiziBot.Application.Services;
 public class AntiSpamService(
     ILogger<AntiSpamService> logger,
     ICacheService cacheService,
-    MongoDbContextBase mongoDbContext,
+    MongoEfContext mongoDbContext,
     ApiKeyService apiKeyService
 )
 {
-    private const string DefaultStaleTime = "10m";
+    const string DefaultStaleTime = "10m";
 
     public async Task<AntiSpamDto> CheckSpamAsync(long chatId, long userId)
     {
@@ -40,15 +41,15 @@ public class AntiSpamService(
         return antispamDto;
     }
 
-    private async Task<AntiSpamDto> CheckEssAsync(long chatId, long userId)
+    async Task<AntiSpamDto> CheckEssAsync(long chatId, long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.USER_BAN_ESS + userId,
+            CacheKey.USER_BAN_ESS + userId,
             staleAfter: DefaultStaleTime,
             action: async () => {
                 var antiSpamDto = new AntiSpamDto();
                 var globalBanEntities = await mongoDbContext.GlobalBan
-                    .Where(entity => entity.UserId == userId && entity.Status == (int)EventStatus.Complete)
+                    .Where(entity => entity.UserId == userId && entity.Status == EventStatus.Complete)
                     .ToListAsync();
 
                 antiSpamDto.IsBanEss = globalBanEntities.Count != 0;
@@ -59,10 +60,10 @@ public class AntiSpamService(
         return cacheData;
     }
 
-    private async Task<AntiSpamDto> CheckCombotAntiSpamAsync(long chatId, long userId)
+    async Task<AntiSpamDto> CheckCombotAntiSpamAsync(long chatId, long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.USER_BAN_CAS + userId,
+            CacheKey.USER_BAN_CAS + userId,
             staleAfter: DefaultStaleTime,
             action: async () => {
                 var antiSpamDto = new AntiSpamDto();
@@ -87,10 +88,10 @@ public class AntiSpamService(
         return cacheData;
     }
 
-    private async Task<AntiSpamDto> CheckSpamWatchAntiSpamAsync(long chatId, long userId)
+    async Task<AntiSpamDto> CheckSpamWatchAntiSpamAsync(long chatId, long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.USER_BAN_SW + userId,
+            CacheKey.USER_BAN_SW + userId,
             staleAfter: DefaultStaleTime,
             action: async () => {
                 SpamWatchResult spamwatchResult = new();

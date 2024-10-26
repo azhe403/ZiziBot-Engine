@@ -20,9 +20,9 @@ public class RegisterRssJobUrlHandler(
     {
         logger.LogDebug("Registering RSS Job. ChatId: {ChatId}, ThreadId: {ThreadId} RssUrl: {RssUrl}", request.ChatId, request.ThreadId, request.Url);
 
-        serviceFacade.RecurringJobManager.RemoveIfExists(request.JobId);
-        serviceFacade.RecurringJobManager.AddOrUpdate<MediatorService>(
-            recurringJobId: request.JobId,
+        RecurringJob.RemoveIfExists(request.JobId);
+        RecurringJob.AddOrUpdate<MediatorService>(
+            request.JobId,
             methodCall: mediatorService => mediatorService.Send(new FetchRssRequest() {
                 ChatId = request.ChatId,
                 ThreadId = request.ThreadId,

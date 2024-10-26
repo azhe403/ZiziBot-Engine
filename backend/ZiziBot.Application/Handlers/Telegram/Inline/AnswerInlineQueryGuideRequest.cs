@@ -8,7 +8,8 @@ public class AnswerInlineQueryGuideBotRequestModel : BotRequestBase
 
 public class AnswerInlineQueryGuideRequestHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<AnswerInlineQueryGuideBotRequestModel, BotResponseBase>
+)
+    : IBotRequestHandler<AnswerInlineQueryGuideBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(AnswerInlineQueryGuideBotRequestModel request, CancellationToken cancellationToken)
     {

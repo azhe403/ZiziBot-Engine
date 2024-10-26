@@ -14,10 +14,13 @@ public class AnswerInlineQueryApiDocBotRequestModel : BotRequestBase
 public class AnswerInlineQueryApiDocRequestHandler(
     ILogger<AnswerInlineQueryApiDocRequestHandler> logger,
     ServiceFacade serviceFacade
-) : IRequestHandler<AnswerInlineQueryApiDocBotRequestModel, BotResponseBase>
+)
+    : IBotRequestHandler<AnswerInlineQueryApiDocBotRequestModel>
 {
-    public async Task<BotResponseBase> Handle(AnswerInlineQueryApiDocBotRequestModel request,
-        CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(
+        AnswerInlineQueryApiDocBotRequestModel request,
+        CancellationToken cancellationToken
+    )
     {
         serviceFacade.TelegramService.SetupResponse(request);
 

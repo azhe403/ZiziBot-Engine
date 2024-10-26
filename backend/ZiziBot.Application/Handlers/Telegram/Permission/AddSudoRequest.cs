@@ -11,7 +11,7 @@ public class AddSudoBotRequestModel : BotRequestBase
 public class AddSudoRequestHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IRequestHandler<AddSudoBotRequestModel, BotResponseBase>
+) : IBotRequestHandler<AddSudoBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(AddSudoBotRequestModel request, CancellationToken cancellationToken)
     {

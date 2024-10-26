@@ -4,12 +4,13 @@ namespace ZiziBot.Application.Handlers.RestApis.Group;
 
 public class GetWelcomeMessageRequest : ApiRequestBase<WelcomeMessageDto>
 {
-    [FromRoute] public string WelcomeId { get; set; }
+    [FromRoute]
+    public string WelcomeId { get; set; }
 }
 
 public class GetWelcomeMessageHandler(
     DataFacade dataFacade
-) : IRequestHandler<GetWelcomeMessageRequest, ApiResponseBase<WelcomeMessageDto>>
+) : IApiRequestHandler<GetWelcomeMessageRequest, WelcomeMessageDto>
 {
     public async Task<ApiResponseBase<WelcomeMessageDto>> Handle(GetWelcomeMessageRequest request, CancellationToken cancellationToken)
     {

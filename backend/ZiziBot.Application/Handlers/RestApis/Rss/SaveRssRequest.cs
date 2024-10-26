@@ -7,7 +7,8 @@ namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
 public class SaveRssRequest : ApiRequestBase<bool>
 {
-    [FromBody] public SaveRssRequestBody Body { get; set; }
+    [FromBody]
+    public SaveRssRequestBody Body { get; set; }
 }
 
 public class SaveRssRequestBody
@@ -27,7 +28,7 @@ public class SaveRssValidation : AbstractValidator<SaveRssRequest>
 
 public class SaveRssHandler(
     DataFacade dataFacade
-) : IRequestHandler<SaveRssRequest, ApiResponseBase<bool>>
+) : IApiRequestHandler<SaveRssRequest, bool>
 {
     public async Task<ApiResponseBase<bool>> Handle(SaveRssRequest request, CancellationToken cancellationToken)
     {

@@ -1,8 +1,14 @@
 using MongoFramework.Linq;
+using ZiziBot.Application.Facades;
+using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Console.ViewModels;
 
-public class RssViewModel(ProtectedLocalStorage protectedLocalStorage, ChatSettingRepository chatSettingRepository, MongoDbContextBase mongoDbContextBase)
+public class RssViewModel(
+    ProtectedLocalStorage protectedLocalStorage,
+    ChatSettingRepository chatSettingRepository,
+    DataFacade dataFacade
+)
     : ReactiveObject, IActivatableViewModel
 {
     public ViewModelActivator Activator { get; }
@@ -19,7 +25,7 @@ public class RssViewModel(ProtectedLocalStorage protectedLocalStorage, ChatSetti
 
     public async Task<List<RssSettingEntity>> GetRss(long chatId)
     {
-        var data = await mongoDbContextBase.RssSetting.AsNoTracking()
+        var data = await dataFacade.MongoDb.RssSetting.AsNoTracking()
             .Where(entity => entity.ChatId == chatId)
             .ToListAsync();
 
@@ -28,7 +34,7 @@ public class RssViewModel(ProtectedLocalStorage protectedLocalStorage, ChatSetti
 
     public async Task<List<RssHistoryEntity>> GetRssHistory(long chatId)
     {
-        var data = await mongoDbContextBase.RssHistory.AsNoTracking()
+        var data = await dataFacade.MongoDb.RssHistory.AsNoTracking()
             .Where(entity => entity.ChatId == chatId)
             .ToListAsync();
 

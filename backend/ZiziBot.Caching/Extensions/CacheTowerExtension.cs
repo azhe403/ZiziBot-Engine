@@ -1,6 +1,4 @@
-using System.Text.Json;
 using CacheTower;
-using CacheTower.Providers.FileSystem;
 using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -11,7 +9,7 @@ namespace ZiziBot.Caching.Extensions;
 
 public static class CacheTowerExtension
 {
-    static ICacheSerializer CurrentSerializer => new SystemTextJsonCacheSerializer(new JsonSerializerOptions() {
+    static ICacheSerializer CurrentSerializer => new SystemTextJsonCacheSerializer(new() {
         WriteIndented = true
     });
 
@@ -36,7 +34,7 @@ public static class CacheTowerExtension
         return services;
     }
 
-    private static ICacheStackBuilder ConfigureRedisCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    static ICacheStackBuilder ConfigureRedisCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
     {
         if (!cacheConfig.UseRedis)
             return builder;
@@ -45,9 +43,9 @@ public static class CacheTowerExtension
             return builder;
 
         builder.CacheLayers.Add(new RedisLayerProvider(
-            connectionString: cacheConfig.RedisConnection,
-            options: new RedisLayerOptions(
-                Serializer: CurrentSerializer,
+            cacheConfig.RedisConnection,
+            new(
+                CurrentSerializer,
                 PrefixRoot: cacheConfig.PrefixRoot
             )
         ));
@@ -55,22 +53,27 @@ public static class CacheTowerExtension
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureFileCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    static ICacheStackBuilder ConfigureFileCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
     {
         if (!cacheConfig.UseJsonFile)
             return builder;
 
         builder.AddFileCacheLayer(
-            new FileCacheLayerOptions(
-                DirectoryPath: PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
-                Serializer: CurrentSerializer
+            new(
+                PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
+                CurrentSerializer
             )
         );
 
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureFirebaseCacheLayer(
+    static ICacheStackBuilder ConfigureJsonCacheLayer(this ICacheStackBuilder builder)
+    {
+        return builder;
+    }
+
+    static ICacheStackBuilder ConfigureFirebaseCacheLayer(
         this ICacheStackBuilder builder,
         CacheConfig cacheConfig
     )
@@ -88,7 +91,7 @@ public static class CacheTowerExtension
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureSqliteCacheLayer(
+    static ICacheStackBuilder ConfigureSqliteCacheLayer(
         this ICacheStackBuilder builder,
         CacheConfig cacheConfig
     )
@@ -103,7 +106,7 @@ public static class CacheTowerExtension
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureMongoDbCacheLayer(
+    static ICacheStackBuilder ConfigureMongoDbCacheLayer(
         this ICacheStackBuilder builder,
         CacheConfig cacheConfig
     )

@@ -1,5 +1,4 @@
-﻿using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group.Welcome;
 
@@ -10,7 +9,7 @@ public class SaveWelcomeMessageHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<SaveWelcomeMessageRequest, BotResponseBase>
+    : IBotRequestHandler<SaveWelcomeMessageRequest>
 {
     public async Task<BotResponseBase> Handle(SaveWelcomeMessageRequest request, CancellationToken cancellationToken)
     {
@@ -23,17 +22,17 @@ public class SaveWelcomeMessageHandler(
 
         await serviceFacade.TelegramService.SendMessageAsync("Sedang menyimpan..");
 
-        var welcomeMessage = await dataFacade.MongoDb.WelcomeMessage
+        var welcomeMessage = await dataFacade.MongoEf.WelcomeMessage
             .Where(e => e.ChatId == request.ChatIdentifier)
-            .Where(e => e.Status == (int)EventStatus.Complete)
+            .Where(e => e.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (welcomeMessage == null)
         {
-            dataFacade.MongoDb.WelcomeMessage.Add(new WelcomeMessageEntity() {
+            dataFacade.MongoEf.WelcomeMessage.Add(new() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.User!.Id,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete
             });
 
             await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);

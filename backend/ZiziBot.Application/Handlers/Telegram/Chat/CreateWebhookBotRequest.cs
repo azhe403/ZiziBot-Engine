@@ -11,7 +11,7 @@ public class CreateWebhookHandler(
     ILogger<CreateWebhookHandler> logger,
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IRequestHandler<CreateWebhookBotRequest, BotResponseBase>
+) : IBotRequestHandler<CreateWebhookBotRequest>
 {
     private readonly ILogger<CreateWebhookHandler> _logger = logger;
 

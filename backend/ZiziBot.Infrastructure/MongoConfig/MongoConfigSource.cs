@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Infrastructure.MongoConfig;
 
 public class MongoConfigSource(string connectionString) : IConfigurationSource
 {
-    private readonly MongoDbContextBase _dbContext = new(connectionString);
+    readonly MongoEfContext _dbContext = new();
 
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
@@ -16,7 +18,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
         SeedAppSettings();
 
         var appSettingsList = _dbContext.AppSettings.AsNoTracking()
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .ToList();
 
         return appSettingsList
@@ -25,12 +27,12 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             .ToDictionary(x => x.Key, x => x.Value);
     }
 
-    private void SeedAppSettings()
+    void SeedAppSettings()
     {
         var seedAppSettings = new List<SeedSettingDto> {
             new() {
                 Root = "Engine",
-                KeyPair = new Dictionary<string, object>() {
+                KeyPair = new() {
                     { "ProductName", "ZiziBot" },
                     { "Description", "ZiziBot is a Telegram bot that can help you manage your group." },
                     { "Vendor", "WinTenDev" },
@@ -42,22 +44,22 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             },
             new() {
                 Root = "Log",
-                KeyPair = new Dictionary<string, object> {
+                KeyPair = new() {
                     { "ProcessEnrich", false }
                 }
             },
             new() {
                 Root = "Jwt",
-                KeyPair = new Dictionary<string, object> {
+                KeyPair = new() {
                     { "Key", "YOUR_SECURE_SECRET_KEY" },
                     { "Issuer", "YOUR_ISSUER" },
                     { "Audience", "YOUR_AUDIENCE" },
-                    { "ExpireDays", 3 },
+                    { "ExpireDays", 3 }
                 }
             },
             new() {
                 Root = "EventLog",
-                KeyPair = new Dictionary<string, object> {
+                KeyPair = new() {
                     { "ChatId", 12345 },
                     { "ThreadId", 34567 },
                     { "BackupDB", "0" },
@@ -67,7 +69,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             },
             new() {
                 Root = "Hangfire",
-                KeyPair = new Dictionary<string, object> {
+                KeyPair = new() {
                     { "DashboardTitle", "Zizi Dev – Hangfire Dashboard" },
                     { "CurrentStorage", 2 },
                     { "MongoDbConnection", "mongo://localhost:21750" },
@@ -77,14 +79,14 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             },
             new() {
                 Root = "Flag",
-                KeyPair = new Dictionary<string, object>() {
+                KeyPair = new() {
                     { "IsEnabled", false },
                     { "IsForwardMessageEnabled", false }
                 }
             },
             new() {
                 Root = "Cache",
-                KeyPair = new Dictionary<string, object> {
+                KeyPair = new() {
                     { "UseJsonFile", false },
                     { "UseFirebase", false },
                     { "UseMongoDb", false },
@@ -96,14 +98,14 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             },
             new() {
                 Root = "Sentry",
-                KeyPair = new Dictionary<string, object>() {
+                KeyPair = new() {
                     { "IsEnabled", false },
                     { "Dsn", "SENTRY_DSN" }
                 }
             },
             new() {
                 Root = "Mirror",
-                KeyPair = new Dictionary<string, object>() {
+                KeyPair = new() {
                     { "ApprovalChannelId", "-969706112" },
                     { "TrakteerVerificationApi", "" },
                     { "SaweriaVerificationApi", "" },
@@ -114,7 +116,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             },
             new() {
                 Root = "Gcp",
-                KeyPair = new Dictionary<string, object> {
+                KeyPair = new() {
                     { "IsEnabled", false },
                     { "FirebaseProjectUrl", "https://yourapp.firebaseio.com" },
                     { "FirebaseServiceAccountJson", "{\"your_firebase_service_account_json\":\"string\"}" }
@@ -122,22 +124,22 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             },
             new() {
                 Root = "OptiicDev",
-                KeyPair = new Dictionary<string, object> {
+                KeyPair = new() {
                     { "ApiKey", "YOUR_API_KEY" }
                 }
             },
             new() {
                 Root = "BinderByte",
-                KeyPair = new Dictionary<string, object> {
+                KeyPair = new() {
                     { "IsEnabled", false },
                     { "BaseUrl", "https://api.binderbyte.com" },
-                    { "ApiKey", "YOUR_API_KEY" },
+                    { "ApiKey", "YOUR_API_KEY" }
                 }
             }
         };
 
         var appSettings = _dbContext.AppSettings.AsNoTracking()
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .ToList();
 
         var appSettingsDictionary = appSettings.ToDictionary(x => x.Name, x => x.Value.ToString());
@@ -154,12 +156,12 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
 
         diffSeedAppSetting.ForEach(seed => {
                 var appSetting = _dbContext.AppSettings.AsNoTracking()
-                    .Where(x => x.Status == (int)EventStatus.Complete)
+                    .Where(x => x.Status == EventStatus.Complete)
                     .FirstOrDefault(settings => settings.Name == seed.Key);
 
                 if (appSetting != null) return;
 
-                _dbContext.AppSettings.Add(new AppSettingsEntity() {
+                _dbContext.AppSettings.Add(new() {
                     Root = seed.Root,
                     Name = seed.Key,
                     Field = seed.Key,
@@ -167,7 +169,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                     InitialValue = $"{seed.Value}",
                     Value = $"{seed.Value}",
                     TransactionId = transactionId,
-                    Status = (int)EventStatus.Complete
+                    Status = EventStatus.Complete
                 });
             }
         );

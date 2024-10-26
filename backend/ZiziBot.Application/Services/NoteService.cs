@@ -4,15 +4,15 @@ using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Services;
 
-public class NoteService(ILogger<NoteService> logger, MongoDbContextBase mongoDbContext, CacheService cacheService)
+public class NoteService(ILogger<NoteService> logger, DataFacade dataFacade, CacheService cacheService)
 {
     public async Task<List<NoteDto>> GetAllByChat(long chatId, bool evictBefore = false)
     {
         var cache = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.CHAT_NOTES + chatId,
+            CacheKey.CHAT_NOTES + chatId,
             evictBefore: evictBefore,
             action: async () => {
-                var noteEntities = await mongoDbContext.Note
+                var noteEntities = await dataFacade.MongoDb.Note
                     .Where(entity => entity.ChatId == chatId)
                     .Where(entity => entity.Status == (int)EventStatus.Complete)
                     .OrderBy(entity => entity.Query)
@@ -43,7 +43,7 @@ public class NoteService(ILogger<NoteService> logger, MongoDbContextBase mongoDb
         ServiceResult result = new();
         logger.LogInformation("Checking Note with Query: {Query}", entity.Query);
 
-        var findNote = await mongoDbContext.Note
+        var findNote = await dataFacade.MongoDb.Note
             .Where(x => x.Id == entity.Id)
             .Where(x => x.ChatId == entity.ChatId)
             .FirstOrDefaultAsync();
@@ -51,7 +51,7 @@ public class NoteService(ILogger<NoteService> logger, MongoDbContextBase mongoDb
         if (findNote == null)
         {
             logger.LogInformation("Adding Note with Query: {Query}", entity.Query);
-            mongoDbContext.Note.Add(entity);
+            dataFacade.MongoDb.Note.Add(entity);
 
             result.Message = "Note created successfully";
         }
@@ -70,7 +70,7 @@ public class NoteService(ILogger<NoteService> logger, MongoDbContextBase mongoDb
             result.Message = "Note updated successfully";
         }
 
-        await mongoDbContext.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         await GetAllByChat(entity.ChatId, true);
 
@@ -79,7 +79,7 @@ public class NoteService(ILogger<NoteService> logger, MongoDbContextBase mongoDb
 
     public async Task<BotResponseBase> Delete(long chatId, string note, Func<string, Task<BotResponseBase>> func)
     {
-        var findNote = await mongoDbContext.Note
+        var findNote = await dataFacade.MongoDb.Note
             .Where(x => x.ChatId == chatId)
             .Where(x => x.Query == note)
             .Where(x => x.Status == (int)EventStatus.Complete)
@@ -90,7 +90,7 @@ public class NoteService(ILogger<NoteService> logger, MongoDbContextBase mongoDb
 
         findNote.Status = (int)EventStatus.Deleted;
 
-        await mongoDbContext.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         return await func.Invoke("Note berhasil dihapus");
     }

@@ -34,5 +34,5 @@ public class ChatSettingEntity : EntityBase
 
     public long EventLogChatId { get; set; }
 
-    public string LanguageCode { get; set; }
+    public string? LanguageCode { get; set; }
 }

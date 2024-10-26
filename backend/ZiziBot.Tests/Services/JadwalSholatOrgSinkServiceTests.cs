@@ -3,16 +3,17 @@ using MongoFramework.Linq;
 using MoreLinq;
 using SharpX.Extensions;
 using Xunit;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Tests.Services;
 
-public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSholatOrgSinkService, MongoDbContextBase mongoDbContextBase)
+public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSholatOrgSinkService, DataFacade dataFacade)
 {
     [Fact(Skip = "Deprecated")]
     public async Task FeedCityTest()
     {
-        mongoDbContextBase.JadwalSholatOrg_City.RemoveRange(entity => true);
-        await mongoDbContextBase.SaveChangesAsync();
+        dataFacade.MongoDb.JadwalSholatOrg_City.RemoveRange(entity => true);
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         await jadwalSholatOrgSinkService.FeedCity();
     }
@@ -20,7 +21,7 @@ public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSh
     [Fact(Skip = "Deprecated")]
     public async Task FeedScheduleTest()
     {
-        var cities = await mongoDbContextBase.JadwalSholatOrg_City.ToListAsync();
+        var cities = await dataFacade.MongoDb.JadwalSholatOrg_City.ToListAsync();
 
         var randomCities = cities.Shuffle().Take(3);
 
@@ -33,6 +34,6 @@ public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSh
     {
         var feedSchedule = await jadwalSholatOrgSinkService.FeedSchedule(cityId);
 
-        feedSchedule.Should().BeGreaterThan(0, because: "Expected FeedSchedule to insert at least one schedule for the given cityId");
+        feedSchedule.Should().BeGreaterThan(0, "Expected FeedSchedule to insert at least one schedule for the given cityId");
     }
 }

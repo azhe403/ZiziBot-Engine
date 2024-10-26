@@ -18,7 +18,7 @@ public class GetGlobalBanApiResponse
 
 public class GetGlobalBanApiHandler(
     DataFacade dataFacade
-) : IRequestHandler<GetGlobalBanApiRequest, ApiResponseBase<List<GetGlobalBanApiResponse>>>
+) : IApiRequestHandler<GetGlobalBanApiRequest, List<GetGlobalBanApiResponse>>
 {
     public async Task<ApiResponseBase<List<GetGlobalBanApiResponse>>> Handle(GetGlobalBanApiRequest request, CancellationToken cancellationToken)
     {

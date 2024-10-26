@@ -1,12 +1,13 @@
 ﻿using MongoFramework.Linq;
 using Xunit;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Tests.Pipelines;
 
 public class MirrorUserTest(
     MediatorService mediatorService,
-    AppSettingRepository appSettingRepository,
-    MongoDbContextBase mongoDbContext)
+    DataFacade dataFacade
+)
 {
     [Theory]
     [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")] // trakteer
@@ -16,8 +17,8 @@ public class MirrorUserTest(
     {
         // Arrange
         var orderId = url.UrlSegment(1, url);
-        var bot = await appSettingRepository.GetBotMain();
-        var payment = await mongoDbContext.MirrorApproval
+        var bot = await dataFacade.AppSetting.GetBotMain();
+        var payment = await dataFacade.MongoDb.MirrorApproval
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(entity => entity.OrderId == orderId);
 
@@ -25,7 +26,7 @@ public class MirrorUserTest(
         {
             payment.Status = (int)EventStatus.Deleted;
 
-            await mongoDbContext.SaveChangesAsync();
+            await dataFacade.MongoDb.SaveChangesAsync();
         }
 
         // Assert
@@ -43,8 +44,8 @@ public class MirrorUserTest(
     public async Task SubmitTrakteerPaymentForUserIdTest(string url, long userId)
     {
         // Arrange
-        var bot = await appSettingRepository.GetBotMain();
-        var payment = await mongoDbContext.MirrorApproval
+        var bot = await dataFacade.AppSetting.GetBotMain();
+        var payment = await dataFacade.MongoDb.MirrorApproval
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync(entity => entity.OrderId == url);
 
@@ -52,7 +53,7 @@ public class MirrorUserTest(
         {
             payment.Status = (int)EventStatus.Deleted;
 
-            await mongoDbContext.SaveChangesAsync();
+            await dataFacade.MongoDb.SaveChangesAsync();
         }
 
         // Assert
@@ -71,8 +72,8 @@ public class MirrorUserTest(
     public async Task SubmitTrakteerPaymentConfirmationExpiredTest(string url)
     {
         // Arrange
-        var bot = await appSettingRepository.GetBotMain();
-        await appSettingRepository.UpdateAppSetting("Mirror:PaymentExpirationDays", "3");
+        var bot = await dataFacade.AppSetting.GetBotMain();
+        await dataFacade.AppSetting.UpdateAppSetting("Mirror:PaymentExpirationDays", "3");
 
         Assert.NotNull(bot);
 
@@ -82,7 +83,7 @@ public class MirrorUserTest(
             Payload = url
         });
 
-        await appSettingRepository.UpdateAppSetting("Mirror:PaymentExpirationDays", "300");
+        await dataFacade.AppSetting.UpdateAppSetting("Mirror:PaymentExpirationDays", "300");
     }
 
     [Theory]
@@ -90,7 +91,7 @@ public class MirrorUserTest(
     public async Task SubmitTrakteerPaymentAlreadyPaidTest(string url)
     {
         // Arrange
-        var bot = await appSettingRepository.GetBotMain();
+        var bot = await dataFacade.AppSetting.GetBotMain();
 
         Assert.NotNull(bot);
 
@@ -106,7 +107,7 @@ public class MirrorUserTest(
     public async Task SubmitTrakteerPaymentInvalidOrderIdTest(string url)
     {
         // Arrange
-        var bot = await appSettingRepository.GetBotMain();
+        var bot = await dataFacade.AppSetting.GetBotMain();
 
         Assert.NotNull(bot);
 

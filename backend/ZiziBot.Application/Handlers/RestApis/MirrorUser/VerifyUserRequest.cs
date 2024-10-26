@@ -51,24 +51,24 @@ public class VerifyUserHandler(
         if (mirrorUser == null)
             return Response.BadRequest("Mirror User not found");
 
-        if (mirrorUser.Status > (int)EventStatus.Complete)
+        if (mirrorUser.Status > EventStatus.Complete)
         {
             return Response.NotFound("Mirror User suspended");
         }
 
-        await dataFacade.MirrorUser.SaveActivity(new MirrorActivityDto() {
+        await dataFacade.MirrorUser.SaveActivity(new() {
             UserId = mirrorUser.UserId,
             ActivityTypeId = request.Body.ActivityType,
             Url = request.Body.Url,
-            TransactionId = request.TransactionId,
+            TransactionId = request.TransactionId
         });
 
-        return Response.Success("Mirror User verified successfully", new VerifyUserResponse {
+        return Response.Success("Mirror User verified successfully", new() {
             UserId = mirrorUser.UserId,
             HasSubscription = mirrorUser.ExpireDate > DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE),
             JoinDate = mirrorUser.CreatedDate.AddHours(Env.DEFAULT_TIMEZONE),
             ExpireDate = mirrorUser.ExpireDate.AddHours(Env.DEFAULT_TIMEZONE),
-            TimeToExpiration = mirrorUser.ExpireDate.Subtract(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE)).ForHuman(5, "en-us"),
+            TimeToExpiration = mirrorUser.ExpireDate.Subtract(DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE)).ForHuman(5, "en-us")
         });
     }
 }

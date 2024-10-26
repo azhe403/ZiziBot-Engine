@@ -7,7 +7,8 @@ public class PromoteMemberBotRequest : BotRequestBase
 
 public class PromoteMemberHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<PromoteMemberBotRequest, BotResponseBase>
+)
+    : IBotRequestHandler<PromoteMemberBotRequest>
 {
     public async Task<BotResponseBase> Handle(PromoteMemberBotRequest request, CancellationToken cancellationToken)
     {

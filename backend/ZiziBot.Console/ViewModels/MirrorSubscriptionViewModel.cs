@@ -1,10 +1,12 @@
 using MongoFramework.Linq;
+using ZiziBot.Application.Facades;
 using ZiziBot.Contracts.Enums;
+using ZiziBot.DataSource.MongoDb.Entities;
 using ZiziBot.Types.Types;
 
 namespace ZiziBot.Console.ViewModels;
 
-public class MirrorSubscriptionViewModel(MongoDbContextBase mongoDbContextBase) : ReactiveObject, IActivatableViewModel
+public class MirrorSubscriptionViewModel(DataFacade dataFacade) : ReactiveObject, IActivatableViewModel
 {
     public ViewModelActivator Activator { get; }
     public LoadingConfiguration Loading { get; set; } = new();
@@ -27,7 +29,7 @@ public class MirrorSubscriptionViewModel(MongoDbContextBase mongoDbContextBase) 
         Loading.CurrentStep++;
         Loading.Title = "Loading Mirror Users";
 
-        MirrorUsers = await mongoDbContextBase.MirrorUsers
+        MirrorUsers = await dataFacade.MongoDb.MirrorUsers
             .Where(x => x.Status == (int)EventStatus.Complete)
             .OrderByDescending(o => o.UpdatedDate)
             .ToListAsync();
@@ -43,7 +45,7 @@ public class MirrorSubscriptionViewModel(MongoDbContextBase mongoDbContextBase) 
         Loading.CurrentStep++;
         Loading.Title = "Loading Mirror Approvals";
 
-        MirrorApprovals = await mongoDbContextBase.MirrorApproval
+        MirrorApprovals = await dataFacade.MongoDb.MirrorApproval
             .Where(x => x.Status == (int)EventStatus.Complete)
             .OrderByDescending(o => o.UpdatedDate)
             .ToListAsync();

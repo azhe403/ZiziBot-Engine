@@ -13,7 +13,7 @@ public class SendMessageTextRequestHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<SendMessageTextBotRequestModel, BotResponseBase>
+    : IBotRequestHandler<SendMessageTextBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(SendMessageTextBotRequestModel request, CancellationToken cancellationToken)
     {

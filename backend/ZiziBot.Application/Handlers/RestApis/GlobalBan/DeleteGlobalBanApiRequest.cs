@@ -18,7 +18,7 @@ public class DeleteGlobalBanApiValidator : AbstractValidator<DeleteGlobalBanApiR
 
 public class DeleteGlobalBanApiHandler(
     DataFacade dataFacade
-) : IRequestHandler<DeleteGlobalBanApiRequest, ApiResponseBase<bool>>
+) : IApiRequestHandler<DeleteGlobalBanApiRequest, bool>
 {
     public async Task<ApiResponseBase<bool>> Handle(DeleteGlobalBanApiRequest request, CancellationToken cancellationToken)
     {

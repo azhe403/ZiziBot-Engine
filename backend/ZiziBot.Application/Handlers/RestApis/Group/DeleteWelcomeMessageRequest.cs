@@ -8,7 +8,8 @@ namespace ZiziBot.Application.Handlers.RestApis.Group;
 
 public class DeleteWelcomeMessageRequest : ApiRequestBase<object>
 {
-    [FromBody] public DeleteWelcomeMessageRequestModel Model { get; set; }
+    [FromBody]
+    public DeleteWelcomeMessageRequestModel Model { get; set; }
 }
 
 public class DeleteWelcomeMessageValidation : AbstractValidator<DeleteWelcomeMessageRequest>
@@ -25,12 +26,14 @@ public class DeleteWelcomeMessageRequestModel
     public string Id { get; set; }
     public long ChatId { get; set; }
 
-    [BindNever] [SwaggerIgnore] public ObjectId ObjectId => ObjectId.Parse(Id);
+    [BindNever]
+    [SwaggerIgnore]
+    public ObjectId ObjectId => ObjectId.Parse(Id);
 }
 
 public class DeleteWelcomeMessageHandler(
     DataFacade dataFacade
-) : IRequestHandler<DeleteWelcomeMessageRequest, ApiResponseBase<object>>
+) : IApiRequestHandler<DeleteWelcomeMessageRequest, object>
 {
     public async Task<ApiResponseBase<object>> Handle(DeleteWelcomeMessageRequest request, CancellationToken cancellationToken)
     {

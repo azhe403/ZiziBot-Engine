@@ -1,36 +1,34 @@
 ﻿using Kot.MongoDB.Migrations;
 using MongoDB.Driver;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Kot.MongoMigrations.Seeders;
 
-public class ChatRestrictionSeedMigration(MongoDbContextBase mongoDbContext) : MongoMigration(DBVersion)
+public class ChatRestrictionSeedMigration(MongoEfContext mongoEfContext) : MongoMigration(DBVersion)
 {
-    private static DatabaseVersion DBVersion => new("238.7.1");
+    static DatabaseVersion DBVersion => new("238.7.1");
 
     public override async Task DownAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
-    {
-    }
+    { }
 
     public override async Task UpAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
     {
-        mongoDbContext.ChatRestriction.AddRange(new List<ChatRestrictionEntity>()
-        {
-            new()
-            {
+        mongoEfContext.ChatRestriction.AddRange(new List<ChatRestrictionEntity>() {
+            new() {
                 UserId = 123,
                 ChatId = -1001404591750,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete,
                 TransactionId = Guid.NewGuid().ToString()
             },
-            new()
-            {
+            new() {
                 UserId = 123,
                 ChatId = -1001835114370,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete,
                 TransactionId = Guid.NewGuid().ToString()
             }
         });
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoEfContext.SaveChangesAsync(cancellationToken);
     }
 }

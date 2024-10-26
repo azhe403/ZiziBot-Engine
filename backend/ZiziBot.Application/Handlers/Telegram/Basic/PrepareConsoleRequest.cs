@@ -8,7 +8,7 @@ public class PrepareConsoleBotRequest : BotRequestBase
 
 public class PrepareConsoleHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<PrepareConsoleBotRequest, BotResponseBase>
+) : IBotRequestHandler<PrepareConsoleBotRequest>
 {
     public async Task<BotResponseBase> Handle(PrepareConsoleBotRequest request, CancellationToken cancellationToken)
     {

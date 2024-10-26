@@ -1,9 +1,11 @@
-﻿using MongoFramework.Linq;
+﻿using Microsoft.EntityFrameworkCore;
+using ZiziBot.Application.Facades;
 using ZiziBot.Contracts.Enums;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Console.ViewModels;
 
-public class AppSettingsViewModel(MongoDbContextBase mongoDbContextBase) : ReactiveObject, IActivatableViewModel
+public class AppSettingsViewModel(DataFacade dataFacade) : ReactiveObject, IActivatableViewModel
 {
     public ViewModelActivator? Activator { get; }
 
@@ -12,15 +14,15 @@ public class AppSettingsViewModel(MongoDbContextBase mongoDbContextBase) : React
 
     public async Task LoadData()
     {
-        AppSettings = await mongoDbContextBase.AppSettings.AsNoTracking()
-            .Where(w => w.Status == (int)EventStatus.Complete)
+        AppSettings = await dataFacade.MongoEf.AppSettings.AsNoTracking()
+            .Where(w => w.Status == EventStatus.Complete)
             .OrderBy(o => o.Field).ToListAsync();
     }
 
     public async Task Update(AppSettingsEntity appSettingsEntity)
     {
-        mongoDbContextBase.AppSettings.Update(appSettingsEntity);
-        await mongoDbContextBase.SaveChangesAsync();
+        dataFacade.MongoEf.AppSettings.Update(appSettingsEntity);
+        await dataFacade.MongoEf.SaveChangesAsync();
 
         await LoadData();
     }

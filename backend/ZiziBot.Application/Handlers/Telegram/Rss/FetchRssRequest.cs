@@ -1,10 +1,10 @@
+using Hangfire;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
 using MoreLinq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
@@ -44,7 +44,7 @@ public class FetchRssHandler(
                 .Where(entity => entity.ThreadId == request.ThreadId)
                 .Where(entity => entity.RssUrl == request.RssUrl)
                 .Where(entity => entity.Status == (int)EventStatus.Complete)
-                .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (latestHistory != null)
             {
@@ -89,7 +89,7 @@ public class FetchRssHandler(
             try
             {
                 await botClient.SendTextMessageAsync(
-                    chatId: request.ChatId,
+                    request.ChatId,
                     messageThreadId: request.ThreadId,
                     text: truncatedMessageText,
                     parseMode: ParseMode.Html,
@@ -103,8 +103,8 @@ public class FetchRssHandler(
                 {
                     logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
                     await botClient.SendTextMessageAsync(
-                        chatId: request.ChatId,
-                        text: truncatedMessageText,
+                        request.ChatId,
+                        truncatedMessageText,
                         parseMode: ParseMode.Html,
                         linkPreviewOptions: true,
                         cancellationToken: cancellationToken
@@ -112,7 +112,7 @@ public class FetchRssHandler(
                 }
             }
 
-            dataFacade.MongoDb.RssHistory.Add(new RssHistoryEntity() {
+            dataFacade.MongoDb.RssHistory.Add(new() {
                 ChatId = request.ChatId,
                 ThreadId = request.ThreadId,
                 RssUrl = request.RssUrl,
@@ -142,7 +142,7 @@ public class FetchRssHandler(
                     rssSetting.Status = (int)EventStatus.InProgress;
                     rssSetting.LastErrorMessage = exceptionMessage;
 
-                    serviceFacade.RecurringJobManager.RemoveIfExists(rssSetting.CronJobId);
+                    RecurringJob.RemoveIfExists(rssSetting.CronJobId);
                 });
             }
             else

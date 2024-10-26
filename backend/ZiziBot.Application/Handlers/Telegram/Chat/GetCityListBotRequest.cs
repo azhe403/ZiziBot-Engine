@@ -11,7 +11,7 @@ public class GetCityListHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<GetCityListBotRequest, BotResponseBase>
+    : IBotRequestHandler<GetCityListBotRequest>
 {
     public async Task<BotResponseBase> Handle(GetCityListBotRequest request, CancellationToken cancellationToken)
     {

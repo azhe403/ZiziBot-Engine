@@ -12,7 +12,7 @@ public class AnswerInlineQueryWebSearchBotRequestModel : BotRequestBase
 public class AnswerInlineQueryWebSearchRequestHandler(
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<AnswerInlineQueryWebSearchBotRequestModel, BotResponseBase>
+    : IBotRequestHandler<AnswerInlineQueryWebSearchBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(AnswerInlineQueryWebSearchBotRequestModel request, CancellationToken cancellationToken)
     {

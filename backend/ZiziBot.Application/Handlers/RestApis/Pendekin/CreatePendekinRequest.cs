@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using ZiziBot.DataSource.MongoEf.Entities;
 
+namespace ZiziBot.Application.Handlers.RestApis.Pendekin;
+
 public class CreatePendekinRequest : ApiPostRequestBase<CreatePendekinRequestBody, CreatePendekinResponse>
 { }
 

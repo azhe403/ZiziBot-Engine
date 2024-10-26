@@ -18,9 +18,9 @@ public class CheckDashboardSessionResponseDto
 
 public class CheckDashboardSessionRequestHandler(
     ILogger<CheckDashboardSessionRequestHandler> logger,
-    MongoDbContextBase mongoDbContext
+    DataFacade dataFacade
 )
-    : IRequestHandler<CheckDashboardSessionRequestDto, ApiResponseBase<CheckDashboardSessionResponseDto>>
+    : IApiRequestHandler<CheckDashboardSessionRequestDto, CheckDashboardSessionResponseDto>
 {
     public async Task<ApiResponseBase<CheckDashboardSessionResponseDto>> Handle(CheckDashboardSessionRequestDto request, CancellationToken cancellationToken)
     {
@@ -29,8 +29,7 @@ public class CheckDashboardSessionRequestHandler(
         };
 
         #region Check Dashboard Session
-
-        var dashboardSession = await mongoDbContext.DashboardSessions
+        var dashboardSession = await dataFacade.MongoEf.DashboardSessions
             .Where(
                 session =>
                     session.SessionId == request.SessionId &&
@@ -42,12 +41,10 @@ public class CheckDashboardSessionRequestHandler(
 
         if (dashboardSession == null)
             return responseDto;
-
         #endregion
 
         #region Get User Role
-
-        var checkSudo = await mongoDbContext.Sudoers
+        var checkSudo = await dataFacade.MongoEf.Sudoers
             .FirstOrDefaultAsync(sudoer => sudoer.UserId == request.UserId, cancellationToken: cancellationToken);
 
         if (checkSudo != null)
@@ -55,7 +52,6 @@ public class CheckDashboardSessionRequestHandler(
             responseDto.Result.RoleId = 1;
             responseDto.Result.RoleName = "Sudo";
         }
-
         #endregion
 
         logger.LogDebug("Session {SessionId} for user {UserId} is? {@Session}", request.SessionId, request.UserId, dashboardSession);

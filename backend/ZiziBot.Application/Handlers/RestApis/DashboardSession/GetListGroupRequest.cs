@@ -7,14 +7,13 @@ public class GetListGroupRequest : ApiRequestBase<List<ChatInfoDto>?>
 
 public class GetListGroupHandler(
     DataFacade dataFacade
-) : IRequestHandler<GetListGroupRequest, ApiResponseBase<List<ChatInfoDto>?>>
+) : IApiRequestHandler<GetListGroupRequest, List<ChatInfoDto>?>
 {
     public async Task<ApiResponseBase<List<ChatInfoDto>?>> Handle(GetListGroupRequest request, CancellationToken cancellationToken)
     {
         ApiResponseBase<List<ChatInfoDto>?> response = new();
 
         #region Check Dashboard Session
-
         var dashboardSession = await dataFacade.MongoDb.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == request.BearerToken &&
@@ -28,7 +27,6 @@ public class GetListGroupHandler(
         }
 
         var userId = dashboardSession.TelegramUserId;
-
         #endregion
 
         var chatAdmin = await dataFacade.MongoDb.ChatAdmin

@@ -1,26 +1,26 @@
 ﻿using System.Text;
 using Flurl;
 using Flurl.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 using MoreLinq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Services;
 
 public class BinderByteService(
     ILogger<BinderByteService> logger,
-    AppSettingRepository appSettingRepository,
-    MongoDbContextBase mongoDbContext,
-    CacheService cacheService)
+    DataFacade dataFacade,
+    CacheService cacheService
+)
 {
-    private BinderByteConfig? _binderByteConfig = new();
+    BinderByteConfig? _binderByteConfig = new();
 
     public async Task<string> CekResiMergedAsync(string courier, string awb)
     {
         var sb = new StringBuilder();
 
-        _binderByteConfig = await appSettingRepository.GetConfigSectionAsync<BinderByteConfig>();
+        _binderByteConfig = await dataFacade.AppSetting.GetConfigSectionAsync<BinderByteConfig>();
         if (_binderByteConfig?.ApiKey == null || _binderByteConfig?.BaseUrl == null ||
             _binderByteConfig.IsEnabled == false)
         {
@@ -97,7 +97,7 @@ public class BinderByteService(
 
     public async Task<BinderByteCheckAwbEntity?> GetStoredAwb(string awb)
     {
-        var collection = await mongoDbContext.BinderByteCheckAwb
+        var collection = await dataFacade.MongoEf.BinderByteCheckAwb
             .FirstOrDefaultAsync(resi => resi.AwbInfo.Summary.Awb == awb);
 
         return collection;
@@ -105,20 +105,20 @@ public class BinderByteService(
 
     public async Task SaveAwbInfo(AwbInfo data)
     {
-        mongoDbContext.BinderByteCheckAwb.Add(new BinderByteCheckAwbEntity() {
+        dataFacade.MongoEf.BinderByteCheckAwb.Add(new() {
             Awb = data.Summary.Awb,
             Courier = data.Summary.Courier,
             AwbInfo = data,
-            Status = (int)EventStatus.Complete
+            Status = EventStatus.Complete
         });
 
-        await mongoDbContext.SaveChangesAsync();
+        await dataFacade.MongoEf.SaveChangesAsync();
     }
 
     public async Task<ApiResponse> CekResiRawAsync(string courier, string awb)
     {
         var result = await cacheService.GetOrSetAsync(
-            cacheKey: $"cek-resi/{courier}/{awb}",
+            $"cek-resi/{courier}/{awb}",
             staleAfter: "1s",
             expireAfter: "1d",
             action: async () => {

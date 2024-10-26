@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Tasks;
 
 public class SeedFlagTask(
     ILogger<SeedFlagTask> logger,
-    MongoDbContextBase mongoDbContextBase
+    DataFacade dataFacade
 ) : IStartupTask
 {
     public bool SkipAwait { get; set; }
@@ -20,14 +19,14 @@ public class SeedFlagTask(
 
         foreach (var flag in listFlags)
         {
-            var featureFlagEntity = await mongoDbContextBase.FeatureFlag
+            var featureFlagEntity = await dataFacade.MongoDb.FeatureFlag
                 .Where(x => x.Name == flag.Name)
                 .Where(x => x.Status == (int)EventStatus.Complete)
                 .FirstOrDefaultAsync();
 
             if (featureFlagEntity == null)
             {
-                mongoDbContextBase.FeatureFlag.Add(new FeatureFlagEntity() {
+                dataFacade.MongoDb.FeatureFlag.Add(new() {
                     Name = flag.Name,
                     IsEnabled = flag.Value,
                     Status = (int)EventStatus.Complete,
@@ -36,6 +35,6 @@ public class SeedFlagTask(
             }
         }
 
-        await mongoDbContextBase.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+namespace ZiziBot.Application.Handlers.RestApis.Pendekin;
+
 public class ListPendekinRequest : ApiRequestBase<List<ListPendekinResponse>>
 { }
 

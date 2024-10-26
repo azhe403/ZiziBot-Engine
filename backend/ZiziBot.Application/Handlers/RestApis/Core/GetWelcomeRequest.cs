@@ -3,8 +3,7 @@ using Microsoft.Extensions.Hosting;
 namespace ZiziBot.Application.Handlers.RestApis.Core;
 
 public class GetWelcomeRequest : ApiRequestBase<GetWelcomeResponse>
-{
-}
+{ }
 
 public class GetWelcomeResponse
 {
@@ -15,7 +14,7 @@ public class GetWelcomeResponse
     public string Environment { get; set; }
 }
 
-public class GetWelcomeHandler(IHostEnvironment hostEnvironment) : IRequestHandler<GetWelcomeRequest, ApiResponseBase<GetWelcomeResponse>>
+public class GetWelcomeHandler(IHostEnvironment hostEnvironment) : IApiRequestHandler<GetWelcomeRequest, GetWelcomeResponse>
 {
     public async Task<ApiResponseBase<GetWelcomeResponse>> Handle(GetWelcomeRequest request, CancellationToken cancellationToken)
     {
@@ -23,8 +22,7 @@ public class GetWelcomeHandler(IHostEnvironment hostEnvironment) : IRequestHandl
 
         await Task.Delay(1, cancellationToken);
 
-        return response.Success("Welcome to ZiziBot", new GetWelcomeResponse
-        {
+        return response.Success("Welcome to ZiziBot", new() {
             AppName = "ZiziBot 5",
             AppVersion = VersionUtil.GetVersion(true),
             VersionNumber = VersionUtil.GetVersion(),

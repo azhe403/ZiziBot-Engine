@@ -5,7 +5,7 @@ public class ChatJoinBotRequest : BotRequestBase
 
 public class ChatJoinBotHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<ChatJoinBotRequest, BotResponseBase>
+) : IBotRequestHandler<ChatJoinBotRequest>
 {
     public async Task<BotResponseBase> Handle(ChatJoinBotRequest request, CancellationToken cancellationToken)
     {
