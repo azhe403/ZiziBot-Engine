@@ -354,19 +354,24 @@ public class ChatSettingRepository(
     {
         var sudoers = await GetSudoers();
 
-        var isSudo = sudoers.Any(x => x.UserId == userId);
+        var isSudo = sudoers.Exists(x => x.UserId == userId);
         logger.LogDebug("UserId: {UserId} is Sudo: {IsSudo}", userId, isSudo);
 
         return isSudo;
     }
 
-    public async Task<List<SudoerEntity>> GetSudoers()
+    public async Task<List<SudoDto>> GetSudoers()
     {
         var cache = await cacheService.GetOrSetAsync(
-            CacheKey.GLOBAL_SUDO,
-            async () => {
+            cacheKey: CacheKey.GLOBAL_SUDO,
+            action: async () => {
                 return await mongoDbContext.Sudoers.AsNoTracking()
                     .Where(x => x.Status == EventStatus.Complete)
+                    .Select(x => new SudoDto {
+                        UserId = x.UserId,
+                        PromotedBy = x.PromotedBy,
+                        PromotedFrom = x.PromotedFrom
+                    })
                     .ToListAsync();
             }
         );

@@ -122,7 +122,7 @@ public class TelegramService(
             replyParameters.MessageId = _request.ReplyToMessage.MessageId;
         }
 
-        logger.LogInformation("Sending message to chat {ChatId}", targetChatId);
+        logger.LogDebug("Sending message to chat {ChatId}", targetChatId);
         try
         {
             SentMessage = await Bot.SendTextMessageAsync(
@@ -643,8 +643,8 @@ public class TelegramService(
         logger.LogInformation("Demoting user {UserId} in chat {ChatId}", userId, _request.ChatId);
 
         await Bot.PromoteChatMemberAsync(
-            _request.ChatId,
-            _request.UserId,
+            chatId: _request.ChatId,
+            userId: _request.UserId,
             canPostMessages: false,
             canEditMessages: false,
             canDeleteMessages: false,
@@ -656,7 +656,7 @@ public class TelegramService(
         );
     }
 
-    public async Task<List<ChatMember>> GetChatAdministrator()
+    public async Task<List<ChatAdminDto>> GetChatAdministrator()
     {
         if (_request.IsPrivateChat)
             return [];
@@ -665,7 +665,26 @@ public class TelegramService(
             CacheKey.CHAT_ADMIN + _request.ChatId,
             async () => {
                 var chatAdmins = await Bot.GetChatAdministratorsAsync(_request.ChatId);
-                return chatAdmins.ToList();
+                return chatAdmins.Select(chatMember => {
+                    var dto = new ChatAdminDto {
+                        User = chatMember.User,
+                        Status = chatMember.Status
+                    };
+
+                    switch (chatMember)
+                    {
+                        case ChatMemberOwner owner:
+                            dto.CustomTitle = owner.CustomTitle;
+                            dto.IsAnonymous = owner.IsAnonymous;
+                            break;
+                        case ChatMemberAdministrator admin:
+                            dto.CustomTitle = admin.CustomTitle;
+                            dto.IsAnonymous = admin.IsAnonymous;
+                            break;
+                    }
+
+                    return dto;
+                }).ToList();
             }
         );
 
