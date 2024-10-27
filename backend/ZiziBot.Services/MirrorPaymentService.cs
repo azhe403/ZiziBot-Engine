@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using AngleSharp.Html.Dom;
 using CloudflareSolverRe;
 using Flurl;
 using Flurl.Http;
@@ -10,10 +11,10 @@ public class MirrorPaymentService(
     AppSettingRepository appSettingRepository
 )
 {
-    public async Task<TrakteerParsedDto> ParseTrakteerWeb(string url)
+    public async Task<DonationParsedDto> ParseTrakteerWeb(string url)
     {
         url = url.GetTrakteerUrl();
-        var trakteerParsedDto = new TrakteerParsedDto();
+        var donationParsedDto = new DonationParsedDto();
         Log.Information("Parsing trakteer url: {Url}", url);
         var document = await url.OpenUrl(new ClearanceHandler() {
             ClearanceDelay = 3000
@@ -22,7 +23,7 @@ public class MirrorPaymentService(
         if (document == null)
         {
             Log.Error("Cannot load url: {Url}", url);
-            return trakteerParsedDto;
+            return donationParsedDto;
         }
 
         Log.Debug("Web title of Url: {Url} => {Title}", url, document.Title);
@@ -32,73 +33,65 @@ public class MirrorPaymentService(
         if (container == null)
         {
             Log.Information("Not found container for url: {Url}", url);
-            return trakteerParsedDto;
+            return donationParsedDto;
         }
 
         Log.Debug("Found container: {Container} in Url: {Url}", container?.ClassName, url);
 
-        var cendolCount = document.QuerySelector(".subtotal-left__unit > span:nth-child(2)")?.TextContent ?? "0";
-        var adminFees = document.QuerySelector("div.subtotal-left__others:nth-child(4) > span:nth-child(2)")
-            ?.TextContent ?? "0";
-        var subtotal =
-            document.QuerySelector(
-                "#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-right")?.TextContent ??
-            "0";
-        var orderDate = document.QuerySelector("div.pr-detail__item:nth-child(1) > div:nth-child(2)")?.TextContent
-            .Replace("WIB", string.Empty).Trim();
-        var paymentMethod = document
-            .QuerySelector(".pr-detail__wrapper > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)")?.TextContent;
+        var cendolCount = document.QuerySelector("span.text-no-wrap:nth-child(4)")?.TextContent ?? "0";
+        var adminFees = document.QuerySelector("div.subtotal-left__others:nth-child(2) > span:nth-child(2)")?.TextContent ?? "0";
+        var subtotal = document.QuerySelector("#wrapper > div > div > div.pr-detail > div.pr-detail__subtotal > div.subtotal-right")?.TextContent ?? "0";
+        var orderDate = document.QuerySelector("div.pr-detail__item:nth-child(1) > div:nth-child(2)")?.TextContent.Replace("WIB", string.Empty).Trim();
+        var paymentMethod = document.QuerySelector(".pr-detail__wrapper > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)")?.TextContent;
         var orderId = document.QuerySelector(".pr-detail__wrapper > div:nth-child(2) > div:nth-child(2)")?.TextContent;
 
-        var mainNode = container?.ChildNodes
-            .Skip(1)
-            .SkipLast(1);
+        var mainNode = container?.ChildNodes.Skip(1).SkipLast(1);
 
-        var innerText = mainNode?.Select(x => x.TextContent)
-            .Aggregate((s1, s2) => $"{s1}\n{s2}");
+        var innerText = mainNode?.Select(x => x.TextContent).Aggregate((s1, s2) => $"{s1}\n{s2}");
 
-        trakteerParsedDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
-        trakteerParsedDto.PaymentUrl = url;
-        trakteerParsedDto.Cendols = cendolCount;
-        trakteerParsedDto.CendolCount = cendolCount.Replace("Cendol", string.Empty).Trim().Convert<int>();
-        trakteerParsedDto.AdminFees = adminFees.Replace("Rp", "").Trim().Convert<int>();
-        trakteerParsedDto.Subtotal = subtotal.Replace("Rp", "").Trim().Convert<int>();
-        trakteerParsedDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm",
-            CultureInfo.InvariantCulture);
-        trakteerParsedDto.PaymentMethod = paymentMethod;
-        trakteerParsedDto.OrderId = orderId;
-        trakteerParsedDto.RawText = innerText;
+        donationParsedDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
+        donationParsedDto.PaymentUrl = url;
+        donationParsedDto.Cendols = cendolCount;
+        donationParsedDto.AdminFees = adminFees.Replace("Rp", "").Trim().Convert<int>();
+        donationParsedDto.Subtotal = subtotal.Replace("Rp", "").Trim().Convert<int>();
+        donationParsedDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
+
+        donationParsedDto.PaymentMethod = paymentMethod;
+        donationParsedDto.OrderId = orderId;
+        donationParsedDto.RawText = innerText;
 
         Log.Information("Parsed trakteer url: {Url}", url);
 
-        return trakteerParsedDto;
+        return donationParsedDto;
     }
 
-    public async Task<TrakteerParsedDto> ParseSaweriaWeb(string url)
+    public async Task<DonationParsedDto> ParseSaweriaWeb(string url)
     {
         url = url.GetSaweriaUrl();
-        var trakteerParsedDto = new TrakteerParsedDto();
-        Log.Information("Parsing trakteer url: {Url}", url);
+        var donationParsedDto = new DonationParsedDto();
+        Log.Information("Parsing saweria url: {Url}", url);
         var document = await url.OpenUrl();
         if (document == null)
         {
             Log.Error("Cannot load url: {Url}", url);
-            return trakteerParsedDto;
+            return donationParsedDto;
         }
 
         Log.Debug("Web title of Url: {Url} => {Title}", url, document.Title);
 
-        var container = document.QuerySelector("div.pr-container");
+        var amount = document.QuerySelector<IHtmlHeadingElement>(".css-11qagvt")?.TextContent ?? "0";
+        var status = document.QuerySelector<IHtmlHeadingElement>(".css-14dtuui")?.TextContent;
+        var date = document.QuerySelectorAll<IHtmlInputElement>(".css-1a8pd4a")?.ElementAtOrDefault(0)?.Value;
+        var time = document.QuerySelectorAll<IHtmlInputElement>(".css-1a8pd4a")?.ElementAtOrDefault(1)?.Value;
+        var orderId = document.QuerySelectorAll<IHtmlInputElement>(".css-1a8pd4a")?.ElementAtOrDefault(2)?.Value;
 
-        if (container == null)
-        {
-            Log.Information("Not found container for url: {Url}", url);
-            return trakteerParsedDto;
-        }
+        donationParsedDto.OrderId = orderId;
+        donationParsedDto.PaymentUrl = url;
+        donationParsedDto.Subtotal = amount.Replace("Rp", "").Trim().Convert<int>();
+        donationParsedDto.OrderDate = DateTime.ParseExact($"{date} {time}", "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+        donationParsedDto.IsValid = true;
 
-        Log.Debug("Found container: {Container} in Url: {Url}", container?.ClassName, url);
-
-        return default;
+        return donationParsedDto;
     }
 
     public async Task<TrakteerApiDto> GetTrakteerApi(string url)

@@ -1,17 +1,17 @@
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
-public class CheckPaymentOrderIdRequest : ApiRequestBase<TrakteerParsedDto>
+public class CheckPaymentOrderIdRequest : ApiRequestBase<DonationParsedDto>
 {
     public string OrderId { get; set; }
 }
 
 public class CheckPaymentOrderIdHandler(
     ServiceFacade serviceFacade
-) : IApiRequestHandler<CheckPaymentOrderIdRequest, TrakteerParsedDto>
+) : IApiRequestHandler<CheckPaymentOrderIdRequest, DonationParsedDto>
 {
-    private readonly ApiResponseBase<TrakteerParsedDto> _response = new();
+    private readonly ApiResponseBase<DonationParsedDto> _response = new();
 
-    public async Task<ApiResponseBase<TrakteerParsedDto>> Handle(CheckPaymentOrderIdRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<DonationParsedDto>> Handle(CheckPaymentOrderIdRequest request, CancellationToken cancellationToken)
     {
         var parsedTrakteer = await serviceFacade.MirrorPaymentService.ParseTrakteerWeb(request.OrderId);
 
