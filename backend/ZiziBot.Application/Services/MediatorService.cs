@@ -8,12 +8,10 @@ namespace ZiziBot.Application.Services;
 public class MediatorService(
     ILogger<MediatorService> logger,
     IMediator mediator,
-    IBackgroundQueue backgroundQueue,
-    IBackgroundJobClient backgroundJobClient
+    IBackgroundQueue backgroundQueue
 )
 {
     #region Execution
-
     public async Task<BotResponseBase> EnqueueAsync(BotRequestBase request)
     {
         BotResponseBase botResponse = new();
@@ -45,9 +43,9 @@ public class MediatorService(
         {
             case ExecutionStrategy.Hangfire:
                 var jobId = $"{request.HttpContextAccessor?.HttpContext?.TraceIdentifier}";
-                backgroundJobClient.Enqueue<MediatorService>(x => x.Send(jobId, request));
+                BackgroundJob.Enqueue<MediatorService>(x => x.Send(jobId, request));
 
-                return new ApiResponseBase<T>();
+                return new();
 
                 break;
 
@@ -63,9 +61,9 @@ public class MediatorService(
         switch (executionStrategy)
         {
             case ExecutionStrategy.Hangfire:
-                backgroundJobClient.Enqueue<MediatorService>(x => x.Send(request));
+                BackgroundJob.Enqueue<MediatorService>(x => x.Send(request));
 
-                return new T();
+                return new();
 
                 break;
 
@@ -83,11 +81,9 @@ public class MediatorService(
 
         return botResponse.Complete();
     }
-
     #endregion
 
     #region Bridge
-
     [DisplayName("{0}")]
     [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
     public async Task<TResponse?> Send<TResponse>(IRequest<TResponse> request)
@@ -101,6 +97,5 @@ public class MediatorService(
     {
         return await mediator.Send(request);
     }
-
     #endregion
 }

@@ -7,7 +7,7 @@ public class ShowWelcomeMessageHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<ShowWelcomeMessageRequest, BotResponseBase>
+    : IBotRequestHandler<ShowWelcomeMessageRequest>
 {
     public async Task<BotResponseBase> Handle(ShowWelcomeMessageRequest request, CancellationToken cancellationToken)
     {

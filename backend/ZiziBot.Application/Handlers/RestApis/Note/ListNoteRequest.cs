@@ -7,7 +7,7 @@ public class ListNoteRequest : ApiRequestBase<List<NoteDto>>
 
 public class ListNoteHandler(
     DataFacade dataFacade
-) : IRequestHandler<ListNoteRequest, ApiResponseBase<List<NoteDto>>>
+) : IApiRequestHandler<ListNoteRequest, List<NoteDto>>
 {
     public async Task<ApiResponseBase<List<NoteDto>>> Handle(ListNoteRequest request, CancellationToken cancellationToken)
     {

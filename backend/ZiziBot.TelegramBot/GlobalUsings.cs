@@ -18,6 +18,4 @@ global using ZiziBot.Contracts.Allowed.Models;
 global using ZiziBot.Contracts.Configs;
 global using ZiziBot.Contracts.Constants;
 global using ZiziBot.Contracts.Enums;
-global using ZiziBot.DataSource.MongoDb;
-global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.Utils;

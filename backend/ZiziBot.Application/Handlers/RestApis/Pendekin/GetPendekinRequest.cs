@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ZiziBot.DataSource.Utils;
 
+namespace ZiziBot.Application.Handlers.RestApis.Pendekin;
+
 public class GetPendekinRequest : ApiRequestBase<GetPendekinResponse>
 {
-    [FromRoute] public string ShortPath { get; set; }
+    [FromRoute]
+    public string ShortPath { get; set; }
 }
 
 public class GetPendekinRequestValidator : AbstractValidator<GetPendekinRequest>

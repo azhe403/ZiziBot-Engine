@@ -1,9 +1,10 @@
-﻿using MongoFramework.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
+using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Tests.Pipelines;
 
-public class CityTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext, FathimahApiService fathimahApiService)
+public class CityTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoEfContext mongoEfContext, FathimahApiService fathimahApiService)
 {
     [Theory]
     [InlineData(712)]
@@ -12,8 +13,7 @@ public class CityTest(MediatorService mediatorService, AppSettingRepository appS
         var botMain = await appSettingRepository.GetBotMain();
 
         // Arrange
-        await mediatorService.Send(new AddCityBotRequest()
-        {
+        await mediatorService.Send(new AddCityBotRequest() {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             ReplyMessage = true,
@@ -33,21 +33,20 @@ public class CityTest(MediatorService mediatorService, AppSettingRepository appS
             .WhereIf(cityName.IsNotNullOrEmpty(), kota => kota.Lokasi.Contains(cityName, StringComparison.OrdinalIgnoreCase))
             .FirstOrDefault();
 
-        var city = await mongoDbContext.BangHasan_ShalatCity
+        var city = await mongoEfContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == chatId)
             .Where(entity => entity.CityId == cityInfo.Id)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (city != null)
         {
             city.Status = (int)EventStatus.Deleted;
-            await mongoDbContext.SaveChangesAsync();
+            await mongoEfContext.SaveChangesAsync();
         }
 
         // Arrange
-        await mediatorService.Send(new AddCityBotRequest()
-        {
+        await mediatorService.Send(new AddCityBotRequest() {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             ReplyMessage = true,
@@ -62,8 +61,7 @@ public class CityTest(MediatorService mediatorService, AppSettingRepository appS
         var botMain = await appSettingRepository.GetBotMain();
 
         // Arrange
-        await mediatorService.Send(new AddCityBotRequest()
-        {
+        await mediatorService.Send(new AddCityBotRequest() {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             ReplyMessage = true,
@@ -75,8 +73,7 @@ public class CityTest(MediatorService mediatorService, AppSettingRepository appS
     [InlineData(-1001404591750)]
     public async Task ShalatTimeTest(long chatId)
     {
-        await mediatorService.Send(new SendShalatTimeRequest()
-        {
+        await mediatorService.Send(new SendShalatTimeRequest() {
             ChatId = chatId
         });
     }

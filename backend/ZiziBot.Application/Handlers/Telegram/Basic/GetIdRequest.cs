@@ -7,7 +7,7 @@ public class GetIdBotRequestModel : BotRequestBase
 
 public class GetIdRequestHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<GetIdBotRequestModel, BotResponseBase>
+) : IBotRequestHandler<GetIdBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(GetIdBotRequestModel request, CancellationToken cancellationToken)
     {

@@ -26,7 +26,7 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
     }
 }
 
-public class CreateNoteHandler(IHttpContextAccessor httpContextAccessor, NoteService noteService) : IRequestHandler<SaveNoteRequest, WebResponseBase<bool>>
+public class CreateNoteHandler(IHttpContextAccessor httpContextAccessor, NoteService noteService) : IWebRequestHandler<SaveNoteRequest, bool>
 {
     public async Task<WebResponseBase<bool>> Handle(SaveNoteRequest request, CancellationToken cancellationToken)
     {

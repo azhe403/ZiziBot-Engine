@@ -1,10 +1,11 @@
 using System.Net;
 using Microsoft.AspNetCore.Http;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.WebApi.Middlewares;
 
-public class InjectHeaderMiddleware(MongoDbContextBase mongoDbContext) : IMiddleware
+public class InjectHeaderMiddleware(DataFacade dataFacade) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -20,8 +21,7 @@ public class InjectHeaderMiddleware(MongoDbContextBase mongoDbContext) : IMiddle
             return;
         }
 
-        var ignorePaths = new[]
-        {
+        var ignorePaths = new[] {
             "/api/webhook",
             "/api/logging"
         };
@@ -33,17 +33,16 @@ public class InjectHeaderMiddleware(MongoDbContextBase mongoDbContext) : IMiddle
         }
 
         #region Check Dashboard Session
-        var dashboardSession = await mongoDbContext.DashboardSessions
+        var dashboardSession = await dataFacade.MongoEf.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == bearerToken &&
-                entity.Status == (int)EventStatus.Complete
+                entity.Status == EventStatus.Complete
             )
             .FirstOrDefaultAsync();
 
         if (dashboardSession == null)
         {
-            await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>()
-            {
+            await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>() {
                 StatusCode = HttpStatusCode.Unauthorized,
                 Message = "Unauthorized"
             });
@@ -55,10 +54,10 @@ public class InjectHeaderMiddleware(MongoDbContextBase mongoDbContext) : IMiddle
         #endregion
 
         #region Add List ChatId
-        var chatAdmin = await mongoDbContext.ChatAdmin
+        var chatAdmin = await dataFacade.MongoEf.ChatAdmin
             .Where(entity =>
                 entity.UserId == dashboardSession.TelegramUserId &&
-                entity.Status == (int)EventStatus.Complete
+                entity.Status == EventStatus.Complete
             )
             .ToListAsync();
 
@@ -70,10 +69,10 @@ public class InjectHeaderMiddleware(MongoDbContextBase mongoDbContext) : IMiddle
         #region Add User Role
         var userRole = ApiRole.Guest;
 
-        var checkSudo = await mongoDbContext.Sudoers
+        var checkSudo = await dataFacade.MongoEf.Sudoers
             .FirstOrDefaultAsync(entity =>
                 entity.UserId == dashboardSession.TelegramUserId &&
-                entity.Status == (int)EventStatus.Complete);
+                entity.Status == EventStatus.Complete);
 
         if (checkSudo != null)
         {

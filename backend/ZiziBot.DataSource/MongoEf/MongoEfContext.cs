@@ -6,16 +6,39 @@ namespace ZiziBot.DataSource.MongoEf;
 
 public class MongoEfContext : DbContext
 {
-    private readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
+    readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
+    public DbSet<SudoerEntity> Sudoers { get; set; }
+    public DbSet<AppSettingsEntity> AppSettings { get; set; }
+    public DbSet<ApiKeyEntity> ApiKey { get; set; }
+    public DbSet<BotSettingsEntity> BotSettings { get; set; }
+    public DbSet<BotCommandEntity> BotCommand { get; set; }
+
+    public DbSet<FeatureFlagEntity> FeatureFlag { get; set; }
+
+    public DbSet<ChatRestrictionEntity> ChatRestriction { get; set; }
     public DbSet<ChatAdminEntity> ChatAdmin { get; set; }
+    public DbSet<ChatSettingEntity> ChatSetting { get; set; }
+    public DbSet<ChatActivityEntity> ChatActivity { get; set; }
     public DbSet<WordFilterEntity> WordFilter { get; set; }
+    public DbSet<GlobalBanEntity> GlobalBan { get; set; }
+    public DbSet<BotUserEntity> BotUser { get; set; }
+    public DbSet<NoteEntity> Note { get; set; }
+    public DbSet<WelcomeMessageEntity> WelcomeMessage { get; set; }
+    public DbSet<DashboardSessionEntity> DashboardSessions { get; set; }
 
+    public DbSet<WebhookChatEntity> WebhookChat { get; set; }
     public DbSet<WebhookHistoryEntity> WebhookHistory { get; set; }
 
+    public DbSet<MirrorUserEntity> MirrorUser { get; set; }
     public DbSet<MirrorActivityEntity> MirrorActivity { get; set; }
 
+    public DbSet<BangHasan_ShalatCityEntity> BangHasan_ShalatCity { get; set; }
+
     public DbSet<PendekinMapEntity> PendekinMap { get; set; }
+
+    public DbSet<TonjooAwbEntity> TonjooAwb { get; set; }
+    public DbSet<BinderByteCheckAwbEntity> BinderByteCheckAwb { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -38,12 +61,13 @@ public class MongoEfContext : DbContext
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
-    private void EnsureTimestamp()
+    void EnsureTimestamp()
     {
         var entries = ChangeTracker.Entries<EntityBase>()
             .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
 
         foreach (var entityEntry in entries)
+        {
             switch (entityEntry.State)
             {
                 case EntityState.Added:
@@ -61,5 +85,6 @@ public class MongoEfContext : DbContext
                     entityEntry.Entity.UpdatedDate = DateTime.UtcNow;
                     break;
             }
+        }
     }
 }

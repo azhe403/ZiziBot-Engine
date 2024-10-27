@@ -1,9 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoFramework.Linq;
 using ZiziBot.Contracts.Dtos.Entity;
-using ZiziBot.DataSource.MongoDb;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 using ZiziBot.Types.Types;
 
 namespace ZiziBot.DataSource.Repository;
@@ -11,19 +11,19 @@ namespace ZiziBot.DataSource.Repository;
 public class ChatSettingRepository(
     ILogger<ChatSettingRepository> logger,
     ICacheService cacheService,
-    MongoDbContextBase mongoDbContext
+    MongoEfContext mongoDbContext
 )
 {
     public async Task<ChatRestrictionDto> GetChatRestriction(long chatId)
     {
         var cache = await cacheService.GetOrSetAsync($"{CacheKey.CHAT_RESTRICTION}{chatId}", async () => {
             var chatRestriction = await mongoDbContext.ChatRestriction.AsNoTracking()
-                .Where(entity => entity.Status == (int)EventStatus.Complete)
+                .Where(entity => entity.Status == EventStatus.Complete)
                 .Where(entity => entity.ChatId == chatId)
                 .Select(chatRestriction => new ChatRestrictionDto() {
                     ChatId = chatRestriction.ChatId,
                     UserId = chatRestriction.UserId,
-                    Status = chatRestriction.Status, TransactionId = chatRestriction.TransactionId,
+                    Status = (int)chatRestriction.Status, TransactionId = chatRestriction.TransactionId,
                     CreatedDate = chatRestriction.CreatedDate,
                     UpdatedDate = chatRestriction.UpdatedDate
                 })
@@ -35,11 +35,43 @@ public class ChatSettingRepository(
         return cache;
     }
 
+    public async Task RefreshChatInfo(ChatSettingDto request)
+    {
+        logger.LogInformation("Ensure ChatSetting for ChatId: {ChatId} Started", request.ChatId);
+
+        var chatSetting = await mongoDbContext.ChatSetting
+            .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
+
+        if (chatSetting == null)
+        {
+            logger.LogDebug("Creating fresh ChatSetting for ChatId: {ChatId}", request.ChatId);
+
+            mongoDbContext.ChatSetting.Add(new() {
+                ChatId = request.ChatId,
+                ChatTitle = request.ChatTitle,
+                ChatType = request.ChatType,
+                ChatTypeName = request.ChatType.ToString(),
+                Status = EventStatus.Complete
+            });
+        }
+        else
+        {
+            logger.LogDebug("Updating ChatSetting for ChatId: {ChatId}", request.ChatId);
+
+            chatSetting.ChatTitle = request.ChatTitle;
+            chatSetting.ChatType = request.ChatType;
+            chatSetting.ChatTypeName = request.ChatType.ToString();
+            chatSetting.Status = EventStatus.Complete;
+        }
+
+        await mongoDbContext.SaveChangesAsync();
+    }
+
     public async Task<WebhookChatEntity?> GetWebhookRouteById(string routeId)
     {
         var webhookChat = await mongoDbContext.WebhookChat
             .Where(entity => entity.RouteId == routeId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         return webhookChat;
@@ -50,7 +82,7 @@ public class ChatSettingRepository(
         #region Check Dashboard Session
         var dashboardSession = await mongoDbContext.DashboardSessions
             .Where(entity => entity.BearerToken == bearerToken)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (dashboardSession == null)
@@ -64,7 +96,7 @@ public class ChatSettingRepository(
         var chatAdmin = await mongoDbContext.ChatAdmin
             .Where(entity =>
                 entity.UserId == userId &&
-                entity.Status == (int)EventStatus.Complete
+                entity.Status == EventStatus.Complete
             )
             .ToListAsync();
 
@@ -115,7 +147,7 @@ public class ChatSettingRepository(
                 RawButton = note.RawButton,
                 FileId = note.FileId,
                 DataType = note.DataType,
-                Status = note.Status,
+                Status = (int)note.Status,
                 TransactionId = note.TransactionId,
                 CreatedDate = chat.CreatedDate,
                 UpdatedDate = chat.UpdatedDate
@@ -141,7 +173,7 @@ public class ChatSettingRepository(
                 RawButton = note.RawButton,
                 FileId = note.FileId,
                 DataType = note.DataType,
-                Status = note.Status,
+                Status = (int)note.Status,
                 TransactionId = note.TransactionId,
                 CreatedDate = chat.CreatedDate,
                 UpdatedDate = chat.UpdatedDate
@@ -156,7 +188,7 @@ public class ChatSettingRepository(
     {
         var cityList = await mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == chatId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .OrderBy(entity => entity.CityName)
             .ToListAsync();
 
@@ -165,14 +197,14 @@ public class ChatSettingRepository(
 
     public async Task<bool> MeasureActivity(ChatActivityDto dto)
     {
-        mongoDbContext.ChatActivity.Add(new ChatActivityEntity {
+        mongoDbContext.ChatActivity.Add(new() {
             ChatId = dto.ChatId,
             UserId = dto.UserId,
             ActivityType = dto.ActivityType,
             ActivityTypeName = dto.ActivityType.ToString(),
             Chat = dto.Chat,
             User = dto.User,
-            Status = (int)dto.Status,
+            Status = dto.Status,
             TransactionId = dto.TransactionId,
             MessageId = dto.MessageId
         });
@@ -180,7 +212,7 @@ public class ChatSettingRepository(
         await mongoDbContext.SaveChangesAsync();
 
         var chatActivityEntities = await mongoDbContext.ChatActivity.AsNoTracking()
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .Where(x => x.ActivityType == ChatActivityType.NewChatMember)
             .Where(x => x.CreatedDate > DateTime.UtcNow.Add(-ValueConst.NEW_MEMBER_RAID_SLIDING_WINDOW))
             .ToListAsync();
@@ -200,17 +232,35 @@ public class ChatSettingRepository(
             .Where(x => x.ChatId == chatId)
             .Where(x => x.WebhookSource == webhookSource)
             .Where(x => x.EventName == eventName)
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .OrderByDescending(o => o.CreatedDate)
+            .Select(x => new {
+                x.ChatId,
+                x.EventName,
+                x.RouteId,
+                x.MessageId,
+                x.MessageThreadId,
+                x.WebhookSource
+            })
             .FirstOrDefaultAsync();
+
+        if (lastWebhookHistory == null)
+            return default;
 
         var lastChatActivity = await mongoDbContext.ChatActivity.AsNoTracking()
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .Where(x => x.ChatId == chatId)
             .OrderByDescending(o => o.CreatedDate)
+            .Select(x => new {
+                x.ChatId,
+                x.MessageId
+            })
             .FirstOrDefaultAsync();
 
-        if (lastChatActivity?.MessageId != lastWebhookHistory?.MessageId)
+        if (lastChatActivity == null)
+            return default;
+
+        if (lastChatActivity.MessageId != lastWebhookHistory.MessageId)
             return default;
 
         logger.LogDebug("Last Webhook Message for Better Edit: {MessageId}", lastWebhookHistory.MessageId);
@@ -222,16 +272,17 @@ public class ChatSettingRepository(
     {
         var globalBan = await mongoDbContext.GlobalBan
             .Where(entity => entity.UserId == dto.UserId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (globalBan == null)
         {
-            mongoDbContext.GlobalBan.Add(new GlobalBanEntity() {
+            mongoDbContext.GlobalBan.Add(new() {
                 UserId = dto.UserId,
                 ChatId = dto.ChatId,
                 Reason = dto.Reason,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete,
+                TransactionId = Guid.NewGuid().ToString()
             });
         }
         else
@@ -248,20 +299,20 @@ public class ChatSettingRepository(
         var trackingMessage = HtmlMessage.Empty;
         var botUser = await mongoDbContext.BotUser
             .Where(entity => entity.UserId == request.UserId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (botUser == null)
         {
             logger.LogDebug("Adding User with UserId: {UserId}", request.UserId);
 
-            mongoDbContext.BotUser.Add(new BotUserEntity() {
+            mongoDbContext.BotUser.Add(new() {
                 UserId = request.UserId,
                 Username = request.Username,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 LanguageCode = request.LanguageCode,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete,
                 TransactionId = request.TransactionId
             });
         }
@@ -283,7 +334,7 @@ public class ChatSettingRepository(
             botUser.FirstName = request.FirstName;
             botUser.LastName = request.LastName;
             botUser.LanguageCode = request.LanguageCode;
-            botUser.Status = (int)EventStatus.Complete;
+            botUser.Status = EventStatus.Complete;
             botUser.TransactionId = request.TransactionId;
         }
 
@@ -301,14 +352,27 @@ public class ChatSettingRepository(
 
     public async Task<bool> IsSudoAsync(long userId)
     {
+        var sudoers = await GetSudoers();
+
+        var isSudo = sudoers.Exists(x => x.UserId == userId);
+        logger.LogDebug("UserId: {UserId} is Sudo: {IsSudo}", userId, isSudo);
+
+        return isSudo;
+    }
+
+    public async Task<List<SudoDto>> GetSudoers()
+    {
         var cache = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.GLOBAL_SUDO + userId,
+            cacheKey: CacheKey.GLOBAL_SUDO,
             action: async () => {
-                return await mongoDbContext.Sudoers.AnyAsync(
-                    x =>
-                        x.UserId == userId &&
-                        x.Status == (int)EventStatus.Complete
-                );
+                return await mongoDbContext.Sudoers.AsNoTracking()
+                    .Where(x => x.Status == EventStatus.Complete)
+                    .Select(x => new SudoDto {
+                        UserId = x.UserId,
+                        PromotedBy = x.PromotedBy,
+                        PromotedFrom = x.PromotedFrom
+                    })
+                    .ToListAsync();
             }
         );
 

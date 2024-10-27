@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Caching.Sqlite;
 
-public class CacheTowerSqliteProvider : ICacheLayer
+internal class SqliteLayerProvider : ICacheLayer
 {
     private readonly string _dbPath;
 
-    public CacheTowerSqliteProvider(string dbPath)
+    public SqliteLayerProvider(string dbPath)
     {
         _dbPath = dbPath;
 

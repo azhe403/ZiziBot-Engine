@@ -1,11 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
+using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Hangfire;
 
 public class HangfireAuthorizationFilter(
     ILogger<HangfireAuthorizationFilter> logger,
-    MongoDbContextBase mongoDbContext) : IDashboardAsyncAuthorizationFilter
+    MongoEfContext mongoDbContext
+) : IDashboardAsyncAuthorizationFilter
 {
     public async Task<bool> AuthorizeAsync(DashboardContext context)
     {
@@ -29,11 +31,11 @@ public class HangfireAuthorizationFilter(
         return true;
     }
 
-    private async Task<bool> CheckSession(string sessionId)
+    async Task<bool> CheckSession(string sessionId)
     {
         var dashboardSessions = await mongoDbContext.DashboardSessions.AsNoTracking()
             .Where(entity => entity.BearerToken == sessionId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (dashboardSessions == null)
@@ -41,7 +43,7 @@ public class HangfireAuthorizationFilter(
 
         var sudoer = mongoDbContext.Sudoers
             .Where(entity => entity.UserId == dashboardSessions.TelegramUserId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         return sudoer != null;

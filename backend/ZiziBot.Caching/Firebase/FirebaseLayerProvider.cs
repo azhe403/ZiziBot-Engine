@@ -5,7 +5,7 @@ using Google.Apis.Auth.OAuth2;
 
 namespace ZiziBot.Caching.Firebase;
 
-public class CacheTowerFirebaseProvider(FirebaseCacheOptions cacheOptions) : ICacheLayer
+internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICacheLayer
 {
     public ValueTask FlushAsync()
     {
@@ -23,7 +23,6 @@ public class CacheTowerFirebaseProvider(FirebaseCacheOptions cacheOptions) : ICa
             .DeleteAsync();
 
         return ValueTask.CompletedTask;
-
     }
 
     public async ValueTask EvictAsync(string cacheKey)
@@ -57,8 +56,7 @@ public class CacheTowerFirebaseProvider(FirebaseCacheOptions cacheOptions) : ICa
             .Child(cacheOptions.RootDir)
             .Child(cacheKey)
             .PutAsync(
-                new FirebaseCacheEntry<T?>()
-                {
+                new FirebaseCacheEntry<T?>() {
                     CacheKey = cacheKey,
                     Value = cacheEntry.Value,
                     Expiry = cacheEntry.Expiry
@@ -80,8 +78,7 @@ public class CacheTowerFirebaseProvider(FirebaseCacheOptions cacheOptions) : ICa
     {
         var client = new FirebaseClient(
             baseUrl: cacheOptions.ProjectUrl,
-            options: new FirebaseOptions
-            {
+            options: new FirebaseOptions {
                 AuthTokenAsyncFactory = GetAccessToken,
                 AsAccessToken = true
             }

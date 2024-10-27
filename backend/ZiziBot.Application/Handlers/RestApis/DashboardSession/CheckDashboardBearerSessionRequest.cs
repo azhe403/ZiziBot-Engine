@@ -1,5 +1,5 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
@@ -25,22 +25,21 @@ public class UserFeature
 
 public class CheckDashboardBearerSessionRequestHandler(
     ILogger<CheckDashboardSessionRequestHandler> logger,
-    MongoDbContextBase mongoDbContext
+    DataFacade dataFacade
 )
-    : IRequestHandler<CheckDashboardBearerSessionRequestDto, ApiResponseBase<CheckDashboardBearerSessionResponseDto>>
+    : IApiRequestHandler<CheckDashboardBearerSessionRequestDto, CheckDashboardBearerSessionResponseDto>
 {
     public async Task<ApiResponseBase<CheckDashboardBearerSessionResponseDto>> Handle(CheckDashboardBearerSessionRequestDto request, CancellationToken cancellationToken)
     {
         ApiResponseBase<CheckDashboardBearerSessionResponseDto> response = new();
 
         #region Check Dashboard Session
-
-        var dashboardSession = await mongoDbContext.DashboardSessions
+        var dashboardSession = await dataFacade.MongoDb.DashboardSessions
             .Where(entity =>
                 entity.BearerToken == request.BearerToken &&
                 entity.Status == (int)EventStatus.Complete
             )
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (dashboardSession == null)
         {
@@ -48,32 +47,29 @@ public class CheckDashboardBearerSessionRequestHandler(
         }
 
         var userId = dashboardSession.TelegramUserId;
-
         #endregion
 
         #region Get User Role
-
         var result = new CheckDashboardBearerSessionResponseDto() {
             IsSessionValid = true,
             UserName = dashboardSession.FirstName,
             PhotoUrl = dashboardSession.PhotoUrl,
             RoleId = 2,
             RoleName = "User",
-            Features = new List<UserFeature>()
+            Features = new()
         };
 
-        var checkSudo = await mongoDbContext.Sudoers
+        var checkSudo = await dataFacade.MongoDb.Sudoers
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == userId &&
                     entity.Status == (int)EventStatus.Complete,
-                cancellationToken: cancellationToken);
+                cancellationToken);
 
         if (checkSudo != null)
         {
             result.RoleId = 1;
             result.RoleName = "Sudo";
         }
-
         #endregion
 
         result.Features = GetFeatures(result.RoleId);
@@ -83,7 +79,7 @@ public class CheckDashboardBearerSessionRequestHandler(
         return response.Success("Session is valid", result);
     }
 
-    private List<UserFeature> GetFeatures(int roleId)
+    List<UserFeature> GetFeatures(int roleId)
     {
         var features = new List<UserFeature>() {
             new() {

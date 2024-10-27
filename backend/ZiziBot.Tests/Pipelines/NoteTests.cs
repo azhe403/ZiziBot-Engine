@@ -1,19 +1,19 @@
 using FluentAssertions;
 using Xunit;
+using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Tests.Pipelines;
 
-public class NoteTests(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoDbContextBase mongoDbContext)
+public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
 {
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public async Task CreateNoteTest(bool refreshNote)
     {
-        var botMain = await appSettingRepository.GetBotMain();
+        var botMain = await dataFacade.AppSetting.GetBotMain();
 
-        var result = await mediatorService.EnqueueAsync(new CreateNoteBotRequest()
-        {
+        var result = await mediatorService.EnqueueAsync(new CreateNoteBotRequest() {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             Query = "sample_query",
@@ -32,21 +32,19 @@ public class NoteTests(MediatorService mediatorService, AppSettingRepository app
     public async Task DeleteNoteTest(string note)
     {
         // Arrange
-        mongoDbContext.Note.Add(new NoteEntity()
-        {
+        dataFacade.MongoDb.Note.Add(new() {
             ChatId = SampleMessages.CommonMessage.Chat.Id,
             Query = note,
             Status = (int)EventStatus.Complete
         });
 
-        await mongoDbContext.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
 
         // Act
-        var botMain = await appSettingRepository.GetBotMain();
+        var botMain = await dataFacade.AppSetting.GetBotMain();
 
-        await mediatorService.EnqueueAsync(new DeleteNoteRequest()
-        {
+        await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             Note = note
@@ -57,10 +55,9 @@ public class NoteTests(MediatorService mediatorService, AppSettingRepository app
     [InlineData("ini-note-ngab")]
     public async Task DeleteNoteAlreadyDeletedTest(string note)
     {
-        var botMain = await appSettingRepository.GetBotMain();
+        var botMain = await dataFacade.AppSetting.GetBotMain();
 
-        await mediatorService.EnqueueAsync(new DeleteNoteRequest()
-        {
+        await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             // ReplyMessage = true,

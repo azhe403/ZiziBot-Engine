@@ -263,7 +263,6 @@ paket-files/
 __pycache__/
 *.pyc
 
-# WinTenDev
 **/Storage/AppSettings
 **/Storage/Temp*
 **/Storage/Cache*

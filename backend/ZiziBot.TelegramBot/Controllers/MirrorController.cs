@@ -41,18 +41,4 @@ public class MirrorController(
             }
         });
     }
-
-    [Command("ms")]
-    public async Task MirrorSubscription(CommandData data)
-    {
-        await mediatorService.EnqueueAsync(new GetMirrorSubscriptionBotRequest() {
-            BotToken = data.BotToken,
-            ReplyMessage = true,
-            Message = data.Message,
-            CleanupTargets = new[] {
-                CleanupTarget.FromBot,
-                CleanupTarget.FromSender
-            }
-        });
-    }
 }

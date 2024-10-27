@@ -13,7 +13,8 @@ public class SendShalatTimeHandler(
     ILogger<SendShalatTimeHandler> logger,
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IRequestHandler<SendShalatTimeRequest, bool>
+)
+    : IRequestHandler<SendShalatTimeRequest, bool>
 {
     public async Task<bool> Handle(SendShalatTimeRequest request, CancellationToken cancellationToken)
     {

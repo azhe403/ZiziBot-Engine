@@ -1,4 +1,4 @@
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Permission;
 
@@ -11,7 +11,7 @@ public class AddSudoBotRequestModel : BotRequestBase
 public class AddSudoRequestHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IRequestHandler<AddSudoBotRequestModel, BotResponseBase>
+) : IBotRequestHandler<AddSudoBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(AddSudoBotRequestModel request, CancellationToken cancellationToken)
     {
@@ -23,7 +23,8 @@ public class AddSudoRequestHandler(
             UserId = request.CustomUserId == 0 ? request.UserId : request.CustomUserId,
             PromotedBy = request.UserId,
             PromotedFrom = request.ChatIdentifier,
-            Status = (int)EventStatus.Complete
+            Status = EventStatus.Complete,
+            TransactionId = request.TransactionId
         });
 
         await serviceFacade.TelegramService.EditMessageText(serviceResult.Message);

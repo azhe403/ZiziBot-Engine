@@ -8,7 +8,8 @@ public class AddRssRequest : BotRequestBase
 public class AddRssHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IRequestHandler<AddRssRequest, BotResponseBase>
+)
+    : IBotRequestHandler<AddRssRequest>
 {
     public async Task<BotResponseBase> Handle(AddRssRequest request, CancellationToken cancellationToken)
     {

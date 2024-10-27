@@ -1,3 +1,7 @@
+using Jsonize;
+using Jsonize.Abstractions.Models;
+using Jsonize.Parser;
+using Jsonize.Serializer;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
@@ -17,6 +21,24 @@ public static class SerializationUtil
             return default;
 
         return JsonConvert.DeserializeObject<T>(source);
+    }
+
+    public async static Task<JsonizeNode> Jsonize(this string url)
+    {
+        var client = new HttpClient();
+        var response = await client.GetAsync(url);
+
+        var html = await response.Content.ReadAsStringAsync();
+
+        // The use of the parameterless constructors will use default settings.
+        var parser = new JsonizeParser();
+        var serializer = new JsonizeSerializer();
+
+        var jsonizer = new Jsonizer(parser, serializer);
+
+        var jsonizeNode = await jsonizer.ParseToJsonizeNodeAsync(html);
+
+        return jsonizeNode;
     }
 
     public static string ToYaml(this object? obj)

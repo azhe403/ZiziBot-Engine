@@ -5,7 +5,8 @@ public class GetNoteBotRequestModel : BotRequestBase
 
 public class GetNoteRequestHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<GetNoteBotRequestModel, BotResponseBase>
+)
+    : IBotRequestHandler<GetNoteBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(GetNoteBotRequestModel request, CancellationToken cancellationToken)
     {

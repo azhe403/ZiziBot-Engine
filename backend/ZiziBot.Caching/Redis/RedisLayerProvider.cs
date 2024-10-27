@@ -1,12 +1,11 @@
 ﻿using CacheTower;
-using CacheTower.Providers.Redis;
 using StackExchange.Redis;
 
 namespace ZiziBot.Caching.Redis;
 
-public class CacheTowerRedisProvider(
+internal class RedisLayerProvider(
     string connectionString,
-    RedisCacheLayerOptions options
+    RedisLayerOptions options
 )
     : IDistributedCacheLayer
 {
@@ -24,7 +23,7 @@ public class CacheTowerRedisProvider(
     {
         await Connect();
 
-        await Database.KeyDeleteAsync(cacheKey);
+        await Database.KeyDeleteAsync(CacheKey(cacheKey));
     }
 
     public async ValueTask FlushAsync()
@@ -34,7 +33,12 @@ public class CacheTowerRedisProvider(
         var redisEndpoints = Connection.GetEndPoints();
         foreach (var endpoint in redisEndpoints)
         {
-            await Connection.GetServer(endpoint).FlushDatabaseAsync(options.DatabaseIndex);
+            var keys = Connection.GetServer(endpoint).KeysAsync(options.DatabaseIndex, pattern: $"{options.PrefixRoot}*");
+
+            await foreach (var redisKey in keys)
+            {
+                await Database.KeyDeleteAsync(redisKey);
+            }
         }
     }
 
@@ -42,7 +46,7 @@ public class CacheTowerRedisProvider(
     {
         await Connect();
 
-        var redisValue = await Database.StringGetAsync(cacheKey);
+        var redisValue = await Database.StringGetAsync(CacheKey(cacheKey));
         if (redisValue != RedisValue.Null)
         {
             using var stream = new MemoryStream(redisValue);
@@ -73,12 +77,17 @@ public class CacheTowerRedisProvider(
         options.Serializer.Serialize(stream, cacheEntry);
         stream.Seek(0, SeekOrigin.Begin);
         var redisValue = RedisValue.CreateFrom(stream);
-        await Database.StringSetAsync(cacheKey, redisValue, expiryOffset);
+        await Database.StringSetAsync(CacheKey(cacheKey), redisValue, expiryOffset);
     }
 
     async Task Connect()
     {
         Connection = await ConnectionMultiplexer.ConnectAsync(ConnectionString);
         Database = Connection.GetDatabase(options.DatabaseIndex);
+    }
+
+    string CacheKey(string cacheKey)
+    {
+        return options.PrefixRoot.IsNullOrEmpty() ? $"{cacheKey}".Replace("/", ":") : $"{options.PrefixRoot}/{cacheKey}".Replace("/", ":");
     }
 }

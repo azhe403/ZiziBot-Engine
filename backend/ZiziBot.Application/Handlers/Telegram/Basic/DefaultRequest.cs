@@ -5,7 +5,7 @@ public class DefaultBotRequestModel : BotRequestBase
 
 public class DefaultRequestHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<DefaultBotRequestModel, BotResponseBase>
+) : IBotRequestHandler<DefaultBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(DefaultBotRequestModel request, CancellationToken cancellationToken)
     {

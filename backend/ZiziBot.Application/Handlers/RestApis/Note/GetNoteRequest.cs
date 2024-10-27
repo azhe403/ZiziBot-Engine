@@ -4,12 +4,13 @@ namespace ZiziBot.Application.Handlers.RestApis.Note;
 
 public class GetNoteRequest : ApiRequestBase<object>
 {
-    [FromRoute] public string NoteId { get; set; }
+    [FromRoute]
+    public string NoteId { get; set; }
 }
 
 public class GetNoteHandler(
     DataFacade dataFacade
-) : IRequestHandler<GetNoteRequest, ApiResponseBase<object>>
+) : IApiRequestHandler<GetNoteRequest, object>
 {
     public async Task<ApiResponseBase<object>> Handle(GetNoteRequest request, CancellationToken cancellationToken)
     {

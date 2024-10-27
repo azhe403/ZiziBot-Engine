@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using ZiziBot.DataMigration.MongoDb.Migrations;
+using ZiziBot.DataMigration.MongoDb.Interfaces;
 
 namespace ZiziBot.DataMigration.MongoDb;
 
@@ -12,20 +12,33 @@ public class MigrationRunner(IServiceProvider serviceProvider, IMongoDatabase da
 
     public async Task ApplyMigrationAsync()
     {
-        var migrations = serviceProvider.GetServices<IMigration>();
+        IEnumerable<IMigrationBase> preMigrations = serviceProvider.GetServices<IPreMigration>().ToList();
+        logger.LogDebug("Applying Pre-Migration. Total: {Count} Migrations", preMigrations.Count());
+        await ApplyMigrationInternal(preMigrations);
+
+        var migrations = serviceProvider.GetServices<IMigration>().ToList();
+        logger.LogDebug("Applying Migration. Total: {Count} Migrations", migrations.Count());
+        await ApplyMigrationInternal(migrations);
+
+        IEnumerable<IMigrationBase> postMigrations = serviceProvider.GetServices<IPostMigration>().ToList();
+        logger.LogDebug("Applying Post-Migration. Total: {Count} Migrations", postMigrations.Count());
+        await ApplyMigrationInternal(postMigrations);
+    }
+
+    async Task ApplyMigrationInternal(IEnumerable<IMigrationBase> migrations)
+    {
         foreach (var migration in migrations)
         {
             var migrationId = Builders<BsonDocument>.Filter.Eq("Name", migration.GetType().Name);
             var applied = await _migrationCollection.Find(migrationId).FirstOrDefaultAsync();
 
-            if (applied == null)
+            if (applied == null || migration is not IMigration)
             {
                 logger.LogDebug("Applying Migration {Name}", migration.GetType().Name);
 
                 await migration.UpAsync(database);
 
                 var migrationHistory = new BsonDocument() {
-                    { "_id", migration.Id },
                     { "Name", migration.GetType().Name },
                     { "AppliedAt", DateTime.UtcNow }
                 };

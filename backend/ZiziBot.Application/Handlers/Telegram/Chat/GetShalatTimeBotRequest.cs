@@ -12,7 +12,7 @@ public class GetShalatTimeHandler(
     ILogger<GetShalatTimeHandler> logger,
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IRequestHandler<GetShalatTimeBotRequest, BotResponseBase>
+) : IBotRequestHandler<GetShalatTimeBotRequest>
 {
     public async Task<BotResponseBase> Handle(GetShalatTimeBotRequest request, CancellationToken cancellationToken)
     {

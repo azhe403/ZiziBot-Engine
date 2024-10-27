@@ -9,7 +9,8 @@ namespace ZiziBot.Application.Handlers.RestApis.Group;
 
 public class SaveWelcomeMessageRequest : ApiRequestBase<object>
 {
-    [FromBody] public SaveWelcomeMessageRequestModel Model { get; set; }
+    [FromBody]
+    public SaveWelcomeMessageRequestModel Model { get; set; }
 }
 
 public class SaveWelcomeMessageValidation : AbstractValidator<SaveWelcomeMessageRequest>
@@ -38,10 +39,12 @@ public class SaveWelcomeMessageRequestModel
 
 public class SaveWelcomeMessageHandler(
     DataFacade dataFacade
-) : IRequestHandler<SaveWelcomeMessageRequest, ApiResponseBase<object>>
+) : IApiRequestHandler<SaveWelcomeMessageRequest, object>
 {
-    public async Task<ApiResponseBase<object>> Handle(SaveWelcomeMessageRequest request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<object>> Handle(
+        SaveWelcomeMessageRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var response = new ApiResponseBase<object>();
 

@@ -13,7 +13,8 @@ public class AnswerInlineQueryUupBotRequestModel : BotRequestBase
 public class AnswerInlineQueryUupRequestHandler(
     ILogger<AnswerInlineQueryUupRequestHandler> logger,
     ServiceFacade serviceFacade
-) : IRequestHandler<AnswerInlineQueryUupBotRequestModel, BotResponseBase>
+)
+    : IBotRequestHandler<AnswerInlineQueryUupBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(AnswerInlineQueryUupBotRequestModel request, CancellationToken cancellationToken)
     {

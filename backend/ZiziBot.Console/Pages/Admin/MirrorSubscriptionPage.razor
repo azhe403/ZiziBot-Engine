@@ -1,12 +1,13 @@
 @page "/admin/mirror-subscription"
 @attribute [Authorize(Roles = "Sudo")]
+@using ZiziBot.DataSource.MongoDb.Entities
 @inherits WebComponentBase<MirrorSubscriptionViewModel>
 
 <TitleControl Value="Mirror Subscription"></TitleControl>
 
 <Container Configuration="ViewModel.Loading"/>
 
-<RadzenTabs @bind-SelectedIndex=@selectedIndex>
+<RadzenTabs @bind-SelectedIndex="@selectedIndex">
     <Tabs>
         <RadzenTabsItem Text="Overview">
             <RadzenStack>

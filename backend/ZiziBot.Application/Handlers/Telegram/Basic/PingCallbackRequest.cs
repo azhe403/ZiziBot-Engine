@@ -8,7 +8,7 @@ public class PingCallbackBotRequestModel : BotRequestBase
 public class PingCallbackRequestHandler(
     ServiceFacade serviceFacade,
     DataFacade dataFacade
-) : IRequestHandler<PingCallbackBotRequestModel, BotResponseBase>
+) : IBotRequestHandler<PingCallbackBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(PingCallbackBotRequestModel request, CancellationToken cancellationToken)
     {

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using ZiziBot.Contracts.Constants;
-using ZiziBot.DataMigration.MongoDb.Migrations;
+using ZiziBot.DataMigration.MongoDb.Interfaces;
 using ZiziBot.Utils;
 
 namespace ZiziBot.DataMigration.MongoDb.Extension;
@@ -23,13 +23,27 @@ public static class MigrationExtension
 
         services.Scan(selector =>
             selector.FromAssembliesOf(typeof(IMigration))
-                .AddClasses(filter => filter.InNamespaceOf<IMigration>())
+                .AddClasses(filter => filter.AssignableTo<IMigration>())
                 .As<IMigration>()
+                .WithTransientLifetime()
+        );
+
+        services.Scan(selector =>
+            selector.FromAssembliesOf(typeof(IPreMigration))
+                .AddClasses(filter => filter.AssignableTo<IPreMigration>())
+                .As<IPreMigration>()
+                .WithTransientLifetime()
+        );
+
+        services.Scan(selector =>
+            selector.FromAssembliesOf(typeof(IPostMigration))
+                .AddClasses(filter => filter.AssignableTo<IPostMigration>())
+                .As<IPostMigration>()
                 .WithTransientLifetime()
         );
     }
 
-    public static async Task UseMongoMigration(this IApplicationBuilder app)
+    public async static Task UseMongoMigration(this IApplicationBuilder app)
     {
         var runner = app.ApplicationServices.GetService<MigrationRunner>();
 

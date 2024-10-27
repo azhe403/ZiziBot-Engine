@@ -2,13 +2,15 @@ using Kot.MongoDB.Migrations;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Kot.MongoMigrations.Seeders;
 
-public class BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, MongoDbContextBase mongoDbContext) : MongoMigration(DBVersion)
+public class BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, MongoEfContext mongoDbContext) : MongoMigration(DBVersion)
 {
-    private readonly ILogger<BotCommandSeedMigration> _logger = logger;
-    private static DatabaseVersion DBVersion => new("233.30.1");
+    readonly ILogger<BotCommandSeedMigration> _logger = logger;
+    static DatabaseVersion DBVersion => new("233.30.1");
 
     public override async Task DownAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
     {
@@ -17,29 +19,25 @@ public class BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, Mo
 
     public override async Task UpAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
     {
-        mongoDbContext.BotCommand.AddRange(new[]
-        {
-            new BotCommandEntity()
-            {
+        mongoDbContext.BotCommand.AddRange(new List<BotCommandEntity>() {
+            new() {
                 Command = "/ping",
                 Description = "Mengecek kesehatan bot",
                 Scope = BotCommandScopeType.Default,
-                Status = (int)EventStatus.Complete
+                Status = EventStatus.Complete
             },
-            new BotCommandEntity()
-            {
+            new() {
                 Command = "/help",
                 Description = "Menampilkan daftar perintah",
                 Scope = BotCommandScopeType.Default,
-                Status = (int)EventStatus.Complete
+                Status = EventStatus.Complete
             },
-            new BotCommandEntity()
-            {
+            new() {
                 Command = "/start",
                 Description = "Memulai menggunakan bot",
                 Scope = BotCommandScopeType.Default,
-                Status = (int)EventStatus.Complete
-            },
+                Status = EventStatus.Complete
+            }
         });
 
         await mongoDbContext.SaveChangesAsync(cancellationToken);

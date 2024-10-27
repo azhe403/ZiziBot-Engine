@@ -6,7 +6,8 @@ namespace ZiziBot.Application.Handlers.RestApis.Note;
 
 public class DeleteNoteRequest : ApiRequestBase<bool>
 {
-    [FromBody] public DeleteNoteRequestBody Body { get; set; }
+    [FromBody]
+    public DeleteNoteRequestBody Body { get; set; }
 }
 
 public class DeleteNoteRequestBody
@@ -17,7 +18,7 @@ public class DeleteNoteRequestBody
 
 public class DeleteNoteHandler(
     DataFacade dataFacade
-) : IRequestHandler<DeleteNoteRequest, ApiResponseBase<bool>>
+) : IApiRequestHandler<DeleteNoteRequest, bool>
 {
     public async Task<ApiResponseBase<bool>> Handle(DeleteNoteRequest request, CancellationToken cancellationToken)
     {

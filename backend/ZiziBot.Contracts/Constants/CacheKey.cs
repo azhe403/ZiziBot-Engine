@@ -5,7 +5,7 @@ namespace ZiziBot.Contracts.Constants;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class CacheKey
 {
-    public const string GLOBAL_SUDO = "global/sudo/";
+    public const string GLOBAL_SUDO = "global/sudo";
     public const string GLOBAL_API_DOC = "global/api-doc";
 
     public const string USER_BAN_ESS = "user/ban/ess/";

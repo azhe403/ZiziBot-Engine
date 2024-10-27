@@ -6,13 +6,17 @@ namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
 public class PostWebhookPayloadRequest : ApiRequestBase<PostWebhookPayloadResponseDto>
 {
-    [FromRoute(Name = "targetId")] public string targetId { get; set; }
+    [FromRoute(Name = "targetId")]
+    public string targetId { get; set; }
 
-    [FromHeader(Name = "User-Agent")] public string UserAgent { get; set; }
+    [FromHeader(Name = "User-Agent")]
+    public string UserAgent { get; set; }
 
-    [FromQuery(Name = "webhookFormat")] public WebhookFormat WebhookFormat { get; set; }
+    [FromQuery(Name = "webhookFormat")]
+    public WebhookFormat WebhookFormat { get; set; }
 
-    [FromQuery(Name = "isDebug")] public bool IsDebug { get; set; }
+    [FromQuery(Name = "isDebug")]
+    public bool IsDebug { get; set; }
 }
 
 public class PostWebhookPayloadResponseDto
@@ -25,7 +29,7 @@ public class PostWebhookPayloadHandler(
     ILogger<PostWebhookPayloadHandler> logger,
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IRequestHandler<PostWebhookPayloadRequest, ApiResponseBase<PostWebhookPayloadResponseDto>>
+) : IApiRequestHandler<PostWebhookPayloadRequest, PostWebhookPayloadResponseDto>
 {
     public async Task<ApiResponseBase<PostWebhookPayloadResponseDto>> Handle(
         PostWebhookPayloadRequest request,

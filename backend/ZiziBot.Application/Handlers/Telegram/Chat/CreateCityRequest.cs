@@ -12,7 +12,7 @@ public class AddCityBotRequest : BotRequestBase
 internal class AddCityHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IRequestHandler<AddCityBotRequest, BotResponseBase>
+) : IBotRequestHandler<AddCityBotRequest>
 {
     public async Task<BotResponseBase> Handle(AddCityBotRequest request, CancellationToken cancellationToken)
     {

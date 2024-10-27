@@ -15,7 +15,7 @@ public class NewChatMembersHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<NewChatMembersBotRequest, BotResponseBase>
+    : IBotRequestHandler<NewChatMembersBotRequest>
 {
     public async Task<BotResponseBase> Handle(NewChatMembersBotRequest request, CancellationToken cancellationToken)
     {

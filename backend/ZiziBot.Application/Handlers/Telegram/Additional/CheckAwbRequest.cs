@@ -6,7 +6,7 @@ public class CheckAwbRequest : BotRequestBase
 public class CheckAwbHandler(
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<CheckAwbRequest, BotResponseBase>
+    : IBotRequestHandler<CheckAwbRequest>
 {
     public async Task<BotResponseBase> Handle(CheckAwbRequest request, CancellationToken cancellationToken)
     {

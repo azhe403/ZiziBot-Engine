@@ -7,7 +7,7 @@ public class AddBanBotHandler(
     ServiceFacade serviceFacade,
     DataFacade dataFacade
 )
-    : IRequestHandler<AddBanBotRequest, BotResponseBase>
+    : IBotRequestHandler<AddBanBotRequest>
 {
     public async Task<BotResponseBase> Handle(AddBanBotRequest request, CancellationToken cancellationToken)
     {

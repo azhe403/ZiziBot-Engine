@@ -10,13 +10,12 @@ namespace ZiziBot.Parsers.WebParser;
 public static class WebParserUtil
 {
     [Obsolete("Use ParseTrakteerWeb from MirrorPaymentService")]
-    public static async Task<TrakteerParsedDto> ParseTrakteerWeb(this string url)
+    public static async Task<DonationParsedDto> ParseTrakteerWeb(this string url)
     {
         url = url.GetTrakteerUrl();
-        var trakteerParsedDto = new TrakteerParsedDto();
+        var trakteerParsedDto = new DonationParsedDto();
         Log.Information("Parsing trakteer url: {Url}", url);
-        var document = await url.OpenUrl(new ClearanceHandler()
-        {
+        var document = await url.OpenUrl(new ClearanceHandler() {
             ClearanceDelay = 3000
         });
 
@@ -55,7 +54,6 @@ public static class WebParserUtil
         trakteerParsedDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
         trakteerParsedDto.PaymentUrl = url;
         trakteerParsedDto.Cendols = cendolCount;
-        trakteerParsedDto.CendolCount = cendolCount.Replace("Cendol", string.Empty).Trim().Convert<int>();
         trakteerParsedDto.AdminFees = adminFees.Replace("Rp", "").Trim().Convert<int>();
         trakteerParsedDto.Subtotal = subtotal.Replace("Rp", "").Trim().Convert<int>();
         trakteerParsedDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
@@ -69,10 +67,10 @@ public static class WebParserUtil
     }
 
     [Obsolete("Use ParseSaweriaWeb from MirrorPaymentService")]
-    public static async Task<TrakteerParsedDto> ParseSaweriaWeb(this string url)
+    public static async Task<DonationParsedDto> ParseSaweriaWeb(this string url)
     {
         url = url.GetSaweriaUrl();
-        var trakteerParsedDto = new TrakteerParsedDto();
+        var trakteerParsedDto = new DonationParsedDto();
         Log.Information("Parsing trakteer url: {Url}", url);
         var document = await url.OpenUrl();
         if (document == null)
@@ -139,8 +137,7 @@ public static class WebParserUtil
             .With<Uniqueness>()
             .SearchAsync(search);
 
-        return ctx.Select(x => new WebSearch()
-        {
+        return ctx.Select(x => new WebSearch() {
             Title = x.Description,
             Url = x.Url.UrlDecode()
         });

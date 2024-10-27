@@ -7,7 +7,8 @@ namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 
 public class PostGlobalBanApiRequest : ApiRequestBase<bool>
 {
-    [FromBody] public PostGlobalBanApiModel Model { get; set; }
+    [FromBody]
+    public PostGlobalBanApiModel Model { get; set; }
 }
 
 public class PostGlobalBanApiModel
@@ -26,7 +27,7 @@ public class PostGlobalBanApiValidator : AbstractValidator<PostGlobalBanApiReque
 
 public class PostGlobalBanApiHandler(
     DataFacade dataFacade
-) : IRequestHandler<PostGlobalBanApiRequest, ApiResponseBase<bool>>
+) : IApiRequestHandler<PostGlobalBanApiRequest, bool>
 {
     public async Task<ApiResponseBase<bool>> Handle(PostGlobalBanApiRequest request, CancellationToken cancellationToken)
     {

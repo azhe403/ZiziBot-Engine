@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Microsoft.AspNetCore.Components.Authorization;
+using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Console.Partials;
 
@@ -18,7 +19,7 @@ public class WebComponentBase<T> : ReactiveInjectableComponentBase<T> where T : 
     public required ProtectedLocalStorage ProtectedLocalStorage { get; set; }
 
     [Inject]
-    public required MongoDbContextBase MongoDbContextBase { get; set; }
+    public required MongoEfContext MongoEfContext { get; set; }
 
     [Inject]
     public required ILogger<T> Logger { get; set; }
@@ -31,5 +32,4 @@ public class WebComponentBase<T> : ReactiveInjectableComponentBase<T> where T : 
 
     [Inject]
     protected NotificationService NotificationService { get; set; }
-
 }

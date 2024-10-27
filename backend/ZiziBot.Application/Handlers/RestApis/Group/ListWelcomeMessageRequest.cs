@@ -5,7 +5,8 @@ namespace ZiziBot.Application.Handlers.RestApis.Group;
 
 public class ListWelcomeMessageRequest : ApiRequestBase<List<WelcomeMessageResponse>>
 {
-    [FromQuery] public long ChatId { get; set; }
+    [FromQuery]
+    public long ChatId { get; set; }
 }
 
 public class WelcomeMessageResponse
@@ -24,7 +25,7 @@ public class WelcomeMessageResponse
 
 public class ListWelcomeMessageHandler(
     DataFacade dataFacade
-) : IRequestHandler<ListWelcomeMessageRequest, ApiResponseBase<List<WelcomeMessageResponse>>>
+) : IApiRequestHandler<ListWelcomeMessageRequest, List<WelcomeMessageResponse>>
 {
     public async Task<ApiResponseBase<List<WelcomeMessageResponse>>> Handle(ListWelcomeMessageRequest request, CancellationToken cancellationToken)
     {

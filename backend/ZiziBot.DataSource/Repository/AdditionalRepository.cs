@@ -1,16 +1,16 @@
-﻿using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb;
-using ZiziBot.DataSource.MongoDb.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
-public class AdditionalRepository(MongoDbContextBase mongoDbContextBase)
+public class AdditionalRepository(MongoEfContext mongoDbContextBase)
 {
     public async Task<TonjooAwbEntity?> GetStoredAwb(string courier, string awb)
     {
         var awbInfo = await mongoDbContextBase.TonjooAwb
             .Where(entity => entity.Awb == awb)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         return awbInfo;
@@ -22,7 +22,7 @@ public class AdditionalRepository(MongoDbContextBase mongoDbContextBase)
             Awb = detail.Code,
             Courier = detail.Kurir.FirstOrDefault("N/A").ToLower(),
             Detail = detail,
-            Status = (int)EventStatus.Complete
+            Status = EventStatus.Complete
         });
 
         await mongoDbContextBase.SaveChangesAsync();

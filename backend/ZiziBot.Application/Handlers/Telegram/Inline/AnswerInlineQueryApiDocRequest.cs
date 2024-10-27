@@ -14,10 +14,13 @@ public class AnswerInlineQueryApiDocBotRequestModel : BotRequestBase
 public class AnswerInlineQueryApiDocRequestHandler(
     ILogger<AnswerInlineQueryApiDocRequestHandler> logger,
     ServiceFacade serviceFacade
-) : IRequestHandler<AnswerInlineQueryApiDocBotRequestModel, BotResponseBase>
+)
+    : IBotRequestHandler<AnswerInlineQueryApiDocBotRequestModel>
 {
-    public async Task<BotResponseBase> Handle(AnswerInlineQueryApiDocBotRequestModel request,
-        CancellationToken cancellationToken)
+    public async Task<BotResponseBase> Handle(
+        AnswerInlineQueryApiDocBotRequestModel request,
+        CancellationToken cancellationToken
+    )
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
@@ -78,7 +81,7 @@ public class AnswerInlineQueryApiDocRequestHandler(
                 return fields;
             });
 
-        var learnMore = "https://docs.zizibot.winten.my.id/features/inline-query";
+        var learnMore = "https://docs.zizibot.azhe.my.id/features/inline-query";
         var learnMoreContent = $"Silakan mauskkan nama method/typw";
 
 

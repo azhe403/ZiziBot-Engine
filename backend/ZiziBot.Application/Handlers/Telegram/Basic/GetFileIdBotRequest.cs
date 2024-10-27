@@ -7,7 +7,7 @@ public class GetFileIdBotRequest : BotRequestBase
 
 public class GetFileIdHandler(
     ServiceFacade serviceFacade
-) : IRequestHandler<GetFileIdBotRequest, BotResponseBase>
+) : IBotRequestHandler<GetFileIdBotRequest>
 {
     public async Task<BotResponseBase> Handle(GetFileIdBotRequest request, CancellationToken cancellationToken)
     {

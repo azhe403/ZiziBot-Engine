@@ -1,11 +1,11 @@
-﻿using MongoDB.Bson;
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb;
-using ZiziBot.DataSource.MongoDb.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
+using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
-public class GroupRepository(MongoDbContextBase mongoDbContext, ICacheService cacheService)
+public class GroupRepository(MongoEfContext mongoDbContext, ICacheService cacheService)
 {
     public async Task<WelcomeMessageDto?> GetWelcomeMessageById(string welcomeId)
     {
@@ -33,7 +33,7 @@ public class GroupRepository(MongoDbContextBase mongoDbContext, ICacheService ca
             Media = query.Media,
             DataType = query.DataType,
             DataTypeName = ((CommonMediaType)query.DataType).ToString(),
-            Status = query.Status,
+            Status = (int)query.Status,
             StatusName = ((EventStatus)query.Status).ToString()
         };
 
@@ -43,12 +43,12 @@ public class GroupRepository(MongoDbContextBase mongoDbContext, ICacheService ca
     public async Task<List<ChatAdminEntity>> GetChatAdminByUserId(long userId, bool evictAfter = false)
     {
         var cache = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.CHAT_ADMIN + userId,
+            CacheKey.CHAT_ADMIN + userId,
             evictAfter: evictAfter,
             action: async () => {
                 var listChatAdmin = await mongoDbContext.ChatAdmin.AsNoTracking()
                     .Where(entity => entity.UserId == userId)
-                    .Where(entity => entity.Status == (int)EventStatus.Complete)
+                    .Where(entity => entity.Status == EventStatus.Complete)
                     .ToListAsync();
 
                 return listChatAdmin;
@@ -61,7 +61,7 @@ public class GroupRepository(MongoDbContextBase mongoDbContext, ICacheService ca
     {
         var welcomeMessage = await mongoDbContext.WelcomeMessage
             .Where(e => e.ChatId == chatId)
-            .Where(e => e.Status == (int)EventStatus.Complete)
+            .Where(e => e.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         return welcomeMessage;

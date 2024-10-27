@@ -9,7 +9,8 @@ namespace ZiziBot.Application.Handlers.RestApis.Note;
 
 public class SaveNoteRequest : ApiRequestBase<bool>
 {
-    [FromBody] public SaveNoteRequestModel Model { get; set; }
+    [FromBody]
+    public SaveNoteRequestModel Model { get; set; }
 }
 
 public class SaveNoteRequestModel
@@ -41,7 +42,7 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
 public class CreateNoteHandler(
     IHttpContextAccessor httpContextAccessor,
     ServiceFacade serviceFacade
-) : IRequestHandler<SaveNoteRequest, ApiResponseBase<bool>>
+) : IApiRequestHandler<SaveNoteRequest, bool>
 {
     public async Task<ApiResponseBase<bool>> Handle(SaveNoteRequest request, CancellationToken cancellationToken)
     {

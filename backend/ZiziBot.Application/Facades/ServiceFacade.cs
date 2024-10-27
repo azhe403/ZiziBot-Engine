@@ -1,11 +1,9 @@
-﻿using Hangfire;
-using ZiziBot.Interfaces;
+﻿using ZiziBot.Interfaces;
 
 namespace ZiziBot.Application.Facades;
 
 public class ServiceFacade(
     IMediator mediator,
-    IRecurringJobManager recurringJobManager,
     ICacheService cacheService,
     MediatorService mediatorService,
     TelegramService telegramService,
@@ -22,7 +20,6 @@ public class ServiceFacade(
 )
 {
     public IMediator Mediator { get; } = mediator;
-    public IRecurringJobManager RecurringJobManager { get; } = recurringJobManager;
     public ICacheService CacheService { get; } = cacheService;
     public MediatorService MediatorService { get; } = mediatorService;
     public TelegramService TelegramService { get; } = telegramService;

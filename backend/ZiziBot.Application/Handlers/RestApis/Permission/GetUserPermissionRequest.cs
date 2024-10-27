@@ -1,8 +1,7 @@
 namespace ZiziBot.Application.Handlers.RestApis.Permission;
 
 public class GetUserPermissionRequest : ApiRequestBase<GetUserPermissionResponse>
-{
-}
+{ }
 
 public class GetUserPermissionResponse
 {
@@ -16,7 +15,7 @@ public class UserPermission
     public string ChatTitle { get; set; }
 }
 
-public class GetUserPermissionHandler : IRequestHandler<GetUserPermissionRequest, ApiResponseBase<GetUserPermissionResponse>>
+public class GetUserPermissionHandler : IApiRequestHandler<GetUserPermissionRequest, GetUserPermissionResponse>
 {
     public Task<ApiResponseBase<GetUserPermissionResponse>> Handle(GetUserPermissionRequest request, CancellationToken cancellationToken)
     {

@@ -20,11 +20,13 @@ public class ProjectTool
     {
         var buildProps = "Directory.Build.props";
         var baseDirectory = Directory.GetCurrentDirectory();
+        var jan2000 = new DateTime(2000, 1, 1);
+        var currentDate = DateTime.Now;
 
-        var majorNumber = DateTime.UtcNow.Year.ToString().Replace("0", "");
-        var minorNumber = DateTime.UtcNow.Month;
-        var buildNumber = VersionUtil.GetBuildNumber();
-        var revNumber = VersionUtil.GetRevNumber();
+        var majorNumber = currentDate.Year.ToString().Replace("0", "");
+        var minorNumber = currentDate.Month;
+        var buildNumber = (currentDate - jan2000).Days;
+        var revNumber = TimeSpan.Parse(currentDate.ToString("h:mm:ss")).TotalSeconds;
         var projectVersion = $"{majorNumber}.{minorNumber}.{buildNumber}.{revNumber}";
 
         // Environment.SetEnvironmentVariable("VERSION_NUMBER", projectVersion);
@@ -41,6 +43,7 @@ public class ProjectTool
                 {
                     RunRecursive(baseDirectory: baseDirectory, version: projectVersion);
                 }
+
                 break;
             case "RootOnly":
                 Log.Information("Updating {BuildProps}...", buildProps);
@@ -188,6 +191,7 @@ public class ProjectTool
                           projectNode
                               .GetOrCreateElement("PropertyGroup")
                               .GetOrCreateElement(versionElement);
+
         versionNode.SetValue(version);
         File.WriteAllText(csprojFile, document.ToString());
     }

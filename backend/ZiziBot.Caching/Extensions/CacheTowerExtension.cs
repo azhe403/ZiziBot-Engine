@@ -1,7 +1,4 @@
-using System.Text.Json;
-using CacheTower.Providers.Database.MongoDB;
-using CacheTower.Providers.FileSystem;
-using CacheTower.Providers.Redis;
+using CacheTower;
 using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -12,6 +9,10 @@ namespace ZiziBot.Caching.Extensions;
 
 public static class CacheTowerExtension
 {
+    static ICacheSerializer CurrentSerializer => new SystemTextJsonCacheSerializer(new() {
+        WriteIndented = true
+    });
+
     public static IServiceCollection AddCacheTower(this IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
@@ -33,7 +34,7 @@ public static class CacheTowerExtension
         return services;
     }
 
-    private static ICacheStackBuilder ConfigureRedisCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    static ICacheStackBuilder ConfigureRedisCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
     {
         if (!cacheConfig.UseRedis)
             return builder;
@@ -41,37 +42,41 @@ public static class CacheTowerExtension
         if (string.IsNullOrEmpty(cacheConfig.RedisConnection))
             return builder;
 
-        builder.CacheLayers.Add(new CacheTowerRedisProvider(
-            connectionString: cacheConfig.RedisConnection,
-            options: new RedisCacheLayerOptions(
-                new SystemTextJsonCacheSerializer(new JsonSerializerOptions() {
-                    WriteIndented = true
-                })
+        builder.CacheLayers.Add(new RedisLayerProvider(
+            cacheConfig.RedisConnection,
+            new(
+                CurrentSerializer,
+                PrefixRoot: cacheConfig.PrefixRoot
             )
         ));
 
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureFileCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    static ICacheStackBuilder ConfigureFileCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
     {
         if (!cacheConfig.UseJsonFile)
             return builder;
 
         builder.AddFileCacheLayer(
-            new FileCacheLayerOptions(
-                DirectoryPath: PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
-                Serializer: new SystemTextJsonCacheSerializer(new JsonSerializerOptions() {
-                    WriteIndented = true
-                })
+            new(
+                PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
+                CurrentSerializer
             )
         );
 
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureFirebaseCacheLayer(this ICacheStackBuilder builder,
-        CacheConfig cacheConfig)
+    static ICacheStackBuilder ConfigureJsonCacheLayer(this ICacheStackBuilder builder)
+    {
+        return builder;
+    }
+
+    static ICacheStackBuilder ConfigureFirebaseCacheLayer(
+        this ICacheStackBuilder builder,
+        CacheConfig cacheConfig
+    )
     {
         if (!cacheConfig.UseFirebase)
             return builder;
@@ -81,33 +86,37 @@ public static class CacheTowerExtension
             ServiceAccountJson = cacheConfig.FirebaseServiceAccountJson
         };
 
-        builder.CacheLayers.Add(new CacheTowerFirebaseProvider(firebaseOptions));
+        builder.CacheLayers.Add(new FirebaseLayerProvider(firebaseOptions));
 
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureSqliteCacheLayer(this ICacheStackBuilder builder,
-        CacheConfig cacheConfig)
+    static ICacheStackBuilder ConfigureSqliteCacheLayer(
+        this ICacheStackBuilder builder,
+        CacheConfig cacheConfig
+    )
     {
         if (!cacheConfig.UseSqlite)
             return builder;
 
         var dbPath = PathConst.CACHE_TOWER_SQLITE_PATH.EnsureDirectory();
 
-        builder.CacheLayers.Add(new CacheTowerSqliteProvider(dbPath));
+        builder.CacheLayers.Add(new SqliteLayerProvider(dbPath));
 
         return builder;
     }
 
-    private static ICacheStackBuilder ConfigureMongoDbCacheLayer(this ICacheStackBuilder builder,
-        CacheConfig cacheConfig)
+    static ICacheStackBuilder ConfigureMongoDbCacheLayer(
+        this ICacheStackBuilder builder,
+        CacheConfig cacheConfig
+    )
     {
         if (!cacheConfig.UseMongoDb)
             return builder;
 
         var dbPath = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING);
 
-        builder.CacheLayers.Add(new MongoDbCacheLayer(MongoDbConnection.FromConnectionString(dbPath)));
+        builder.AddMongoDbCacheLayer(MongoDbConnection.FromConnectionString(dbPath));
 
         return builder;
     }

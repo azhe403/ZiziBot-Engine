@@ -1,4 +1,5 @@
 // Global using directives
+
 global using Blazored.LocalStorage;
 global using MediatR;
 global using Microsoft.AspNetCore.Components;
@@ -16,8 +17,6 @@ global using ZiziBot.Console.Extensions;
 global using ZiziBot.Console.Middleware;
 global using ZiziBot.Console.ViewModels;
 global using ZiziBot.Contracts.Dtos;
-global using ZiziBot.DataSource.MongoDb;
-global using ZiziBot.DataSource.MongoDb.Entities;
 global using ZiziBot.DataSource.Repository;
 global using ZiziBot.Parsers;
 global using ZiziBot.Utils;

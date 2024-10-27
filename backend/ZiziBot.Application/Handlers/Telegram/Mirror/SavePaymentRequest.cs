@@ -15,7 +15,7 @@ public class SavePaymentRequestHandler(
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<SavePaymentBotRequestModel, BotResponseBase>
+    : IBotRequestHandler<SavePaymentBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(SavePaymentBotRequestModel request, CancellationToken cancellationToken)
     {

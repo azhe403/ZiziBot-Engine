@@ -13,7 +13,7 @@ public class DeleteMessageRequestHandler(
     ILogger<DeleteMessageRequestHandler> logger,
     ServiceFacade serviceFacade
 )
-    : IRequestHandler<DeleteMessageBotRequestModel, BotResponseBase>
+    : IBotRequestHandler<DeleteMessageBotRequestModel>
 {
     public async Task<BotResponseBase> Handle(DeleteMessageBotRequestModel request, CancellationToken cancellationToken)
     {
