@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,13 +28,17 @@ public static class RestApiExtension
             .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>(ServiceLifetime.Transient);
 
         services
-            .Configure<ApiBehaviorOptions>(options => { options.SuppressInferBindingSourcesForParameters = true; })
+            .Configure<ApiBehaviorOptions>(options => {
+                options.SuppressInferBindingSourcesForParameters = true;
+            })
             .AddControllers(options => {
                     options.Conventions.Add(new ControllerHidingConvention());
                     options.Conventions.Add(new ActionHidingConvention());
                     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
                 }
             )
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
             .ConfigureApiBehaviorOptions(options => {
                 options.InvalidModelStateResponseFactory = context => {
                     var transactionId = context.HttpContext.Request.Headers[HeaderKey.TransactionId].FirstOrDefault();
@@ -147,7 +152,9 @@ public static class RestApiExtension
         app.ConfigureRateLimiter();
 
         app.UseSwagger();
-        app.UseSwaggerUI(options => { options.DefaultModelsExpandDepth(-1); });
+        app.UseSwaggerUI(options => {
+            options.DefaultModelsExpandDepth(-1);
+        });
 
         return app;
     }
