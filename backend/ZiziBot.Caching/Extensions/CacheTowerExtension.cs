@@ -3,6 +3,7 @@ using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoFramework;
+using ZiziBot.Caching.Json;
 using ZiziBot.Caching.Redis;
 
 namespace ZiziBot.Caching.Extensions;
@@ -21,7 +22,7 @@ public static class CacheTowerExtension
         services.AddCacheStack(
             builder => {
                 builder
-                    .WithCleanupFrequency(TimeSpan.FromDays(1))
+                    .WithCleanupFrequency(TimeSpan.FromMinutes(10))
                     .AddMemoryCacheLayer()
                     .ConfigureFileCacheLayer(cacheConfig)
                     .ConfigureSqliteCacheLayer(cacheConfig)
@@ -58,12 +59,18 @@ public static class CacheTowerExtension
         if (!cacheConfig.UseJsonFile)
             return builder;
 
-        builder.AddFileCacheLayer(
-            new(
-                PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
-                CurrentSerializer
-            )
-        );
+        builder.CacheLayers.Add(
+            new JsonLayerProvider() {
+                DirPath = PathConst.CACHE_TOWER_JSON.EnsureDirectory(),
+                Serializer = CurrentSerializer
+            });
+
+        // builder.AddFileCacheLayer(
+        //     new(
+        //         PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
+        //         CurrentSerializer
+        //     )
+        // );
 
         return builder;
     }

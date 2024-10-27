@@ -7,12 +7,13 @@ namespace ZiziBot.Services;
 public class CacheService(
     ILogger<CacheService> logger,
     IOptions<CacheConfig> cacheConfig,
-    ICacheStack cacheStack)
+    ICacheStack cacheStack
+)
     : ICacheService
 {
-    private readonly CacheConfig _cacheConfig = cacheConfig.Value;
-    private string _expireAfter = "24h";
-    private string _staleAfter = "15s";
+    readonly CacheConfig _cacheConfig = cacheConfig.Value;
+    string _expireAfter = "24h";
+    string _staleAfter = "15s";
 
     public async Task<T> GetOrSetAsync<T>(
         string cacheKey,
@@ -84,7 +85,7 @@ public class CacheService(
             logger.LogError(exception, "Fail to evict cache Key: {Key}", cacheKey);
 
             if (_cacheConfig.UseJsonFile)
-                Directory.Delete(PathConst.CACHE_TOWER_PATH, true);
+                PathConst.CACHE_TOWER_PATH.DeleteDirectory();
         }
     }
 }
