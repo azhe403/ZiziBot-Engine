@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
 using AngleSharp.Html.Dom;
-using CloudflareSolverRe;
 using Flurl;
 using Flurl.Http;
 using ZiziBot.Contracts.Dtos;
+using ZiziBot.Contracts.Enums;
 
 namespace ZiziBot.Services;
 
@@ -11,19 +11,39 @@ public class MirrorPaymentService(
     AppSettingRepository appSettingRepository
 )
 {
-    public async Task<DonationParsedDto> ParseTrakteerWeb(string url)
+    public async Task<ParsedDonationDto> ParseDonation(string orderId)
+    {
+        var parsedDonationDto = await ParseTrakteerWeb(orderId);
+
+        if (parsedDonationDto.IsValid)
+        {
+            return parsedDonationDto;
+        }
+
+        parsedDonationDto = await ParseSaweriaWeb(orderId);
+        if (parsedDonationDto.IsValid)
+        {
+            return parsedDonationDto;
+        }
+
+        parsedDonationDto.Source = DonationSource.Unknown;
+
+        return parsedDonationDto;
+    }
+
+    public async Task<ParsedDonationDto> ParseTrakteerWeb(string url)
     {
         url = url.GetTrakteerUrl();
-        var donationParsedDto = new DonationParsedDto();
+        var parsedDonationDto = new ParsedDonationDto();
         Log.Information("Parsing trakteer url: {Url}", url);
-        var document = await url.OpenUrl(new ClearanceHandler() {
+        var document = await url.OpenUrl(new() {
             ClearanceDelay = 3000
         });
 
         if (document == null)
         {
             Log.Error("Cannot load url: {Url}", url);
-            return donationParsedDto;
+            return parsedDonationDto;
         }
 
         Log.Debug("Web title of Url: {Url} => {Title}", url, document.Title);
@@ -33,7 +53,7 @@ public class MirrorPaymentService(
         if (container == null)
         {
             Log.Information("Not found container for url: {Url}", url);
-            return donationParsedDto;
+            return parsedDonationDto;
         }
 
         Log.Debug("Found container: {Container} in Url: {Url}", container?.ClassName, url);
@@ -49,32 +69,33 @@ public class MirrorPaymentService(
 
         var innerText = mainNode?.Select(x => x.TextContent).Aggregate((s1, s2) => $"{s1}\n{s2}");
 
-        donationParsedDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
-        donationParsedDto.PaymentUrl = url;
-        donationParsedDto.Cendols = cendolCount;
-        donationParsedDto.AdminFees = adminFees.Replace("Rp", "").Trim().Convert<int>();
-        donationParsedDto.Subtotal = subtotal.Replace("Rp", "").Trim().Convert<int>();
-        donationParsedDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
+        parsedDonationDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
+        parsedDonationDto.Source = DonationSource.Trakteer;
+        parsedDonationDto.PaymentUrl = url;
+        parsedDonationDto.Cendols = cendolCount;
+        parsedDonationDto.AdminFees = adminFees.Replace("Rp", "").Trim().Convert<int>();
+        parsedDonationDto.Subtotal = subtotal.Replace("Rp", "").Trim().Convert<int>();
+        parsedDonationDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
 
-        donationParsedDto.PaymentMethod = paymentMethod;
-        donationParsedDto.OrderId = orderId;
-        donationParsedDto.RawText = innerText;
+        parsedDonationDto.PaymentMethod = paymentMethod;
+        parsedDonationDto.OrderId = orderId;
+        parsedDonationDto.RawText = innerText;
 
         Log.Information("Parsed trakteer url: {Url}", url);
 
-        return donationParsedDto;
+        return parsedDonationDto;
     }
 
-    public async Task<DonationParsedDto> ParseSaweriaWeb(string url)
+    public async Task<ParsedDonationDto> ParseSaweriaWeb(string url)
     {
         url = url.GetSaweriaUrl();
-        var donationParsedDto = new DonationParsedDto();
+        var parsedDonationDto = new ParsedDonationDto();
         Log.Information("Parsing saweria url: {Url}", url);
         var document = await url.OpenUrl();
         if (document == null)
         {
             Log.Error("Cannot load url: {Url}", url);
-            return donationParsedDto;
+            return parsedDonationDto;
         }
 
         Log.Debug("Web title of Url: {Url} => {Title}", url, document.Title);
@@ -85,13 +106,14 @@ public class MirrorPaymentService(
         var time = document.QuerySelectorAll<IHtmlInputElement>(".css-1a8pd4a")?.ElementAtOrDefault(1)?.Value;
         var orderId = document.QuerySelectorAll<IHtmlInputElement>(".css-1a8pd4a")?.ElementAtOrDefault(2)?.Value;
 
-        donationParsedDto.OrderId = orderId;
-        donationParsedDto.PaymentUrl = url;
-        donationParsedDto.Subtotal = amount.Replace("Rp", "").Trim().Convert<int>();
-        donationParsedDto.OrderDate = DateTime.ParseExact($"{date} {time}", "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-        donationParsedDto.IsValid = true;
+        parsedDonationDto.OrderId = orderId;
+        parsedDonationDto.PaymentUrl = url;
+        parsedDonationDto.Subtotal = amount.Replace("Rp", "").Trim().Convert<int>();
+        parsedDonationDto.OrderDate = DateTime.ParseExact($"{date} {time}", "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+        parsedDonationDto.IsValid = true;
+        parsedDonationDto.Source = DonationSource.Saweria;
 
-        return donationParsedDto;
+        return parsedDonationDto;
     }
 
     public async Task<TrakteerApiDto> GetTrakteerApi(string url)
