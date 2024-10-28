@@ -46,7 +46,7 @@ public class SubmitDonationHandler(
 
         if (!parsedDonationDto.IsValid)
         {
-            return _response.BadRequest("Tautan Pembayaran tidak valid. Contoh: https://trakteer.id/payment-status/123456");
+            return _response.BadRequest("OrderId tidak valid");
         }
 
         dataFacade.MongoEf.MirrorApproval.Add(new() {

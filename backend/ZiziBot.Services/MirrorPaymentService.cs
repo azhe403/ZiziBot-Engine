@@ -2,17 +2,20 @@
 using AngleSharp.Html.Dom;
 using Flurl;
 using Flurl.Http;
+using Microsoft.Extensions.Logging;
 using ZiziBot.Contracts.Dtos;
 using ZiziBot.Contracts.Enums;
 
 namespace ZiziBot.Services;
 
 public class MirrorPaymentService(
+    ILogger<MirrorPaymentService> logger,
     AppSettingRepository appSettingRepository
 )
 {
     public async Task<ParsedDonationDto> ParseDonation(string orderId)
     {
+        logger.LogInformation("Checking donation for OrderId: {OrderId}", orderId);
         var parsedDonationDto = await ParseTrakteerWeb(orderId);
 
         if (parsedDonationDto.IsValid)
@@ -20,12 +23,14 @@ public class MirrorPaymentService(
             return parsedDonationDto;
         }
 
+        logger.LogDebug("Continue to Saweria for OrderId: {OrderId}", orderId);
         parsedDonationDto = await ParseSaweriaWeb(orderId);
         if (parsedDonationDto.IsValid)
         {
             return parsedDonationDto;
         }
 
+        logger.LogWarning("Unknown donation source for OrderId: {OrderId}", orderId);
         parsedDonationDto.Source = DonationSource.Unknown;
 
         return parsedDonationDto;
@@ -70,15 +75,19 @@ public class MirrorPaymentService(
         var innerText = mainNode?.Select(x => x.TextContent).Aggregate((s1, s2) => $"{s1}\n{s2}");
 
         parsedDonationDto.IsValid = innerText?.Contains("Pembayaran Berhasil") ?? false;
-        parsedDonationDto.Source = DonationSource.Trakteer;
+        parsedDonationDto.OrderId = orderId;
         parsedDonationDto.PaymentUrl = url;
+
+        if (orderId.IsNullOrEmpty())
+            return parsedDonationDto;
+
+        parsedDonationDto.Source = DonationSource.Trakteer;
         parsedDonationDto.Cendols = cendolCount;
         parsedDonationDto.AdminFees = adminFees.Replace("Rp", "").Trim().Convert<int>();
         parsedDonationDto.Subtotal = subtotal.Replace("Rp", "").Trim().Convert<int>();
         parsedDonationDto.OrderDate = DateTime.ParseExact(orderDate ?? string.Empty, "dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
 
         parsedDonationDto.PaymentMethod = paymentMethod;
-        parsedDonationDto.OrderId = orderId;
         parsedDonationDto.RawText = innerText;
 
         Log.Information("Parsed trakteer url: {Url}", url);
@@ -106,8 +115,13 @@ public class MirrorPaymentService(
         var time = document.QuerySelectorAll<IHtmlInputElement>(".css-1a8pd4a")?.ElementAtOrDefault(1)?.Value;
         var orderId = document.QuerySelectorAll<IHtmlInputElement>(".css-1a8pd4a")?.ElementAtOrDefault(2)?.Value;
 
+
         parsedDonationDto.OrderId = orderId;
         parsedDonationDto.PaymentUrl = url;
+
+        if (orderId.IsNullOrEmpty())
+            return parsedDonationDto;
+
         parsedDonationDto.Subtotal = amount.Replace("Rp", "").Trim().Convert<int>();
         parsedDonationDto.OrderDate = DateTime.ParseExact($"{date} {time}", "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
         parsedDonationDto.IsValid = true;
