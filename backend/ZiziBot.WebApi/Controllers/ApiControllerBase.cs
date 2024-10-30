@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,10 @@ public class ApiControllerBase : ControllerBase
 
     protected async Task<IActionResult> SendRequest<T>(ApiRequestBase<T> request, ExecutionStrategy executionStrategy = ExecutionStrategy.Instant)
     {
+        var stopwatch = Stopwatch.StartNew();
         var result = await MediatorService.EnqueueAsync(request, executionStrategy);
+        result.ExecutionTime = stopwatch.Elapsed;
+        stopwatch.Stop();
 
         return SwitchStatus(result);
     }

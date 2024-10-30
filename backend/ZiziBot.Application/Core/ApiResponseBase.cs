@@ -11,6 +11,8 @@ public class ApiResponseBase<TResult>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? TransactionId { get; set; }
 
+    public TimeSpan ExecutionTime { get; set; }
+
     public string Message { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
