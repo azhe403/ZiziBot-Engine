@@ -14,6 +14,7 @@ public static class MediatRExtension
             configuration =>
                 configuration.RegisterServicesFromAssemblyContaining<PingRequestHandler>()
                     .AddOpenBehavior(typeof(LoggingPipelineBehaviour<,>))
+                    .AddOpenBehavior(typeof(FeatureControlPipelineBehavior<,>))
                     .AddOpenBehavior(typeof(CheckUserRolePipelineBehavior<,>))
                     .AddOpenBehavior(typeof(CheckRestrictionPipelineBehavior<,>))
                     .AddOpenBehavior(typeof(CheckMessagePipelineBehavior<,>))

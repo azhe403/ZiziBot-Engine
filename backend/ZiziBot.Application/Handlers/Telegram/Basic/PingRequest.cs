@@ -36,6 +36,6 @@ public class PingRequestHandler(
             // );
         }
 
-        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString(), replyMarkup);
+        return await serviceFacade.TelegramService.SendMessageAsync(htmlMessage.ToString(), replyMarkup);
     }
 }
