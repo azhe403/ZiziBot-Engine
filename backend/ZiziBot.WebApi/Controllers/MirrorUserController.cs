@@ -37,9 +37,9 @@ public class MirrorUserController : ApiControllerBase
         return await SendRequest(request);
     }
 
-    [HttpPost("submit-payment-url")]
+    [HttpPost("submit-donation")]
     [AccessFilter(checkHeader: true)]
-    public async Task<IActionResult> SubmitPaymentUrl(SubmitPaymentUrlRequest request)
+    public async Task<IActionResult> SubmitDonation(SubmitDonationRequest request)
     {
         return await SendRequest(request);
     }

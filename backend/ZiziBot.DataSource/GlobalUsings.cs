@@ -7,6 +7,4 @@ global using ZiziBot.Contracts.Dtos;
 global using ZiziBot.Contracts.Enums;
 global using ZiziBot.Interfaces;
 global using ZiziBot.Parsers;
-global using ZiziBot.Types.Vendor.BinderByte;
-global using ZiziBot.Types.Vendor.TonjooStudio;
 global using ZiziBot.Utils;

@@ -1,8 +1,9 @@
 namespace ZiziBot.Contracts.Dtos;
 
-public class DonationParsedDto
+public class ParsedDonationDto
 {
     public bool IsValid { get; set; }
+    public DonationSource Source { get; set; }
     public string? OrderId { get; set; }
     public string PaymentUrl { get; set; }
     public DateTime OrderDate { get; set; }

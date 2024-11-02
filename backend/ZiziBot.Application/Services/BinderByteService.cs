@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using ZiziBot.DataSource.MongoEf.Entities;
+using Data = ZiziBot.Types.Vendor.BinderByte.Data;
 
 namespace ZiziBot.Application.Services;
 
@@ -44,7 +45,7 @@ public class BinderByteService(
                 sb.AppendLine("<b>Kesalahan: </b>400")
                     .Append("<b>Pesan: </b>");
 
-                if (message.Contains("data not found", StringComparison.CurrentCultureIgnoreCase))
+                if (message?.Contains("data not found", StringComparison.CurrentCultureIgnoreCase) ?? false)
                 {
                     sb.Append("Sepertinya no resi tidak ada");
                 }
@@ -57,7 +58,7 @@ public class BinderByteService(
                 return sb.ToString();
             }
 
-            awbInfo = result.AwbInfo;
+            awbInfo = result.Data;
         }
 
         var summary = awbInfo.Summary;
@@ -103,7 +104,7 @@ public class BinderByteService(
         return collection;
     }
 
-    public async Task SaveAwbInfo(AwbInfo data)
+    public async Task SaveAwbInfo(Data data)
     {
         dataFacade.MongoEf.BinderByteCheckAwb.Add(new() {
             Awb = data.Summary.Awb,
@@ -115,7 +116,7 @@ public class BinderByteService(
         await dataFacade.MongoEf.SaveChangesAsync();
     }
 
-    public async Task<ApiResponse> CekResiRawAsync(string courier, string awb)
+    public async Task<RootResponse> CekResiRawAsync(string courier, string awb)
     {
         var result = await cacheService.GetOrSetAsync(
             $"cek-resi/{courier}/{awb}",
@@ -124,11 +125,11 @@ public class BinderByteService(
             action: async () => {
                 var response = await CekResiRawCoreAsync(courier, awb);
 
-                var status = response.AwbInfo?.Summary?.Status;
+                var status = response.Data?.Summary?.Status;
 
                 if (status?.Contains("delivered", StringComparison.CurrentCultureIgnoreCase) ?? false)
                 {
-                    await SaveAwbInfo(response.AwbInfo);
+                    await SaveAwbInfo(response.Data);
                 }
 
                 return response;
@@ -138,7 +139,7 @@ public class BinderByteService(
         return result;
     }
 
-    public async Task<ApiResponse> CekResiRawCoreAsync(string courier, string awb)
+    public async Task<RootResponse> CekResiRawCoreAsync(string courier, string awb)
     {
         var res = await UrlConst.API_BINDERBYTE
             .AppendPathSegment("track")
@@ -146,7 +147,7 @@ public class BinderByteService(
             .SetQueryParam("courier", courier)
             .SetQueryParam("awb", awb)
             .AllowHttpStatus("400")
-            .GetJsonAsync<ApiResponse>();
+            .GetJsonAsync<RootResponse>();
 
         return res;
     }

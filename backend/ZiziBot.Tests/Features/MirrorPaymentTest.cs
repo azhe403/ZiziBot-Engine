@@ -6,6 +6,19 @@ namespace ZiziBot.Tests.Features;
 public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentService mirrorPaymentService)
 {
     [Theory]
+    [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")] // trakteer
+    [InlineData("65190576-e653-47d2-b472-9a367a54ed23")] // saweria
+    public async Task ParseDonationTest(string url)
+    {
+        var donationParsedDto = await mirrorPaymentService.ParseTrakteerWeb(url);
+
+        donationParsedDto.IsValid.Should().BeTrue();
+        donationParsedDto.CendolCount.Should().BeGreaterThan(0);
+        donationParsedDto.OrderDate.Should().BeMoreThan(default);
+        donationParsedDto.OrderId.Should().NotBeNullOrEmpty();
+    }
+
+    [Theory]
     [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     public async Task TrakteerParserTest(string url)

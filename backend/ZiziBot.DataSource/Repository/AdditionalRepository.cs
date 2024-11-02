@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Types.Vendor.TonjooStudio;
 
 namespace ZiziBot.DataSource.Repository;
 

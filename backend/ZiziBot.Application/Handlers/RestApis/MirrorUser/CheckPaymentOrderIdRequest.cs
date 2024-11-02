@@ -1,29 +1,22 @@
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
-public class CheckPaymentOrderIdRequest : ApiRequestBase<DonationParsedDto>
+public class CheckPaymentOrderIdRequest : ApiRequestBase<ParsedDonationDto>
 {
     public string OrderId { get; set; }
 }
 
 public class CheckPaymentOrderIdHandler(
     ServiceFacade serviceFacade
-) : IApiRequestHandler<CheckPaymentOrderIdRequest, DonationParsedDto>
+) : IApiRequestHandler<CheckPaymentOrderIdRequest, ParsedDonationDto>
 {
-    private readonly ApiResponseBase<DonationParsedDto> _response = new();
+    private readonly ApiResponseBase<ParsedDonationDto> _response = new();
 
-    public async Task<ApiResponseBase<DonationParsedDto>> Handle(CheckPaymentOrderIdRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResponseBase<ParsedDonationDto>> Handle(CheckPaymentOrderIdRequest request, CancellationToken cancellationToken)
     {
-        var parsedTrakteer = await serviceFacade.MirrorPaymentService.ParseTrakteerWeb(request.OrderId);
+        var parsedDonationDto = await serviceFacade.MirrorPaymentService.ParseDonation(request.OrderId);
 
-        if (parsedTrakteer.IsValid)
-        {
-            return _response.Success("Get OrderId succeed", parsedTrakteer);
-        }
-
-        var parsedSaweria = await serviceFacade.MirrorPaymentService.ParseSaweriaWeb(request.OrderId);
-
-        return parsedSaweria.IsValid ?
-            _response.Success("Get OrderId succeed", parsedSaweria) :
+        return parsedDonationDto.IsValid ?
+            _response.Success("Get OrderId succeed", parsedDonationDto) :
             _response.BadRequest("OrderId not found");
     }
 }

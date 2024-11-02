@@ -36,8 +36,6 @@ public class AntiSpamService(
         antispamDto.CasRecord = (await taskCheckCombotAntiSpam).CasRecord;
         antispamDto.SpamWatchRecord = (await taskCheckSpamWatch).SpamWatchRecord;
 
-        antispamDto.IsBanAny = antispamDto.IsBanEss || antispamDto.IsBanCasFed || antispamDto.IsBanSwFed;
-
         return antispamDto;
     }
 

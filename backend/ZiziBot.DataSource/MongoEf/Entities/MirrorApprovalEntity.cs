@@ -1,6 +1,8 @@
-namespace ZiziBot.DataSource.MongoDb.Entities;
+using MongoDB.EntityFrameworkCore;
 
-[Table("MirrorApproval")]
+namespace ZiziBot.DataSource.MongoEf.Entities;
+
+[Collection("MirrorApproval")]
 public class MirrorApprovalEntity : EntityBase
 {
     public long UserId { get; set; }

@@ -17,6 +17,34 @@ public static class DirUtil
         return path;
     }
 
+    public static string DeleteDirectory(this string path)
+    {
+        try
+        {
+            Directory.Delete(path, true);
+        }
+        catch (Exception e)
+        {
+            Log.Debug("Failed to delete directory: {Path} with error: {e}", path, e);
+        }
+
+        return path;
+    }
+
+    public static string DeleteFile(this string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception e)
+        {
+            Log.Debug("Failed to delete directory: {Path} with error: {e}", path, e);
+        }
+
+        return path;
+    }
+
     public static string GetCurrentDirectory(this string path)
     {
         var dirName = new DirectoryInfo(path).Name;

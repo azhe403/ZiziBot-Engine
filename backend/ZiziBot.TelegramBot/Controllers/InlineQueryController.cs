@@ -50,6 +50,26 @@ public class InlineQueryController(
         });
     }
 
+    [InlineQuery("anteraja")]
+    [InlineQuery("jne")]
+    [InlineQuery("jnt")]
+    [InlineQuery("lion")]
+    [InlineQuery("ncs")]
+    [InlineQuery("tiki")]
+    [InlineQuery("trawl")]
+    [InlineQuery("trawlbens")]
+    [InlineQuery("sicepat")]
+    [InlineQuery("wahana")]
+    public async Task SearchResi(CommandData data)
+    {
+        await mediatorService.EnqueueAsync(new CheckAwbInlineRequest() {
+            BotToken = data.BotToken,
+            Message = data.Message,
+            InlineQuery = data.InlineQuery,
+            ReplyMessage = true,
+        });
+    }
+
     public async Task WebSearch(CommandData data)
     { }
 }

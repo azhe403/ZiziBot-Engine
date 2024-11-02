@@ -10,10 +10,10 @@ namespace ZiziBot.Parsers.WebParser;
 public static class WebParserUtil
 {
     [Obsolete("Use ParseTrakteerWeb from MirrorPaymentService")]
-    public static async Task<DonationParsedDto> ParseTrakteerWeb(this string url)
+    public static async Task<ParsedDonationDto> ParseTrakteerWeb(this string url)
     {
         url = url.GetTrakteerUrl();
-        var trakteerParsedDto = new DonationParsedDto();
+        var trakteerParsedDto = new ParsedDonationDto();
         Log.Information("Parsing trakteer url: {Url}", url);
         var document = await url.OpenUrl(new ClearanceHandler() {
             ClearanceDelay = 3000
@@ -67,10 +67,10 @@ public static class WebParserUtil
     }
 
     [Obsolete("Use ParseSaweriaWeb from MirrorPaymentService")]
-    public static async Task<DonationParsedDto> ParseSaweriaWeb(this string url)
+    public static async Task<ParsedDonationDto> ParseSaweriaWeb(this string url)
     {
         url = url.GetSaweriaUrl();
-        var trakteerParsedDto = new DonationParsedDto();
+        var trakteerParsedDto = new ParsedDonationDto();
         Log.Information("Parsing trakteer url: {Url}", url);
         var document = await url.OpenUrl();
         if (document == null)

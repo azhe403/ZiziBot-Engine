@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.DataSource.MongoDb.Entities;
+﻿using ZiziBot.Types.Vendor.TonjooStudio;
+
+namespace ZiziBot.DataSource.MongoDb.Entities;
 
 [Table("Tonjoo.Awb")]
 public class TonjooAwbEntity : EntityBase
