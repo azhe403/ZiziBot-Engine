@@ -1,7 +1,7 @@
 using Hangfire;
 using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 using MoreLinq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -39,11 +39,11 @@ public class FetchRssHandler(
                 return false;
             }
 
-            var latestHistory = await dataFacade.MongoDb.RssHistory.AsNoTracking()
+            var latestHistory = await dataFacade.MongoEf.RssHistory.AsNoTracking()
                 .Where(entity => entity.ChatId == request.ChatId)
                 .Where(entity => entity.ThreadId == request.ThreadId)
                 .Where(entity => entity.RssUrl == request.RssUrl)
-                .Where(entity => entity.Status == (int)EventStatus.Complete)
+                .Where(entity => entity.Status == EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (latestHistory != null)
@@ -112,7 +112,7 @@ public class FetchRssHandler(
                 }
             }
 
-            dataFacade.MongoDb.RssHistory.Add(new() {
+            dataFacade.MongoEf.RssHistory.Add(new() {
                 ChatId = request.ChatId,
                 ThreadId = request.ThreadId,
                 RssUrl = request.RssUrl,
@@ -120,17 +120,17 @@ public class FetchRssHandler(
                 Url = latestArticle.Link,
                 Author = latestArticle.Author,
                 PublishDate = latestArticle.PublishingDate.GetValueOrDefault(DateTime.Now),
-                Status = (int)EventStatus.Complete
+                Status = EventStatus.Complete
             });
         }
         catch (Exception exception)
         {
             if (exception.IsRssBetterDisabled())
             {
-                var findRssSetting = await dataFacade.MongoDb.RssSetting
+                var findRssSetting = await dataFacade.MongoEf.RssSetting
                     .Where(entity => entity.ChatId == request.ChatId)
                     .Where(entity => entity.RssUrl == request.RssUrl)
-                    .Where(entity => entity.Status == (int)EventStatus.Complete)
+                    .Where(entity => entity.Status == EventStatus.Complete)
                     .ToListAsync(cancellationToken);
 
                 var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
@@ -139,7 +139,7 @@ public class FetchRssHandler(
                     logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}",
                         rssSetting.ChatId, rssSetting.RssUrl, exceptionMessage);
 
-                    rssSetting.Status = (int)EventStatus.InProgress;
+                    rssSetting.Status = EventStatus.InProgress;
                     rssSetting.LastErrorMessage = exceptionMessage;
 
                     RecurringJob.RemoveIfExists(rssSetting.CronJobId);
@@ -152,7 +152,7 @@ public class FetchRssHandler(
             }
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return true;
     }

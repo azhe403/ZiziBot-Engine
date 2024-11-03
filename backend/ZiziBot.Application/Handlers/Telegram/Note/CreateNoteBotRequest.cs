@@ -1,6 +1,6 @@
 using FluentValidation;
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
@@ -50,13 +50,11 @@ public class CreateNoteHandler(
             await serviceFacade.TelegramService.SendMessageText("Balas sebuah pesan yang akan disimpan");
         }
 
-        var note = await dataFacade.MongoDb.Note
-            .FirstOrDefaultAsync(entity =>
-                    entity.ChatId == request.ChatIdentifier &&
-                    entity.Query == request.Query &&
-                    entity.Status == (int)EventStatus.Complete,
-                cancellationToken: cancellationToken
-            );
+        var note = await dataFacade.MongoEf.Note
+            .Where(entity => entity.ChatId == request.ChatIdentifier)
+            .Where(entity => entity.Query == request.Query)
+            .Where(entity => entity.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var btnFromMessage = request.Message.GetRawReplyMarkup();
 
@@ -75,13 +73,12 @@ public class CreateNoteHandler(
                 note.FileId = request.FileId;
                 note.RawButton = request.RawButton;
                 note.DataType = request.DataType;
-                note.Status = (int)EventStatus.Complete;
+                note.Status = EventStatus.Complete;
                 note.TransactionId = request.TransactionId;
             }
             else
             {
-                htmlMessage.Text(
-                    "Catatan sudah ada, silahkan gunakan nama lainnya. Atau gunakan perintah /renote untuk memperbarui catatan");
+                htmlMessage.Text("Catatan sudah ada, silahkan gunakan nama lainnya. Atau gunakan perintah /renote untuk memperbarui catatan");
 
                 return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
             }
@@ -90,7 +87,7 @@ public class CreateNoteHandler(
         {
             await serviceFacade.TelegramService.SendMessageText("Sedang membuat catatan...");
 
-            dataFacade.MongoDb.Note.Add(new NoteEntity() {
+            dataFacade.MongoEf.Note.Add(new NoteEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 Query = request.Query,
@@ -98,12 +95,12 @@ public class CreateNoteHandler(
                 FileId = request.FileId,
                 RawButton = request.RawButton,
                 DataType = request.DataType,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete,
                 TransactionId = request.TransactionId
             });
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         await serviceFacade.TelegramService.EditMessageText("Memperbarui cache..");
         await serviceFacade.NoteService.GetAllByChat(request.ChatIdentifier, true);

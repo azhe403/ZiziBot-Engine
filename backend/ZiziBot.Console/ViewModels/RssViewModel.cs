@@ -1,6 +1,6 @@
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 using ZiziBot.Application.Facades;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Console.ViewModels;
 
@@ -25,7 +25,7 @@ public class RssViewModel(
 
     public async Task<List<RssSettingEntity>> GetRss(long chatId)
     {
-        var data = await dataFacade.MongoDb.RssSetting.AsNoTracking()
+        var data = await dataFacade.MongoEf.RssSetting.AsNoTracking()
             .Where(entity => entity.ChatId == chatId)
             .ToListAsync();
 
@@ -34,7 +34,7 @@ public class RssViewModel(
 
     public async Task<List<RssHistoryEntity>> GetRssHistory(long chatId)
     {
-        var data = await dataFacade.MongoDb.RssHistory.AsNoTracking()
+        var data = await dataFacade.MongoEf.RssHistory.AsNoTracking()
             .Where(entity => entity.ChatId == chatId)
             .ToListAsync();
 

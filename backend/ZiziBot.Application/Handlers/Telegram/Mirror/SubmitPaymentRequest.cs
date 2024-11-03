@@ -1,7 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 using Telegram.Bot.Types.ReplyMarkups;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
@@ -96,9 +96,9 @@ public class SubmitPaymentBotRequestHandler(
                 "Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
         }
 
-        var mirrorApproval = await dataFacade.MongoDb.MirrorApproval
+        var mirrorApproval = await dataFacade.MongoEf.MirrorApproval
             .Where(entity => entity.OrderId == orderId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (mirrorApproval != null)
@@ -110,7 +110,7 @@ public class SubmitPaymentBotRequestHandler(
             return await serviceFacade.TelegramService.EditMessageText(htmlMessage.ToString(), replyMarkup);
         }
 
-        dataFacade.MongoDb.MirrorApproval.Add(new MirrorApprovalEntity() {
+        dataFacade.MongoEf.MirrorApproval.Add(new MirrorApprovalEntity() {
             UserId = request.UserId,
             PaymentUrl = paymentUrl,
             RawText = trakteerParsedDto.RawText,
@@ -120,33 +120,31 @@ public class SubmitPaymentBotRequestHandler(
             OrderDate = orderDate,
             PaymentMethod = trakteerParsedDto.PaymentMethod,
             OrderId = orderId,
-            Status = (int)EventStatus.Complete,
+            Status = EventStatus.Complete,
             TransactionId = transactionId
         });
 
-        var mirrorUser = await dataFacade.MongoDb.MirrorUsers
+        var mirrorUser = await dataFacade.MongoEf.MirrorUser
             .Where(entity => entity.UserId == userId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var expireDate = DateTime.Now.AddMonths(cendolCount);
 
         if (mirrorUser == null)
         {
-            logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId,
-                expireDate);
+            logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
 
-            dataFacade.MongoDb.MirrorUsers.Add(new MirrorUserEntity() {
+            dataFacade.MongoEf.MirrorUser.Add(new MirrorUserEntity() {
                 UserId = userId,
                 ExpireDate = expireDate,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete,
                 TransactionId = transactionId
             });
         }
         else
         {
-            logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId,
-                expireDate);
+            logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
 
             expireDate = mirrorUser.ExpireDate < DateTime.Now ?
                 expireDate // If expired, will be started from now
@@ -154,11 +152,11 @@ public class SubmitPaymentBotRequestHandler(
                 mirrorUser.ExpireDate.AddMonths(cendolCount); // If not expired, will be extended from expire date
 
             mirrorUser.ExpireDate = expireDate;
-            mirrorUser.Status = (int)EventStatus.Complete;
+            mirrorUser.Status = EventStatus.Complete;
             mirrorUser.TransactionId = transactionId;
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Langganan Mirror").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()
@@ -173,7 +171,6 @@ public class SubmitPaymentBotRequestHandler(
         htmlMessage.Bold("OrderID: ").CodeBr(orderId)
             .Bold("Url: ").Text(paymentUrl);
 
-        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId,
-            threadId: 0);
+        return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString(), chatId: mirrorConfig.ApprovalChannelId, threadId: 0);
     }
 }

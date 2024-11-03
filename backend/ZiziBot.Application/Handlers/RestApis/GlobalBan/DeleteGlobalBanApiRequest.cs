@@ -1,5 +1,5 @@
 using FluentValidation;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 
@@ -24,7 +24,7 @@ public class DeleteGlobalBanApiHandler(
     {
         var response = new ApiResponseBase<bool>();
 
-        var globalBanEntities = await dataFacade.MongoDb.GlobalBan
+        var globalBanEntities = await dataFacade.MongoEf.GlobalBan
             .Where(e => e.UserId == request.UserId)
             .ToListAsync(cancellationToken: cancellationToken);
 
@@ -32,7 +32,7 @@ public class DeleteGlobalBanApiHandler(
             entity.Status = (int)EventStatus.Deleted;
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return response.Success("Global ban deleted.", true);
     }

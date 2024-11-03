@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 using MoreLinq;
 using SharpX.Extensions;
 using Xunit;
@@ -12,8 +12,8 @@ public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSh
     [Fact(Skip = "Deprecated")]
     public async Task FeedCityTest()
     {
-        dataFacade.MongoDb.JadwalSholatOrg_City.RemoveRange(entity => true);
-        await dataFacade.MongoDb.SaveChangesAsync();
+        await dataFacade.MongoEf.JadwalSholatOrg_City.Where(entity => true).ExecuteDeleteAsync();
+        await dataFacade.MongoEf.SaveChangesAsync();
 
         await jadwalSholatOrgSinkService.FeedCity();
     }
@@ -21,7 +21,7 @@ public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSh
     [Fact(Skip = "Deprecated")]
     public async Task FeedScheduleTest()
     {
-        var cities = await dataFacade.MongoDb.JadwalSholatOrg_City.ToListAsync();
+        var cities = await dataFacade.MongoEf.JadwalSholatOrg_City.ToListAsync();
 
         var randomCities = cities.Shuffle().Take(3);
 

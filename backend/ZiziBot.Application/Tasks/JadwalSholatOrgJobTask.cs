@@ -1,5 +1,5 @@
 ﻿using Hangfire;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace ZiziBot.Application.Tasks;
@@ -17,12 +17,12 @@ public class JadwalSholatOrgJobTask(DataFacade dataFacade) : IStartupTask
             cronExpression: TimeUtil.MonthInterval(1)
         );
 
-        var checkCity = await dataFacade.MongoDb.JadwalSholatOrg_City.AsNoTracking()
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+        var checkCity = await dataFacade.MongoEf.JadwalSholatOrg_City.AsNoTracking()
+            .Where(entity => entity.Status == EventStatus.Complete)
             .CountAsync();
 
-        var checkSchedule = await dataFacade.MongoDb.JadwalSholatOrg_Schedule.AsNoTracking()
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+        var checkSchedule = await dataFacade.MongoEf.JadwalSholatOrg_Schedule.AsNoTracking()
+            .Where(entity => entity.Status == EventStatus.Complete)
             .CountAsync();
 
         if (checkCity > 0 || checkSchedule > 0)

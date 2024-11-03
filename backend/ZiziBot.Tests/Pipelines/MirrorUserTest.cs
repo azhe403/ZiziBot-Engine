@@ -1,4 +1,4 @@
-﻿using MongoFramework.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
 using ZiziBot.Application.Facades;
 
@@ -18,15 +18,15 @@ public class MirrorUserTest(
         // Arrange
         var orderId = url.UrlSegment(1, url);
         var bot = await dataFacade.AppSetting.GetBotMain();
-        var payment = await dataFacade.MongoDb.MirrorApproval
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+        var payment = await dataFacade.MongoEf.MirrorApproval
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(entity => entity.OrderId == orderId);
 
         if (payment != null)
         {
             payment.Status = (int)EventStatus.Deleted;
 
-            await dataFacade.MongoDb.SaveChangesAsync();
+            await dataFacade.MongoEf.SaveChangesAsync();
         }
 
         // Assert
@@ -45,15 +45,15 @@ public class MirrorUserTest(
     {
         // Arrange
         var bot = await dataFacade.AppSetting.GetBotMain();
-        var payment = await dataFacade.MongoDb.MirrorApproval
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+        var payment = await dataFacade.MongoEf.MirrorApproval
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(entity => entity.OrderId == url);
 
         if (payment != null)
         {
-            payment.Status = (int)EventStatus.Deleted;
+            payment.Status = EventStatus.Deleted;
 
-            await dataFacade.MongoDb.SaveChangesAsync();
+            await dataFacade.MongoEf.SaveChangesAsync();
         }
 
         // Assert

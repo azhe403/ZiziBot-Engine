@@ -1,5 +1,5 @@
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
-using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
@@ -25,15 +25,15 @@ public class GetMirrorUsersRequestHandler(
 
     public async Task<ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>>> Handle(GetMirrorUsersRequestDto request, CancellationToken cancellationToken)
     {
-        var user = await dataFacade.MongoDb.MirrorUsers
-            .Where(mirrorUser => mirrorUser.Status == (int)EventStatus.Complete)
+        var user = await dataFacade.MongoEf.MirrorUser
+            .Where(mirrorUser => mirrorUser.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         var mirrorUsers = user.Select(mirrorUser => new GetMirrorUserResponseDto {
             Id = mirrorUser.Id,
             UserId = mirrorUser.UserId,
             ExpireDate = mirrorUser.ExpireDate,
-            Status = mirrorUser.Status,
+            Status = (int)mirrorUser.Status,
             TransactionId = mirrorUser.TransactionId,
             MemberSince = mirrorUser.CreatedDate,
             LastUpdate = mirrorUser.UpdatedDate

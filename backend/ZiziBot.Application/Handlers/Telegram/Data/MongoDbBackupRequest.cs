@@ -30,26 +30,26 @@ public class MongoDbBackupHandler(
 
         var exportPath = PathConst.MONGODB_BACKUP.EnsureDirectory();
 
-        await dataFacade.MongoDb.ExportAllAsync<AppSettingsEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<ApiKeyEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<BotCommandEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<BotSettingsEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<BangHasan_ShalatCityEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<ChannelMapEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<ChannelPostEntity>();
-        // await dataFacade.MongoDb.ExportAllAsync<BinderByteCheckAwbEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<ChatSettingEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<GlobalBanEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<GroupTopicEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<MirrorApprovalEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<MirrorUserEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<NoteEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<RssSettingEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<SudoerEntity>();
-        // await dataFacade.MongoDb.ExportAllAsync<TonjooAwbEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<WebhookChatEntity>();
-        await dataFacade.MongoDb.ExportAllAsync<WelcomeMessageDto>();
-        await dataFacade.MongoDb.ExportAllAsync<WordFilterEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<AppSettingsEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<ApiKeyEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<BotCommandEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<BotSettingsEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<BangHasan_ShalatCityEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<ChannelMapEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<ChannelPostEntity>();
+        // await dataFacade.MongoEf.ExportAllAsync<BinderByteCheckAwbEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<ChatSettingEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<GlobalBanEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<GroupTopicEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<MirrorApprovalEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<MirrorUserEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<NoteEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<RssSettingEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<SudoerEntity>();
+        // await dataFacade.MongoEf.ExportAllAsync<TonjooAwbEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<WebhookChatEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<WelcomeMessageDto>();
+        await dataFacade.MongoEf.ExportAllAsync<WordFilterEntity>();
 
         var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
 

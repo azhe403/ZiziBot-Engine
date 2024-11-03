@@ -2,10 +2,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
@@ -34,8 +34,8 @@ public class SaveTelegramSessionRequestHandler(
     {
         ApiResponseBase<SaveDashboardSessionIdResponseDto> response = new();
 
-        var botSetting = await dataFacade.MongoDb.BotSettings
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+        var botSetting = await dataFacade.MongoEf.BotSettings
+            .Where(entity => entity.Status == EventStatus.Complete)
             .Where(entity => entity.Name == "Main")
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -83,7 +83,7 @@ public class SaveTelegramSessionRequestHandler(
 
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        dataFacade.MongoDb.DashboardSessions.Add(new DashboardSessionEntity() {
+        dataFacade.MongoEf.DashboardSessions.Add(new DashboardSessionEntity() {
             TelegramUserId = request.Model.Id,
             FirstName = request.Model.FirstName,
             LastName = request.Model.LastName,
@@ -93,10 +93,10 @@ public class SaveTelegramSessionRequestHandler(
             Hash = request.Model.Hash,
             SessionId = request.Model.SessionId,
             BearerToken = stringToken,
-            Status = (int)EventStatus.Complete
+            Status = EventStatus.Complete
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return response.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto() {
             IsSessionValid = true,

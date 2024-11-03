@@ -1,4 +1,4 @@
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
@@ -14,11 +14,9 @@ public class GetListGroupHandler(
         ApiResponseBase<List<ChatInfoDto>?> response = new();
 
         #region Check Dashboard Session
-        var dashboardSession = await dataFacade.MongoDb.DashboardSessions
-            .Where(entity =>
-                entity.BearerToken == request.BearerToken &&
-                entity.Status == (int)EventStatus.Complete
-            )
+        var dashboardSession = await dataFacade.MongoEf.DashboardSessions
+            .Where(entity => entity.BearerToken == request.BearerToken)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (dashboardSession == null)
@@ -29,11 +27,9 @@ public class GetListGroupHandler(
         var userId = dashboardSession.TelegramUserId;
         #endregion
 
-        var chatAdmin = await dataFacade.MongoDb.ChatAdmin
-            .Where(entity =>
-                entity.UserId == userId &&
-                entity.Status == (int)EventStatus.Complete
-            )
+        var chatAdmin = await dataFacade.MongoEf.ChatAdmin
+            .Where(entity => entity.UserId == userId)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         if (chatAdmin.Count == 0)
@@ -43,7 +39,7 @@ public class GetListGroupHandler(
 
         var chatIds = chatAdmin.Select(y => y.ChatId);
 
-        var listChatSetting = await dataFacade.MongoDb.ChatSetting
+        var listChatSetting = await dataFacade.MongoEf.ChatSetting
             .Where(x => chatIds.Contains(x.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 

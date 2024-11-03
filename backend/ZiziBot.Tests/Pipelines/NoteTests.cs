@@ -32,13 +32,13 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
     public async Task DeleteNoteTest(string note)
     {
         // Arrange
-        dataFacade.MongoDb.Note.Add(new() {
+        dataFacade.MongoEf.Note.Add(new() {
             ChatId = SampleMessages.CommonMessage.Chat.Id,
             Query = note,
-            Status = (int)EventStatus.Complete
+            Status = EventStatus.Complete
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync();
+        await dataFacade.MongoEf.SaveChangesAsync();
 
 
         // Act

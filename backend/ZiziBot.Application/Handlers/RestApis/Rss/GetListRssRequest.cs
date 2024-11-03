@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
-using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
@@ -31,10 +31,10 @@ public class GetListRssHandler(
     {
         ApiResponseBase<List<GetListRssResponse>> response = new();
 
-        var listRss = await dataFacade.MongoDb.RssSetting
+        var listRss = await dataFacade.MongoEf.RssSetting
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         var result = listRss.Select(x => new GetListRssResponse {
@@ -43,7 +43,7 @@ public class GetListRssHandler(
             ChatId = x.ChatId,
             LastErrorMessage = x.LastErrorMessage,
             CronJobId = x.CronJobId,
-            Status = x.Status,
+            Status = (int)x.Status,
             TransactionId = x.TransactionId,
             CreatedDate = x.CreatedDate,
             UpdatedDate = x.UpdatedDate

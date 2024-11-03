@@ -1,6 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Services;
 
@@ -12,9 +12,9 @@ public class NoteService(ILogger<NoteService> logger, DataFacade dataFacade, Cac
             CacheKey.CHAT_NOTES + chatId,
             evictBefore: evictBefore,
             action: async () => {
-                var noteEntities = await dataFacade.MongoDb.Note
+                var noteEntities = await dataFacade.MongoEf.Note
                     .Where(entity => entity.ChatId == chatId)
-                    .Where(entity => entity.Status == (int)EventStatus.Complete)
+                    .Where(entity => entity.Status == EventStatus.Complete)
                     .OrderBy(entity => entity.Query)
                     .ToListAsync();
 
@@ -26,7 +26,7 @@ public class NoteService(ILogger<NoteService> logger, DataFacade dataFacade, Cac
                     RawButton = entity.RawButton,
                     FileId = entity.FileId,
                     DataType = entity.DataType,
-                    Status = entity.Status,
+                    Status = (int)entity.Status,
                     TransactionId = entity.TransactionId,
                     CreatedDate = entity.CreatedDate,
                     UpdatedDate = entity.UpdatedDate
@@ -43,7 +43,7 @@ public class NoteService(ILogger<NoteService> logger, DataFacade dataFacade, Cac
         ServiceResult result = new();
         logger.LogInformation("Checking Note with Query: {Query}", entity.Query);
 
-        var findNote = await dataFacade.MongoDb.Note
+        var findNote = await dataFacade.MongoEf.Note
             .Where(x => x.Id == entity.Id)
             .Where(x => x.ChatId == entity.ChatId)
             .FirstOrDefaultAsync();
@@ -51,7 +51,7 @@ public class NoteService(ILogger<NoteService> logger, DataFacade dataFacade, Cac
         if (findNote == null)
         {
             logger.LogInformation("Adding Note with Query: {Query}", entity.Query);
-            dataFacade.MongoDb.Note.Add(entity);
+            dataFacade.MongoEf.Note.Add(entity);
 
             result.Message = "Note created successfully";
         }
@@ -70,7 +70,7 @@ public class NoteService(ILogger<NoteService> logger, DataFacade dataFacade, Cac
             result.Message = "Note updated successfully";
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync();
+        await dataFacade.MongoEf.SaveChangesAsync();
 
         await GetAllByChat(entity.ChatId, true);
 
@@ -79,18 +79,18 @@ public class NoteService(ILogger<NoteService> logger, DataFacade dataFacade, Cac
 
     public async Task<BotResponseBase> Delete(long chatId, string note, Func<string, Task<BotResponseBase>> func)
     {
-        var findNote = await dataFacade.MongoDb.Note
+        var findNote = await dataFacade.MongoEf.Note
             .Where(x => x.ChatId == chatId)
             .Where(x => x.Query == note)
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (findNote == null)
             return await func.Invoke("Note tidak ditemukan, mungkin sudah dihapus.");
 
-        findNote.Status = (int)EventStatus.Deleted;
+        findNote.Status = EventStatus.Deleted;
 
-        await dataFacade.MongoDb.SaveChangesAsync();
+        await dataFacade.MongoEf.SaveChangesAsync();
 
         return await func.Invoke("Note berhasil dihapus");
     }

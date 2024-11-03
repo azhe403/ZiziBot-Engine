@@ -35,7 +35,7 @@ public class SaveWelcomeMessageHandler(
                 Status = EventStatus.Complete
             });
 
-            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
             welcomeMessage = await dataFacade.Group.GetWelcomeMessage(request.ChatIdentifier);
         }
@@ -56,7 +56,7 @@ public class SaveWelcomeMessageHandler(
                 throw new ArgumentOutOfRangeException();
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return await serviceFacade.TelegramService.SendMessageAsync($"Berhasil menyimpan. {request.Command}");
     }

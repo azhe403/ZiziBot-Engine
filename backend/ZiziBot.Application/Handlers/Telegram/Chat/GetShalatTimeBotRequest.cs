@@ -19,9 +19,9 @@ public class GetShalatTimeHandler(
         logger.LogInformation("Get Shalat Time list for ChatId: {ChatId}", request.ChatId);
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var cityList = await dataFacade.MongoDb.BangHasan_ShalatCity
+        var cityList = await dataFacade.MongoEf.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .OrderBy(entity => entity.CityName)
             .ToListAsync(cancellationToken: cancellationToken);
 

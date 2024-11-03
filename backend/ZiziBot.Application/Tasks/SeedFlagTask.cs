@@ -19,22 +19,22 @@ public class SeedFlagTask(
 
         foreach (var flag in listFlags)
         {
-            var featureFlagEntity = await dataFacade.MongoDb.FeatureFlag
+            var featureFlagEntity = await dataFacade.MongoEf.FeatureFlag
                 .Where(x => x.Name == flag.Name)
-                .Where(x => x.Status == (int)EventStatus.Complete)
+                .Where(x => x.Status == EventStatus.Complete)
                 .FirstOrDefaultAsync();
 
             if (featureFlagEntity == null)
             {
-                dataFacade.MongoDb.FeatureFlag.Add(new() {
+                dataFacade.MongoEf.FeatureFlag.Add(new() {
                     Name = flag.Name,
                     IsEnabled = flag.Value,
-                    Status = (int)EventStatus.Complete,
+                    Status = EventStatus.Complete,
                     TransactionId = transactionId
                 });
             }
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync();
+        await dataFacade.MongoEf.SaveChangesAsync();
     }
 }

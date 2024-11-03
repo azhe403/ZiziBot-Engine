@@ -1,6 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -13,17 +13,15 @@ public class CreateWebhookHandler(
     ServiceFacade serviceFacade
 ) : IBotRequestHandler<CreateWebhookBotRequest>
 {
-    private readonly ILogger<CreateWebhookHandler> _logger = logger;
-
     public async Task<BotResponseBase> Handle(CreateWebhookBotRequest request, CancellationToken cancellationToken)
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
         await serviceFacade.TelegramService.SendMessageText("Sedang membuat webhook..");
 
-        var webhookChat = await dataFacade.MongoDb.WebhookChat
+        var webhookChat = await dataFacade.MongoEf.WebhookChat
             .Where(entity => entity.ChatId == request.ChatIdentifier)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .Where(entity => entity.MessageThreadId == request.MessageThreadId)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -35,11 +33,11 @@ public class CreateWebhookHandler(
 
         if (webhookChat == null)
         {
-            dataFacade.MongoDb.WebhookChat.Add(new WebhookChatEntity() {
+            dataFacade.MongoEf.WebhookChat.Add(new WebhookChatEntity() {
                 ChatId = request.ChatIdentifier,
                 MessageThreadId = request.MessageThreadId,
                 RouteId = routeId,
-                Status = (int)EventStatus.Complete,
+                Status = EventStatus.Complete,
             });
         }
         else
@@ -48,7 +46,7 @@ public class CreateWebhookHandler(
         }
 
         htmlMessage.Code(webhookUrl);
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return await serviceFacade.TelegramService.EditMessageText(htmlMessage.ToString());
     }

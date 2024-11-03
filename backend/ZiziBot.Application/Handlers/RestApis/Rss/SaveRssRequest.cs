@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
@@ -39,24 +39,22 @@ public class SaveRssHandler(
             return response.BadRequest($"Kamu tidak mempunyai akses ke ChatId: {request.Body.ChatId}");
         }
 
-        var rss = await dataFacade.MongoDb.RssSetting
+        var rss = await dataFacade.MongoEf.RssSetting
             .Where(entity => entity.ChatId == request.Body.ChatId)
             .Where(entity => entity.RssUrl == request.Body.Url)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (rss == null)
         {
-            dataFacade.MongoDb.RssSetting.Add(new RssSettingEntity() {
+            dataFacade.MongoEf.RssSetting.Add(new RssSettingEntity() {
                 RssUrl = request.Body.Url,
                 ChatId = request.Body.ChatId,
-                Status = (int)EventStatus.Complete
+                Status = EventStatus.Complete
             });
         }
-        else
-        { }
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return response.Success("RSS Berhasil disimpan", true);
     }

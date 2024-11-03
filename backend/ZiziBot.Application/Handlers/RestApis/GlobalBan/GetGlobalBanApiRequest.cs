@@ -24,13 +24,13 @@ public class GetGlobalBanApiHandler(
     {
         var response = new ApiResponseBase<List<GetGlobalBanApiResponse>>();
 
-        var globalBanEntities = await dataFacade.MongoDb.GlobalBan.ToListAsync(cancellationToken: cancellationToken);
+        var globalBanEntities = await dataFacade.MongoEf.GlobalBan.ToListAsync(cancellationToken: cancellationToken);
 
         var listGlobalBan = globalBanEntities.Select(entity => new GetGlobalBanApiResponse() {
             UserId = entity.UserId,
             ChatId = entity.ChatId,
             Reason = entity.Reason,
-            Status = entity.Status,
+            Status = (int)entity.Status,
             TransactionId = entity.TransactionId,
             CreatedDate = entity.CreatedDate,
             UpdatedDate = entity.UpdatedDate

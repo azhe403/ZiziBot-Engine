@@ -1,5 +1,5 @@
-﻿using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -19,10 +19,10 @@ public class ThreadUpdateHandler(
         var prevTopicName = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
 
-        var findTopic = await dataFacade.MongoDb.GroupTopic
+        var findTopic = await dataFacade.MongoEf.GroupTopic
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (!request.CreatedTopicName.IsNullOrEmpty())
@@ -38,13 +38,13 @@ public class ThreadUpdateHandler(
             var entity = new GroupTopicEntity() {
                 ChatId = request.ChatIdentifier,
                 ThreadId = request.MessageThreadId,
-                Status = (int)EventStatus.Complete
+                Status = EventStatus.Complete
             };
 
             if (request.TopicName != null)
                 entity.ThreadName = request.TopicName;
 
-            dataFacade.MongoDb.GroupTopic.Add(entity);
+            dataFacade.MongoEf.GroupTopic.Add(entity);
         }
         else
         {
@@ -59,7 +59,7 @@ public class ThreadUpdateHandler(
 
         htmlMessage.Bold("Topic ID: ").Code(request.MessageThreadId.ToString());
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
     }

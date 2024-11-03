@@ -1,6 +1,6 @@
 ﻿using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
@@ -18,7 +18,7 @@ public class InsertChatActivityHandler<TRequest, TResponse>(
         if (request.Source != ResponseSource.Bot)
             return;
 
-        dataFacade.MongoDb.ChatActivity.Add(new ChatActivityEntity {
+        dataFacade.MongoEf.ChatActivity.Add(new ChatActivityEntity {
             MessageId = request.MessageId,
             ChatId = request.ChatIdentifier,
             UserId = request.UserId,
@@ -26,11 +26,11 @@ public class InsertChatActivityHandler<TRequest, TResponse>(
             ActivityTypeName = ChatActivityType.UserSendMessage.ToString(),
             Chat = request.Chat,
             User = request.User,
-            Status = (int)EventStatus.Complete,
+            Status = EventStatus.Complete,
             TransactionId = request.TransactionId,
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Insert Chat Activity for ChatId: {ChatId} is done", request.ChatId);
     }

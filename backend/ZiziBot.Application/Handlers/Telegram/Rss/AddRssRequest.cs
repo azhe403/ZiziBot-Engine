@@ -1,4 +1,4 @@
-﻿using MongoFramework.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
@@ -32,11 +32,11 @@ public class AddRssHandler(
             return await serviceFacade.TelegramService.SendMessageAsync("Sepertinya bukan URL yang valid");
         }
 
-        var rssSetting = await dataFacade.MongoDb.RssSetting
+        var rssSetting = await dataFacade.MongoEf.RssSetting
             .Where(entity => entity.RssUrl == rssUrl)
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (rssSetting != null)
@@ -44,16 +44,16 @@ public class AddRssHandler(
 
         var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
 
-        dataFacade.MongoDb.RssSetting.Add(new() {
+        dataFacade.MongoEf.RssSetting.Add(new() {
             ChatId = request.ChatIdentifier,
             RssUrl = rssUrl,
             ThreadId = request.MessageThreadId,
             UserId = request.UserId,
             CronJobId = uniqueId,
-            Status = (int)EventStatus.Complete
+            Status = EventStatus.Complete
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job");
 

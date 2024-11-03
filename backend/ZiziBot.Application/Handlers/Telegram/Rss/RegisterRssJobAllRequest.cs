@@ -1,5 +1,5 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
@@ -18,19 +18,19 @@ public class RegisterRssJobAllHandler(
     {
         if (request.ResetStatus)
         {
-            var rssSettingsAll = await dataFacade.MongoDb.RssSetting.ToListAsync(cancellationToken: cancellationToken);
+            var rssSettingsAll = await dataFacade.MongoEf.RssSetting.ToListAsync(cancellationToken: cancellationToken);
             rssSettingsAll.ForEach(entity => {
                 entity.LastErrorMessage = string.Empty;
-                entity.Status = (int)EventStatus.Complete;
+                entity.Status = EventStatus.Complete;
             });
 
-            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
         }
 
         HangfireUtil.RemoveRssJobs();
 
-        var rssSettings = await dataFacade.MongoDb.RssSetting
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+        var rssSettings = await dataFacade.MongoEf.RssSetting
+            .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         logger.LogInformation("Registering RSS Jobs. Count: {Count}", rssSettings.Count);
@@ -49,7 +49,7 @@ public class RegisterRssJobAllHandler(
             rssSettingEntity.CronJobId = jobId;
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return true;
     }

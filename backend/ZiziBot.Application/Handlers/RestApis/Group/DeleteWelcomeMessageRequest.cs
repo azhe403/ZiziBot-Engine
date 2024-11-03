@@ -1,8 +1,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
-using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
@@ -44,9 +44,10 @@ public class DeleteWelcomeMessageHandler(
             return response.BadRequest("You don't have access to this Group");
         }
 
-        var findWelcome = await dataFacade.MongoDb.WelcomeMessage
+        var findWelcome = await dataFacade.MongoEf.WelcomeMessage
             .Where(x => x.ChatId == request.Model.ChatId)
-            .Where(x => x.Status != (int)EventStatus.Deleted)
+            .Where(x => x.Status != EventStatus.Deleted)
+            .Where(x => x.Id == request.Model.ObjectId)
             .FirstOrDefaultAsync(x => x.Id == request.Model.ObjectId, cancellationToken);
 
         if (findWelcome == null)
@@ -54,11 +55,11 @@ public class DeleteWelcomeMessageHandler(
             return response.BadRequest("Welcome Message not found");
         }
 
-        findWelcome.Status = (int)EventStatus.Deleted;
+        findWelcome.Status = EventStatus.Deleted;
         findWelcome.UserId = request.SessionUserId;
         findWelcome.TransactionId = request.TransactionId;
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return response.Success("Delete Welcome Message successfully", true);
     }

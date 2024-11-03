@@ -1,5 +1,5 @@
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -18,29 +18,30 @@ public class SetAfkRequestHandler(
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var afkEntity = await dataFacade.MongoDb.Afk
+        var afkEntity = await dataFacade.MongoEf.Afk
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == request.UserId &&
-                    entity.Status == (int)EventStatus.Complete,
+                    entity.Status == EventStatus.Complete,
                 cancellationToken: cancellationToken);
 
         if (afkEntity == null)
         {
-            dataFacade.MongoDb.Afk.Add(new AfkEntity() {
+            dataFacade.MongoEf.Afk.Add(new AfkEntity() {
                 UserId = request.UserId,
                 ChatId = request.ChatIdentifier,
                 Reason = request.Reason,
-                Status = (int)EventStatus.Complete
+                Status = EventStatus.Complete,
+                TransactionId = request.TransactionId
             });
         }
         else
         {
             afkEntity.Reason = request.Reason;
-            afkEntity.TransactionId = Guid.NewGuid().ToString();
-            afkEntity.Status = (int)EventStatus.Complete;
+            afkEntity.TransactionId = request.TransactionId;
+            afkEntity.Status = EventStatus.Complete;
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         var htmlMessage = HtmlMessage.Empty
             .User(request.User)
