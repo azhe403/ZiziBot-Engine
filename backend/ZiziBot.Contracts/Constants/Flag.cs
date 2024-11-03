@@ -7,6 +7,19 @@ namespace ZiziBot.Contracts.Constants;
 
 public static class Flag
 {
+    public static List<FlagDto> GetFields()
+    {
+        var properties = typeof(Flag).GetFields();
+
+        var values = properties.Select(x => new FlagDto() {
+            Name = x.Name,
+            Value = (bool)(x.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? false)
+        }).ToList();
+
+        return values;
+    }
+
+    #region Infrastructure
     [DefaultValue(true)]
     public const string CONSOLE = "CONSOLE";
 
@@ -27,19 +40,16 @@ public static class Flag
 
     [DefaultValue(true)]
     public const string RSS_RESET_AT_STARTUP = "RSS_RESET_AT_STARTUP";
+    #endregion
 
+    #region Bot Commands
     [DefaultValue(true)]
     public const string COMMAND_PING = "COMMAND_PING";
 
-    public static List<FlagDto> GetFields()
-    {
-        var properties = typeof(Flag).GetFields();
+    [DefaultValue(true)]
+    public const string COMMAND_SP = "COMMAND_SP";
 
-        var values = properties.Select(x => new FlagDto() {
-            Name = x.Name,
-            Value = (bool)(x.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? false)
-        }).ToList();
-
-        return values;
-    }
+    [DefaultValue(true)]
+    public const string COMMAND_MP = "COMMAND_MP";
+    #endregion
 }

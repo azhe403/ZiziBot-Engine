@@ -4,6 +4,7 @@ using ZiziBot.DataSource.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
+[FeatureFlag(Flag.COMMAND_MP)]
 public class SavePaymentBotRequestModel : BotRequestBase
 {
     public string? Payload { get; set; }
