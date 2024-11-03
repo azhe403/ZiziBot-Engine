@@ -2,6 +2,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
+[FeatureFlag(Flag.COMMAND_PING)]
 public class PingBotRequestModel : BotRequestBase
 { }
 
