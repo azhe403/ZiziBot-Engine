@@ -98,7 +98,7 @@ public static class RestApiExtension
                 };
             });
 
-        services.AddCorsConfiguration();
+        // services.AddCorsConfiguration();
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options => {
