@@ -19,7 +19,7 @@ public class UserController : ApiControllerBase
     [AccessFilter(checkHeader: true)]
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
-    public async Task<IActionResult> PostTelegramSession(SaveTelegramSessionRequest request)
+    public async Task<IActionResult> PostTelegramSession(ValidateTelegramSessionRequest request)
     {
         return await SendRequest(request);
     }

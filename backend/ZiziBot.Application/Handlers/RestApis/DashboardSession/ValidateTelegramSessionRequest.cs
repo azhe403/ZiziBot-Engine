@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -9,30 +8,27 @@ using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
-public class SaveTelegramSessionRequest : ApiRequestBase<SaveDashboardSessionIdResponseDto>
-{
-    [FromBody]
-    public TelegramSessionDto Model { get; set; }
-}
+public class ValidateTelegramSessionRequest : ApiPostRequestBase<TelegramSessionDto, ValidateDashboardSessionIdResponseDto>
+{ }
 
-public class SaveDashboardSessionIdResponseDto
+public class ValidateDashboardSessionIdResponseDto
 {
     public bool IsSessionValid { get; set; }
     public string BearerToken { get; set; }
 }
 
-public class SaveTelegramSessionRequestHandler(
-    ILogger<SaveTelegramSessionRequestHandler> logger,
+public class ValidateTelegramSessionHandler(
+    ILogger<ValidateTelegramSessionHandler> logger,
     DataFacade dataFacade
 )
-    : IApiRequestHandler<SaveTelegramSessionRequest, SaveDashboardSessionIdResponseDto>
+    : IApiRequestHandler<ValidateTelegramSessionRequest, ValidateDashboardSessionIdResponseDto>
 {
-    public async Task<ApiResponseBase<SaveDashboardSessionIdResponseDto>> Handle(
-        SaveTelegramSessionRequest request,
+    public async Task<ApiResponseBase<ValidateDashboardSessionIdResponseDto>> Handle(
+        ValidateTelegramSessionRequest request,
         CancellationToken cancellationToken
     )
     {
-        ApiResponseBase<SaveDashboardSessionIdResponseDto> response = new();
+        ApiResponseBase<ValidateDashboardSessionIdResponseDto> response = new();
 
         var botSetting = await dataFacade.MongoEf.BotSettings
             .Where(entity => entity.Status == EventStatus.Complete)
@@ -46,7 +42,7 @@ public class SaveTelegramSessionRequestHandler(
 
         LoginWidget loginWidget = new(botSetting.Token);
 
-        var sessionData = request.Model.ToDictionary()
+        var sessionData = request.Body.ToDictionary()
             .Select(pair => new KeyValuePair<string, string>(pair.Key.Replace(" ", "_"), pair.Value))
             .Where(pair => pair.Value.IsNotNullOrEmpty())
             .Where(pair => pair.Key != "session_id");
@@ -55,7 +51,7 @@ public class SaveTelegramSessionRequestHandler(
         if (checkAuthorization != WebAuthorization.Valid)
         {
             logger.LogDebug("Session is not valid for SessionId: {SessionId}. Result: {Result}",
-                request.Model.SessionId, checkAuthorization);
+                request.Body.SessionId, checkAuthorization);
 
             return response.Unauthorized(
                 $"Sesi tidak valid, silakan kirim ulang perintah '/console' di Bot untuk membuat sesi baru.");
@@ -71,11 +67,11 @@ public class SaveTelegramSessionRequestHandler(
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new[] {
-            new Claim(ClaimTypes.NameIdentifier, request.Model.Username),
-            new Claim(ClaimTypes.Name, request.Model.FirstName),
+            new Claim(ClaimTypes.NameIdentifier, request.Body.Username),
+            new Claim(ClaimTypes.Name, request.Body.FirstName),
             new Claim(ClaimTypes.Role, request.SessionUserRole.ToString()),
-            new Claim(HeaderKey.UserId, request.Model.Id.ToString()),
-            new Claim("photoUrl", request.Model.PhotoUrl ?? ""),
+            new Claim(HeaderKey.UserId, request.Body.Id.ToString()),
+            new Claim("photoUrl", request.Body.PhotoUrl ?? ""),
         };
 
         var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims,
@@ -84,21 +80,21 @@ public class SaveTelegramSessionRequestHandler(
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
         dataFacade.MongoEf.DashboardSessions.Add(new DashboardSessionEntity() {
-            TelegramUserId = request.Model.Id,
-            FirstName = request.Model.FirstName,
-            LastName = request.Model.LastName,
-            PhotoUrl = request.Model.PhotoUrl,
-            Username = request.Model.Username,
-            AuthDate = request.Model.AuthDate,
-            Hash = request.Model.Hash,
-            SessionId = request.Model.SessionId,
+            TelegramUserId = request.Body.Id,
+            FirstName = request.Body.FirstName,
+            LastName = request.Body.LastName,
+            PhotoUrl = request.Body.PhotoUrl,
+            Username = request.Body.Username,
+            AuthDate = request.Body.AuthDate,
+            Hash = request.Body.Hash,
+            SessionId = request.Body.SessionId,
             BearerToken = stringToken,
             Status = EventStatus.Complete
         });
 
         await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
-        return response.Success("Session saved successfully", new SaveDashboardSessionIdResponseDto() {
+        return response.Success("Session saved successfully", new ValidateDashboardSessionIdResponseDto() {
             IsSessionValid = true,
             BearerToken = stringToken
         });

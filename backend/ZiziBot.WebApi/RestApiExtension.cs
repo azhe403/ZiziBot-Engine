@@ -17,7 +17,7 @@ namespace ZiziBot.WebApi;
 
 public static class RestApiExtension
 {
-    public static IServiceCollection ConfigureApi(this IServiceCollection services)
+    public static IServiceCollection AddRestApi(this IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
         var jwtConfig = serviceProvider.GetRequiredService<IOptions<JwtConfig>>().Value;
@@ -98,7 +98,7 @@ public static class RestApiExtension
                 };
             });
 
-        // services.AddCorsConfiguration();
+        services.AddCorsConfiguration();
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options => {
@@ -116,7 +116,6 @@ public static class RestApiExtension
     {
         services.AddCors(options => {
             options.AddPolicy("CorsPolicy", builder => builder
-                // .WithOrigins("http://localhost:4200")
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());

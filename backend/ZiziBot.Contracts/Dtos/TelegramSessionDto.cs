@@ -1,32 +1,32 @@
-﻿using FluentValidation;
-using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
+using FluentValidation;
 
 namespace ZiziBot.Contracts.Dtos;
 
 public class TelegramSessionDto
 {
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public long Id { get; set; }
 
-    [JsonProperty("first_name")]
+    [JsonPropertyName("first_name")]
     public string? FirstName { get; set; }
 
-    [JsonProperty("last_name")]
+    [JsonPropertyName("last_name")]
     public string? LastName { get; set; }
 
-    [JsonProperty("username")]
+    [JsonPropertyName("username")]
     public string? Username { get; set; }
 
-    [JsonProperty("photo_url")]
+    [JsonPropertyName("photo_url")]
     public string? PhotoUrl { get; set; }
 
-    [JsonProperty("auth_date")]
+    [JsonPropertyName("auth_date")]
     public long AuthDate { get; set; }
 
-    [JsonProperty("hash")]
+    [JsonPropertyName("hash")]
     public string Hash { get; set; }
 
-    [JsonProperty("session_id")]
+    [JsonPropertyName("session_id")]
     public string SessionId { get; set; }
 }
 
