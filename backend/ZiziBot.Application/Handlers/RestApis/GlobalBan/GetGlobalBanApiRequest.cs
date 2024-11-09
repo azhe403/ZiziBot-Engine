@@ -1,4 +1,4 @@
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 
@@ -24,7 +24,9 @@ public class GetGlobalBanApiHandler(
     {
         var response = new ApiResponseBase<List<GetGlobalBanApiResponse>>();
 
-        var globalBanEntities = await dataFacade.MongoEf.GlobalBan.ToListAsync(cancellationToken: cancellationToken);
+        var globalBanEntities = await dataFacade.MongoEf.GlobalBan.AsNoTracking()
+            .Where(x => x.Status == EventStatus.Complete)
+            .ToListAsync(cancellationToken: cancellationToken);
 
         var listGlobalBan = globalBanEntities.Select(entity => new GetGlobalBanApiResponse() {
             UserId = entity.UserId,

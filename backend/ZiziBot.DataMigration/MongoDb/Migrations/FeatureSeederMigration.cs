@@ -10,8 +10,6 @@ namespace ZiziBot.DataMigration.MongoDb.Migrations;
 
 public class FeatureSeederMigration(MongoEfContext mongoEfContext) : IPreMigration
 {
-    public string Id { get; }
-
     public async Task UpAsync(IMongoDatabase database)
     {
         var transactionId = Guid.NewGuid().ToString();

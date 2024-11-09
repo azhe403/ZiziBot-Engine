@@ -84,9 +84,10 @@ public class MongoEfContext : DbContext
         return await Set<TEntity>().Where(x => x.Status == EventStatus.Complete).ToListAsync();
     }
 
-    public async Task<string> ExportAllAsync<T>() where T : class, new()
+    public async Task<string> ExportAllAsync<T>() where T : EntityBase, new()
     {
         var exportPath = PathConst.MONGODB_BACKUP.EnsureDirectory();
+
         var data = await Set<T>().ToListAsync();
         var entityName = typeof(T).GetCustomAttribute<TableAttribute>()?.Name!;
 
@@ -114,12 +115,6 @@ public class MongoEfContext : DbContext
                 case EntityState.Modified:
                     entityEntry.Entity.UpdatedDate = DateTime.UtcNow;
                     break;
-
-                // case EntityState.Deleted:
-                //     entityEntry.State = EntityState.Modified; // prevent hard delete
-                //     entityEntry.Entity.Status = EventStatus.Deleted; // mark as deleted
-                //     entityEntry.Entity.UpdatedDate = DateTime.UtcNow;
-                //     break;
             }
         }
     }

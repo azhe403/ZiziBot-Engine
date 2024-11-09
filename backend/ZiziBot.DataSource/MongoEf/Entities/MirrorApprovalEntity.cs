@@ -7,7 +7,7 @@ public class MirrorApprovalEntity : EntityBase
 {
     public long UserId { get; set; }
     public DonationSource Source { get; set; }
-    public string PaymentUrl { get; set; }
+    public string? PaymentUrl { get; set; }
     public string? RawText { get; set; }
     public int CendolCount { get; set; }
     public string? Cendols { get; set; }

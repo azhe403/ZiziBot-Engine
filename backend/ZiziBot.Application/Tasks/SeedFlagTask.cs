@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Tasks;
 

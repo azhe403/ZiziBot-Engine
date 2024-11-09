@@ -7,8 +7,6 @@ namespace ZiziBot.DataMigration.MongoDb.Migrations;
 
 public class RefreshAppSettingMigration(MongoEfContext mongoDbContext) : IPreMigration
 {
-    public string Id { get; set; }
-
     public async Task UpAsync(IMongoDatabase database)
     {
         var appSettings = await mongoDbContext.AppSettings.ToListAsync();

@@ -2,7 +2,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 using File = System.IO.File;
 
 namespace ZiziBot.Application.Handlers.Telegram.Data;
@@ -46,9 +46,9 @@ public class MongoDbBackupHandler(
         await dataFacade.MongoEf.ExportAllAsync<NoteEntity>();
         await dataFacade.MongoEf.ExportAllAsync<RssSettingEntity>();
         await dataFacade.MongoEf.ExportAllAsync<SudoerEntity>();
-        // await dataFacade.MongoEf.ExportAllAsync<TonjooAwbEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<TonjooAwbEntity>();
         await dataFacade.MongoEf.ExportAllAsync<WebhookChatEntity>();
-        await dataFacade.MongoEf.ExportAllAsync<WelcomeMessageDto>();
+        await dataFacade.MongoEf.ExportAllAsync<WelcomeMessageEntity>();
         await dataFacade.MongoEf.ExportAllAsync<WordFilterEntity>();
 
         var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
