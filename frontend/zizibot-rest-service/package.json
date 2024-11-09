@@ -1,7 +1,7 @@
 {
-  "name": "zizibot-contracts",
+  "name": "zizibot-rest-service",
   "version": "1.0.0",
-  "description": "",
+  "description": "ZiziBot REST Service",
   "main": "index.js",
   "scripts": {
     "clean": "rimraf dist",
@@ -9,9 +9,10 @@
     "build": "npm-run-all clean tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "zizibot-contracts": "link:..\\zizibot-contracts"
+  },
   "devDependencies": {
     "@types/node": "^22.9.0",
     "npm-run-all": "^4.1.5",

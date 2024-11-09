@@ -1,10 +1,15 @@
 export interface TelegramUserLogin {
-  id: number;
+  id: string;
   first_name?: string;
   last_name?: string;
-  username?: string
-  photo_url?: string
-  auth_date: number;
+  username?: string;
+  photo_url?: string;
+  auth_date: string;
   hash: string;
-  sessionId: string;
+  session_id: string;
+}
+
+export interface TelegramUserLoginResponse {
+  isSessionValid: boolean;
+  bearerToken: string;
 }
