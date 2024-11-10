@@ -1,0 +1,21 @@
+{
+  "name": "zizibot-rest-service",
+  "version": "1.0.0",
+  "description": "ZiziBot REST Service",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "tsc": "tsc -p ./tsconfig.json",
+    "build": "npm-run-all clean tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "zizibot-contracts": "link:..\\zizibot-contracts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.6.3"
+  }
+}
