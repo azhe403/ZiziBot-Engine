@@ -273,3 +273,6 @@ __pycache__/
 package-lock.json
 dist
 FodyWeavers.*
+
+**/.turbo/
+.vercel

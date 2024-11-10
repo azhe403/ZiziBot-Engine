@@ -2,6 +2,6 @@
 	path = backend/lib/ZiziBot.TelegramBot
 	url = https://github.com/azhe403/ZiziBot.TelegramBot
 
-[submodule "frontend/tailadmin-nextjs-dashboard"]
-	path = frontend/tailadmin-nextjs-dashboard
-	url = https://github.com/azhe403/tailadmin-nextjs-admin-dashboard
+[submodule "frontend/apps/tailadmin-nextjs-dashboard"]
+	path = frontend/apps/tailadmin-nextjs-dashboard
+	url = https://github.com/azhe403/tailadmin-nextjs-admin-dashboard.git
