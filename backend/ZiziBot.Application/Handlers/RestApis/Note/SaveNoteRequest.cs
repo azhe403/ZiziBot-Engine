@@ -24,9 +24,7 @@ public class SaveNoteRequestModel
 
     [BindNever]
     [SwaggerIgnore]
-    public ObjectId ObjectId => Id != null ?
-        new ObjectId(Id) :
-        ObjectId.Empty;
+    public ObjectId ObjectId => Id != null ? new ObjectId(Id) : ObjectId.Empty;
 }
 
 public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
@@ -40,7 +38,8 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
 
 public class CreateNoteHandler(
     IHttpContextAccessor httpContextAccessor,
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 ) : IApiRequestHandler<SaveNoteRequest, bool>
 {
     public async Task<ApiResponseBase<bool>> Handle(SaveNoteRequest request, CancellationToken cancellationToken)
@@ -52,7 +51,7 @@ public class CreateNoteHandler(
             return response.BadRequest("You don't have permission to create note for this Chat");
         }
 
-        var save = await serviceFacade.NoteService.Save(new() {
+        var save = await dataFacade.ChatSetting.Save(new() {
             Id = request.Model.ObjectId,
             ChatId = request.Model.ChatId,
             Query = request.Model.Query,

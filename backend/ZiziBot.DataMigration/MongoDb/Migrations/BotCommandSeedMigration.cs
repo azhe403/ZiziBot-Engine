@@ -1,23 +1,23 @@
-using Kot.MongoDB.Migrations;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.Contracts.Enums;
+using ZiziBot.DataMigration.MongoDb.Interfaces;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
 
-namespace ZiziBot.Kot.MongoMigrations.Seeders;
+namespace ZiziBot.DataMigration.MongoDb.Migrations;
 
-public class BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, MongoEfContext mongoDbContext) : MongoMigration(DBVersion)
+public class BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, MongoEfContext mongoDbContext) : IPostMigration
 {
     readonly ILogger<BotCommandSeedMigration> _logger = logger;
-    static DatabaseVersion DBVersion => new("233.30.1");
 
-    public override async Task DownAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
+    public async Task DownAsync(IMongoDatabase db)
     {
-        await Task.Delay(1, cancellationToken);
+        await Task.Delay(1);
     }
 
-    public override async Task UpAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
+    public async Task UpAsync(IMongoDatabase db)
     {
         mongoDbContext.BotCommand.AddRange(new List<BotCommandEntity>() {
             new() {
@@ -40,6 +40,6 @@ public class BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, Mo
             }
         });
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await mongoDbContext.SaveChangesAsync();
     }
 }

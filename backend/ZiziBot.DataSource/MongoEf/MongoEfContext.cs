@@ -24,6 +24,7 @@ public class MongoEfContext : DbContext
     public DbSet<ChatAdminEntity> ChatAdmin { get; set; }
     public DbSet<ChatSettingEntity> ChatSetting { get; set; }
     public DbSet<ChatActivityEntity> ChatActivity { get; set; }
+    public DbSet<ChatUserEntity> ChatUser { get; set; }
     public DbSet<GroupTopicEntity> GroupTopic { get; set; }
     public DbSet<WordFilterEntity> WordFilter { get; set; }
     public DbSet<GlobalBanEntity> GlobalBan { get; set; }
@@ -63,7 +64,27 @@ public class MongoEfContext : DbContext
         var conn = MongoUrl.Create(_connectionString);
 
         optionsBuilder.UseMongoDB(_connectionString, conn.DatabaseName);
+
+        if (EnvUtil.IsDevelopment())
+        {
+            optionsBuilder.EnableSensitiveDataLogging()
+                .EnableDetailedErrors();
+        }
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // ApplyDefaultValues(modelBuilder, typeof(DateTime), DateTime.UtcNow);
+        // ApplyDefaultValues(modelBuilder, typeof(DateTime?), DateTime.UtcNow);
+        // modelBuilder.ApplyDefaultValues(typeof(long), 0);
+        // DbUtil.ApplyDefaultValues(modelBuilder, typeof(long?), 0);
+
+        // modelBuilder.Entity<EntityBase>().Property(e => e.TransactionId).HasDefaultValue("string.Empty");
+        // modelBuilder.Entity<EntityBase>().Property(e => e.CreatedBy).HasDefaultValue(0);
+
+        base.OnModelCreating(modelBuilder);
+    }
+
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {

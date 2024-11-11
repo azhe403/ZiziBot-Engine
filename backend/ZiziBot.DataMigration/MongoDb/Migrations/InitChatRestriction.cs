@@ -1,18 +1,17 @@
-﻿using Kot.MongoDB.Migrations;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
+using ZiziBot.Contracts.Enums;
+using ZiziBot.DataMigration.MongoDb.Interfaces;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
 
-namespace ZiziBot.Kot.MongoMigrations.Seeders;
+namespace ZiziBot.DataMigration.MongoDb.Migrations;
 
-public class ChatRestrictionSeedMigration(MongoEfContext mongoEfContext) : MongoMigration(DBVersion)
+public class InitChatRestriction(MongoEfContext mongoEfContext) : IMigration
 {
-    static DatabaseVersion DBVersion => new("238.7.1");
-
-    public override async Task DownAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
+    public async Task DownAsync(IMongoDatabase db)
     { }
 
-    public override async Task UpAsync(IMongoDatabase db, IClientSessionHandle session, CancellationToken cancellationToken)
+    public async Task UpAsync(IMongoDatabase db)
     {
         mongoEfContext.ChatRestriction.AddRange(new List<ChatRestrictionEntity>() {
             new() {
@@ -29,6 +28,6 @@ public class ChatRestrictionSeedMigration(MongoEfContext mongoEfContext) : Mongo
             }
         });
 
-        await mongoEfContext.SaveChangesAsync(cancellationToken);
+        await mongoEfContext.SaveChangesAsync();
     }
 }

@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="CacheTower" Version="0.14.0"/>
-    <PackageReference Include="CacheTower.Providers.Database.MongoDB" Version="0.14.0"/>
     <PackageReference Include="CacheTower.Providers.FileSystem.Json" Version="0.14.0"/>
     <PackageReference Include="CacheTower.Providers.Redis" Version="0.14.0"/>
     <PackageReference Include="CacheTower.Serializers.NewtonsoftJson" Version="0.14.0"/>

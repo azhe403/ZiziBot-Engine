@@ -25,13 +25,16 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
     }
 }
 
-public class CreateNoteHandler(IHttpContextAccessor httpContextAccessor, NoteService noteService) : IWebRequestHandler<SaveNoteRequest, bool>
+public class CreateNoteHandler(
+    IHttpContextAccessor httpContextAccessor,
+    DataFacade dataFacade
+) : IWebRequestHandler<SaveNoteRequest, bool>
 {
     public async Task<WebResponseBase<bool>> Handle(SaveNoteRequest request, CancellationToken cancellationToken)
     {
         WebResponseBase<bool> response = new();
 
-        var save = await noteService.Save(new() {
+        var save = await dataFacade.ChatSetting.Save(new() {
             Id = request.ObjectId,
             ChatId = request.ChatId,
             Query = request.Query,

@@ -9,4 +9,9 @@ public class ServiceResult
         Message = message;
         return this;
     }
+
+    public static ServiceResult Init()
+    {
+        return new();
+    }
 }

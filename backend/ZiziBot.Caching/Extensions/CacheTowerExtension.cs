@@ -2,8 +2,8 @@ using CacheTower;
 using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using MongoFramework;
 using ZiziBot.Caching.Json;
+using ZiziBot.Caching.MongoDb;
 using ZiziBot.Caching.Redis;
 
 namespace ZiziBot.Caching.Extensions;
@@ -123,7 +123,10 @@ public static class CacheTowerExtension
 
         var dbPath = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING);
 
-        builder.AddMongoDbCacheLayer(MongoDbConnection.FromConnectionString(dbPath));
+        builder.CacheLayers.Add(new MongoLayerProvider(new() {
+            ConnectionString = dbPath,
+            Serializer = CurrentSerializer
+        }));
 
         return builder;
     }

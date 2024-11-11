@@ -10,5 +10,6 @@ public class RssSettingEntity : EntityBase
     public long UserId { get; set; }
     public string RssUrl { get; set; }
     public string CronJobId { get; set; }
-    public string LastErrorMessage { get; set; }
+    public DateTime LastSuccessDate { get; set; }
+    public string? LastErrorMessage { get; set; }
 }

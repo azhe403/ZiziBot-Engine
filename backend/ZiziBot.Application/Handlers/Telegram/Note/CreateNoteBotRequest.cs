@@ -103,7 +103,7 @@ public class CreateNoteHandler(
         await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         await serviceFacade.TelegramService.EditMessageText("Memperbarui cache..");
-        await serviceFacade.NoteService.GetAllByChat(request.ChatIdentifier, true);
+        await dataFacade.ChatSetting.GetAllByChat(request.ChatIdentifier, true);
 
         return await serviceFacade.TelegramService.EditMessageText("Catatan berhasil disimpan");
     }

@@ -24,7 +24,7 @@ public class AddRssHandler(
 
         try
         {
-            await serviceFacade.TelegramService.SendMessageAsync("Sedang memverifikasi URL");
+            await serviceFacade.TelegramService.SendMessageAsync("Sedang memverifikasi URL..");
             var feed = await rssUrl.ReadRssAsync();
         }
         catch (Exception e)
@@ -55,14 +55,9 @@ public class AddRssHandler(
 
         await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
-        await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job");
+        await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job..");
 
-        await serviceFacade.Mediator.Send(new RegisterRssJobUrlRequest {
-            ChatId = request.ChatIdentifier,
-            ThreadId = request.MessageThreadId,
-            Url = rssUrl,
-            JobId = uniqueId
-        }, cancellationToken);
+        await serviceFacade.JobService.Register(request.ChatIdentifier, request.MessageThreadId, rssUrl, uniqueId);
 
         return await serviceFacade.TelegramService.SendMessageAsync("RSS Berhasil disimpan");
     }

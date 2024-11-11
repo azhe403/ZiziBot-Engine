@@ -88,7 +88,7 @@ public static class ServiceExtension
         services.Scan(selector => selector.FromAssembliesOf(typeof(DataFacade))
             .AddClasses(filter => filter.InNamespaceOf<DataFacade>())
             .AsSelf()
-            .WithScopedLifetime());
+            .WithTransientLifetime());
 
         return services;
     }
