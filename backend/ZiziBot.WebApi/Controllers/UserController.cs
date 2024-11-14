@@ -15,6 +15,13 @@ public class UserController : ApiControllerBase
         return Ok(true);
     }
 
+    [HttpGet("info")]
+    [AccessFilter(checkHeader: true)]
+    public async Task<IActionResult> GetUserInfo(GetUserInfoRequest request)
+    {
+        return await SendRequest(request);
+    }
+
     [HttpPost("session/telegram")]
     [AccessFilter(checkHeader: true)]
     [ApiExplorerSettings(IgnoreApi = true)]
