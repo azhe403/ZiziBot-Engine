@@ -53,7 +53,7 @@ public static class RestApiExtension
                             Message = key.Value?.Errors.Select(e => e.ErrorMessage)
                         }).ToList();
 
-                    var errors = errorDetails.SelectMany(x => x.Message).ToList();
+                    var errors = errorDetails.SelectMany(x => x.Message ?? Array.Empty<string>()).ToList();
 
                     return new BadRequestObjectResult(new ApiResponseBase<object>() {
                         StatusCode = HttpStatusCode.BadRequest,

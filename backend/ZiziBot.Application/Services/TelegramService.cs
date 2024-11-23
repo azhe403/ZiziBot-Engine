@@ -66,7 +66,7 @@ public class TelegramService(
         var filePath = PathConst.TEMP_PATH + prefixName + (_request.ReplyToMessage ?? _request.Message)?.GetFileName();
 
         await using Stream fileStream = File.OpenWrite(filePath.EnsureDirectory());
-        await Bot.GetInfoAndDownloadFileAsync(fileId, fileStream);
+        await Bot.GetInfoAndDownloadFile(fileId, fileStream);
 
         return filePath;
     }

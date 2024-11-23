@@ -6,10 +6,10 @@
 
 <TitleControl Value="AppSettings"></TitleControl>
 
-<Container Configuration="Loading"/>
+<Container Configuration="Loading" />
 
 <RadzenDataGrid
-    @ref="dataGrid"
+    @* @ref="dataGrid" *@
     AllowFiltering="true"
     AllowColumnResize="true"
     AllowAlternatingRows="true"
@@ -34,19 +34,21 @@
         </RadzenStack>
     </HeaderTemplate>
     <Columns>
-        <RadzenDataGridColumn TItem="AppSettingsEntity" Property="Field" Title="Field" Frozen="true" FrozenPosition="FrozenColumnPosition.Left"/>
-        <RadzenDataGridColumn TItem="AppSettingsEntity" Property="DefaultValue" Title="DefaultValue" Width="260px"/>
+        <RadzenDataGridColumn TItem="AppSettingsEntity" Property="Field" Title="Field" Frozen="true" FrozenPosition="FrozenColumnPosition.Left" />
+        <RadzenDataGridColumn TItem="AppSettingsEntity" Property="DefaultValue" Title="DefaultValue" Width="260px" />
         <RadzenDataGridColumn TItem="AppSettingsEntity" Property="Value" Title="Value" Width="260px">
             <EditTemplate Context="entity">
-                <RadzenTextArea @bind-Value="entity.Value" Style="display: block" Rows="5" Name="Value" class="w-100"/>
-                <RadzenRequiredValidator Text="Value is required" Component="Value" Popup="true"/>
+                <RadzenTextArea @bind-Value="entity.Value" Style="display: block" Rows="5" Name="Value" class="w-100" />
+                <RadzenRequiredValidator Text="Value is required" Component="Value" Popup="true" />
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="AppSettingsEntity" Property="CreatedDate" Title="Created Date" Width="180px"/>
-        <RadzenDataGridColumn TItem="AppSettingsEntity" Property="UpdatedDate" Title="Updated Date" Width="180px"/>
-        <RadzenDataGridColumn TItem="AppSettingsEntity" Title="Action" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Left">
+        <RadzenDataGridColumn TItem="AppSettingsEntity" Property="CreatedDate" Title="Created Date" Width="180px" />
+        <RadzenDataGridColumn TItem="AppSettingsEntity" Property="UpdatedDate" Title="Updated Date" Width="180px" />
+        <RadzenDataGridColumn TItem="AppSettingsEntity" Title="Action" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true"
+                              FrozenPosition="FrozenColumnPosition.Left">
             <Template Context="order">
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(order))"
+                              @onclick:stopPropagation="true">
                 </RadzenButton>
                 @* <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(order))" @onclick:stopPropagation="true"> *@
                 @* </RadzenButton> *@

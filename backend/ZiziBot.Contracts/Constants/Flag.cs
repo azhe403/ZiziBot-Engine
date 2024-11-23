@@ -52,4 +52,9 @@ public static class Flag
     [DefaultValue(true)]
     public const string COMMAND_MP = "COMMAND_MP";
     #endregion
+
+    #region Rest API
+    [DefaultValue(true)]
+    public const string PAGE_LIST_PENDEKIN = "/pendekin";
+    #endregion
 }

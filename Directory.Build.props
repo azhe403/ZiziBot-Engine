@@ -4,7 +4,8 @@
   <!--    <BaseOutputPath>.bin\</BaseOutputPath>-->
   <!--  </PropertyGroup>-->
   <PropertyGroup>
-    <Version>224.11.9085.23744</Version>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <Version>224.11.9093.28993</Version>
     <Company>AZ Corp</Company>
     <Authors>azhe403</Authors>
     <Product>ZiziBot</Product>

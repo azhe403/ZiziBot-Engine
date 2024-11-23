@@ -22,7 +22,7 @@ public static class ServiceExtension
 
     public static WebApplication ConfigureConsole(this WebApplication app)
     {
-        app.UseBlazorFrameworkFiles();
+        // app.UseBlazorFrameworkFiles();
         app.MapRazorPages();
         app.MapBlazorHub();
         app.MapFallbackToPage("/_Host");
