@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using ZiziBot.Contracts.Dtos.Entity;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.DataSource.Utils;
 using ZiziBot.Types.Types;
 
 namespace ZiziBot.DataSource.Repository;
@@ -193,11 +193,11 @@ public class ChatSettingRepository(
         return listNoteEntity;
     }
 
-    public async Task<NoteDto> GetNote(string noteId)
+    public async Task<NoteDto?> GetNote(string noteId)
     {
         var listNoteEntity = await mongoDbContext.Note
             .AsNoTracking()
-            .Where(entity => entity.Id == new ObjectId(noteId))
+            .Where(entity => entity.Id == noteId.ToObjectId())
             .Join(mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto() {
                 Id = note.Id.ToString(),
                 ChatId = note.ChatId,
@@ -231,7 +231,7 @@ public class ChatSettingRepository(
                     .ToListAsync();
 
                 var noteDto = noteEntities.Select(entity => new NoteDto {
-                    Id = entity.Id.ToString() ?? string.Empty,
+                    Id = entity.Id.ToString(),
                     ChatId = entity.ChatId,
                     Query = entity.Query,
                     Text = entity.Content,

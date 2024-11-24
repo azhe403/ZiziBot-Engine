@@ -17,7 +17,7 @@ public static class DbUtil
         return ObjectId.TryParse(input, out _);
     }
 
-    public static ObjectId ToObjectId(this string input)
+    public static ObjectId ToObjectId(this string? input)
     {
         return ObjectId.Parse(input);
     }

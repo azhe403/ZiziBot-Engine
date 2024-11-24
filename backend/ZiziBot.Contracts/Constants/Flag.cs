@@ -21,7 +21,7 @@ public static class Flag
 
     #region Infrastructure
     [DefaultValue(true)]
-    public const string CONSOLE = "CONSOLE";
+    public const string CONSOLE_BLAZOR = "CONSOLE_BLAZOR";
 
     [DefaultValue(true)]
     public const string HANGFIRE = "HANGFIRE";
@@ -57,4 +57,13 @@ public static class Flag
     [DefaultValue(true)]
     public const string PAGE_LIST_PENDEKIN = "/pendekin";
     #endregion
+
+    public static List<FlagDto> Current { get; set; }
+
+    public static bool IsEnabled(string flagName)
+    {
+        var flag = Current.First(x => x.Name == flagName);
+
+        return flag.Value;
+    }
 }

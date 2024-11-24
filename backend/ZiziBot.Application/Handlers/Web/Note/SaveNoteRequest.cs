@@ -1,6 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using MongoDB.Bson;
+using ZiziBot.DataSource.Utils;
 
 namespace ZiziBot.Application.Handlers.Web.Note;
 
@@ -13,7 +13,6 @@ public class SaveNoteRequest : WebRequestBase<bool>
     public string? FileId { get; set; }
     public string? RawButton { get; set; }
     public int DataType { get; set; } = -1;
-    public ObjectId ObjectId => Id != null ? new ObjectId(Id) : ObjectId.Empty;
 }
 
 public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
@@ -35,7 +34,7 @@ public class CreateNoteHandler(
         WebResponseBase<bool> response = new();
 
         var save = await dataFacade.ChatSetting.Save(new() {
-            Id = request.ObjectId,
+            Id = request.Id.ToObjectId(),
             ChatId = request.ChatId,
             Query = request.Query,
             Content = request.Content,

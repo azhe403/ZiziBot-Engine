@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
@@ -8,7 +7,7 @@ public class GetMirrorUsersRequestDto : ApiRequestBase<IEnumerable<GetMirrorUser
 
 public class GetMirrorUserResponseDto
 {
-    public ObjectId Id { get; set; }
+    public string Id { get; set; }
     public long UserId { get; set; }
     public DateTime ExpireDate { get; set; }
     public int Status { get; set; }
@@ -30,7 +29,7 @@ public class GetMirrorUsersRequestHandler(
             .ToListAsync(cancellationToken: cancellationToken);
 
         var mirrorUsers = user.Select(mirrorUser => new GetMirrorUserResponseDto {
-            Id = mirrorUser.Id,
+            Id = mirrorUser.Id.ToString(),
             UserId = mirrorUser.UserId,
             ExpireDate = mirrorUser.ExpireDate,
             Status = (int)mirrorUser.Status,

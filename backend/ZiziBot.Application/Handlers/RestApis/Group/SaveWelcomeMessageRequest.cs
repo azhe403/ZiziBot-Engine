@@ -1,9 +1,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
 using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.DataSource.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
@@ -30,11 +29,6 @@ public class SaveWelcomeMessageRequestModel
     public string? RawButton { get; set; }
     public string? Media { get; set; }
     public int DataType { get; set; } = -1;
-
-    [BindNever]
-    public ObjectId ObjectId => Id != null ?
-        new ObjectId(Id) :
-        ObjectId.Empty;
 }
 
 public class SaveWelcomeMessageHandler(
@@ -54,7 +48,7 @@ public class SaveWelcomeMessageHandler(
         }
 
         var findWelcome = await dataFacade.MongoEf.WelcomeMessage
-            .FirstOrDefaultAsync(x => x.Id == request.Model.ObjectId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == request.Model.Id.ToObjectId(), cancellationToken);
 
         if (findWelcome == null)
         {

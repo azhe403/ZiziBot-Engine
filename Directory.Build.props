@@ -5,7 +5,7 @@
   <!--  </PropertyGroup>-->
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-    <Version>224.11.9093.28993</Version>
+    <Version>224.11.9094.38864</Version>
     <Company>AZ Corp</Company>
     <Authors>azhe403</Authors>
     <Product>ZiziBot</Product>

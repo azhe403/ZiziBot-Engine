@@ -9,7 +9,7 @@ builder.Host.ConfigureSerilog(true);
 
 builder.WebHost.ConfigureCustomListenPort();
 
-builder.Services.ConfigureServices();
+await builder.Services.ConfigureServices();
 builder.Services.AddRestApi();
 builder.Services.ConfigureHangfire();
 builder.Services.AddAllMiddleware();

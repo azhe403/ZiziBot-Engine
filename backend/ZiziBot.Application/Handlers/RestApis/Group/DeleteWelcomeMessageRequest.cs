@@ -1,8 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
+using ZiziBot.DataSource.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
@@ -25,10 +24,6 @@ public class DeleteWelcomeMessageRequestModel
 {
     public string Id { get; set; }
     public long ChatId { get; set; }
-
-    [BindNever]
-    [SwaggerIgnore]
-    public ObjectId ObjectId => ObjectId.Parse(Id);
 }
 
 public class DeleteWelcomeMessageHandler(
@@ -47,8 +42,8 @@ public class DeleteWelcomeMessageHandler(
         var findWelcome = await dataFacade.MongoEf.WelcomeMessage
             .Where(x => x.ChatId == request.Model.ChatId)
             .Where(x => x.Status != EventStatus.Deleted)
-            .Where(x => x.Id == request.Model.ObjectId)
-            .FirstOrDefaultAsync(x => x.Id == request.Model.ObjectId, cancellationToken);
+            .Where(x => x.Id == request.Model.Id.ToObjectId())
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (findWelcome == null)
         {

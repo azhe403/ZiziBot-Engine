@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
 
 namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
@@ -12,7 +11,7 @@ public class GetListRssRequest : ApiRequestBase<List<GetListRssResponse>>
 
 public class GetListRssResponse
 {
-    public ObjectId Id { get; set; }
+    public string Id { get; set; }
     public string Url { get; set; }
     public long ChatId { get; set; }
     public string LastErrorMessage { get; set; }
@@ -38,7 +37,7 @@ public class GetListRssHandler(
             .ToListAsync(cancellationToken: cancellationToken);
 
         var result = listRss.Select(x => new GetListRssResponse {
-            Id = x.Id,
+            Id = x.Id.ToString(),
             Url = x.RssUrl,
             ChatId = x.ChatId,
             LastErrorMessage = x.LastErrorMessage,

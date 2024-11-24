@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.DataSource.Utils;
 
 namespace ZiziBot.DataSource.Repository;
 
@@ -11,7 +11,7 @@ public class GroupRepository(MongoEfContext mongoDbContext, ICacheService cacheS
     {
         var query = await mongoDbContext.WelcomeMessage
             .AsNoTracking()
-            .Where(entity => entity.Id == new ObjectId(welcomeId))
+            .Where(entity => entity.Id == welcomeId.ToObjectId())
             .FirstOrDefaultAsync();
 
         if (query == null)

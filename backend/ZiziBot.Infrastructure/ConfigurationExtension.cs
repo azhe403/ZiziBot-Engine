@@ -15,7 +15,7 @@ public static class ConfigurationExtension
         return builder.LoadLocalSettings();
     }
 
-    public static IServiceCollection ConfigureSettings(this IServiceCollection services)
+    public async static Task<IServiceCollection> ConfigureSettings(this IServiceCollection services)
     {
         services.AddDataSource();
         services.AddDataRepository();
@@ -23,6 +23,7 @@ public static class ConfigurationExtension
         var provider = services.BuildServiceProvider();
 
         var config = provider.GetRequiredService<IConfiguration>();
+        var appSettings = provider.GetRequiredService<AppSettingRepository>();
 
         services.Configure<CacheConfig>(config.GetSection("Cache"));
         services.Configure<EngineConfig>(config.GetSection("Engine"));
@@ -32,24 +33,12 @@ public static class ConfigurationExtension
         services.Configure<JwtConfig>(config.GetSection("Jwt"));
         services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
 
-        // services.Configure<List<BotClientItem>>(
-        //     list => {
-        //         var host = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
-        //         var listBotData = appSettingDbContext.BotSettings
-        //             .Where(settings => settings.Status == (int)EventStatus.Complete)
-        //             .AsEnumerable()
-        //             .Select(settings => new BotClientItem(settings.Name, new TelegramBotClientOptions(settings.Token)))
-        //             .ToList();
-        //
-        //         list.AddRange(listBotData);
-        //     }
-        // );
-
+        Flag.Current = await appSettings.GetFlags();
 
         return services;
     }
 
-    static IConfigurationBuilder LoadLocalSettings(this IConfigurationBuilder builder)
+    private static IConfigurationBuilder LoadLocalSettings(this IConfigurationBuilder builder)
     {
         var settingsPath = Path.Combine(Environment.CurrentDirectory, "Storage", "AppSettings", "Current");
 
@@ -68,7 +57,7 @@ public static class ConfigurationExtension
     }
 
 
-    static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
+    private static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
     {
         var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
         var url = mongodbConnectionString.ToMongoUrl();

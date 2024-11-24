@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
+using ZiziBot.DataSource.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 
@@ -26,7 +26,7 @@ public class DeleteNoteHandler(
 
         var note = await dataFacade.MongoEf.Note
             .Where(entity => entity.ChatId == request.Body.ChatId)
-            .Where(entity => entity.Id == new ObjectId(request.Body.Id))
+            .Where(entity => entity.Id == request.Body.Id.ToObjectId())
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
