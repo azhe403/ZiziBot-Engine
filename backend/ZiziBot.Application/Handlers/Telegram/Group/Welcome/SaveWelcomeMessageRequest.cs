@@ -47,7 +47,7 @@ public class SaveWelcomeMessageHandler(
                 break;
             case "/wd":
                 welcomeMessage.Media = request.ReplyToMessage.GetFileId();
-                welcomeMessage.DataType = (int)request.ReplyToMessage.Type;
+                welcomeMessage.DataType = (CommonMediaType)request.ReplyToMessage.Type;
                 break;
             case "/wb":
                 welcomeMessage.RawButton = request.ReplyToMessage.Text;

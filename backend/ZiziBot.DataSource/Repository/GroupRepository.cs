@@ -31,8 +31,8 @@ public class GroupRepository(MongoEfContext mongoDbContext, ICacheService cacheS
             Text = query.Text,
             RawButton = query.RawButton,
             Media = query.Media,
-            DataType = query.DataType,
-            DataTypeName = ((CommonMediaType)query.DataType).ToString(),
+            DataType = (int)query.DataType,
+            DataTypeName = query.DataType.ToString(),
             Status = (int)query.Status,
             StatusName = ((EventStatus)query.Status).ToString()
         };

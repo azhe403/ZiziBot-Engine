@@ -28,7 +28,7 @@ public class SaveWelcomeMessageRequestModel
     public string Text { get; set; }
     public string? RawButton { get; set; }
     public string? Media { get; set; }
-    public int DataType { get; set; } = -1;
+    public CommonMediaType DataType { get; set; }
 }
 
 public class SaveWelcomeMessageHandler(

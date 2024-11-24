@@ -81,7 +81,7 @@ public class NewChatMembersHandler(
             text: messageText,
             replyMarkup: welcomeMessage?.RawButton.ToButtonMarkup(),
             fileId: welcomeMessage?.Media,
-            mediaType: (CommonMediaType)welcomeMessage?.DataType
+            mediaType: welcomeMessage?.DataType
         );
     }
 }

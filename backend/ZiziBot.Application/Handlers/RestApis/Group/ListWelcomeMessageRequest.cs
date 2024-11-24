@@ -43,8 +43,8 @@ public class ListWelcomeMessageHandler(
             Text = entity.Text,
             RawButton = entity.RawButton,
             Media = entity.Media,
-            DataType = entity.DataType,
-            DataTypeName = ((CommonMediaType)entity.DataType).ToString(),
+            DataType = (int)entity.DataType,
+            DataTypeName = entity.DataType.ToString(),
             Status = (int)entity.Status,
             StatusName = entity.Status.ToString(),
             UpdatedDate = entity.UpdatedDate
