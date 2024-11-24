@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using Serilog;
 using ZiziBot.Contracts.Dtos;
 
 // ReSharper disable InconsistentNaming
@@ -7,6 +8,8 @@ namespace ZiziBot.Contracts.Constants;
 
 public static class Flag
 {
+    public static List<FlagDto> Current { get; set; }
+
     public static List<FlagDto> GetFields()
     {
         var properties = typeof(Flag).GetFields();
@@ -19,6 +22,23 @@ public static class Flag
         return values;
     }
 
+    public static bool IsEnabled(string flagName)
+    {
+        var flag = Current.FirstOrDefault(x => x.Name == flagName);
+
+        if (flag == null)
+        {
+            var defaultFlag = GetFields().FirstOrDefault(x => x.Name == flagName);
+            Log.Debug($"Flag {flagName} not found. Using default value: {defaultFlag?.Value ?? false}");
+
+            return defaultFlag?.Value ?? false;
+        }
+
+        Log.Debug("Flag {FlagName} is {FlagValue}", flag.Name, flag.Value);
+        return flag.Value;
+    }
+
+    #region Flags
     #region Infrastructure
     [DefaultValue(true)]
     public const string CONSOLE_BLAZOR = "CONSOLE_BLAZOR";
@@ -57,13 +77,5 @@ public static class Flag
     [DefaultValue(true)]
     public const string PAGE_LIST_PENDEKIN = "/pendekin";
     #endregion
-
-    public static List<FlagDto> Current { get; set; }
-
-    public static bool IsEnabled(string flagName)
-    {
-        var flag = Current.First(x => x.Name == flagName);
-
-        return flag.Value;
-    }
+    #endregion
 }
