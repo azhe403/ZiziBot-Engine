@@ -1,10 +1,6 @@
 [submodule "backend/lib/ZiziBot.TelegramBot"]
 	path = backend/lib/ZiziBot.TelegramBot
 	url = https://github.com/azhe403/ZiziBot.TelegramBot
-
-[submodule "frontend/apps/tailadmin-nextjs-dashboard"]
-	path = frontend/apps/tailadmin-nextjs-dashboard
-	url = https://github.com/azhe403/tailadmin-nextjs-admin-dashboard
 [submodule "turborepo-console"]
 	path = turborepo-console
 	url = https://github.com/azhe403/turborepo-zizibot-console
