@@ -16,7 +16,7 @@ public class UserController : ApiControllerBase
     }
 
     [HttpGet("info")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(checkHeader: true, needAuthenticated: true)]
     public async Task<IActionResult> GetUserInfo(GetUserInfoRequest request)
     {
         return await SendRequest(request);
