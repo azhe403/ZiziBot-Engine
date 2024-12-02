@@ -1,5 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
-
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -9,13 +8,11 @@
     <InvariantGlobalization>false</InvariantGlobalization>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.0"/>
     <PackageReference Include="NewRelic.Agent" Version="10.34.0"/>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
     <ProjectReference Include="..\ZiziBot.Console\ZiziBot.Console.csproj"/>
@@ -27,11 +24,13 @@
     <ProjectReference Include="..\ZiziBot.TelegramBot\ZiziBot.TelegramBot.csproj"/>
     <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj"/>
   </ItemGroup>
-
   <ItemGroup>
     <None Update=".env">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
+  <Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != 0">
+    <Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High"/>
+    <Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="..\.."/>
+  </Target>
 </Project>

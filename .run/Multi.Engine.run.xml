@@ -1,6 +1,5 @@
 ﻿<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Console &amp; API" type="com.intellij.execution.configurations.multilaunch" factoryName="MultiLaunchConfiguration">
-    <option name="activateToolWindows" value="true"/>
+  <configuration default="false" name="Multi.Engine" type="com.intellij.execution.configurations.multilaunch" factoryName="MultiLaunchConfiguration">
     <rows>
       <ExecutableRowSnapshot>
         <option name="condition">

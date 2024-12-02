@@ -38,6 +38,8 @@ public class TelegramService(
 
         if (_request.ReplyMessage)
             _request.ReplyToMessageId = _request.Message?.MessageId ?? default;
+
+        Guard.Against.Null(Bot);
     }
 
     public async Task<bool> IsBotName(string name)
@@ -125,8 +127,8 @@ public class TelegramService(
         logger.LogDebug("Sending message to chat {ChatId}", targetChatId);
         try
         {
-            SentMessage = await Bot.SendTextMessageAsync(
-                targetChatId,
+            SentMessage = await Bot.SendMessage(
+                chatId: targetChatId,
                 messageThreadId: threadId,
                 text: text,
                 replyParameters: replyParameters,
@@ -142,9 +144,9 @@ public class TelegramService(
                 try
                 {
                     logger.LogWarning("Trying send message without thread to ChatId: {ChatId}", targetChatId);
-                    SentMessage = await Bot.SendTextMessageAsync(
-                        targetChatId,
-                        text,
+                    SentMessage = await Bot.SendMessage(
+                        chatId: targetChatId,
+                        text: text,
                         replyParameters: _request.ReplyMessage ? _request.ReplyToMessageId : -1,
                         parseMode: ParseMode.Html,
                         replyMarkup: replyMarkup,
@@ -206,7 +208,7 @@ public class TelegramService(
 
         text += "\n\n" + GetExecStamp();
 
-        await Bot.EditMessageTextAsync(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
+        await Bot.EditMessageText(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
 
         await mediator.Send(new CreateChatActivityRequest() {
             ActivityType = ChatActivityType.BotEditMessage,
@@ -231,10 +233,9 @@ public class TelegramService(
 
         var targetThreadId = threadId ?? _request.MessageThreadId;
 
-        logger.LogInformation("Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId,
-            targetChatId);
+        logger.LogInformation(message: "Sending media: {MediaType}, fileId: {FileId} to {ChatId}", args: [mediaType, fileId, targetChatId]);
 
-        InputFile inputFile = InputFile.FromFileId(fileId);
+        InputFile inputFile = InputFile.FromFileId(fileId: fileId);
 
         switch (mediaType)
         {
@@ -242,15 +243,15 @@ public class TelegramService(
 
                 if (fileId.IsValidUrl())
                 {
-                    logger.LogInformation("Converting URL: '{Url}' to stream", fileId);
+                    logger.LogInformation(message: "Converting URL: '{Url}' to stream", args: fileId);
                     var stream = await fileId.GetStreamAsync();
 
-                    inputFile = InputFile.FromStream(stream, customFileName);
+                    inputFile = InputFile.FromStream(stream: stream, fileName: customFileName);
                 }
 
-                SentMessage = await Bot.SendDocumentAsync(
-                    targetChatId,
-                    inputFile,
+                SentMessage = await Bot.SendDocument(
+                    chatId: targetChatId,
+                    document: inputFile,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -261,15 +262,15 @@ public class TelegramService(
                 break;
 
             case CommonMediaType.LocalDocument:
-                var fileName = Path.GetFileName(fileId);
+                var fileName = Path.GetFileName(path: fileId);
 
-                await using (var fileStream = File.OpenRead(fileId))
+                await using (var fileStream = File.OpenRead(path: fileId))
                 {
-                    var inputOnlineFile = InputFile.FromStream(fileStream, fileName);
+                    var inputOnlineFile = InputFile.FromStream(stream: fileStream, fileName: fileName);
 
-                    SentMessage = await Bot.SendDocumentAsync(
-                        targetChatId,
-                        inputOnlineFile,
+                    SentMessage = await Bot.SendDocument(
+                        chatId: targetChatId,
+                        document: inputOnlineFile,
                         caption: caption,
                         parseMode: ParseMode.Html,
                         replyMarkup: replyMarkup,
@@ -281,9 +282,9 @@ public class TelegramService(
                 break;
 
             case CommonMediaType.Photo:
-                SentMessage = await Bot.SendPhotoAsync(
-                    targetChatId,
-                    inputFile,
+                SentMessage = await Bot.SendPhoto(
+                    chatId: targetChatId,
+                    photo: inputFile,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -294,9 +295,9 @@ public class TelegramService(
                 break;
 
             case CommonMediaType.Audio:
-                SentMessage = await Bot.SendAudioAsync(
-                    targetChatId,
-                    inputFile,
+                SentMessage = await Bot.SendAudio(
+                    chatId: targetChatId,
+                    audio: inputFile,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -307,9 +308,9 @@ public class TelegramService(
                 break;
 
             case CommonMediaType.Video:
-                SentMessage = await Bot.SendVideoAsync(
-                    targetChatId,
-                    inputFile,
+                SentMessage = await Bot.SendVideo(
+                    chatId: targetChatId,
+                    video: inputFile,
                     caption: caption,
                     parseMode: ParseMode.Html,
                     replyMarkup: replyMarkup,
@@ -320,9 +321,9 @@ public class TelegramService(
                 break;
 
             case CommonMediaType.Sticker:
-                SentMessage = await Bot.SendStickerAsync(
-                    targetChatId,
-                    inputFile,
+                SentMessage = await Bot.SendSticker(
+                    chatId: targetChatId,
+                    sticker: inputFile,
                     replyMarkup: replyMarkup,
                     replyParameters: _request.ReplyToMessageId,
                     messageThreadId: targetThreadId
@@ -332,11 +333,11 @@ public class TelegramService(
 
             case CommonMediaType.Unknown:
             case CommonMediaType.Text:
-                await SendMessageText(caption, replyMarkup);
+                await SendMessageText(text: caption, replyMarkup: replyMarkup);
                 break;
 
             default:
-                logger.LogWarning("Media unknown: {MediaType}", mediaType);
+                logger.LogWarning(message: "Media unknown: {MediaType}", args: mediaType);
                 return default;
         }
 
@@ -367,7 +368,7 @@ public class TelegramService(
         logger.LogDebug("Updating media caption in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId,
             targetMessageId);
 
-        Bot.EditMessageCaptionAsync(
+        Bot.EditMessageCaption(
             targetChatId,
             targetMessageId,
             caption,
@@ -386,7 +387,7 @@ public class TelegramService(
         logger.LogDebug("Updating media file in {ChatId}:{ThreadId}:{MessageId}", targetChatId, targetThreadId,
             targetMessageId);
 
-        Bot.EditMessageMediaAsync(
+        Bot.EditMessageMedia(
             targetChatId,
             targetMessageId,
             media,
@@ -447,7 +448,7 @@ public class TelegramService(
     {
         try
         {
-            await Bot.DeleteMessageAsync(_request.ChatId, _request.MessageId);
+            await Bot.DeleteMessage(_request.ChatId, _request.MessageId);
         }
         catch (Exception e)
         {
@@ -461,7 +462,7 @@ public class TelegramService(
 
     public async Task<BotResponseBase> AnswerCallbackAsync(string message, bool showAlert = false)
     {
-        await Bot.AnswerCallbackQueryAsync(_request.CallbackQueryId, message, showAlert);
+        await Bot.AnswerCallbackQuery(_request.CallbackQueryId, message, showAlert);
         return Complete();
     }
 
@@ -475,7 +476,7 @@ public class TelegramService(
             }
 
             var reducedResults = results.Take(50);
-            await Bot.AnswerInlineQueryAsync(_request.InlineQuery.Id, reducedResults, 60);
+            await Bot.AnswerInlineQuery(_request.InlineQuery.Id, reducedResults, 60);
         }
         catch (Exception e)
         {
@@ -487,7 +488,7 @@ public class TelegramService(
 
     public async Task LeaveChatAsync()
     {
-        await Bot.LeaveChatAsync(_request.ChatId);
+        await Bot.LeaveChat(_request.ChatId);
     }
     #endregion
 
@@ -521,7 +522,7 @@ public class TelegramService(
     {
         try
         {
-            var channel = await Bot.GetChatAsync(chatId);
+            var channel = await Bot.GetChat(chatId);
 
             return channel;
         }
@@ -533,22 +534,22 @@ public class TelegramService(
 
     public async Task PinChatMessageAsync(int messageId)
     {
-        await Bot.UnpinChatMessageAsync(_request.ChatId, messageId);
-        await Bot.PinChatMessageAsync(_request.ChatId, messageId);
+        await Bot.UnpinChatMessage(_request.ChatId, messageId);
+        await Bot.PinChatMessage(_request.ChatId, messageId);
     }
     #endregion
 
     #region Member
     public async Task<int> GetMemberCount()
     {
-        var memberCount = await Bot.GetChatMemberCountAsync(_request.ChatId);
+        var memberCount = await Bot.GetChatMemberCount(_request.ChatId);
         return memberCount;
     }
 
     public async Task MuteMemberAsync(long userId, TimeSpan duration)
     {
         var untilDate = DateTime.UtcNow + duration;
-        await Bot.RestrictChatMemberAsync(_request.ChatId, userId, new() {
+        await Bot.RestrictChatMember(_request.ChatId, userId, new() {
             CanSendAudios = false,
             CanSendPhotos = false,
             CanSendVideos = false,
@@ -562,8 +563,8 @@ public class TelegramService(
     {
         if (userId == default) userId = _request.UserId;
 
-        await Bot.BanChatMemberAsync(_request.ChatId, userId);
-        await Bot.UnbanChatMemberAsync(_request.ChatId, userId);
+        await Bot.BanChatMember(_request.ChatId, userId);
+        await Bot.UnbanChatMember(_request.ChatId, userId);
     }
 
     public async Task AnswerJoinRequestAsync(ChatJoinRequest joinRequest)
@@ -576,7 +577,7 @@ public class TelegramService(
         var cache = await cacheService.GetOrSetAsync(
             CacheKey.CHAT_ACTIVE_USERNAMES + _request.ChatId,
             async () => {
-                var chat = await Bot.GetChatAsync(_request.ChatId);
+                var chat = await Bot.GetChat(_request.ChatId);
                 var activeUsernames = chat.ActiveUsernames;
 
                 return activeUsernames ?? Array.Empty<string>();
@@ -590,7 +591,7 @@ public class TelegramService(
         var cache = await cacheService.GetOrSetAsync(
             CacheKey.USER_ACTIVE_USERNAMES + _request.UserId,
             async () => {
-                var chat = await Bot.GetChatAsync(_request.UserId);
+                var chat = await Bot.GetChat(_request.UserId);
                 var activeUsernames = chat.ActiveUsernames;
 
                 return activeUsernames ?? Array.Empty<string>();
@@ -624,7 +625,7 @@ public class TelegramService(
     {
         logger.LogInformation("Promoting user {UserId} in chat {ChatId}", userId, _request.ChatId);
 
-        await Bot.PromoteChatMemberAsync(
+        await Bot.PromoteChatMember(
             _request.ChatId,
             _request.UserId,
             canPostMessages: true,
@@ -642,7 +643,7 @@ public class TelegramService(
     {
         logger.LogInformation("Demoting user {UserId} in chat {ChatId}", userId, _request.ChatId);
 
-        await Bot.PromoteChatMemberAsync(
+        await Bot.PromoteChatMember(
             chatId: _request.ChatId,
             userId: _request.UserId,
             canPostMessages: false,
@@ -664,7 +665,7 @@ public class TelegramService(
         var cacheValue = await cacheService.GetOrSetAsync(
             CacheKey.CHAT_ADMIN + _request.ChatId,
             async () => {
-                var chatAdmins = await Bot.GetChatAdministratorsAsync(_request.ChatId);
+                var chatAdmins = await Bot.GetChatAdministrators(_request.ChatId);
                 return chatAdmins.Select(chatMember => {
                     var dto = new ChatAdminDto {
                         User = chatMember.User,

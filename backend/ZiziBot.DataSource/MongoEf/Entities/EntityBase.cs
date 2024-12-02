@@ -8,5 +8,7 @@ public class EntityBase
     public EventStatus Status { get; set; }
     public string? TransactionId { get; set; }
     public DateTime CreatedDate { get; set; }
+    public long? CreatedBy { get; set; }
     public DateTime UpdatedDate { get; set; }
+    public long? UpdatedBy { get; set; }
 }
