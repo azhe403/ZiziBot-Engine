@@ -28,6 +28,7 @@ public class ListPendekinHandler(
                 CreatedDate = x.CreatedDate,
                 UpdatedDate = x.UpdatedDate
             })
+            .OrderByDescending(x => x.UpdatedDate).ThenByDescending(x => x.CreatedDate)
             .ToListAsync(cancellationToken: cancellationToken);
 
         return ApiResponseBase.ReturnSuccess("Get list Pendekin successfully", listPendekin);
