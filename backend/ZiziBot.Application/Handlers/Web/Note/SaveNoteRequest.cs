@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using MongoDB.Bson;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.Utils;
 
 namespace ZiziBot.Application.Handlers.Web.Note;
 
@@ -14,7 +13,6 @@ public class SaveNoteRequest : WebRequestBase<bool>
     public string? FileId { get; set; }
     public string? RawButton { get; set; }
     public int DataType { get; set; } = -1;
-    public ObjectId ObjectId => Id != null ? new ObjectId(Id) : ObjectId.Empty;
 }
 
 public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
@@ -26,21 +24,24 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
     }
 }
 
-public class CreateNoteHandler(IHttpContextAccessor httpContextAccessor, NoteService noteService) : IWebRequestHandler<SaveNoteRequest, bool>
+public class CreateNoteHandler(
+    IHttpContextAccessor httpContextAccessor,
+    DataFacade dataFacade
+) : IWebRequestHandler<SaveNoteRequest, bool>
 {
     public async Task<WebResponseBase<bool>> Handle(SaveNoteRequest request, CancellationToken cancellationToken)
     {
         WebResponseBase<bool> response = new();
 
-        var save = await noteService.Save(new NoteEntity() {
-            Id = request.ObjectId,
+        var save = await dataFacade.ChatSetting.Save(new() {
+            Id = request.Id.ToObjectId(),
             ChatId = request.ChatId,
             Query = request.Query,
             Content = request.Content,
             FileId = request.FileId,
             RawButton = request.RawButton,
             DataType = request.DataType,
-            Status = (int)EventStatus.Complete,
+            Status = EventStatus.Complete,
             UserId = httpContextAccessor.GetUserId(),
             TransactionId = httpContextAccessor.GetTransactionId()
         });

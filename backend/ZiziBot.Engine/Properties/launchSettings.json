@@ -11,7 +11,7 @@
     "ZiziBot.Engine": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": true,
+      "launchBrowser": false,
       "applicationUrl": "https://127.0.0.1:7120;http://127.0.0.1:5031",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

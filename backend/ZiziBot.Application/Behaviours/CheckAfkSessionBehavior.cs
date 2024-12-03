@@ -1,6 +1,6 @@
 using MediatR.Pipeline;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Behaviours;
 
@@ -42,10 +42,10 @@ public class CheckAfkSessionBehavior<TRequest, TResponse>(
             userName = request.ReplyToMessage.From.GetFullMention();
         }
 
-        var afkEntity = await dataFacade.MongoDb.Afk
+        var afkEntity = await dataFacade.MongoEf.Afk
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == userId &&
-                    entity.Status == (int)EventStatus.Complete,
+                    entity.Status == EventStatus.Complete,
                 cancellationToken);
 
         if (afkEntity == null)
@@ -54,7 +54,7 @@ public class CheckAfkSessionBehavior<TRequest, TResponse>(
         if (userId == request.UserId)
         {
             await serviceFacade.TelegramService.SendMessageText($"{userName} sudah tidak AFK");
-            afkEntity.Status = (int)EventStatus.Deleted;
+            afkEntity.Status = EventStatus.Deleted;
         }
         else
         {
@@ -62,6 +62,6 @@ public class CheckAfkSessionBehavior<TRequest, TResponse>(
         }
 
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
     }
 }

@@ -47,7 +47,7 @@ public static class StringUtil
         return Nanoid.Generate(alphabet: Nanoid.Alphabets.LettersAndDigits, size: size);
     }
 
-    public static async Task<string> GetNanoIdAsync(string prefix = "", int size = 11)
+    public async static Task<string> GetNanoIdAsync(string prefix = "", int size = 11)
     {
         var id = await Nanoid.GenerateAsync(alphabet: Nanoid.Alphabets.LettersAndDigits, size: size);
         return $"{prefix}{id}";
@@ -58,9 +58,19 @@ public static class StringUtil
         return string.IsNullOrEmpty(str);
     }
 
+    public static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? str)
+    {
+        return string.IsNullOrWhiteSpace(str);
+    }
+
     public static bool IsNotNullOrEmpty(this string? str)
     {
         return !string.IsNullOrEmpty(str);
+    }
+
+    public static bool IsNotNullOrWhiteSpace(this string? str)
+    {
+        return !string.IsNullOrWhiteSpace(str);
     }
 
     public static bool IsValidGuid(this string guid)
@@ -75,10 +85,9 @@ public static class StringUtil
         return Enum.TryParse<TValue>(value, true, out var result) ? result : defaultValue;
     }
 
-    public static string ResolveVariable(this string input, IEnumerable<(string placeholder, string value)> placeHolders)
+    public static string? ResolveVariable(this string? input, IEnumerable<(string placeholder, string value)> placeHolders)
     {
-        return placeHolders.Aggregate(input, (current, ph) =>
-            current.Replace($"{{{ph.placeholder}}}", ph.value, StringComparison.CurrentCultureIgnoreCase));
+        return placeHolders.Aggregate(input, (current, ph) => current?.Replace($"{{{ph.placeholder}}}", ph.value, StringComparison.CurrentCultureIgnoreCase));
     }
 
     public static string Sha256Hash(string value)

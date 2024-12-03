@@ -7,7 +7,6 @@ public class NoteAddViewModel : ReactiveObject, IActivatableViewModel
 {
     private readonly IMediator _mediator;
     private readonly DialogService _dialogService;
-    private readonly NoteService _noteService;
     public ViewModelActivator Activator { get; } = new ViewModelActivator();
     public ReactiveCommand<Unit, Unit> OnSaveCommand { get; }
     public ReactiveCommand<Unit, Unit> OnCancelCommand { get; }
@@ -42,11 +41,10 @@ public class NoteAddViewModel : ReactiveObject, IActivatableViewModel
     [Reactive]
     public DateTime UpdatedDate { get; set; }
 
-    public NoteAddViewModel(IMediator mediator, DialogService dialogService, NoteService noteService)
+    public NoteAddViewModel(IMediator mediator, DialogService dialogService)
     {
         _mediator = mediator;
         _dialogService = dialogService;
-        _noteService = noteService;
 
         var valid = this.WhenAnyValue(vm => vm.Query, (model) => !string.IsNullOrEmpty(model))
             .Log(this, "Validity changed")
@@ -62,8 +60,7 @@ public class NoteAddViewModel : ReactiveObject, IActivatableViewModel
 
     private async Task SaveCommand()
     {
-        await _mediator.Send(new SaveNoteRequest()
-        {
+        await _mediator.Send(new SaveNoteRequest() {
             Id = NoteId,
             ChatId = ChatId,
             Query = Query,

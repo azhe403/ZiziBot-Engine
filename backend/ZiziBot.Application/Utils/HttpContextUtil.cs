@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 
 namespace ZiziBot.Application.Utils;
@@ -42,5 +43,16 @@ public static class HttpContextUtil
     public static string GetCookieValue(this IRequestCookieCollection cookieCollection, string key)
     {
         return cookieCollection.TryGetValue(key, out var value) ? value : string.Empty;
+    }
+
+    public static JwtSecurityToken? DecodeJwt(this string? bearerToken)
+    {
+        if (bearerToken.IsNullOrWhiteSpace())
+            return default;
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(bearerToken);
+
+        return jwtToken;
     }
 }

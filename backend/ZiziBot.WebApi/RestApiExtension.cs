@@ -17,7 +17,9 @@ namespace ZiziBot.WebApi;
 
 public static class RestApiExtension
 {
-    public static IServiceCollection ConfigureApi(this IServiceCollection services)
+    private const string ALLOW_ANY_ORIGIN_POLICY = "AllowAnyOriginPolicy";
+
+    public static IServiceCollection AddRestApi(this IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
         var jwtConfig = serviceProvider.GetRequiredService<IOptions<JwtConfig>>().Value;
@@ -51,7 +53,7 @@ public static class RestApiExtension
                             Message = key.Value?.Errors.Select(e => e.ErrorMessage)
                         }).ToList();
 
-                    var errors = errorDetails.SelectMany(x => x.Message).ToList();
+                    var errors = errorDetails.SelectMany(x => x.Message ?? Array.Empty<string>()).ToList();
 
                     return new BadRequestObjectResult(new ApiResponseBase<object>() {
                         StatusCode = HttpStatusCode.BadRequest,
@@ -115,8 +117,7 @@ public static class RestApiExtension
     private static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
     {
         services.AddCors(options => {
-            options.AddPolicy("CorsPolicy", builder => builder
-                // .WithOrigins("http://localhost:4200")
+            options.AddPolicy(ALLOW_ANY_ORIGIN_POLICY, builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
@@ -145,7 +146,12 @@ public static class RestApiExtension
         app.UseMiddleware<RequestBodyGuardMiddleware>();
         app.MapHub<LogHub>("/api/logging");
 
-        app.UseCors("CorsPolicy");
+        app.UseStaticFiles();
+        app.MapControllers();
+        app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
+
+        app.UseRouting();
+        app.UseCors(ALLOW_ANY_ORIGIN_POLICY);
         app.UseAuthentication();
         app.UseAuthorization();
 

@@ -24,7 +24,7 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
 
     [BindNever]
     [SwaggerIgnore]
-    public long SessionUserId => Headers.GetUserId();
+    public long SessionUserId => BearerToken.DecodeJwt()?.Claims.FirstOrDefault(claim => claim.Type == "userId")?.Value.Convert<long>() ?? 0;
 
     [BindNever]
     [SwaggerIgnore]

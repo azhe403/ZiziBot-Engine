@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SharpX.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -30,9 +30,9 @@ public class ForwardChannelPostHandler(
         var messageLink = channel.GetMessageLink();
         var fileUniqueId = channel.GetFileUniqueId();
 
-        var channelMaps = await dataFacade.MongoDb.ChannelMap
+        var channelMaps = await dataFacade.MongoEf.ChannelMap
             .Where(entity => entity.ChannelId == channelId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         var replyMarkup = new InlineKeyboardMarkup(new[] {
@@ -42,11 +42,11 @@ public class ForwardChannelPostHandler(
         });
 
         await channelMaps.ForEachAsync(async channelMap => {
-            var channelPost = await dataFacade.MongoDb.ChannelPost.AsNoTracking()
+            var channelPost = await dataFacade.MongoEf.ChannelPost.AsNoTracking()
                 .Where(x => x.DestinationChatId == channelMap.ChatId)
                 .Where(x => x.DestinationThreadId == channelMap.ThreadId)
                 .Where(x => x.SourceMessageId == channel!.MessageId)
-                .Where(x => x.Status == (int)EventStatus.Complete)
+                .Where(x => x.Status == EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
             try
@@ -87,7 +87,7 @@ public class ForwardChannelPostHandler(
                         _ => throw new ArgumentOutOfRangeException()
                     };
 
-                    dataFacade.MongoDb.ChannelPost.Add(new ChannelPostEntity() {
+                    dataFacade.MongoEf.ChannelPost.Add(new ChannelPostEntity() {
                         SourceChannelId = channelMap.ChannelId,
                         SourceMessageId = channel.MessageId,
                         DestinationChatId = channelMap.ChatId,
@@ -97,7 +97,7 @@ public class ForwardChannelPostHandler(
                         FileId = fileId,
                         FileUniqueId = fileUniqueId,
                         MediaType = (int)channel.Type,
-                        Status = (int)EventStatus.Complete
+                        Status = EventStatus.Complete
                     });
                 }
 
@@ -178,7 +178,7 @@ public class ForwardChannelPostHandler(
             }
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return serviceFacade.TelegramService.Complete();
     }

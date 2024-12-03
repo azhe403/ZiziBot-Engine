@@ -5,8 +5,6 @@ namespace ZiziBot.DataMigration.MongoDb.Migrations;
 
 public class FinishMigration : IPostMigration
 {
-    public string Id { get; set; }
-
     public async Task UpAsync(IMongoDatabase database)
     { }
 

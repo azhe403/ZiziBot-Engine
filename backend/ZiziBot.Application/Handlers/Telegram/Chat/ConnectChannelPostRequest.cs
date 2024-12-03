@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -15,8 +15,6 @@ public class ConnectChannelPostHandler(
     ServiceFacade serviceFacade
 ) : IBotRequestHandler<ConnectChannelPostRequest>
 {
-    private readonly ILogger<ConnectChannelPostHandler> _logger = logger;
-
     public async Task<BotResponseBase> Handle(ConnectChannelPostRequest request, CancellationToken cancellationToken)
     {
         serviceFacade.TelegramService.SetupResponse(request);
@@ -36,23 +34,23 @@ public class ConnectChannelPostHandler(
                                                                        "\nPastikan Bot sudah ditambahkan ke Channel tersebut");
         }
 
-        var channelMap = await dataFacade.MongoDb.ChannelMap.AsNoTracking()
+        var channelMap = await dataFacade.MongoEf.ChannelMap.AsNoTracking()
             .Where(entity => entity.ChannelId == request.ChannelId)
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            .Where(entity => entity.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync();
 
         if (channelMap == null)
         {
-            dataFacade.MongoDb.ChannelMap.Add(new ChannelMapEntity() {
+            dataFacade.MongoEf.ChannelMap.Add(new ChannelMapEntity() {
                 ChannelId = request.ChannelId,
                 ThreadId = request.MessageThreadId,
                 ChatId = request.ChatIdentifier,
-                Status = (int)EventStatus.Complete
+                Status = EventStatus.Complete
             });
 
-            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
         }
 
         await serviceFacade.TelegramService.EditMessageText("Berhasil menautkan Kanal.");

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using ZiziBot.Contracts.Dtos.Entity;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.DataSource.Utils;
 using ZiziBot.Types.Types;
 
 namespace ZiziBot.DataSource.Repository;
@@ -35,33 +35,67 @@ public class ChatSettingRepository(
         return cache;
     }
 
-    public async Task RefreshChatInfo(ChatSettingDto request)
+    public async Task RefreshChatInfo(ChatSettingDto dto)
     {
-        logger.LogInformation("Ensure ChatSetting for ChatId: {ChatId} Started", request.ChatId);
+        logger.LogInformation("Ensure ChatSetting for ChatId: {ChatId} Started", dto.ChatId);
 
         var chatSetting = await mongoDbContext.ChatSetting
-            .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
+            .Where(x => x.ChatId == dto.ChatId)
+            .Where(x => x.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync();
 
         if (chatSetting == null)
         {
-            logger.LogDebug("Creating fresh ChatSetting for ChatId: {ChatId}", request.ChatId);
+            logger.LogDebug("Creating fresh ChatSetting for ChatId: {ChatId}", dto.ChatId);
 
             mongoDbContext.ChatSetting.Add(new() {
-                ChatId = request.ChatId,
-                ChatTitle = request.ChatTitle,
-                ChatType = request.ChatType,
-                ChatTypeName = request.ChatType.ToString(),
-                Status = EventStatus.Complete
+                ChatId = dto.ChatId,
+                ChatTitle = dto.ChatTitle,
+                ChatType = dto.ChatType,
+                ChatTypeName = dto.ChatType.ToString(),
+                Status = EventStatus.Complete,
+                TransactionId = dto.TransactionId
             });
         }
         else
         {
-            logger.LogDebug("Updating ChatSetting for ChatId: {ChatId}", request.ChatId);
+            logger.LogDebug("Updating ChatSetting for ChatId: {ChatId}", dto.ChatId);
 
-            chatSetting.ChatTitle = request.ChatTitle;
-            chatSetting.ChatType = request.ChatType;
-            chatSetting.ChatTypeName = request.ChatType.ToString();
+            chatSetting.ChatTitle = dto.ChatTitle;
+            chatSetting.ChatType = dto.ChatType;
+            chatSetting.ChatTypeName = dto.ChatType.ToString();
             chatSetting.Status = EventStatus.Complete;
+        }
+
+        var chatUser = await mongoDbContext.ChatUser
+            .Where(x => x.ChatId == dto.ChatId)
+            .Where(x => x.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync();
+
+        if (chatUser == null)
+        {
+            logger.LogDebug("Creating fresh ChatUser for ChatId: {ChatId}", dto.ChatId);
+
+            mongoDbContext.ChatUser.Add(new() {
+                ChatId = dto.ChatId,
+                ChatType = dto.ChatType,
+                ChatTitle = dto.ChatTitle,
+                ChatUsername = dto.ChatUsername,
+                MemberCount = dto.MemberCount,
+                Status = EventStatus.Complete,
+                TransactionId = dto.TransactionId
+            });
+        }
+        else
+        {
+            logger.LogDebug("Updating ChatUser for ChatId: {ChatId}", dto.ChatId);
+
+            chatUser.ChatTitle = dto.ChatTitle;
+            chatUser.ChatType = dto.ChatType;
+            chatUser.ChatUsername = dto.ChatUsername;
+            chatUser.MemberCount = dto.MemberCount;
+            chatUser.Status = EventStatus.Complete;
+            chatUser.TransactionId = dto.TransactionId;
         }
 
         await mongoDbContext.SaveChangesAsync();
@@ -159,11 +193,11 @@ public class ChatSettingRepository(
         return listNoteEntity;
     }
 
-    public async Task<NoteDto> GetNote(string noteId)
+    public async Task<NoteDto?> GetNote(string noteId)
     {
         var listNoteEntity = await mongoDbContext.Note
             .AsNoTracking()
-            .Where(entity => entity.Id == new ObjectId(noteId))
+            .Where(entity => entity.Id == noteId.ToObjectId())
             .Join(mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto() {
                 Id = note.Id.ToString(),
                 ChatId = note.ChatId,
@@ -182,6 +216,95 @@ public class ChatSettingRepository(
             .FirstOrDefaultAsync();
 
         return listNoteEntity;
+    }
+
+    public async Task<List<NoteDto>> GetAllByChat(long chatId, bool evictBefore = false)
+    {
+        var cache = await cacheService.GetOrSetAsync(
+            CacheKey.CHAT_NOTES + chatId,
+            evictBefore: evictBefore,
+            action: async () => {
+                var noteEntities = await mongoDbContext.Note
+                    .Where(entity => entity.ChatId == chatId)
+                    .Where(entity => entity.Status == EventStatus.Complete)
+                    .OrderBy(entity => entity.Query)
+                    .ToListAsync();
+
+                var noteDto = noteEntities.Select(entity => new NoteDto {
+                    Id = entity.Id.ToString(),
+                    ChatId = entity.ChatId,
+                    Query = entity.Query,
+                    Text = entity.Content,
+                    RawButton = entity.RawButton,
+                    FileId = entity.FileId,
+                    DataType = entity.DataType,
+                    Status = (int)entity.Status,
+                    TransactionId = entity.TransactionId,
+                    CreatedDate = entity.CreatedDate,
+                    UpdatedDate = entity.UpdatedDate
+                }).ToList();
+
+                return noteDto;
+            });
+
+        return cache;
+    }
+
+    public async Task<ServiceResult> Save(NoteEntity entity)
+    {
+        var result = ServiceResult.Init();
+        logger.LogInformation("Checking Note with Query: {Query}", entity.Query);
+
+        var findNote = await mongoDbContext.Note
+            .Where(x => x.Id == entity.Id)
+            .Where(x => x.ChatId == entity.ChatId)
+            .FirstOrDefaultAsync();
+
+        if (findNote == null)
+        {
+            logger.LogInformation("Adding Note with Query: {Query}", entity.Query);
+            mongoDbContext.Note.Add(entity);
+
+            result.Complete("Note created successfully");
+        }
+        else
+        {
+            logger.LogInformation("Updating Note with Id: {Id}", entity.Id);
+
+            findNote.Query = entity.Query;
+            findNote.Content = entity.Content;
+            findNote.DataType = entity.DataType;
+            findNote.FileId = entity.FileId;
+            findNote.RawButton = entity.RawButton;
+            findNote.TransactionId = entity.TransactionId;
+            findNote.UserId = entity.UserId;
+
+            result.Complete("Note updated successfully");
+        }
+
+        await mongoDbContext.SaveChangesAsync();
+
+        await GetAllByChat(entity.ChatId, true);
+
+        return result;
+    }
+
+    public async Task<bool> Delete(long chatId, string note)
+    {
+        var findNote = await mongoDbContext.Note
+            .Where(x => x.ChatId == chatId)
+            .Where(x => x.Query == note)
+            .Where(x => x.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync();
+
+        if (findNote == null)
+            return false;
+
+        findNote.Status = EventStatus.Deleted;
+
+        await mongoDbContext.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<List<BangHasan_ShalatCityEntity>> GetShalatCity(long chatId)

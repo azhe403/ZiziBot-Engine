@@ -1,7 +1,8 @@
 using MediatR.Pipeline;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -24,31 +25,26 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse>(
 
         serviceFacade.TelegramService.SetupResponse(request);
 
-        dataFacade.MongoDb.ChatAdmin
-            .RemoveRange(
-                entity =>
-                    entity.ChatId == request.ChatIdentifier
-            );
+        var listChatAdmin = await dataFacade.MongoEf.ChatAdmin.Where(entity => entity.ChatId == request.ChatIdentifier)
+            .Where(x => x.Status == EventStatus.Complete)
+            .ToListAsync(cancellationToken: cancellationToken);
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        dataFacade.MongoEf.ChatAdmin.RemoveRange(listChatAdmin);
+
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         var chatAdministrators = await serviceFacade.TelegramService.GetChatAdministrator();
-        logger.LogDebug("List of Administrator in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId,
-            chatAdministrators.Count);
+        logger.LogDebug("List of Administrator in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Count);
 
-        var chatAdminEntities = chatAdministrators
-            .Select(
-                x => new ChatAdminEntity() {
-                    ChatId = request.ChatIdentifier,
-                    UserId = x.User.Id,
-                    Role = x.Status,
-                    Status = (int)EventStatus.Complete
-                }
-            )
-            .ToList();
+        var chatAdminEntities = chatAdministrators.Select(x => new ChatAdminEntity() {
+            ChatId = request.ChatIdentifier,
+            UserId = x.User.Id,
+            Role = x.Status,
+            Status = EventStatus.Complete
+        }).ToList();
 
-        dataFacade.MongoDb.ChatAdmin.AddRange(chatAdminEntities);
+        dataFacade.MongoEf.ChatAdmin.AddRange(chatAdminEntities);
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
     }
 }

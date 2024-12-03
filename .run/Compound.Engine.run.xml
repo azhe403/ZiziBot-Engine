@@ -1,0 +1,7 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Compound.Engine" type="CompoundRunConfigurationType">
+    <toRun name="ZiziBot.Engine" type="LaunchSettings"/>
+    <toRun name="shadcn-console" type="js.build_tools.npm"/>
+    <method v="2"/>
+  </configuration>
+</component>

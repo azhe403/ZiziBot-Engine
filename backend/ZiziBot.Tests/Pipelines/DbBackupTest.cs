@@ -5,8 +5,6 @@ namespace ZiziBot.Tests.Pipelines;
 
 public class DbBackupTest(MediatorService mediatorService, AppSettingRepository appSettingRepository)
 {
-    private readonly AppSettingRepository _appSettingRepository = appSettingRepository;
-
     [Fact]
     public async Task ExportMongoDbTest()
     {

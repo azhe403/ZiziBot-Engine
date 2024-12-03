@@ -48,6 +48,8 @@ public class CreatePendekinHandler(
             OriginalUrl = request.Body.OriginalUrl,
             ShortPath = shortPath,
             Status = EventStatus.Complete,
+            CreatedBy = request.SessionUserId,
+            UpdatedBy = request.SessionUserId,
             TransactionId = request.TransactionId
         });
 

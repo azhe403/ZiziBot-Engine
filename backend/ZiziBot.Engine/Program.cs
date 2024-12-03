@@ -9,8 +9,8 @@ builder.Host.ConfigureSerilog(true);
 
 builder.WebHost.ConfigureCustomListenPort();
 
-builder.Services.ConfigureServices();
-builder.Services.ConfigureApi();
+await builder.Services.ConfigureServices();
+builder.Services.AddRestApi();
 builder.Services.ConfigureHangfire();
 builder.Services.AddAllMiddleware();
 builder.Services.AddConsole();
@@ -28,10 +28,6 @@ await app.UseMongoMigration();
 
 app.UseAuthorization();
 
-app.UseStaticFiles();
-app.UseRouting();
-app.MapControllers();
-app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
 app.ConfigureConsole();
 app.ConfigureApi();
 app.UseHangfire();

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
@@ -23,9 +23,9 @@ public class SelectWelcomeMessageHandler(
     {
         var response = new ApiResponseBase<object>();
 
-        var listWelcomeMessage = await dataFacade.MongoDb.WelcomeMessage
+        var listWelcomeMessage = await dataFacade.MongoEf.WelcomeMessage
             .Where(entity => entity.ChatId == request.Model.ChatId)
-            .Where(entity => entity.Status != (int)EventStatus.Deleted)
+            .Where(entity => entity.Status != EventStatus.Deleted)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
@@ -35,7 +35,7 @@ public class SelectWelcomeMessageHandler(
         }
 
         listWelcomeMessage.ForEach(row => {
-            row.Status = (int)EventStatus.Inactive;
+            row.Status = EventStatus.Inactive;
         });
 
         var selectedWelcome = listWelcomeMessage.FirstOrDefault(entity => entity.Id.ToString() == request.Model.WelcomeId);
@@ -45,9 +45,9 @@ public class SelectWelcomeMessageHandler(
             return response.BadRequest("Welcome Message not found", null);
         }
 
-        selectedWelcome.Status = (int)EventStatus.Complete;
+        selectedWelcome.Status = EventStatus.Complete;
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return response.Success("Welcome Message activated successfully.", true);
     }

@@ -15,11 +15,18 @@ public class UserController : ApiControllerBase
         return Ok(true);
     }
 
+    [HttpGet("info")]
+    [AccessFilter(checkHeader: true, needAuthenticated: true)]
+    public async Task<IActionResult> GetUserInfo(GetUserInfoRequest request)
+    {
+        return await SendRequest(request);
+    }
+
     [HttpPost("session/telegram")]
     [AccessFilter(checkHeader: true)]
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
-    public async Task<IActionResult> PostTelegramSession(SaveTelegramSessionRequest request)
+    public async Task<IActionResult> PostTelegramSession(ValidateTelegramSessionRequest request)
     {
         return await SendRequest(request);
     }

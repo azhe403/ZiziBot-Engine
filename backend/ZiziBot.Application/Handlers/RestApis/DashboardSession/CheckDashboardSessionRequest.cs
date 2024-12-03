@@ -1,5 +1,5 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
@@ -30,11 +30,9 @@ public class CheckDashboardSessionRequestHandler(
 
         #region Check Dashboard Session
         var dashboardSession = await dataFacade.MongoEf.DashboardSessions
-            .Where(
-                session =>
-                    session.SessionId == request.SessionId &&
-                    session.TelegramUserId == request.UserId
-            )
+            .Where(session => session.TelegramUserId == request.UserId)
+            .Where(session => session.SessionId == request.SessionId)
+            .Where(session => session.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         responseDto.Result.IsSessionValid = dashboardSession != null;

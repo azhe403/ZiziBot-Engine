@@ -10,7 +10,8 @@ public class RequestBodyGuardMiddleware(ILogger<RequestBodyGuardMiddleware> logg
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         // Check if body length is zero
-        if (context.Request.ContentLength == 0)
+        if (context.Request.Path.StartsWithSegments("/api") &&
+            context.Request.ContentLength == 0)
         {
             logger.LogDebug("Request body is required");
             context.Response.StatusCode = StatusCodes.Status400BadRequest;

@@ -19,4 +19,15 @@ public static class EnvUtil
         var envVal = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
         return !string.IsNullOrEmpty(envVal);
     }
+
+    public static bool IsDevelopment()
+    {
+        return IsEnv("ASPNETCORE_ENVIRONMENT", "Development");
+    }
+
+    public static bool IsEnv(string key, string value)
+    {
+        var envVal = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
+        return string.Equals(envVal, value, StringComparison.OrdinalIgnoreCase);
+    }
 }

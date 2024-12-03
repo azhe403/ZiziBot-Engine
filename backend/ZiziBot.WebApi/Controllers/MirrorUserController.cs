@@ -58,4 +58,11 @@ public class MirrorUserController : ApiControllerBase
     {
         return await SendRequest(request);
     }
+
+    [HttpPost("trakteer-webhook")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task<IActionResult> WebHookTrakteer(WebHookTrakteerDonationRequest request)
+    {
+        return await SendRequest(request);
+    }
 }

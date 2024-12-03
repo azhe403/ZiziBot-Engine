@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
@@ -77,7 +77,7 @@ public class SendWebhookMessageRequestHandler(
             }
         }
 
-        dataFacade.MongoDb.WebhookHistory.Add(new WebhookHistoryEntity {
+        dataFacade.MongoEf.WebhookHistory.Add(new WebhookHistoryEntity {
             RouteId = webhookChat.RouteId,
             TransactionId = request.TransactionId,
             CreatedDate = default,
@@ -87,37 +87,31 @@ public class SendWebhookMessageRequestHandler(
             MessageThreadId = 0,
             WebhookSource = WebhookSource.GitHub,
             Elapsed = stopwatch.Elapsed,
-            Payload = request.IsDebug ?
-                request.RawBody :
-                string.Empty,
-            Header = request.IsDebug ?
-                request.RawHeaders :
-                default,
+            Payload = request.IsDebug ? request.RawBody : string.Empty,
+            Header = request.IsDebug ? request.RawHeaders : default,
             EventName = request.Event,
-            Status = (int)EventStatus.Complete
+            Status = EventStatus.Complete
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
-        var chatActivity = lastMessageId == 0 ?
-            ChatActivityType.BotSendWebHook :
-            ChatActivityType.BotEditWebHook;
+        var chatActivity = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditWebHook;
 
-        dataFacade.MongoDb.ChatActivity.Add(new ChatActivityEntity {
+        dataFacade.MongoEf.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = chatActivity,
             ActivityTypeName = chatActivity.ToString(),
             ChatId = webhookChat.ChatId,
             UserId = sentMessage.From.Id,
             Chat = sentMessage.Chat,
             User = sentMessage.From,
-            Status = (int)EventStatus.Complete,
+            Status = EventStatus.Complete,
             TransactionId = request.TransactionId,
             MessageId = sentMessage.MessageId
         });
 
         stopwatch.Stop();
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return 1;
     }

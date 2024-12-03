@@ -4,7 +4,8 @@ public class GetNoteBotRequestModel : BotRequestBase
 { }
 
 public class GetNoteRequestHandler(
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 )
     : IBotRequestHandler<GetNoteBotRequestModel>
 {
@@ -13,7 +14,7 @@ public class GetNoteRequestHandler(
         var htmlMessage = HtmlMessage.Empty;
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var allNotes = await serviceFacade.NoteService.GetAllByChat(request.ChatIdentifier);
+        var allNotes = await dataFacade.ChatSetting.GetAllByChat(request.ChatIdentifier);
 
         if (allNotes.Count == 0)
         {

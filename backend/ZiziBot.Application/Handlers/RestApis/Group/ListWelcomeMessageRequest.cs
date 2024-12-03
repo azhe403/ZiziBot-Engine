@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
@@ -31,8 +31,7 @@ public class ListWelcomeMessageHandler(
     {
         var response = new ApiResponseBase<List<WelcomeMessageResponse>>();
 
-        var query = await dataFacade.MongoDb.WelcomeMessage
-            .AsNoTracking()
+        var query = await dataFacade.MongoEf.WelcomeMessage.AsNoTracking()
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => entity.Status != (int)EventStatus.Deleted)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
@@ -44,10 +43,10 @@ public class ListWelcomeMessageHandler(
             Text = entity.Text,
             RawButton = entity.RawButton,
             Media = entity.Media,
-            DataType = entity.DataType,
-            DataTypeName = ((CommonMediaType)entity.DataType).ToString(),
-            Status = entity.Status,
-            StatusName = ((EventStatus)entity.Status).ToString(),
+            DataType = (int)entity.DataType,
+            DataTypeName = entity.DataType.ToString(),
+            Status = (int)entity.Status,
+            StatusName = entity.Status.ToString(),
             UpdatedDate = entity.UpdatedDate
         }).ToList();
 

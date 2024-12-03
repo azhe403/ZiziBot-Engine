@@ -19,10 +19,10 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
 
         var appSettingsList = _dbContext.AppSettings.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
+            .Select(x => new KeyValuePair<string, string?>(x.Name, x.Value))
             .ToList();
 
         return appSettingsList
-            .Select(x => new KeyValuePair<string, string?>(x.Name, x.Value))
             .DistinctBy(pair => pair.Key)
             .ToDictionary(x => x.Key, x => x.Value);
     }
@@ -111,7 +111,8 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                     { "SaweriaVerificationApi", "" },
                     { "UseCustomTrakteerApi", false },
                     { "UseCustomSaweriaApi", false },
-                    { "PaymentExpirationDays", 3 }
+                    { "PaymentExpirationDays", 3 },
+                    { "Dummystreamer", "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
                 }
             },
             new() {
@@ -140,6 +141,11 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
 
         var appSettings = _dbContext.AppSettings.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
+            .Select(x => new {
+                Root = x.Root,
+                Name = x.Name,
+                Value = x.Value
+            })
             .ToList();
 
         var appSettingsDictionary = appSettings.ToDictionary(x => x.Name, x => x.Value.ToString());

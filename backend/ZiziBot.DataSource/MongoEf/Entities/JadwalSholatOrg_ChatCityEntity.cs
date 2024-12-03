@@ -1,6 +1,8 @@
-﻿namespace ZiziBot.DataSource.MongoEf.Entities;
+﻿using MongoDB.EntityFrameworkCore;
 
-[Table("JadwalSholatOrg.ChatCity")]
+namespace ZiziBot.DataSource.MongoEf.Entities;
+
+[Collection("JadwalSholatOrg.ChatCity")]
 public class JadwalSholatOrg_ChatCityEntity : EntityBase
 {
     public int CityId { get; set; }

@@ -1,4 +1,6 @@
-﻿using MongoFramework.Linq;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
 
 public class DisableWordFilterRequest : BotRequestBase
 {
@@ -19,9 +21,9 @@ public class DisableWordFilterHandler(
             return await serviceFacade.TelegramService.SendMessageAsync("Apa Word yang ingin dimatikan?");
         }
 
-        var wordFilter = await dataFacade.MongoDb.WordFilter
+        var wordFilter = await dataFacade.MongoEf.WordFilter
             .Where(x => x.Word == request.Word)
-            .Where(x => x.Status == (int)EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (wordFilter == null)
@@ -29,9 +31,9 @@ public class DisableWordFilterHandler(
             return await serviceFacade.TelegramService.SendMessageAsync("Word tidak ditemukan");
         }
 
-        wordFilter.Status = (int)EventStatus.Inactive;
+        wordFilter.Status = EventStatus.Inactive;
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
         await dataFacade.WordFilter.GetAllAsync(true);
 
         return await serviceFacade.TelegramService.SendMessageAsync("Word berhasil dimatikan");

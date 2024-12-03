@@ -1,6 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -14,8 +14,6 @@ public class GetSettingPanelRequestHandler(
 )
     : IBotRequestHandler<GetSettingPanelBotRequestModel>
 {
-    private readonly ILogger<GetSettingPanelRequestHandler> _logger = logger;
-
     public async Task<BotResponseBase> Handle(
         GetSettingPanelBotRequestModel request,
         CancellationToken cancellationToken
@@ -23,20 +21,21 @@ public class GetSettingPanelRequestHandler(
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var chat = await dataFacade.MongoDb.ChatSetting.FirstOrDefaultAsync(x => x.ChatId == request.ChatIdentifier,
-            cancellationToken);
+        var chat = await dataFacade.MongoEf.ChatSetting
+            .Where(x => x.Status == EventStatus.Complete)
+            .Where(x => x.ChatId == request.ChatIdentifier)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (chat == null)
         {
-            dataFacade.MongoDb.ChatSetting.Add(new ChatSettingEntity() {
+            dataFacade.MongoEf.ChatSetting.Add(new ChatSettingEntity {
                 ChatId = request.ChatIdentifier,
+                Status = EventStatus.Complete,
             });
 
-            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
         }
 
-        await serviceFacade.TelegramService.SendMessageText("Sedang memuat tombol..");
-
-        return serviceFacade.TelegramService.Complete();
+        return await serviceFacade.TelegramService.SendMessageText("Sedang memuat tombol..");
     }
 }

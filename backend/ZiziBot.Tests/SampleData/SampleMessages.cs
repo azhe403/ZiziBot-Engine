@@ -14,7 +14,7 @@ public static class SampleMessages
     ];
 
     public static Message CommonMessage => new() {
-        MessageId = 316001,
+        // MessageId = 316001,
         MessageThreadId = 297986,
         ForumTopicCreated = new ForumTopicCreated() {
             Name = "Sample - Taufik Name"
@@ -37,7 +37,7 @@ public static class SampleMessages
     };
 
     public static Message NewChatMembers => new() {
-        MessageId = 12345,
+        // MessageId = 12345,
         MessageThreadId = 321067,
         Chat = new Chat() {
             Id = -1001404591750,
@@ -93,7 +93,7 @@ public static class SampleMessages
     };
 
     public static Message ChannelPost = new() {
-        MessageId = 45,
+        // MessageId = 45,
         Date = DateTime.UtcNow,
         Chat = new() {
             Id = -1001556283448,
@@ -104,7 +104,7 @@ public static class SampleMessages
     };
 
     public static Message ChannelPostDocument = new() {
-        MessageId = 45,
+        // MessageId = 45,
         Date = DateTime.UtcNow,
         Chat = new() {
             Id = -1001556283448,

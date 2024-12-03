@@ -1,5 +1,5 @@
-using MongoFramework.Linq;
-using ZiziBot.DataSource.MongoDb.Entities;
+using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -30,10 +30,10 @@ internal class AddCityHandler(
             return await serviceFacade.TelegramService.SendMessageText("Kota tidak ditemukan");
         }
 
-        var city = await dataFacade.MongoDb.BangHasan_ShalatCity
+        var city = await dataFacade.MongoEf.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.CityId == cityInfo.Id)
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var cityMsg = HtmlMessage.Empty
@@ -48,15 +48,15 @@ internal class AddCityHandler(
         }
         else
         {
-            dataFacade.MongoDb.BangHasan_ShalatCity.Add(new BangHasan_ShalatCityEntity() {
+            dataFacade.MongoEf.BangHasan_ShalatCity.Add(new BangHasan_ShalatCityEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 CityId = cityInfo.Id,
                 CityName = cityInfo.Lokasi,
-                Status = (int)EventStatus.Complete
+                Status = EventStatus.Complete
             });
 
-            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
             htmlMessage.Text("Kota berhasil disimpan")
                 .Br()

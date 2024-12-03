@@ -1,7 +1,7 @@
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 using ZiziBot.Application.Facades;
 using ZiziBot.Contracts.Enums;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 using ZiziBot.Types.Types;
 
 namespace ZiziBot.Console.ViewModels;
@@ -29,8 +29,8 @@ public class MirrorSubscriptionViewModel(DataFacade dataFacade) : ReactiveObject
         Loading.CurrentStep++;
         Loading.Title = "Loading Mirror Users";
 
-        MirrorUsers = await dataFacade.MongoDb.MirrorUsers
-            .Where(x => x.Status == (int)EventStatus.Complete)
+        MirrorUsers = await dataFacade.MongoEf.MirrorUser
+            .Where(x => x.Status == EventStatus.Complete)
             .OrderByDescending(o => o.UpdatedDate)
             .ToListAsync();
 
@@ -45,8 +45,8 @@ public class MirrorSubscriptionViewModel(DataFacade dataFacade) : ReactiveObject
         Loading.CurrentStep++;
         Loading.Title = "Loading Mirror Approvals";
 
-        MirrorApprovals = await dataFacade.MongoDb.MirrorApproval
-            .Where(x => x.Status == (int)EventStatus.Complete)
+        MirrorApprovals = await dataFacade.MongoEf.MirrorApproval
+            .Where(x => x.Status == EventStatus.Complete)
             .OrderByDescending(o => o.UpdatedDate)
             .ToListAsync();
 

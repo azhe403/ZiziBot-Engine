@@ -1,7 +1,6 @@
 {
     "recommendations": [
         "ms-dotnettools.csharp",
-        "angular.ng-template",
         "muhammad-sammy.csharp",
         "ms-dotnettools.csdevkit"
     ]

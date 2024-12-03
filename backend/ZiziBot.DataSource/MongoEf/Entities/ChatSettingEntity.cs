@@ -7,9 +7,9 @@ namespace ZiziBot.DataSource.MongoEf.Entities;
 public class ChatSettingEntity : EntityBase
 {
     public long ChatId { get; set; }
-    public string ChatTitle { get; set; }
+    public string? ChatTitle { get; set; }
     public ChatType ChatType { get; set; }
-    public string ChatTypeName { get; set; }
+    public string? ChatTypeName { get; set; }
 
     public bool IsAdmin { get; set; }
 

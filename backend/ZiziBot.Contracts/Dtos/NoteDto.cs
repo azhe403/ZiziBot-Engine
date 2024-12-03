@@ -6,8 +6,10 @@ public class NoteDto
 {
     public string Id { get; set; }
     public long ChatId { get; set; }
+
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-    public string ChatTitle { get; set; }
+    public string? ChatTitle { get; set; }
+
     public string Query { get; set; }
     public string? Text { get; set; }
     public string? RawButton { get; set; }
@@ -22,5 +24,4 @@ public class NoteDto
     public string TransactionId { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
-
 }

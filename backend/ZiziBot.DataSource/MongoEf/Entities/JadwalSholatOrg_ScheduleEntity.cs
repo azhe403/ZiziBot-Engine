@@ -1,6 +1,8 @@
-﻿namespace ZiziBot.DataSource.MongoEf.Entities;
+﻿using MongoDB.EntityFrameworkCore;
 
-[Table("JadwalSholatOrg.Schedule")]
+namespace ZiziBot.DataSource.MongoEf.Entities;
+
+[Collection("JadwalSholatOrg.Schedule")]
 public class JadwalSholatOrg_ScheduleEntity : EntityBase
 {
     public int CityId { get; set; }

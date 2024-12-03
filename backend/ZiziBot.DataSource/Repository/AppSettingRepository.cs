@@ -121,6 +121,19 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
         return listBotData;
     }
 
+    public async Task<List<FlagDto>> GetFlags()
+    {
+        var flags = await mongoEfContext.FeatureFlag.AsNoTracking()
+            .Where(x => x.Status == EventStatus.Complete)
+            .Select(x => new FlagDto() {
+                Name = x.Name,
+                Value = x.IsEnabled
+            })
+            .ToListAsync();
+
+        return flags;
+    }
+
     public async Task<FeatureFlagEntity?> GetFlag(string flagName)
     {
         var flag = await mongoEfContext.FeatureFlag.AsNoTracking()

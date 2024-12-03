@@ -1,5 +1,5 @@
 using FluentValidation;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 
@@ -24,19 +24,19 @@ public class UndeleteGlobalBanApiHandler(
     {
         var response = new ApiResponseBase<bool>();
 
-        var globalBan = await dataFacade.MongoDb.GlobalBan
-            .FirstOrDefaultAsync(entity =>
-                    entity.UserId == request.UserId,
-                cancellationToken: cancellationToken);
+        var globalBan = await dataFacade.MongoEf.GlobalBan
+            .Where(entity => entity.UserId == request.UserId)
+            .Where(entity => entity.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (globalBan == null)
         {
             return response.BadRequest("Global ban not found.", false);
         }
 
-        globalBan.Status = (int)EventStatus.Complete;
+        globalBan.Status = EventStatus.Complete;
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return response.Success("Global ban undeleted.", true);
     }

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoFramework.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.RestApis.Rss;
 
@@ -12,7 +11,7 @@ public class GetListRssRequest : ApiRequestBase<List<GetListRssResponse>>
 
 public class GetListRssResponse
 {
-    public ObjectId Id { get; set; }
+    public string Id { get; set; }
     public string Url { get; set; }
     public long ChatId { get; set; }
     public string LastErrorMessage { get; set; }
@@ -31,19 +30,19 @@ public class GetListRssHandler(
     {
         ApiResponseBase<List<GetListRssResponse>> response = new();
 
-        var listRss = await dataFacade.MongoDb.RssSetting
+        var listRss = await dataFacade.MongoEf.RssSetting
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
+            .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
         var result = listRss.Select(x => new GetListRssResponse {
-            Id = x.Id,
+            Id = x.Id.ToString(),
             Url = x.RssUrl,
             ChatId = x.ChatId,
             LastErrorMessage = x.LastErrorMessage,
             CronJobId = x.CronJobId,
-            Status = x.Status,
+            Status = (int)x.Status,
             TransactionId = x.TransactionId,
             CreatedDate = x.CreatedDate,
             UpdatedDate = x.UpdatedDate

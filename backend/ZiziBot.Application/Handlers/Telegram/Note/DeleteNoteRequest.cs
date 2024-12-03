@@ -6,7 +6,8 @@ public class DeleteNoteRequest : BotRequestBase
 }
 
 public class DeleteNoteRequestHandler(
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 )
     : IBotRequestHandler<DeleteNoteRequest>
 {
@@ -14,6 +15,9 @@ public class DeleteNoteRequestHandler(
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
-        return await serviceFacade.NoteService.Delete(request.ChatIdentifier, request.Note, async message => await serviceFacade.TelegramService.SendMessageText(message));
+        await dataFacade.ChatSetting.Delete(request.ChatIdentifier, request.Note);
+        await serviceFacade.TelegramService.SendMessageText("Note berhasil didelete");
+
+        return serviceFacade.TelegramService.Complete();
     }
 }

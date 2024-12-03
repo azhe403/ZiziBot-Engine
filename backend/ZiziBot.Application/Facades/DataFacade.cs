@@ -5,7 +5,6 @@ namespace ZiziBot.Application.Facades;
 
 public class DataFacade(
     ICacheService cacheService,
-    MongoDbContextBase mongoDb,
     MongoEfContext mongoEf,
     AdditionalRepository additionalRepository,
     AppSettingRepository appSettingRepository,
@@ -17,7 +16,6 @@ public class DataFacade(
 {
     public ICacheService Cache { get; } = cacheService;
 
-    public MongoDbContextBase MongoDb => mongoDb;
     public MongoEfContext MongoEf => mongoEf;
 
     public AdditionalRepository Additional => additionalRepository;

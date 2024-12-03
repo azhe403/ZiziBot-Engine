@@ -13,9 +13,9 @@ namespace ZiziBot.Infrastructure;
 
 public static class ServiceExtension
 {
-    public static IServiceCollection ConfigureServices(this IServiceCollection services)
+    public async static Task<IServiceCollection> ConfigureServices(this IServiceCollection services)
     {
-        services.ConfigureSettings();
+        await services.ConfigureSettings();
         services.AddMongoMigration();
 
         services.AddMediator();
@@ -88,7 +88,7 @@ public static class ServiceExtension
         services.Scan(selector => selector.FromAssembliesOf(typeof(DataFacade))
             .AddClasses(filter => filter.InNamespaceOf<DataFacade>())
             .AsSelf()
-            .WithScopedLifetime());
+            .WithTransientLifetime());
 
         return services;
     }

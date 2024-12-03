@@ -5,7 +5,8 @@ namespace ZiziBot.Application.Handlers.Telegram.Note;
 
 public class FindNoteRequestHandler<TRequest, TResponse>(
     ILogger<FindNoteRequestHandler<TRequest, TResponse>> logger,
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 )
     : IRequestPostProcessor<TRequest, TResponse>
     where TRequest : BotRequestBase, IRequest<TResponse>
@@ -28,7 +29,7 @@ public class FindNoteRequestHandler<TRequest, TResponse>(
 
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var listNote = await serviceFacade.NoteService.GetAllByChat(request.ChatIdentifier);
+        var listNote = await dataFacade.ChatSetting.GetAllByChat(request.ChatIdentifier);
 
         if (listNote.Count == 0)
         {

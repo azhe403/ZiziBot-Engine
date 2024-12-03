@@ -1,4 +1,4 @@
-﻿using MongoFramework.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
 using ZiziBot.Application.Facades;
 
@@ -12,7 +12,7 @@ public class RssTests(MediatorService mediatorService, DataFacade dataFacade)
     [InlineData("https://github.com/revanced-apks/build-apps/releases.atom")]
     public async Task FetchTest(string url)
     {
-        var historyEntity = await dataFacade.MongoDb.RssHistory
+        var historyEntity = await dataFacade.MongoEf.RssHistory
             .Where(entity => entity.RssUrl == url)
             .ToListAsync();
 
@@ -20,7 +20,7 @@ public class RssTests(MediatorService mediatorService, DataFacade dataFacade)
             x.Status = (int)EventStatus.Deleted;
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync();
+        await dataFacade.MongoEf.SaveChangesAsync();
 
 
         await mediatorService.Send(new FetchRssRequest() {

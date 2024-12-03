@@ -1,5 +1,5 @@
 ﻿using Telegram.Bot.Types;
-using ZiziBot.DataSource.MongoDb.Entities;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Core;
 
@@ -18,19 +18,19 @@ public class CreateChatActivityHandler(
 {
     public async Task<object> Handle(CreateChatActivityRequest request, CancellationToken cancellationToken)
     {
-        dataFacade.MongoDb.ChatActivity.Add(new ChatActivityEntity {
+        dataFacade.MongoEf.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = request.ActivityType,
             ActivityTypeName = request.ActivityType.ToString(),
             ChatId = request.SentMessage.Chat.Id,
             UserId = request.SentMessage.From.Id,
             Chat = request.SentMessage.Chat,
             User = request.SentMessage.From,
-            Status = (int)EventStatus.Complete,
+            Status = EventStatus.Complete,
             TransactionId = request.TransactionId,
             MessageId = request.SentMessage.MessageId
         });
 
-        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         return serviceFacade.TelegramService.Complete();
     }

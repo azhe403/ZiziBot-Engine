@@ -1,3 +1,6 @@
 [submodule "backend/lib/ZiziBot.TelegramBot"]
 	path = backend/lib/ZiziBot.TelegramBot
 	url = https://github.com/azhe403/ZiziBot.TelegramBot
+[submodule "turborepo-console"]
+	path = turborepo-console
+	url = https://github.com/azhe403/turborepo-zizibot-console
