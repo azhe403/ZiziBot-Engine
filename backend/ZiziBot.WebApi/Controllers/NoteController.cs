@@ -7,27 +7,28 @@ namespace ZiziBot.WebApi.Controllers;
 public class NoteController : ApiControllerBase
 {
     [HttpGet()]
-    [AccessFilter(checkHeader: true)]
-    public async Task<IActionResult> GetNotes([FromQuery] ListNoteRequest request)
+    [AccessFilter(flag: Flag.REST_CHAT_NOTE_LIST)]
+    public async Task<IActionResult> GetListNotes([FromQuery] ListNoteRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpGet("{NoteId}")]
-    [AccessFilter(checkHeader: true)]
-    public async Task<IActionResult> GetNote(GetNoteRequest request)
+    [AccessFilter(flag: Flag.REST_CHAT_NOTE_GET)]
+    public async Task<IActionResult> GetDetailNote(GetNoteRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost()]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_CHAT_NOTE_CREATE)]
     public async Task<IActionResult> CreateNote(SaveNoteRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpDelete]
+    [AccessFilter(flag: Flag.REST_CHAT_NOTE_DELETE)]
     public async Task<IActionResult> DeleteNote(DeleteNoteRequest request)
     {
         return await SendRequest(request);
