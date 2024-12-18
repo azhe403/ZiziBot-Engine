@@ -1,6 +1,8 @@
+using MongoDB.EntityFrameworkCore;
+
 namespace ZiziBot.DataSource.MongoEf.Entities;
 
-[Table("WordFilter")]
+[Collection("WordFilter")]
 public class WordFilterEntity : EntityBase
 {
     public long ChatId { get; set; }

@@ -1,6 +1,8 @@
+using MongoDB.EntityFrameworkCore;
+
 namespace ZiziBot.DataSource.MongoEf.Entities;
 
-[Table("Afk")]
+[Collection("Afk")]
 public class AfkEntity : EntityBase
 {
     public long ChatId { get; set; }
