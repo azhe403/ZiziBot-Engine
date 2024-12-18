@@ -11,4 +11,6 @@ public class ChatUserEntity : EntityBase
     public int MemberCount { get; set; }
     public string? ChatUsername { get; set; }
     public string? ChatTitle { get; set; }
+    public bool IsBotAdmin { get; set; }
+    public string? LanguageCode { get; set; }
 }

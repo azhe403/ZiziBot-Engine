@@ -20,7 +20,11 @@ public static class ValueConst
     public const string NEW_MEMBER_DEFAULT_WELCOME_MESSAGE = "Hai {users}" +
                                                              "\nSelamat datang di Kontrakan <b>{ChatTitle}</b>";
 
-    public readonly static IEnumerable<int> PaginationSize = new[] {
+    public readonly static long[] SAFE_IDS = [
+        777000
+    ];
+
+    public readonly static IEnumerable<int> PaginationSize = [
         10,
         20,
         50,
@@ -28,5 +32,5 @@ public static class ValueConst
         200,
         500,
         1000
-    };
+    ];
 }
