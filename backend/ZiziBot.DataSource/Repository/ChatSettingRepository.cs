@@ -39,34 +39,6 @@ public class ChatSettingRepository(
     {
         logger.LogInformation("Ensure ChatSetting for ChatId: {ChatId} Started", dto.ChatId);
 
-        var chatSetting = await mongoDbContext.ChatSetting
-            .Where(x => x.ChatId == dto.ChatId)
-            .Where(x => x.Status == EventStatus.Complete)
-            .FirstOrDefaultAsync();
-
-        if (chatSetting == null)
-        {
-            logger.LogDebug("Creating fresh ChatSetting for ChatId: {ChatId}", dto.ChatId);
-
-            mongoDbContext.ChatSetting.Add(new() {
-                ChatId = dto.ChatId,
-                ChatTitle = dto.ChatTitle,
-                ChatType = dto.ChatType,
-                ChatTypeName = dto.ChatType.ToString(),
-                Status = EventStatus.Complete,
-                TransactionId = dto.TransactionId
-            });
-        }
-        else
-        {
-            logger.LogDebug("Updating ChatSetting for ChatId: {ChatId}", dto.ChatId);
-
-            chatSetting.ChatTitle = dto.ChatTitle;
-            chatSetting.ChatType = dto.ChatType;
-            chatSetting.ChatTypeName = dto.ChatType.ToString();
-            chatSetting.Status = EventStatus.Complete;
-        }
-
         var chatUser = await mongoDbContext.ChatUser
             .Where(x => x.ChatId == dto.ChatId)
             .Where(x => x.Status == EventStatus.Complete)

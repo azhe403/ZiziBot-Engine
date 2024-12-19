@@ -1,6 +1,8 @@
+using MongoDB.EntityFrameworkCore;
+
 namespace ZiziBot.DataSource.MongoEf.Entities;
 
-[Table("WelcomeMessage")]
+[Collection("WelcomeMessage")]
 public class WelcomeMessageEntity : EntityBase
 {
     public long ChatId { get; set; }

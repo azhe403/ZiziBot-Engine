@@ -9,43 +9,42 @@ public class MirrorUserController : ApiControllerBase
 {
     [HttpGet()]
     [Authorize(Roles = "Sudoer")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_MIRROR_USER_GET_LIST, checkHeader: true)]
     public async Task<IActionResult> GetUsersAll(GetMirrorUsersRequestDto request)
     {
         return await SendRequest(request);
     }
 
-    [HttpGet("find")]
     [HttpGet("check-user")]
-    [AccessFilter(checkHeader: false)]
+    [AccessFilter(flag: Flag.REST_MIRROR_USER_CHECK_USER, checkHeader: false)]
     public async Task<IActionResult> GetUserByUserId([FromQuery] GetMirrorUserByUserIdRequestDto request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost()]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_MIRROR_USER_CREATE, checkHeader: true)]
     public async Task<IActionResult> PostUserMirror([FromBody] PostMirrorUserRequestDto request)
     {
         return await SendRequest(request);
     }
 
     [HttpDelete]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_MIRROR_USER_DELETE, checkHeader: true)]
     public async Task<IActionResult> DeleteMirrorUser([FromQuery] DeleteMirrorUserRequestDto request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost("submit-donation")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_MIRROR_SUBMIT_DONATION, checkHeader: true)]
     public async Task<IActionResult> SubmitDonation(SubmitDonationRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpGet("check-order")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_MIRROR_USER_CHECK_ORDER, checkHeader: true)]
     public async Task<IActionResult> Index([FromQuery] string orderId)
     {
         return await SendRequest(new CheckPaymentOrderIdRequest() {

@@ -8,17 +8,23 @@ public static class ValueConst
     public const ExecutionStrategy DEFAULT_EXECUTION_STRATEGY = ExecutionStrategy.Instant;
 
     public const int NEW_MEMBER_RAID_WINDOW_LIMIT = 7;
-    public static readonly TimeSpan NEW_MEMBER_RAID_SLIDING_WINDOW = TimeSpan.FromMinutes(5);
-    public static readonly TimeSpan NEW_MEMBER_RAID_MODE_MUTE_DURATION = TimeSpan.FromHours(1);
+    public readonly static TimeSpan NEW_MEMBER_RAID_SLIDING_WINDOW = TimeSpan.FromMinutes(5);
+    public readonly static TimeSpan NEW_MEMBER_RAID_MODE_MUTE_DURATION = TimeSpan.FromHours(1);
 
-    public static readonly TimeSpan NEW_MEMBER_ENTRY_SAFE_LIMIT = TimeSpan.FromDays(3);
+    public readonly static TimeSpan NEW_MEMBER_ENTRY_SAFE_LIMIT = TimeSpan.FromDays(3);
 
-    public static readonly char[] WordSeparator = [' ', '\n', ':', ';', ','];
+    public readonly static char[] WordSeparator = [' ', '\n', ':', ';', ','];
+
+    public static string UNIQUE_KEY = "";
 
     public const string NEW_MEMBER_DEFAULT_WELCOME_MESSAGE = "Hai {users}" +
                                                              "\nSelamat datang di Kontrakan <b>{ChatTitle}</b>";
 
-    public static readonly IEnumerable<int> PaginationSize = new[] {
+    public readonly static long[] SAFE_IDS = [
+        777000
+    ];
+
+    public readonly static IEnumerable<int> PaginationSize = [
         10,
         20,
         50,
@@ -26,5 +32,5 @@ public static class ValueConst
         200,
         500,
         1000
-    };
+    ];
 }

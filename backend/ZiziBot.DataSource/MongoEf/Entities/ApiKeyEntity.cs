@@ -1,6 +1,8 @@
+using MongoDB.EntityFrameworkCore;
+
 namespace ZiziBot.DataSource.MongoEf.Entities;
 
-[Table("ApiKey")]
+[Collection("ApiKey")]
 public class ApiKeyEntity : EntityBase
 {
     public ApiKeyVendor Name { get; set; }

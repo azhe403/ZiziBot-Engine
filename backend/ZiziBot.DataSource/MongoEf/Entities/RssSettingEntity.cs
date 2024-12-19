@@ -2,7 +2,7 @@ using MongoDB.EntityFrameworkCore;
 
 namespace ZiziBot.DataSource.MongoEf.Entities;
 
-[Collection("RssHistory")]
+[Collection("RssSetting")]
 public class RssSettingEntity : EntityBase
 {
     public long ChatId { get; set; }
