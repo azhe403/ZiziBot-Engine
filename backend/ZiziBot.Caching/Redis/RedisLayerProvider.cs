@@ -9,9 +9,10 @@ internal class RedisLayerProvider(
 )
     : IDistributedCacheLayer
 {
-    string ConnectionString { get; set; } = connectionString;
-    ConnectionMultiplexer Connection { get; set; }
-    IDatabaseAsync Database { get; set; }
+    private string ConnectionString { get; set; } = connectionString;
+    private ConnectionMultiplexer Connection { get; set; }
+    private IDatabaseAsync Database { get; set; }
+    private static string PrefixRoot => ValueConst.UNIQUE_KEY;
 
     public ValueTask CleanupAsync()
     {
@@ -33,7 +34,7 @@ internal class RedisLayerProvider(
         var redisEndpoints = Connection.GetEndPoints();
         foreach (var endpoint in redisEndpoints)
         {
-            var keys = Connection.GetServer(endpoint).KeysAsync(options.DatabaseIndex, pattern: $"{options.PrefixRoot}*");
+            var keys = Connection.GetServer(endpoint).KeysAsync(options.DatabaseIndex, pattern: $"{PrefixRoot}*");
 
             await foreach (var redisKey in keys)
             {
@@ -80,14 +81,14 @@ internal class RedisLayerProvider(
         await Database.StringSetAsync(CacheKey(cacheKey), redisValue, expiryOffset);
     }
 
-    async Task Connect()
+    private async Task Connect()
     {
         Connection = await ConnectionMultiplexer.ConnectAsync(ConnectionString);
         Database = Connection.GetDatabase(options.DatabaseIndex);
     }
 
-    string CacheKey(string cacheKey)
+    private string CacheKey(string cacheKey)
     {
-        return options.PrefixRoot.IsNullOrEmpty() ? $"{cacheKey}".Replace("/", ":") : $"{options.PrefixRoot}/{cacheKey}".Replace("/", ":");
+        return PrefixRoot.IsNullOrEmpty() ? $"{cacheKey}".Replace("/", ":") : $"{PrefixRoot}/{cacheKey}".Replace("/", ":");
     }
 }

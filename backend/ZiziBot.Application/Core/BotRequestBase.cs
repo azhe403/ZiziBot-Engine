@@ -74,6 +74,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
 
     public bool ReplyMessage { get; set; } = true;
     public bool IsChannel => Update?.ChannelPost != null || Update?.EditedChannelPost != null;
+    public bool IsGroup => ChatType is ChatType.Group or ChatType.Supergroup;
     public bool IsPrivateChat => Message?.Chat.Type == ChatType.Private;
 
     public ExecutionStrategy ExecutionStrategy { get; set; }

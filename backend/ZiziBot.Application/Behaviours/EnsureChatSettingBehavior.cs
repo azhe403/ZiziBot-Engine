@@ -25,7 +25,7 @@ public class EnsureChatSettingBehavior<TRequest, TResponse>(
         await dataFacade.ChatSetting.RefreshChatInfo(new() {
             ChatId = request.ChatIdentifier,
             ChatType = request.ChatType,
-            MemberCount = memberCount,
+            MemberCount = request.IsGroup ? memberCount : -1,
             ChatTitle = request.ChatTitle,
             ChatUsername = request.Chat?.Username,
             TransactionId = request.TransactionId

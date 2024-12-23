@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Telegram.Bot;
 using ZiziBot.Application.Facades;
 using ZiziBot.DataSource.MongoEf.Entities;
 using ZiziBot.TelegramBot.Framework.Extensions;
@@ -60,6 +61,10 @@ public static class TelegramExtension
         }
 
         await app.UseZiziBotTelegramBot();
+
+        var bot = new TelegramBotClient(validBot.First(x => x.Name == "Main").Token);
+        var me = await bot.GetMe();
+        ValueConst.UNIQUE_KEY = me.GetFullName().Replace(" ", "_").ToLower() ?? string.Empty;
 
         return app;
     }

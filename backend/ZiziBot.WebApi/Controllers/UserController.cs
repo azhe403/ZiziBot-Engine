@@ -8,22 +8,15 @@ namespace ZiziBot.WebApi.Controllers;
 [Route("api/[controller]")]
 public class UserController : ApiControllerBase
 {
-    [HttpGet]
-    [AccessFilter(checkHeader: true)]
-    public IActionResult Index()
-    {
-        return Ok(true);
-    }
-
     [HttpGet("info")]
-    [AccessFilter(checkHeader: true, needAuthenticated: true)]
+    [AccessFilter(flag: Flag.REST_USER_INFO_GET, checkHeader: true, needAuthenticated: true)]
     public async Task<IActionResult> GetUserInfo(GetUserInfoRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost("session/telegram")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_USER_TELEGRAM_SESSION_CREATE, checkHeader: true)]
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
     public async Task<IActionResult> PostTelegramSession(ValidateTelegramSessionRequest request)
@@ -31,24 +24,8 @@ public class UserController : ApiControllerBase
         return await SendRequest(request);
     }
 
-    [HttpPost("session/telegram/validate")]
-    [AccessFilter(checkHeader: true)]
-    [AllowAnonymous]
-    public async Task<IActionResult> CheckDashboardSession([FromBody] CheckDashboardSessionRequestDto request)
-    {
-        return await SendRequest(request);
-    }
-
-    [HttpPost("session/validate")]
-    [AccessFilter(checkHeader: true)]
-    [AllowAnonymous]
-    public async Task<IActionResult> CheckDashboardSessionId(CheckDashboardBearerSessionRequestDto request)
-    {
-        return await SendRequest(request);
-    }
-
     [HttpGet("list-group")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_USER_GROUP_LIST, checkHeader: true)]
     [EnableRateLimiting(RateLimitingPolicy.API_LIST_RATE_LIMITING_KEY)]
     public async Task<IActionResult> GetListGroup([FromQuery] GetListGroupRequest request)
     {

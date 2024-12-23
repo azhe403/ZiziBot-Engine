@@ -8,7 +8,7 @@ public class WebhookController : ApiControllerBase
 {
     [HttpPost("{targetId}")]
     [ApiExplorerSettings(IgnoreApi = true)]
-    [AccessFilter(checkHeader: false)]
+    [AccessFilter(flag: Flag.REST_PRODUCTIVITY_WEBHOOK, checkHeader: false)]
     public async Task<IActionResult> ProcessingPayload(PostWebhookPayloadRequest request)
     {
         return await SendRequest(request);

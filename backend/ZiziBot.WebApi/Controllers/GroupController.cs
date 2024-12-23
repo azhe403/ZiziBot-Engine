@@ -7,35 +7,35 @@ namespace ZiziBot.WebApi.Controllers;
 public class GroupController : ApiControllerBase
 {
     [HttpGet("welcome-message")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_GROUP_WELCOME_MESSAGE_GET_LIST, checkHeader: true)]
     public async Task<IActionResult> ListWelcomeMessage(ListWelcomeMessageRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpGet("welcome-message/{WelcomeId}")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_GROUP_WELCOME_MESSAGE_GET_DETAIL, checkHeader: true)]
     public async Task<IActionResult> GetWelcomeMessage(GetWelcomeMessageRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost("welcome-message")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_GROUP_WELCOME_MESSAGE_CREATE, checkHeader: true)]
     public async Task<IActionResult> SaveWelcomeMessage(SaveWelcomeMessageRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpDelete("welcome-message")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_GROUP_WELCOME_MESSAGE_DELETE, checkHeader: true)]
     public async Task<IActionResult> DeleteWelcomeMessage(DeleteWelcomeMessageRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost("select-welcome-message")]
-    [AccessFilter(checkHeader: true)]
+    [AccessFilter(flag: Flag.REST_GROUP_WELCOME_MESSAGE_SELECT, checkHeader: true)]
     public async Task<IActionResult> SelectWelcomeMessage(SelectWelcomeMessageRequest request)
     {
         return await SendRequest(request);

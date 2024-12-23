@@ -8,21 +8,21 @@ namespace ZiziBot.WebApi.Controllers;
 public class PendekinController : ApiControllerBase
 {
     [HttpPost]
-    [AccessFilter]
+    [AccessFilter(flag: Flag.REST_PRODUCTIVITY_PENDEKIN_CREATE)]
     public async Task<IActionResult> CreatePendekin(CreatePendekinRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpGet("{ShortPath}")]
-    [AccessFilter]
+    [AccessFilter(flag: Flag.REST_PRODUCTIVITY_PENDEKIN_GET)]
     public async Task<IActionResult> GetPendekin(GetPendekinRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpGet()]
-    [AccessFilter]
+    [AccessFilter(flag: Flag.REST_PRODUCTIVITY_PENDEKIN_LIST)]
     public async Task<IActionResult> ListPendekin(ListPendekinRequest request)
     {
         return await SendRequest(request);
