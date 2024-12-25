@@ -1,5 +1,3 @@
-using System.Reflection;
-using MediatR.Extensions.AttributedBehaviors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ZiziBot.Infrastructure;
@@ -8,8 +6,6 @@ public static class MediatRExtension
 {
     internal static IServiceCollection AddMediator(this IServiceCollection services)
     {
-        var assembly = typeof(PingRequestHandler).GetTypeInfo().Assembly;
-
         services.AddMediatR(
             configuration =>
                 configuration.RegisterServicesFromAssemblyContaining<PingRequestHandler>()
@@ -28,8 +24,6 @@ public static class MediatRExtension
                     .AddOpenRequestPostProcessor(typeof(UpsertBotUserHandler<,>))
                     .AddOpenRequestPostProcessor(typeof(InsertChatActivityHandler<,>))
         );
-
-        services.AddMediatRAttributedBehaviors(assembly);
 
         return services;
     }

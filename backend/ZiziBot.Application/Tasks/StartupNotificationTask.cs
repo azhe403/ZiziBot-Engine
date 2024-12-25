@@ -21,6 +21,6 @@ public class StartupNotificationTask(AppSettingRepository appSettingRepository) 
             .Bold("Startup Notification").Br()
             .Bold("Date: ").Code(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss zz"));
 
-        await bot.SendTextMessageAsync(eventConfig.ChatId, message.ToString(), parseMode: ParseMode.Html);
+        await bot.SendMessage(eventConfig.ChatId, message.ToString(), parseMode: ParseMode.Html);
     }
 }

@@ -5,6 +5,7 @@ using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using ZiziBot.Application.Facades;
 using ZiziBot.DataMigration.MongoDb.Extension;
@@ -65,6 +66,11 @@ public static class ServiceExtension
 
     private static IServiceCollection AddAllService(this IServiceCollection services)
     {
+        services.Scan(selector => selector.FromAssembliesOf(typeof(TaskRunnerHostedService))
+            .AddClasses(filter => filter.InNamespaceOf<TaskRunnerHostedService>())
+            .As<IHostedService>()
+            .WithSingletonLifetime());
+
         services.Scan(selector => selector.FromAssembliesOf(typeof(TelegramService))
             .AddClasses(filter => filter.InNamespaceOf<TelegramService>())
             .AsSelf()
@@ -75,15 +81,10 @@ public static class ServiceExtension
             .As<IStartupTask>()
             .WithScopedLifetime());
 
-        // services.Scan(selector => selector.FromAssembliesOf(typeof(TaskRunnerHostedService))
-        //     .AddClasses(filter => filter.InNamespaceOf<TaskRunnerHostedService>())
-        //     .As<IHostedService>()
-        //     .WithSingletonLifetime());
-
         services.Scan(selector => selector.FromAssembliesOf(typeof(CacheService))
             .AddClasses(filter => filter.InNamespaceOf<CacheService>())
             .AsSelfWithInterfaces()
-            .WithScopedLifetime());
+            .WithTransientLifetime());
 
         services.Scan(selector => selector.FromAssembliesOf(typeof(DataFacade))
             .AddClasses(filter => filter.InNamespaceOf<DataFacade>())
