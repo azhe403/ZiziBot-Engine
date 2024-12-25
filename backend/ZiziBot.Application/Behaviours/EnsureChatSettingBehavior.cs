@@ -21,6 +21,7 @@ public class EnsureChatSettingBehavior<TRequest, TResponse>(
         serviceFacade.TelegramService.SetupResponse(request);
 
         var memberCount = await serviceFacade.TelegramService.GetMemberCount();
+        var isBotAdmin = await serviceFacade.TelegramService.CheckBotAdmin();
 
         await dataFacade.ChatSetting.RefreshChatInfo(new() {
             ChatId = request.ChatIdentifier,
@@ -28,6 +29,7 @@ public class EnsureChatSettingBehavior<TRequest, TResponse>(
             MemberCount = request.IsGroup ? memberCount : -1,
             ChatTitle = request.ChatTitle,
             ChatUsername = request.Chat?.Username,
+            IsBotAdmin = isBotAdmin,
             TransactionId = request.TransactionId
         });
 

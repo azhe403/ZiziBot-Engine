@@ -14,9 +14,9 @@ public class LoggingPipelineBehaviour<TRequest, TResponse>(ILogger<LoggingPipeli
 
         try
         {
-            logger.LogDebug("SessionId: {SessionId}: Handling request of type {@requestType}", sessionId, typeof(TRequest));
+            logger.LogDebug("SessionId: {SessionId}: Handling request of type {@RequestType}", sessionId, typeof(TRequest));
             var result = await next();
-            logger.LogDebug("SessionId: {SessionId}: Handled request of type {@requestType} complete in {elapsed} ms", sessionId, typeof(TRequest), stopwatch.Elapsed);
+            logger.LogDebug("SessionId: {SessionId}: Handled request of type {@RequestType} complete in {Elapsed} ms", sessionId, typeof(TRequest), stopwatch.Elapsed);
 
             return result;
         }

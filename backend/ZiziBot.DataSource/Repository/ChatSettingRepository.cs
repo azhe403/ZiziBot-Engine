@@ -35,7 +35,7 @@ public class ChatSettingRepository(
         return cache;
     }
 
-    public async Task RefreshChatInfo(ChatSettingDto dto)
+    public async Task RefreshChatInfo(ChatUserDto dto)
     {
         logger.LogInformation("Ensure ChatSetting for ChatId: {ChatId} Started", dto.ChatId);
 
@@ -54,6 +54,7 @@ public class ChatSettingRepository(
                 ChatTitle = dto.ChatTitle,
                 ChatUsername = dto.ChatUsername,
                 MemberCount = dto.MemberCount,
+                IsBotAdmin = dto.IsBotAdmin,
                 Status = EventStatus.Complete,
                 TransactionId = dto.TransactionId
             });
@@ -66,6 +67,7 @@ public class ChatSettingRepository(
             chatUser.ChatType = dto.ChatType;
             chatUser.ChatUsername = dto.ChatUsername;
             chatUser.MemberCount = dto.MemberCount;
+            chatUser.IsBotAdmin = dto.IsBotAdmin;
             chatUser.Status = EventStatus.Complete;
             chatUser.TransactionId = dto.TransactionId;
         }

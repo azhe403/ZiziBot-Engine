@@ -714,7 +714,14 @@ public class TelegramService(
         return isAdmin;
     }
 
-    async Task GetRoles()
+    public async Task<bool> CheckBotAdmin()
+    {
+        var me = await Bot.GetMe();
+        var chatAdmins = await GetChatAdministrator();
+        return chatAdmins.Any(x => x.User.Id == me.Id);
+    }
+
+    private async Task GetRoles()
     {
         _request.RolesLevels.Add(RoleLevel.Guest);
         _request.RolesLevels.Add(RoleLevel.None);

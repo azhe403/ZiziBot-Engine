@@ -7,7 +7,7 @@ namespace ZiziBot.DataSource.MongoEf;
 
 public class MongoEfContext : DbContext
 {
-    readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
+    private readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
     public DbSet<SudoerEntity> Sudoers { get; set; }
     public DbSet<AppSettingsEntity> AppSettings { get; set; }
@@ -119,7 +119,7 @@ public class MongoEfContext : DbContext
         return path;
     }
 
-    void EnsureTimestamp()
+    private void EnsureTimestamp()
     {
         var entries = ChangeTracker.Entries<EntityBase>()
             .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
