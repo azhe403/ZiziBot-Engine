@@ -1,8 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace ZiziBot.Contracts.Constants;
 
-[SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class Env
 {
     public const string AZURE_APP_CONFIG_CONNECTION_STRING = "AZURE_APP_CONFIG_CONNECTION_STRING";
