@@ -21,7 +21,7 @@
         </option>
         <option name="executable">
           <ExecutableSnapshot>
-            <option name="id" value="runConfig:npm.shadcn-console"/>
+            <option name="id" value="runConfig:npm.zizibot-console"/>
           </ExecutableSnapshot>
         </option>
       </ExecutableRowSnapshot>
