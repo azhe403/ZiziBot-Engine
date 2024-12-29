@@ -125,7 +125,7 @@ public class FetchRssHandler(
         }
         catch (Exception exception)
         {
-            if (exception.IsRssBetterDisabled())
+            if (exception.IsIgnorable())
             {
                 var findRssSetting = await dataFacade.MongoEf.RssSetting
                     .Where(entity => entity.ChatId == request.ChatId)

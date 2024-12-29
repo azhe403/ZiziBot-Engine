@@ -450,10 +450,10 @@ public class TelegramService(
         {
             await Bot.DeleteMessage(_request.ChatId, _request.MessageId);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            logger.LogError(e, "Error deleting message {MessageId}", _request.MessageId);
-            if (e.Message.IsIgnorable())
+            logger.LogError(exception, "Error deleting message {MessageId}", _request.MessageId);
+            if (exception.IsIgnorable())
                 return;
 
             throw;
