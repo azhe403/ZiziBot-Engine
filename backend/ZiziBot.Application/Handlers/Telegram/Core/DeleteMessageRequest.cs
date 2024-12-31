@@ -33,7 +33,7 @@ public class DeleteMessageRequestHandler(
         }
         catch (Exception exception)
         {
-            if (exception.Message.IsIgnorable())
+            if (exception.IsIgnorable())
             {
                 logger.LogWarning("Message {MessageId} could not be deleted from chat {ChatId}", request.MessageId, chatId);
             }

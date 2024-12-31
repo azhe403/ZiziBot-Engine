@@ -57,7 +57,7 @@ public class SendShalatTimeHandler(
             }
             catch (Exception exception)
             {
-                if (exception.Message.IsIgnorable())
+                if (exception.IsIgnorable())
                 {
                     logger.LogDebug(exception, "Failed to send Salat Time notification to ChatId: {ChatId}", request.ChatId);
                     break;

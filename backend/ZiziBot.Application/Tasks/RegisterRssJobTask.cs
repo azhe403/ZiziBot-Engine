@@ -9,7 +9,7 @@ public class RegisterRssJobTask(
     MediatorService mediatorService
 ) : IStartupTask
 {
-    public bool SkipAwait { get; set; } = true;
+    public bool SkipAwait { get; set; } = false;
 
     public async Task ExecuteAsync()
     {

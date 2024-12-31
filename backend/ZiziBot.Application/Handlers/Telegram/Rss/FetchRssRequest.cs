@@ -88,8 +88,8 @@ public class FetchRssHandler(
 
             try
             {
-                await botClient.SendTextMessageAsync(
-                    request.ChatId,
+                await botClient.SendMessage(
+                    chatId: request.ChatId,
                     messageThreadId: request.ThreadId,
                     text: truncatedMessageText,
                     parseMode: ParseMode.Html,
@@ -102,9 +102,9 @@ public class FetchRssHandler(
                 if (exception.Message.Contains("thread not found"))
                 {
                     logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
-                    await botClient.SendTextMessageAsync(
-                        request.ChatId,
-                        truncatedMessageText,
+                    await botClient.SendMessage(
+                        chatId: request.ChatId,
+                        text: truncatedMessageText,
                         parseMode: ParseMode.Html,
                         linkPreviewOptions: true,
                         cancellationToken: cancellationToken
@@ -125,7 +125,7 @@ public class FetchRssHandler(
         }
         catch (Exception exception)
         {
-            if (exception.IsRssBetterDisabled())
+            if (exception.IsIgnorable())
             {
                 var findRssSetting = await dataFacade.MongoEf.RssSetting
                     .Where(entity => entity.ChatId == request.ChatId)
@@ -136,8 +136,7 @@ public class FetchRssHandler(
                 var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
 
                 findRssSetting.ForEach(rssSetting => {
-                    logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}",
-                        rssSetting.ChatId, rssSetting.RssUrl, exceptionMessage);
+                    logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", rssSetting.ChatId, rssSetting.RssUrl, exceptionMessage);
 
                     rssSetting.Status = EventStatus.InProgress;
                     rssSetting.LastErrorMessage = exceptionMessage;
@@ -147,8 +146,7 @@ public class FetchRssHandler(
             }
             else
             {
-                logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}",
-                    request.ChatId, request.RssUrl);
+                logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", request.ChatId, request.RssUrl);
             }
         }
 

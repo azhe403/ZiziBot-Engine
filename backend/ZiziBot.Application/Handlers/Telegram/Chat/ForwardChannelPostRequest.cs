@@ -171,7 +171,7 @@ public class ForwardChannelPostHandler(
             }
             catch (Exception exception)
             {
-                if (exception.Message.IsIgnorable())
+                if (exception.IsIgnorable())
                 {
                     logger.LogWarning(exception, "Error when forwarding channel post");
                 }

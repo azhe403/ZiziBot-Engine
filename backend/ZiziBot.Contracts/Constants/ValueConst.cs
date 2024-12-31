@@ -1,8 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace ZiziBot.Contracts.Constants;
 
-namespace ZiziBot.Contracts.Constants;
-
-[SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class ValueConst
 {
     public const ExecutionStrategy DEFAULT_EXECUTION_STRATEGY = ExecutionStrategy.Instant;

@@ -450,10 +450,10 @@ public class TelegramService(
         {
             await Bot.DeleteMessage(_request.ChatId, _request.MessageId);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            logger.LogError(e, "Error deleting message {MessageId}", _request.MessageId);
-            if (e.Message.IsIgnorable())
+            logger.LogError(exception, "Error deleting message {MessageId}", _request.MessageId);
+            if (exception.IsIgnorable())
                 return;
 
             throw;
@@ -714,7 +714,14 @@ public class TelegramService(
         return isAdmin;
     }
 
-    async Task GetRoles()
+    public async Task<bool> CheckBotAdmin()
+    {
+        var me = await Bot.GetMe();
+        var chatAdmins = await GetChatAdministrator();
+        return chatAdmins.Any(x => x.User.Id == me.Id);
+    }
+
+    private async Task GetRoles()
     {
         _request.RolesLevels.Add(RoleLevel.Guest);
         _request.RolesLevels.Add(RoleLevel.None);

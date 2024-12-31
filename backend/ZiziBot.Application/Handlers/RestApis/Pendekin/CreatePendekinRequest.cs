@@ -42,7 +42,7 @@ public class CreatePendekinHandler(
         var pendekinMap = await dataFacade.MongoEf.PendekinMap.FirstOrDefaultAsync(x => x.ShortPath == request.Body.ShortPath);
 
         if (pendekinMap != null)
-            return ApiResponseBase.ReturnBadRequest<CreatePendekinResponse>("Pendekin Path is already exist");
+            return ApiResponse.ReturnBadRequest<CreatePendekinResponse>("Pendekin Path is already exist");
 
         dataFacade.MongoEf.PendekinMap.Add(new PendekinMapEntity() {
             OriginalUrl = request.Body.OriginalUrl,
@@ -55,7 +55,7 @@ public class CreatePendekinHandler(
 
         await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
-        return ApiResponseBase.ReturnSuccess("Create Pendekin successfully", new CreatePendekinResponse() {
+        return ApiResponse.ReturnSuccess("Create Pendekin successfully", new CreatePendekinResponse() {
             OriginalUrl = request.Body.OriginalUrl,
             ShortPath = shortPath
         });

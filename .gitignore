@@ -277,3 +277,4 @@ FodyWeavers.*
 **/.turbo/
 .vercel
 .turbo
+.qodo

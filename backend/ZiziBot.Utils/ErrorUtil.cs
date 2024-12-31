@@ -11,6 +11,7 @@ public static class ErrorUtil
             "chat not found",
             "connection attempt failed",
             "connection could not be established",
+            "connection refused",
             "error occurred while parsing",
             "error while copying content",
             "forcibly closed by the remote host",
@@ -27,13 +28,13 @@ public static class ErrorUtil
             "root level is invalid",
             "unexpected token",
             "unknown feed type",
-            "user is deactivated",
+            "user is deactivated"
         };
 
         return ignorableMessages.Exists(message.ToLower().Contains);
     }
 
-    public static bool IsRssBetterDisabled(this Exception exception)
+    public static bool IsIgnorable(this Exception exception)
     {
         if (exception.Message.IsIgnorable())
             return true;

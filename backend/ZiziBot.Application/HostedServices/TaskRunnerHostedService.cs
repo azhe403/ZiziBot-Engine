@@ -15,24 +15,33 @@ public class TaskRunnerHostedService(IServiceProvider serviceProvider, ILogger<T
             return;
         }
 
-        var services = serviceProvider.GetServices<IStartupTask>().ToList();
+        var scope = serviceProvider.CreateAsyncScope();
+        var services = scope.ServiceProvider.GetServices<IStartupTask>().ToList();
 
         foreach (var service in services)
         {
-            logger.LogInformation("Executing task: {Task}", service.GetType());
-
-            if (service.SkipAwait)
+            try
             {
-                service.ExecuteAsync().SafeFireAndForget(exception =>
-                    logger.LogError(exception, "Error while executing startup task: {Service}", service));
-            }
-            else
-            {
-                await service.ExecuteAsync();
-            }
+                logger.LogInformation("Executing task: {Task}", service.GetType());
 
-            logger.LogInformation("Task executed: {Task}", service.GetType());
+                if (service.SkipAwait)
+                {
+                    service.ExecuteAsync().SafeFireAndForget(exception => logger.LogError(exception, "Error while executing startup task: {Service}", service));
+                }
+                else
+                {
+                    await service.ExecuteAsync();
+                }
+
+                logger.LogInformation("Task executed: {ServiceType}", service.GetType());
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Error while executing startup task: {ServiceType}", service.GetType());
+            }
         }
+
+        await scope.DisposeAsync();
 
         logger.LogInformation("All tasks executed. Count: {Count}", services.Count);
     }

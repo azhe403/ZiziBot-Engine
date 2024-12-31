@@ -9,8 +9,7 @@ public static class HostExtension
         var portVar = EnvUtil.GetEnv("PORT");
         if (portVar?.Length > 0 && int.TryParse(portVar, out int port))
         {
-            webHostBuilder.ConfigureKestrel(options =>
-            {
+            webHostBuilder.ConfigureKestrel(options => {
                 options.ListenAnyIP(port);
             });
         }

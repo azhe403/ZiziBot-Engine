@@ -35,6 +35,7 @@ public static class HangfireServiceExtension
         services.AddHangfire(
             configuration => {
                 configuration
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                     .UseSimpleAssemblyNameTypeSerializer()
                     .UseRecommendedSerializerSettings()
                     .UseDarkDashboard()
@@ -74,8 +75,8 @@ public static class HangfireServiceExtension
             options: new DashboardOptions() {
                 DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
                 IgnoreAntiforgeryToken = false,
-                Authorization = authorizationFilters,
-                AsyncAuthorization = asyncAuthorizationFilters
+                // Authorization = authorizationFilters,
+                // AsyncAuthorization = asyncAuthorizationFilters
             }
         );
 
