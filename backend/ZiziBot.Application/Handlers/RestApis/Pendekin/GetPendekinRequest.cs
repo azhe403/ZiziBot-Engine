@@ -39,9 +39,9 @@ public class GetPendekinHandler(
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (pendekinMap == null)
-            return ApiResponseBase.ReturnBadRequest<GetPendekinResponse>("Pendekin not found");
+            return ApiResponse.ReturnBadRequest<GetPendekinResponse>("Pendekin not found");
 
-        return ApiResponseBase.ReturnSuccess("Get Pendekin successfully", new GetPendekinResponse() {
+        return ApiResponse.ReturnSuccess("Get Pendekin successfully", new GetPendekinResponse() {
             PendekinId = pendekinMap.Id.ToString(),
             OriginalUrl = pendekinMap.OriginalUrl,
             CreatedDate = pendekinMap.CreatedDate,

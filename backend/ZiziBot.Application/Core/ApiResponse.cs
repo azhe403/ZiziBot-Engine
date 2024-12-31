@@ -55,7 +55,7 @@ public class ApiResponseBase<TResult>
     }
 }
 
-public static class ApiResponseBase
+public static class ApiResponse
 {
     public static ApiResponseBase<TResult> ReturnSuccess<TResult>(string message, TResult? result = default)
     {

@@ -116,6 +116,12 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                 }
             },
             new() {
+                Root = "Pendekin",
+                KeyPair = new() {
+                    { "RouterBaseUrl", "http://127.0.0.1:7140" }
+                }
+            },
+            new() {
                 Root = "Gcp",
                 KeyPair = new() {
                     { "IsEnabled", false },

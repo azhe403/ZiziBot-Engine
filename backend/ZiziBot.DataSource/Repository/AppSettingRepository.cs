@@ -28,44 +28,32 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
 
     public async Task<T?> GetConfigSectionAsync<T>() where T : new()
     {
-        var attribute = typeof(T).GetCustomAttribute<DisplayNameAttribute>();
-        if (attribute == null)
-        {
-            throw new ArgumentException("T must have DisplayName Attribute");
-        }
-
-        var sectionName = attribute.DisplayName;
+        var rootConfig = typeof(T).Name.Replace("Config", "");
 
         var appSettings = await mongoEfContext.AppSettings.AsNoTracking()
-            .Where(entity => entity.Name.StartsWith(sectionName))
+            .Where(entity => entity.Root == rootConfig)
             .Select(x => new { x.Name, x.Value })
             .ToListAsync();
 
         var data = appSettings
             .DistinctBy(d => d.Name)
-            .ToDictionary(x => x.Name.Remove(0, sectionName.Length + 1), x => x.Value).ToJson().ToObject<T>();
+            .ToDictionary(x => x.Name.Remove(0, rootConfig.Length + 1), x => x.Value).ToJson().ToObject<T>();
 
         return data;
     }
 
     public T? GetConfigSection<T>() where T : new()
     {
-        var attribute = typeof(T).GetCustomAttribute<DisplayNameAttribute>();
-        if (attribute == null)
-        {
-            throw new ArgumentException("T must have DisplayName Attribute");
-        }
-
-        var sectionName = attribute.DisplayName;
+        var rootConfig = typeof(T).Name.Replace("Config", "");
 
         var appSettings = mongoEfContext.AppSettings.AsNoTracking()
-            .Where(entity => entity.Name.StartsWith(sectionName))
+            .Where(entity => entity.Root == rootConfig)
             .Select(x => new { x.Name, x.Value })
             .ToList();
 
         var data = appSettings
             .DistinctBy(d => d.Name)
-            .ToDictionary(x => x.Name.Remove(0, sectionName.Length + 1), x => x.Value).ToJson().ToObject<T>();
+            .ToDictionary(x => x.Name.Remove(0, rootConfig.Length + 1), x => x.Value).ToJson().ToObject<T>();
 
         return data;
     }
