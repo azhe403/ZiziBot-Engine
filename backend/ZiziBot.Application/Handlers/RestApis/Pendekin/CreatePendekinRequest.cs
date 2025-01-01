@@ -28,6 +28,7 @@ public class CreatePendekinValidation : AbstractValidator<CreatePendekinRequest>
 public class CreatePendekinResponse
 {
     public string OriginalUrl { get; set; }
+    public string ShortUrl { get; set; }
     public string ShortPath { get; set; }
 }
 
@@ -37,12 +38,14 @@ public class CreatePendekinHandler(
 {
     public async Task<ApiResponseBase<CreatePendekinResponse>> Handle(CreatePendekinRequest request, CancellationToken cancellationToken)
     {
-        var shortPath = request.Body.ShortPath ?? StringUtil.GetNanoId();
+        var shortPath = request.Body.ShortPath.IsNullOrWhiteSpace() ? StringUtil.GetNanoId() : request.Body.ShortPath;
 
-        var pendekinMap = await dataFacade.MongoEf.PendekinMap.FirstOrDefaultAsync(x => x.ShortPath == request.Body.ShortPath);
+        var pendekinMap = await dataFacade.MongoEf.PendekinMap.FirstOrDefaultAsync(x => x.ShortPath == shortPath);
 
         if (pendekinMap != null)
             return ApiResponse.ReturnBadRequest<CreatePendekinResponse>("Pendekin Path is already exist");
+
+        var pendekinConfig = await dataFacade.AppSetting.GetConfigSectionAsync<PendekinConfig>();
 
         dataFacade.MongoEf.PendekinMap.Add(new PendekinMapEntity() {
             OriginalUrl = request.Body.OriginalUrl,
@@ -57,6 +60,7 @@ public class CreatePendekinHandler(
 
         return ApiResponse.ReturnSuccess("Create Pendekin successfully", new CreatePendekinResponse() {
             OriginalUrl = request.Body.OriginalUrl,
+            ShortUrl = pendekinConfig.RouterBaseUrl.IsNotNullOrWhiteSpace() ? $"{pendekinConfig.RouterBaseUrl}/{shortPath}" : string.Empty,
             ShortPath = shortPath
         });
     }

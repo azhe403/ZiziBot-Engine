@@ -23,6 +23,7 @@ public class GetPendekinResponse
 {
     public string PendekinId { get; set; }
     public string OriginalUrl { get; set; }
+    public string ShortUrl { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
 }
@@ -41,9 +42,12 @@ public class GetPendekinHandler(
         if (pendekinMap == null)
             return ApiResponse.ReturnBadRequest<GetPendekinResponse>("Pendekin not found");
 
+        var pendekinConfig = await dataFacade.AppSetting.GetConfigSectionAsync<PendekinConfig>();
+
         return ApiResponse.ReturnSuccess("Get Pendekin successfully", new GetPendekinResponse() {
             PendekinId = pendekinMap.Id.ToString(),
             OriginalUrl = pendekinMap.OriginalUrl,
+            ShortUrl = pendekinConfig.RouterBaseUrl.IsNotNullOrWhiteSpace() ? $"{pendekinConfig.RouterBaseUrl}/{pendekinMap.ShortPath}" : string.Empty,
             CreatedDate = pendekinMap.CreatedDate,
             UpdatedDate = pendekinMap.UpdatedDate
         });
