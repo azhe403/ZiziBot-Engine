@@ -34,17 +34,21 @@ public class GetPendekinHandler(
 {
     public async Task<ApiResponseBase<GetPendekinResponse>> Handle(GetPendekinRequest request, CancellationToken cancellationToken)
     {
+        var response = ApiResponse.Create<GetPendekinResponse>();
         var pendekinMap = await dataFacade.MongoEf.PendekinMap.AsNoTracking()
             .WhereIf(!request.ShortPath.IsObjectId(), x => x.ShortPath == request.ShortPath)
             .WhereIf(request.ShortPath.IsObjectId(), x => x.Id == request.ShortPath.ToObjectId())
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (pendekinMap == null)
-            return ApiResponse.ReturnBadRequest<GetPendekinResponse>("Pendekin not found");
+            return response.BadRequest("Pendekin not found");
 
         var pendekinConfig = await dataFacade.AppSetting.GetConfigSectionAsync<PendekinConfig>();
 
-        return ApiResponse.ReturnSuccess("Get Pendekin successfully", new GetPendekinResponse() {
+        if (pendekinConfig == null)
+            return response.BadRequest("Pendekin not yet prepared");
+
+        return response.Success("Get Pendekin successfully", new GetPendekinResponse() {
             PendekinId = pendekinMap.Id.ToString(),
             OriginalUrl = pendekinMap.OriginalUrl,
             ShortUrl = pendekinConfig.RouterBaseUrl.IsNotNullOrWhiteSpace() ? $"{pendekinConfig.RouterBaseUrl}/{pendekinMap.ShortPath}" : string.Empty,
