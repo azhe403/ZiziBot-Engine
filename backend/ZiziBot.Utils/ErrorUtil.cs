@@ -21,6 +21,7 @@ public static class ErrorUtil
             "name does not resolve",
             "name or service not known",
             "no such host is known",
+            "no connection could be made because the target machine actively refused it",
             "not match",
             "reference to undeclared entity",
             "request was canceled",
@@ -31,7 +32,7 @@ public static class ErrorUtil
             "user is deactivated"
         };
 
-        return ignorableMessages.Exists(message.ToLower().Contains);
+        return ignorableMessages.Exists(s => message.Contains(s, StringComparison.OrdinalIgnoreCase));
     }
 
     public static bool IsIgnorable(this Exception exception)

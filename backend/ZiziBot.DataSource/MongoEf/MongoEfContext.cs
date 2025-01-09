@@ -1,11 +1,13 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using MongoDB.EntityFrameworkCore;
+using Serilog;
 using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.DataSource.MongoEf;
 
-public class MongoEfContext : DbContext
+public class MongoEfContext() : DbContext
 {
     private readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
@@ -71,21 +73,7 @@ public class MongoEfContext : DbContext
                 .EnableDetailedErrors();
         }
     }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        // ApplyDefaultValues(modelBuilder, typeof(DateTime), DateTime.UtcNow);
-        // ApplyDefaultValues(modelBuilder, typeof(DateTime?), DateTime.UtcNow);
-        // modelBuilder.ApplyDefaultValues(typeof(long), 0);
-        // DbUtil.ApplyDefaultValues(modelBuilder, typeof(long?), 0);
-
-        // modelBuilder.Entity<EntityBase>().Property(e => e.TransactionId).HasDefaultValue("string.Empty");
-        // modelBuilder.Entity<EntityBase>().Property(e => e.CreatedBy).HasDefaultValue(0);
-
-        base.OnModelCreating(modelBuilder);
-    }
-
-
+    
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
         EnsureTimestamp();
@@ -107,16 +95,26 @@ public class MongoEfContext : DbContext
 
     public async Task<string> ExportAllAsync<T>() where T : EntityBase, new()
     {
+        var entityName = typeof(T).GetCustomAttribute<CollectionAttribute>()?.Name!;
         var exportPath = PathConst.MONGODB_BACKUP.EnsureDirectory();
 
-        var data = await Set<T>().ToListAsync();
-        var entityName = typeof(T).GetCustomAttribute<TableAttribute>()?.Name!;
+        try
+        {
+            Log.Debug("Exporting entity: {EntityName} to path: {Path}", entityName, exportPath);
+            var data = await Set<T>().ToListAsync();
 
-        var path = Path.Combine(exportPath, entityName + ".csv").EnsureDirectory();
+            var path = Path.Combine(exportPath, entityName + ".csv").EnsureDirectory();
 
-        data.WriteToCsvFile(path);
+            data.WriteToCsvFile(path);
+            Log.Debug("Exported entity: {EntityName} to path: {Path}", entityName, exportPath);
 
-        return path;
+            return path;
+        }
+        catch (Exception exception)
+        {
+            Log.Error(exception, "Fail when export entity: {EntityName} to path: {Path}", entityName, exportPath);
+            return string.Empty;
+        }
     }
 
     private void EnsureTimestamp()
