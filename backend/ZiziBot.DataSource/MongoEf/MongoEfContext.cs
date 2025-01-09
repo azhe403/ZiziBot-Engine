@@ -73,7 +73,7 @@ public class MongoEfContext() : DbContext
                 .EnableDetailedErrors();
         }
     }
-    
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
         EnsureTimestamp();
