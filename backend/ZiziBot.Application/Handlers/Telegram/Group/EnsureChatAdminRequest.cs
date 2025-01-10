@@ -20,6 +20,7 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse>(
         if (request.ChatType == ChatType.Private ||
             request.IsChannel ||
             request.Source != ResponseSource.Bot ||
+            request.ChatId != 0 ||
             request.InlineQuery != null)
             return;
 
@@ -27,14 +28,14 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse>(
 
         var listChatAdmin = await dataFacade.MongoEf.ChatAdmin.Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(x => x.Status == EventStatus.Complete)
-            .ToListAsync(cancellationToken: cancellationToken);
+            .ToListAsync(cancellationToken);
 
         dataFacade.MongoEf.ChatAdmin.RemoveRange(listChatAdmin);
 
         await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 
         var chatAdministrators = await serviceFacade.TelegramService.GetChatAdministrator();
-        logger.LogDebug("List of Administrator in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Count);
+        logger.LogDebug("Admin count in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Count);
 
         var chatAdminEntities = chatAdministrators.Select(x => new ChatAdminEntity() {
             ChatId = request.ChatIdentifier,
