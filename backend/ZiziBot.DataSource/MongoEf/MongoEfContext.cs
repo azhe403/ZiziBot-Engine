@@ -67,10 +67,10 @@ public class MongoEfContext() : DbContext
 
         optionsBuilder.UseMongoDB(_connectionString, conn.DatabaseName);
 
-        if (EnvUtil.IsDevelopment())
+        if (EnvUtil.IsDevelopment() || EnvUtil.IsStaging())
         {
             optionsBuilder.EnableSensitiveDataLogging()
-                .EnableDetailedErrors();
+                          .EnableDetailedErrors();
         }
     }
 
@@ -88,9 +88,9 @@ public class MongoEfContext() : DbContext
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
-    public async Task<List<TEntity>> GetListAsync<TEntity>() where TEntity : EntityBase
+    public IQueryable<TEntity> GetQueryable<TEntity>() where TEntity : EntityBase
     {
-        return await Set<TEntity>().Where(x => x.Status == EventStatus.Complete).ToListAsync();
+        return Set<TEntity>().Where(x => x.Status == EventStatus.Complete);
     }
 
     public async Task<string> ExportAllAsync<T>() where T : EntityBase, new()
@@ -120,7 +120,7 @@ public class MongoEfContext() : DbContext
     private void EnsureTimestamp()
     {
         var entries = ChangeTracker.Entries<EntityBase>()
-            .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
+                                   .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
 
         foreach (var entityEntry in entries)
         {

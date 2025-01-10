@@ -25,6 +25,16 @@ public static class EnvUtil
         return IsEnv("ASPNETCORE_ENVIRONMENT", "Development");
     }
 
+    public static bool IsStaging()
+    {
+        return IsEnv("ASPNETCORE_ENVIRONMENT", "Staging");
+    }
+
+    public static bool IsProduction()
+    {
+        return IsEnv("ASPNETCORE_ENVIRONMENT", "Production");
+    }
+
     public static bool IsEnv(string key, string value)
     {
         var envVal = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
