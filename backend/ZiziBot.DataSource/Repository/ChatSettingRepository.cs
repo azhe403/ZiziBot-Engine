@@ -120,11 +120,6 @@ public class ChatSettingRepository(
             .ToListAsync();
 
         List<ChatInfoDto>? listPermission = new();
-        // listPermission.Add(new ChatInfoDto()
-        // {
-        //     ChatId = request.SessionUserId,
-        //     ChatTitle = "Saya"
-        // });
 
         var listGroup = chatAdmin
             .Join(listChatSetting, adminEntity => adminEntity.ChatId,
@@ -143,53 +138,58 @@ public class ChatSettingRepository(
 
     public async Task<List<NoteDto>> GetListNote(long chatId)
     {
-        var listNoteEntity = await mongoDbContext.Note
+        var listNoteEntity = await mongoDbContext.Note.AsNoTracking()
             .AsNoTracking()
             .Where(entity => entity.ChatId == chatId)
-            .Join(mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto() {
+            .ToListAsync();
+
+        var chat = await mongoDbContext.ChatSetting.AsNoTracking()
+            .Where(entity => entity.ChatId == chatId)
+            .FirstOrDefaultAsync();
+
+        var listNote = listNoteEntity.Select(note => new NoteDto() {
                 Id = note.Id.ToString(),
                 ChatId = note.ChatId,
-                ChatTitle = chat.ChatTitle,
+                ChatTitle = chat?.ChatTitle,
                 Query = note.Query,
                 Text = note.Content,
                 RawButton = note.RawButton,
                 FileId = note.FileId,
                 DataType = note.DataType,
                 Status = (int)note.Status,
-                TransactionId = note.TransactionId,
-                CreatedDate = chat.CreatedDate,
-                UpdatedDate = chat.UpdatedDate
+                TransactionId = note.TransactionId ?? string.Empty,
+                CreatedDate = note.CreatedDate,
+                UpdatedDate = note.UpdatedDate
             })
             .Where(entity => entity.Status == (int)EventStatus.Complete)
             .OrderBy(entity => entity.Query)
-            .ToListAsync();
+            .ToList();
 
-        return listNoteEntity;
+        return listNote;
     }
 
     public async Task<NoteDto?> GetNote(string noteId)
     {
-        var listNoteEntity = await mongoDbContext.Note
+        var noteEntity = await mongoDbContext.Note
             .AsNoTracking()
+            .Where(entity => entity.Status == EventStatus.Complete)
             .Where(entity => entity.Id == noteId.ToObjectId())
-            .Join(mongoDbContext.ChatSetting, note => note.ChatId, chat => chat.ChatId, (note, chat) => new NoteDto() {
+            .Select(note => new NoteDto() {
                 Id = note.Id.ToString(),
                 ChatId = note.ChatId,
-                ChatTitle = chat.ChatTitle,
                 Query = note.Query,
                 Text = note.Content,
                 RawButton = note.RawButton,
                 FileId = note.FileId,
                 DataType = note.DataType,
                 Status = (int)note.Status,
-                TransactionId = note.TransactionId,
-                CreatedDate = chat.CreatedDate,
-                UpdatedDate = chat.UpdatedDate
+                TransactionId = note.TransactionId ?? string.Empty,
+                CreatedDate = note.CreatedDate,
+                UpdatedDate = note.UpdatedDate
             })
-            .Where(entity => entity.Status == (int)EventStatus.Complete)
             .FirstOrDefaultAsync();
 
-        return listNoteEntity;
+        return noteEntity;
     }
 
     public async Task<List<NoteDto>> GetAllByChat(long chatId, bool evictBefore = false)

@@ -5,7 +5,7 @@ using ZiziBot.Application.Facades;
 
 namespace ZiziBot.WebApi.Middlewares;
 
-public class InjectHeaderMiddleware(DataFacade dataFacade) : IMiddleware
+public class InjectRequestMiddleware(DataFacade dataFacade) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -13,6 +13,7 @@ public class InjectHeaderMiddleware(DataFacade dataFacade) : IMiddleware
         if (string.IsNullOrEmpty(bearerToken))
         {
             await next(context);
+            return;
         }
 
         if (!context.Request.Path.StartsWithSegments("/api"))
@@ -50,7 +51,7 @@ public class InjectHeaderMiddleware(DataFacade dataFacade) : IMiddleware
             return;
         }
 
-        context.Request.Headers.TryAdd(HeaderKey.UserId, dashboardSession.TelegramUserId.ToString());
+        context.Items.TryAdd(RequestKey.UserId, dashboardSession.TelegramUserId.ToString());
         #endregion
 
         #region Add List ChatId
@@ -63,7 +64,7 @@ public class InjectHeaderMiddleware(DataFacade dataFacade) : IMiddleware
 
         var chatIds = chatAdmin.Select(y => y.ChatId).Distinct();
 
-        context.Request.Headers.TryAdd(HeaderKey.ListChatId, chatIds.ToJson());
+        context.Items.TryAdd(RequestKey.ListChatId, chatIds.ToJson());
         #endregion
 
         #region Add User Role
@@ -79,7 +80,7 @@ public class InjectHeaderMiddleware(DataFacade dataFacade) : IMiddleware
             userRole = ApiRole.Sudo;
         }
 
-        context.Request.Headers.TryAdd(HeaderKey.UserRole, userRole.ToString());
+        context.Items.TryAdd(RequestKey.UserRole, userRole.ToString());
         #endregion
 
         await next(context);

@@ -43,7 +43,7 @@ public static class RestApiExtension
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
             .ConfigureApiBehaviorOptions(options => {
                 options.InvalidModelStateResponseFactory = context => {
-                    var transactionId = context.HttpContext.Request.Headers[HeaderKey.TransactionId].FirstOrDefault();
+                    var transactionId = context.HttpContext.GetTransactionId();
 
                     var errorDetails = context.ModelState
                         .Where(entry => entry.Value?.ValidationState == ModelValidationState.Invalid)
@@ -144,6 +144,7 @@ public static class RestApiExtension
     {
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseMiddleware<RequestBodyGuardMiddleware>();
+        app.UseMiddleware<InjectRequestMiddleware>();
         app.MapHub<LogHub>("/api/logging");
 
         app.UseStaticFiles();

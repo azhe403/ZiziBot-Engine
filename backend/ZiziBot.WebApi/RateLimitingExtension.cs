@@ -47,10 +47,9 @@ public static class RateLimiterExtension
             .LogWarning("OnRejected: {GetUserEndPoint}", context.HttpContext.Request.Path);
 
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        context.HttpContext.Response.WriteAsJsonAsync(new ApiResponseBase<object>()
-        {
+        context.HttpContext.Response.WriteAsJsonAsync(new ApiResponseBase<object>() {
             StatusCode = HttpStatusCode.TooManyRequests,
-            TransactionId = context.HttpContext.Request.Headers[HeaderKey.TransactionId].ToString(),
+            TransactionId = context.HttpContext.Request.Headers[RequestKey.TransactionId].ToString(),
             Message = "Too Many Requests"
         }, cancellationToken: cancellationToken);
 

@@ -70,7 +70,7 @@ public class ValidateTelegramSessionHandler(
             new Claim(ClaimTypes.NameIdentifier, request.Body.Username),
             new Claim(ClaimTypes.Name, request.Body.FirstName),
             new Claim(ClaimTypes.Role, request.SessionUserRole.ToString()),
-            new Claim(HeaderKey.UserId, request.Body.Id.ToString()),
+            new Claim(RequestKey.UserId, request.Body.Id.ToString()),
             new Claim("photoUrl", request.Body.PhotoUrl ?? ""),
         };
 

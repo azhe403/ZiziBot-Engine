@@ -1,4 +1,3 @@
-using Hangfire.LiteDB;
 using Hangfire.Server;
 using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Builder;
@@ -28,7 +27,7 @@ public static class HangfireServiceExtension
         JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
             CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
             CurrentStorage.Sqlite => new SQLiteStorage(PathConst.HANGFIRE_SQLITE_PATH.EnsureDirectory()),
-            CurrentStorage.LiteDb => new LiteDbStorage(PathConst.HANGFIRE_LITEDB_PATH.EnsureDirectory()),
+            // CurrentStorage.LiteDb => new LiteDbStorage(PathConst.HANGFIRE_LITEDB_PATH.EnsureDirectory()),
             _ => new InMemoryStorage(new InMemoryStorageOptions())
         };
 
