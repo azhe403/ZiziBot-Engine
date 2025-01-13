@@ -659,7 +659,8 @@ public class TelegramService(
 
     public async Task<List<ChatAdminDto>> GetChatAdministrator()
     {
-        if (_request.IsPrivateChat)
+        if (_request.IsPrivateChat ||
+            _request.ChatIdentifier <= 0)
             return [];
 
         var cacheValue = await cacheService.GetOrSetAsync(
