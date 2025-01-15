@@ -15,18 +15,19 @@ public class AntiSpamService(
     ApiKeyService apiKeyService
 )
 {
-    const string DefaultStaleTime = "10m";
+    private const string DEFAULT_STALE_TIME = "10m";
 
     public async Task<AntiSpamDto> CheckSpamAsync(long chatId, long userId)
     {
         var antispamDto = new AntiSpamDto();
 
-        if (userId == 0)
+        if (userId == 0 ||
+            chatId == 0)
             return antispamDto;
 
-        var taskCheckEss = CheckEssAsync(chatId, userId);
-        var taskCheckCombotAntiSpam = CheckCombotAntiSpamAsync(chatId, userId);
-        var taskCheckSpamWatch = CheckSpamWatchAntiSpamAsync(chatId, userId);
+        var taskCheckEss = CheckEssAsync(userId);
+        var taskCheckCombotAntiSpam = CheckCombotAntiSpamAsync(userId);
+        var taskCheckSpamWatch = CheckSpamWatchAntiSpamAsync(userId);
         await Task.WhenAll(taskCheckEss, taskCheckCombotAntiSpam, taskCheckSpamWatch);
 
         antispamDto.IsBanEss = (await taskCheckEss).IsBanEss;
@@ -39,11 +40,11 @@ public class AntiSpamService(
         return antispamDto;
     }
 
-    async Task<AntiSpamDto> CheckEssAsync(long chatId, long userId)
+    private async Task<AntiSpamDto> CheckEssAsync(long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
             CacheKey.USER_BAN_ESS + userId,
-            staleAfter: DefaultStaleTime,
+            staleAfter: DEFAULT_STALE_TIME,
             action: async () => {
                 var antiSpamDto = new AntiSpamDto();
                 var globalBanEntities = await mongoDbContext.GlobalBan
@@ -58,11 +59,11 @@ public class AntiSpamService(
         return cacheData;
     }
 
-    async Task<AntiSpamDto> CheckCombotAntiSpamAsync(long chatId, long userId)
+    private async Task<AntiSpamDto> CheckCombotAntiSpamAsync(long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
             CacheKey.USER_BAN_CAS + userId,
-            staleAfter: DefaultStaleTime,
+            staleAfter: DEFAULT_STALE_TIME,
             action: async () => {
                 var antiSpamDto = new AntiSpamDto();
                 try
@@ -76,7 +77,7 @@ public class AntiSpamService(
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "Fail to check Combot AntiSpam for {UserId}", userId);
+                    logger.LogWarning(exception, "Fail to check Combot AntiSpam for {UserId}", userId);
                 }
 
                 return antiSpamDto;
@@ -86,11 +87,11 @@ public class AntiSpamService(
         return cacheData;
     }
 
-    async Task<AntiSpamDto> CheckSpamWatchAntiSpamAsync(long chatId, long userId)
+    private async Task<AntiSpamDto> CheckSpamWatchAntiSpamAsync(long userId)
     {
         var cacheData = await cacheService.GetOrSetAsync(
             CacheKey.USER_BAN_SW + userId,
-            staleAfter: DefaultStaleTime,
+            staleAfter: DEFAULT_STALE_TIME,
             action: async () => {
                 SpamWatchResult spamwatchResult = new();
                 var antiSpamDto = new AntiSpamDto();
@@ -115,7 +116,7 @@ public class AntiSpamService(
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "Fail to check Spamwatch AntiSpam for {UserId}", userId);
+                    logger.LogWarning(exception, "Fail to check Spamwatch AntiSpam for {UserId}", userId);
                 }
 
                 return antiSpamDto;
