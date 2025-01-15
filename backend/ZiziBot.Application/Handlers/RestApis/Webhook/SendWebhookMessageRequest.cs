@@ -9,7 +9,7 @@ namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
 public class SendWebhookMessageRequest : IRequest<object>
 {
-    public string targetId { get; set; }
+    public string TargetId { get; set; }
     public string Event { get; set; }
     public string TransactionId { get; set; }
     public WebhookSource WebhookSource { get; set; }
@@ -28,7 +28,7 @@ public class SendWebhookMessageRequestHandler(
     public async Task<object> Handle(SendWebhookMessageRequest request, CancellationToken cancellationToken)
     {
         var stopwatch = Stopwatch.StartNew();
-        var webhookChat = await dataFacade.ChatSetting.GetWebhookRouteById(request.targetId);
+        var webhookChat = await dataFacade.ChatSetting.GetWebhookRouteById(request.TargetId);
         var botSetting = await dataFacade.AppSetting.GetBotMain();
         var botClient = new TelegramBotClient(botSetting.Token);
 
@@ -39,41 +39,51 @@ public class SendWebhookMessageRequestHandler(
         try
         {
             if (lastMessageId != 0)
-                sentMessage = await botClient.EditMessageTextAsync(
-                    webhookChat.ChatId,
-                    lastMessageId,
-                    request.FormattedHtml,
-                    ParseMode.Html,
-                    linkPreviewOptions: true,
-                    cancellationToken: cancellationToken);
-            else
-                sentMessage = await botClient.SendTextMessageAsync(
-                    webhookChat.ChatId,
-                    request.FormattedHtml,
-                    webhookChat.MessageThreadId,
-                    ParseMode.Html,
-                    linkPreviewOptions: true,
-                    cancellationToken: cancellationToken);
-        }
-        catch (Exception exception)
-        {
-            logger.LogWarning(exception, "Trying send GitHub Webhook without thread to ChatId: {ChatId}", webhookChat.ChatId);
-            if (exception.Message.Contains("thread not found"))
             {
-                sentMessage = await botClient.SendTextMessageAsync(
-                    webhookChat.ChatId,
-                    request.FormattedHtml,
+                sentMessage = await botClient.EditMessageText(
+                    chatId: webhookChat.ChatId,
+                    messageId: lastMessageId,
+                    text: request.FormattedHtml,
                     parseMode: ParseMode.Html,
                     linkPreviewOptions: true,
-                    cancellationToken: cancellationToken);
+                    cancellationToken: cancellationToken
+                );
             }
             else
             {
-                logger.LogError(exception, "Fail when sending webhook Message to ChatId: {ChatId}, ThreadId: {ThreadId}",
-                    webhookChat.ChatId, webhookChat.MessageThreadId);
-
-                // return response.BadRequest(exception.Message);
-                return 0;
+                sentMessage = await botClient.SendMessage(
+                    chatId: webhookChat.ChatId,
+                    text: request.FormattedHtml,
+                    messageThreadId: webhookChat.MessageThreadId,
+                    parseMode: ParseMode.Html,
+                    linkPreviewOptions: true,
+                    cancellationToken: cancellationToken
+                );
+            }
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Trying to send GitHub Webhook without thread to ChatId: {ChatId}", webhookChat.ChatId);
+            if (exception.Message.Contains("thread not found"))
+            {
+                sentMessage = await botClient.SendMessage(
+                    chatId: webhookChat.ChatId,
+                    text: request.FormattedHtml,
+                    parseMode: ParseMode.Html,
+                    linkPreviewOptions: true,
+                    cancellationToken: cancellationToken
+                );
+            }
+            else
+            {
+                if (exception.IsIgnorable())
+                {
+                    return 0;
+                }
+                else
+                {
+                    logger.LogError(exception, "Fail when sending webhook Message to ChatId: {ChatId}, ThreadId: {ThreadId}", webhookChat.ChatId, webhookChat.MessageThreadId);
+                }
             }
         }
 
@@ -88,7 +98,7 @@ public class SendWebhookMessageRequestHandler(
             WebhookSource = WebhookSource.GitHub,
             Elapsed = stopwatch.Elapsed,
             Payload = request.IsDebug ? request.RawBody : string.Empty,
-            Header = request.IsDebug ? request.RawHeaders : default,
+            Header = request.IsDebug ? request.RawHeaders : null,
             EventName = request.Event,
             Status = EventStatus.Complete
         });
