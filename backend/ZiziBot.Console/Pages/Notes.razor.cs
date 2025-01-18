@@ -1,3 +1,5 @@
+using ZiziBot.Application.Facades;
+
 namespace ZiziBot.Console.Pages;
 
 public partial class Notes
@@ -21,7 +23,7 @@ public partial class Notes
     protected NotificationService NotificationService { get; set; }
 
     [Inject]
-    protected ChatSettingRepository ChatSettingRepository { get; set; }
+    protected DataFacade DataFacade { get; set; }
 
     [Inject]
     protected ILogger<Notes> Logger { get; set; }
@@ -49,12 +51,10 @@ public partial class Notes
 
         await DialogService.OpenAsync<NoteAdd>(
             title: "Edit Note",
-            parameters: new()
-            {
+            parameters: new() {
                 { "NoteId", noteId }
             },
-            options: new()
-            {
+            options: new() {
                 Width = "700px",
                 CloseDialogOnEsc = true,
                 Resizable = true,
@@ -68,8 +68,7 @@ public partial class Notes
     {
         await DialogService.OpenAsync<NoteAdd>(
             title: "Add Note",
-            options: new()
-            {
+            options: new() {
                 Width = "700px",
                 CloseDialogOnEsc = true,
                 Resizable = true,
@@ -81,6 +80,6 @@ public partial class Notes
 
     private async Task LoadNotes()
     {
-        ListNote = await ChatSettingRepository.GetListNote(ChatId);
+        ListNote = await DataFacade.ChatSetting.GetListNote(ChatId);
     }
 }

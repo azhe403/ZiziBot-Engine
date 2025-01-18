@@ -1,3 +1,5 @@
+using ZiziBot.Application.Facades;
+
 namespace ZiziBot.Console.Pages
 {
     public partial class NoteAdd : ReactiveInjectableComponentBase<NoteAddViewModel>
@@ -9,7 +11,7 @@ namespace ZiziBot.Console.Pages
         protected IMediator Mediator { get; set; }
 
         [Inject]
-        protected ChatSettingRepository ChatSettingRepository { get; set; }
+        protected DataFacade DataFacade { get; set; }
 
         public NoteAdd() => this.WhenActivated(x => { });
 
@@ -17,7 +19,7 @@ namespace ZiziBot.Console.Pages
         {
             if (NoteId != null)
             {
-                var noteInfo = await ChatSettingRepository.GetNote(NoteId);
+                var noteInfo = await DataFacade.ChatSetting.GetNote(NoteId);
 
                 ViewModel.NoteId = noteInfo.Id;
                 ViewModel.ChatId = noteInfo.ChatId;

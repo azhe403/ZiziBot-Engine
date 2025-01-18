@@ -6,7 +6,6 @@ namespace ZiziBot.Console.ViewModels;
 
 public class RssViewModel(
     ProtectedLocalStorage protectedLocalStorage,
-    ChatSettingRepository chatSettingRepository,
     DataFacade dataFacade
 )
     : ReactiveObject, IActivatableViewModel
@@ -19,7 +18,7 @@ public class RssViewModel(
         if (bearerToken.Value == null)
             return default;
 
-        var listChat = await chatSettingRepository.GetChatByBearerToken(bearerToken.Value);
+        var listChat = await dataFacade.ChatSetting.GetChatByBearerToken(bearerToken.Value);
         return listChat.Select(dto => dto.ChatTitle);
     }
 
