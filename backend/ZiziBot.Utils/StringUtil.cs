@@ -238,6 +238,9 @@ public static class StringUtil
             if (source.Contains(pattern.Replace("*", "")))
                 isMatch = true;
 
+        if (Regex.IsMatch(source, pattern))
+            isMatch = true;
+
         return isMatch;
     }
 
