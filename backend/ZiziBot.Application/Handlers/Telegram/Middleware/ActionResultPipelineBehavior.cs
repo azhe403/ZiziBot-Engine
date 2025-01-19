@@ -16,6 +16,12 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
             request.PipelineResult.Actions.IsEmpty())
             return await next();
 
+        if (ValueConst.SAFE_IDS.Contains(request.UserId))
+        {
+            //todo. auto detect based on user activity
+            return await next();
+        }
+
         var actions = request.PipelineResult.Actions;
         var htmlMessage = HtmlMessage.Empty
             .User(request.UserId, request.User.GetFullName());
