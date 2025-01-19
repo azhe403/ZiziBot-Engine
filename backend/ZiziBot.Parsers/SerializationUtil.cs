@@ -61,12 +61,12 @@ public static class SerializationUtil
 
     public static long GetUserId(this IHeaderDictionary headerDictionary)
     {
-        return long.TryParse(headerDictionary[HeaderKey.UserId], out var userId) ? userId : default;
+        return long.TryParse(headerDictionary[RequestKey.UserId], out var userId) ? userId : default;
     }
 
     public static List<long>? GetListChatId(this IHeaderDictionary headerDictionary)
     {
-        var listChatId = headerDictionary[HeaderKey.ListChatId].ToString().ToObject<List<long>>();
+        var listChatId = headerDictionary[RequestKey.ListChatId].ToString().ToObject<List<long>>();
 
         return listChatId;
     }

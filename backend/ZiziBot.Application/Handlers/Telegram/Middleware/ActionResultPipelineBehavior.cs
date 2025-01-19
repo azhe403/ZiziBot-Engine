@@ -40,16 +40,16 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
             if (actions.Count != 0)
                 htmlMessage.BoldBr("Aksi: ");
 
-            if (actions.Contains(PipelineResultAction.Mute))
-            {
-                await serviceFacade.TelegramService.MuteMemberAsync(request.UserId, muteDuration);
-                htmlMessage.TextBr($" - pengguna disenyapkan selama {muteDuration.ForHuman()}");
-            }
-
             if (actions.Contains(PipelineResultAction.Delete))
             {
                 await serviceFacade.TelegramService.DeleteMessageAsync();
                 htmlMessage.TextBr(" - pesan dihapus");
+            }
+
+            if (actions.Contains(PipelineResultAction.Mute))
+            {
+                await serviceFacade.TelegramService.MuteMemberAsync(request.UserId, muteDuration);
+                htmlMessage.TextBr($" - pengguna disenyapkan selama {muteDuration.ForHuman()}");
             }
 
             if (actions.Contains(PipelineResultAction.Kick))

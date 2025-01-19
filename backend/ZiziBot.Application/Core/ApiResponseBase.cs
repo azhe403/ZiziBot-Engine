@@ -18,6 +18,9 @@ public class ApiResponseBase<TResult>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public TResult? Result { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ApiMetadata? Metadata { get; set; }
+
     public ApiResponseBase<TResult> Success(string message, TResult? result = default)
     {
         StatusCode = HttpStatusCode.OK;
@@ -55,15 +58,18 @@ public class ApiResponseBase<TResult>
     }
 }
 
+public class ApiMetadata
+{
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public int TotalItem { get; set; }
+    public bool HasNext { get; set; }
+}
+
 public static class ApiResponse
 {
-    public static ApiResponseBase<TResult> ReturnSuccess<TResult>(string message, TResult? result = default)
+    public static ApiResponseBase<T> Create<T>()
     {
-        return new ApiResponseBase<TResult>().Success(message, result);
-    }
-
-    public static ApiResponseBase<TResult> ReturnBadRequest<TResult>(string message, TResult? result = default)
-    {
-        return new ApiResponseBase<TResult>().BadRequest(message, result);
+        return new ApiResponseBase<T>();
     }
 }

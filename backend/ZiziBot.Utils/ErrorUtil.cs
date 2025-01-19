@@ -16,10 +16,13 @@ public static class ErrorUtil
             "error while copying content",
             "forcibly closed by the remote host",
             "message can't be deleted",
+            "message content and reply markup are exactly the same",
+            "message is not modified",
             "message to delete not found",
             "multiple root elements",
             "name does not resolve",
             "name or service not known",
+            "no connection could be made because the target machine actively refused it",
             "no such host is known",
             "not match",
             "reference to undeclared entity",
@@ -31,7 +34,7 @@ public static class ErrorUtil
             "user is deactivated"
         };
 
-        return ignorableMessages.Exists(message.ToLower().Contains);
+        return ignorableMessages.Exists(s => message.Contains(s, StringComparison.OrdinalIgnoreCase));
     }
 
     public static bool IsIgnorable(this Exception exception)

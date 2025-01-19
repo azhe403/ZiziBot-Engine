@@ -1,6 +1,6 @@
 namespace ZiziBot.Contracts.Constants;
 
-public static class HeaderKey
+public static class RequestKey
 {
     public const string TransactionId = "transactionId";
     public const string Authorization = "Authorization";

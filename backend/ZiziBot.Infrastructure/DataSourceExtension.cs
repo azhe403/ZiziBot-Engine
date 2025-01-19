@@ -7,9 +7,7 @@ public static class DataSourceExtension
 {
     public static IServiceCollection AddDataSource(this IServiceCollection services)
     {
-        var mongodbConnectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
-
-        services.AddTransient<MongoEfContext>(p => new());
+        services.AddTransient<MongoEfContext>();
 
         return services;
     }

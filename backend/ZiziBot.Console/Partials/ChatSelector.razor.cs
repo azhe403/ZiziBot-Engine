@@ -1,9 +1,11 @@
+using ZiziBot.Application.Facades;
+
 namespace ZiziBot.Console.Partials;
 
 public partial class ChatSelector : WebComponentBase<ChatSelectorViewModel>
 {
     [Inject]
-    protected ChatSettingRepository ChatSettingRepository { get; set; }
+    protected DataFacade DataFacade { get; set; }
 
     [Parameter]
     public SelectorMode SelectorMode { get; set; }
@@ -31,7 +33,7 @@ public partial class ChatSelector : WebComponentBase<ChatSelectorViewModel>
         if (bearerToken.Value == null)
             return;
 
-        ListChat = await ChatSettingRepository.GetChatByBearerToken(bearerToken.Value);
+        ListChat = await DataFacade.ChatSetting.GetChatByBearerToken(bearerToken.Value);
         if (!ListChat.IsEmpty() && SelectedChatId == 0)
         {
             SelectedChatId = ListChat.FirstOrDefault()?.ChatId ?? 0;

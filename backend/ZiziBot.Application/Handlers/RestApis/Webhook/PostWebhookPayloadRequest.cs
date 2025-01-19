@@ -56,9 +56,6 @@ public class PostWebhookPayloadHandler(
             return response.BadRequest("Webhook route not found");
         }
 
-        if (request.IsDebug)
-        { }
-
         var webhookResponse = webhookSource switch {
             WebhookSource.GitHub => await serviceFacade.WebhookService.ParseGitHub(webhookHeader, content),
             WebhookSource.GitLab => await serviceFacade.WebhookService.ParseGitLab(webhookHeader, content),
@@ -71,7 +68,7 @@ public class PostWebhookPayloadHandler(
         }
 
         await serviceFacade.MediatorService.EnqueueAsync(new SendWebhookMessageRequest() {
-            targetId = request.targetId,
+            TargetId = request.targetId,
             Event = webhookHeader.Event,
             TransactionId = request.TransactionId,
             WebhookSource = webhookSource,

@@ -16,23 +16,27 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
 
     [BindNever]
     [SwaggerIgnore]
+    public IDictionary<object, object?> Items => HttpContextAccessor?.HttpContext?.Items!;
+
+    [BindNever]
+    [SwaggerIgnore]
     public string TransactionId => HttpContextAccessor?.HttpContext?.GetTransactionId() ?? Guid.NewGuid().ToString();
 
     [BindNever]
     [SwaggerIgnore]
-    public string? Authorization => Headers[HeaderKey.Authorization];
+    public long SessionUserId => BearerToken.DecodeJwt()?.Claims.FirstOrDefault(claim => claim.Type == RequestKey.UserId)?.Value.Convert<long>() ?? 0;
 
     [BindNever]
     [SwaggerIgnore]
-    public long SessionUserId => BearerToken.DecodeJwt()?.Claims.FirstOrDefault(claim => claim.Type == "userId")?.Value.Convert<long>() ?? 0;
+    public string? Authorization => Headers[RequestKey.Authorization];
 
     [BindNever]
     [SwaggerIgnore]
-    public ApiRole? SessionUserRole => Headers[HeaderKey.UserRole].ToString().ToEnum(ApiRole.Guest);
+    public ApiRole? SessionUserRole => Items[RequestKey.UserRole]?.ToString()?.ToEnum(ApiRole.Guest);
 
     [BindNever]
     [SwaggerIgnore]
-    public List<long> AdminChatId => Headers[HeaderKey.ListChatId].ToString().ToObject<List<long>>() ?? new List<long>();
+    public List<long> AdminChatId => Items[RequestKey.ListChatId]?.ToString().ToObject<List<long>>() ?? [];
 
     [BindNever]
     [SwaggerIgnore]
@@ -48,5 +52,5 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
 public class ApiRequestBase<T, TBody> : ApiRequestBase<T>
 {
     [FromBody]
-    public TBody Body { get; set; }
+    public required TBody Body { get; set; }
 }

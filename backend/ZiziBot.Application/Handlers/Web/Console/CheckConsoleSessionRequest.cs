@@ -89,7 +89,7 @@ public class CheckConsoleSessionHandler(
             new(ClaimTypes.NameIdentifier, request.Model.Username ?? ""),
             new(ClaimTypes.Name, request.Model.FirstName ?? ""),
             new(ClaimTypes.Surname, request.Model.LastName ?? ""),
-            new(HeaderKey.UserId, request.Model.Id.ToString()),
+            new(RequestKey.UserId, request.Model.Id.ToString()),
             new("photoUrl", request.Model.PhotoUrl ?? "")
         };
 

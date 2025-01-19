@@ -7,13 +7,13 @@ public static class HttpContextUtil
 {
     public static string GetTransactionId(this IHttpContextAccessor? contextAccessor)
     {
-        var transactionId = contextAccessor?.HttpContext?.Request.Headers[HeaderKey.TransactionId].ToString();
+        var transactionId = contextAccessor?.HttpContext?.Request.Headers[RequestKey.TransactionId].ToString();
         return transactionId ?? string.Empty;
     }
 
     public static long GetUserId(this IHttpContextAccessor contextAccessor)
     {
-        var userId = Convert.ToInt64(contextAccessor.HttpContext?.Request.Headers[HeaderKey.UserId]);
+        var userId = Convert.ToInt64(contextAccessor.HttpContext?.Request.Headers[RequestKey.UserId]);
         return userId;
     }
 

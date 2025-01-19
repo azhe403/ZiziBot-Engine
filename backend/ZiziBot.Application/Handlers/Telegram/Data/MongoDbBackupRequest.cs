@@ -37,7 +37,7 @@ public class MongoDbBackupHandler(
         await dataFacade.MongoEf.ExportAllAsync<BangHasan_ShalatCityEntity>();
         await dataFacade.MongoEf.ExportAllAsync<ChannelMapEntity>();
         await dataFacade.MongoEf.ExportAllAsync<ChannelPostEntity>();
-        // await dataFacade.MongoEf.ExportAllAsync<BinderByteCheckAwbEntity>();
+        await dataFacade.MongoEf.ExportAllAsync<BinderByteCheckAwbEntity>();
         await dataFacade.MongoEf.ExportAllAsync<ChatSettingEntity>();
         await dataFacade.MongoEf.ExportAllAsync<GlobalBanEntity>();
         await dataFacade.MongoEf.ExportAllAsync<GroupTopicEntity>();
@@ -63,7 +63,7 @@ public class MongoDbBackupHandler(
         await using var fileStream = File.OpenRead(path: zipFile);
         var inputOnlineFile = InputFile.FromStream(stream: fileStream, fileName: zipFile.GetFileName());
 
-        await bot.SendDocumentAsync(
+        await bot.SendDocument(
             chatId: config.ChatId,
             document: inputOnlineFile,
             caption: htmlMessage.ToString(),

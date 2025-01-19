@@ -21,9 +21,10 @@ public class ListPendekinHandler(
 {
     public async Task<ApiResponseBase<List<ListPendekinResponse>>> Handle(ListPendekinRequest request, CancellationToken cancellationToken)
     {
+        var response = ApiResponse.Create<List<ListPendekinResponse>>();
         var pendekinConfig = await dataFacade.AppSetting.GetConfigSectionAsync<PendekinConfig>();
         if (pendekinConfig == null)
-            return ApiResponse.ReturnBadRequest<List<ListPendekinResponse>>("Pendekin not yet prepared");
+            return response.BadRequest("Pendekin not yet prepared");
 
         var listPendekin = await dataFacade.MongoEf.PendekinMap.AsNoTracking()
             .Select(x => new ListPendekinResponse() {
@@ -40,6 +41,6 @@ public class ListPendekinHandler(
             x.ShortUrl = !string.IsNullOrWhiteSpace(pendekinConfig.RouterBaseUrl) ? $"{pendekinConfig.RouterBaseUrl}/{x.ShortPath}" : "";
         });
 
-        return ApiResponse.ReturnSuccess("Get list Pendekin successfully", listPendekin);
+        return response.Success("Get list Pendekin successfully", listPendekin);
     }
 }
