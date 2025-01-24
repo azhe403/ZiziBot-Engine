@@ -44,24 +44,45 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
             var muteDuration = MemberMuteDuration.Select(0);
 
             if (actions.Count != 0)
-                htmlMessage.BoldBr("Aksi: ");
+                htmlMessage.Br().Br().BoldBr("Aksi: ");
 
             if (actions.Contains(PipelineResultAction.Delete))
             {
-                await serviceFacade.TelegramService.DeleteMessageAsync();
-                htmlMessage.TextBr(" - pesan dihapus");
+                try
+                {
+                    await serviceFacade.TelegramService.DeleteMessageAsync();
+                    htmlMessage.TextBr(" - pesan dihapus");
+                }
+                catch (Exception e)
+                {
+                    logger.LogWarning("Unable to delete message: {MessageId} in ChatId: {ChatId}", request.MessageId, request.ChatId);
+                }
             }
 
             if (actions.Contains(PipelineResultAction.Mute))
             {
-                await serviceFacade.TelegramService.MuteMemberAsync(request.UserId, muteDuration);
-                htmlMessage.TextBr($" - pengguna disenyapkan selama {muteDuration.ForHuman()}");
+                try
+                {
+                    await serviceFacade.TelegramService.MuteMemberAsync(request.UserId, muteDuration);
+                    htmlMessage.TextBr($" - pengguna disenyapkan selama {muteDuration.ForHuman()}");
+                }
+                catch (Exception e)
+                {
+                    logger.LogWarning("Unable to mute user: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
+                }
             }
 
             if (actions.Contains(PipelineResultAction.Kick))
             {
-                await serviceFacade.TelegramService.KickMember();
-                htmlMessage.TextBr(" - pengguna dikeluarkan dari grub");
+                try
+                {
+                    await serviceFacade.TelegramService.KickMember();
+                    htmlMessage.TextBr(" - pengguna dikeluarkan dari grub");
+                }
+                catch (Exception e)
+                {
+                    logger.LogWarning("Unable to kick user: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
+                }
             }
 
             await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());

@@ -8,6 +8,7 @@ public static class ErrorUtil
             "bot is not a member",
             "bot was blocked",
             "cannot begin with",
+            "can't remove chat owner",
             "chat not found",
             "connection attempt failed",
             "connection could not be established",

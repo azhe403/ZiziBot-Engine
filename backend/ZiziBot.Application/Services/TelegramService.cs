@@ -446,18 +446,7 @@ public class TelegramService(
 
     public async Task DeleteMessageAsync()
     {
-        try
-        {
-            await Bot.DeleteMessage(_request.ChatId, _request.MessageId);
-        }
-        catch (Exception exception)
-        {
-            logger.LogError(exception, "Error deleting message {MessageId}", _request.MessageId);
-            if (exception.IsIgnorable())
-                return;
-
-            throw;
-        }
+        await Bot.DeleteMessage(_request.ChatId, _request.MessageId);
     }
 
     public async Task<BotResponseBase> AnswerCallbackAsync(string message, bool showAlert = false)
