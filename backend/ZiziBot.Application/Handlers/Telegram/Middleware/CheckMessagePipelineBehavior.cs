@@ -49,7 +49,7 @@ public class CheckMessagePipelineBehavior<TRequest, TResponse>(
                 if (!hasBadword)
                     continue;
 
-                logger.LogWarning("Check message pattern: {Pattern}, source: {MessageText}, action: {Action}", pattern, messageText, dto.Action);
+                logger.LogWarning("Check Message, pattern: {Pattern}, source: {MessageText}, action: {Action}, chatId: {ChatId}", pattern, messageText, dto.Action, request.ChatId);
 
                 matchPattern = dto.Word;
                 action = dto.Action;
