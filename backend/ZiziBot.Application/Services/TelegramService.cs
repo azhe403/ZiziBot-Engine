@@ -21,13 +21,13 @@ public class TelegramService(
     DataFacade dataFacade
 )
 {
-    readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-    BotRequestBase _request = new();
-    string _timeInit = string.Empty;
+    private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+    private BotRequestBase _request = new();
+    private string _timeInit = string.Empty;
 
     public ITelegramBotClient Bot { get; set; }
     public Message? SentMessage { get; set; }
-    public BotResponseBase BotResponse { get; set; } = new();
+    private BotResponseBase BotResponse { get; set; } = new();
 
     public void SetupResponse(BotRequestBase request)
     {
@@ -37,7 +37,7 @@ public class TelegramService(
         Bot = new TelegramBotClient(request.BotToken);
 
         if (_request.ReplyMessage)
-            _request.ReplyToMessageId = _request.Message?.MessageId ?? default;
+            _request.ReplyToMessageId = _request.Message?.MessageId ?? 0;
 
         Guard.Against.Null(Bot);
     }
@@ -50,7 +50,7 @@ public class TelegramService(
         return botSettings.Name == name;
     }
 
-    string GetExecStamp()
+    private string GetExecStamp()
     {
         var timeProc = _request.MessageDate.GetDelay();
         var stamp = $"⏳ <code>{_timeInit} s</code> | ⏱ <code>{timeProc} s</code>";
@@ -700,7 +700,7 @@ public class TelegramService(
     public async Task<bool> CheckChatCreator()
     {
         var chatAdmins = await GetChatAdministrator();
-        var isAdmin = chatAdmins.Exists(x => x.User.Id == _request.UserId && x.Status == ChatMemberStatus.Creator);
+        var isAdmin = chatAdmins.Any(x => x.User.Id == _request.UserId && x.Status == ChatMemberStatus.Creator);
         return isAdmin;
     }
 

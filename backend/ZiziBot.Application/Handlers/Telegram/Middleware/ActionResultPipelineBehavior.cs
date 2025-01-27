@@ -85,7 +85,10 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
                 }
             }
 
-            await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
+            if(actions.Contains(PipelineResultAction.Warn))
+                await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
+
+            return await next();
         }
         catch (Exception exception)
         {

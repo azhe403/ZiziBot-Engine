@@ -27,8 +27,9 @@ public class TelegramSink : ILogEventSink
         }
 
         var htmlMessage = HtmlMessage.Empty
-            .CodeBr(logEvent.RenderMessage()).Br()
-            .Text("Date: ").CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            .CodeBr(logEvent.RenderMessage()).Br();
+
+        htmlMessage.Text("Date: ").CodeBr(logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
         foreach (var (key, value) in logEvent.Properties.Select(x => (x.Key, x.Value.ToString().Replace("\"", ""))))
         {
@@ -54,8 +55,6 @@ public class TelegramSink : ILogEventSink
             htmlMessage.Bold("Message: ").CodeBr(exception.Message)
                 .Bold("Source: ").CodeBr(exception.Source ?? "N/A")
                 .Bold("Type: ").CodeBr(exception.GetType().Name);
-            // .Bold("Exception: ").CodeBr(exception.GetType().Name)
-            // .Bold("Request: ").CodeBr(typeof(TRequest).Name);
         }
 
         var stackFrame = exception?.ToStackTrace()
