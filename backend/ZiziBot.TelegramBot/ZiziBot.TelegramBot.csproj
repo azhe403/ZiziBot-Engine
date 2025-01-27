@@ -6,15 +6,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>
-  </ItemGroup>
+  <!--  <ItemGroup Condition="'$(Configuration)' == 'Debug'">-->
+  <!--    <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>-->
+  <!--  </ItemGroup>-->
 
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <PackageReference Include="ZiziBot.TelegramBot.Framework" Version="225.1.9158.19200" />
-  </ItemGroup>
+  <!--  <ItemGroup Condition="'$(Configuration)' == 'Release'">-->
+  <!--    <PackageReference Include="ZiziBot.TelegramBot.Framework" Version="225.1.9158.19200" />-->
+  <!--  </ItemGroup>-->
 
   <ItemGroup>
+    <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
   </ItemGroup>
 
