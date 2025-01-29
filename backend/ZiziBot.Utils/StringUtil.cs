@@ -238,7 +238,29 @@ public static class StringUtil
             if (source.Contains(pattern.Replace("*", "")))
                 isMatch = true;
 
+        if (!pattern.IsValidRegex())
+            return isMatch;
+
+        if (Regex.IsMatch(source, pattern))
+            isMatch = true;
+
         return isMatch;
+    }
+
+    public static bool IsValidRegex(this string pattern)
+    {
+        if (string.IsNullOrWhiteSpace(pattern)) return false;
+
+        try
+        {
+            _ = Regex.Match("", pattern);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public static T? Deserialize<T>(this string input)

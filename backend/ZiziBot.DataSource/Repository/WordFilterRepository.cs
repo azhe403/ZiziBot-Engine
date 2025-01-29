@@ -58,6 +58,7 @@ public class WordFilterRepository(
                         CreatedDate = entity.CreatedDate,
                         UpdatedDate = entity.UpdatedDate
                     })
+                    .OrderByDescending(x => x.CreatedDate)
                     .ToListAsync();
 
                 return data;

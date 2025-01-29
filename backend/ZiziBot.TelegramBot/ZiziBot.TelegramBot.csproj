@@ -6,9 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!--        <PackageReference Include="WTD.Allowed.Telegram.Bot" Version="4.3.0-preview.10"/>-->
-  </ItemGroup>
+  <!--  <ItemGroup Condition="'$(Configuration)' == 'Debug'">-->
+  <!--    <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>-->
+  <!--  </ItemGroup>-->
+
+  <!--  <ItemGroup Condition="'$(Configuration)' == 'Release'">-->
+  <!--    <PackageReference Include="ZiziBot.TelegramBot.Framework" Version="225.1.9158.19200" />-->
+  <!--  </ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>

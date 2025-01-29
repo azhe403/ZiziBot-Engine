@@ -6,7 +6,8 @@ namespace ZiziBot.DataSource.MongoEf.Entities;
 public class MirrorApprovalEntity : EntityBase
 {
     public long UserId { get; set; }
-    public DonationSource Source { get; set; }
+    public DonationSource? DonationSource { get; set; }
+    public string? DonationSourceName { get; set; }
     public string? PaymentUrl { get; set; }
     public string? RawText { get; set; }
     public int CendolCount { get; set; }

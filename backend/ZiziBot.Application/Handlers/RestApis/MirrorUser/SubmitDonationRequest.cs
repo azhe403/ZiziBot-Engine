@@ -51,7 +51,8 @@ public class SubmitDonationHandler(
 
         dataFacade.MongoEf.MirrorApproval.Add(new() {
             UserId = request.SessionUserId,
-            Source = parsedDonationDto.Source,
+            DonationSource = parsedDonationDto.Source,
+            DonationSourceName = parsedDonationDto.Source.ToString(),
             PaymentUrl = parsedDonationDto.PaymentUrl,
             RawText = parsedDonationDto.RawText,
             CendolCount = parsedDonationDto.CendolCount,
