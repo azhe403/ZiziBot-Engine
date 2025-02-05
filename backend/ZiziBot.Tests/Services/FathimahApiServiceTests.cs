@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Xunit;
 
 namespace ZiziBot.Tests.Services;
@@ -18,8 +17,8 @@ public class FathimahApiServiceTests(
     {
         var allCity = await fathimahApiService.GetAllCityAsync();
 
-        allCity.Status.Should().Be(true);
-        allCity.Cities.Should().NotBeEmpty();
+        allCity.Status.ShouldBe(true);
+        allCity.Cities.ShouldNotBeEmpty();
     }
 
     [Theory, MemberData(nameof(ShalatCity))]
@@ -27,7 +26,8 @@ public class FathimahApiServiceTests(
     {
         var shalatTime = await fathimahApiService.GetShalatTime(dateTime, cityId);
 
-        shalatTime.Status.Should().Be(true);
-        shalatTime.Schedule.ShalatDict.Should().NotBeNullOrEmpty();
+        shalatTime.Status.ShouldBe(true);
+        shalatTime.Schedule.ShouldNotBeNull()
+                  .ShalatDict.ShouldNotBeNull().ShouldNotBeEmpty();
     }
 }

@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Xunit;
 
 namespace ZiziBot.Tests.Features;
@@ -12,6 +11,6 @@ public class WebParserTests
     {
         var result = await WebParserUtil.WebSearchText(search);
 
-        result.Should().NotBeNull();
+        result.ShouldNotBeNull();
     }
 }

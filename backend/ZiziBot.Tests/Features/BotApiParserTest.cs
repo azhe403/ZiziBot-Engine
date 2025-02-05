@@ -1,5 +1,3 @@
-using AngleSharp.Html.Dom;
-using FluentAssertions;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -14,8 +12,8 @@ public class BotApiParserTest(ILogger<BotApiParserTest> logger)
     {
         var document = await url.OpenUrl();
 
-        document.Should().NotBeNull();
-        document.Title.Should().Be("Telegram Bot API");
+        document.ShouldNotBeNull();
+        document.Title.ShouldBe("Telegram Bot API");
 
         var methodList = document.Anchors.Select(element => {
             return new BotApiDoc()
@@ -28,10 +26,6 @@ public class BotApiParserTest(ILogger<BotApiParserTest> logger)
                     })
                     .Select(anchorElement => {
                         var parent = anchorElement.Parent;
-                        var descriptionElement = parent?.NextSibling;
-                        var tableElement = descriptionElement?.NextSibling;
-                        var t = tableElement.NextSibling;
-                        var tablee = t.NextSibling as IHtmlTableElement;
 
                         return new ApiDocField()
                         {
@@ -43,7 +37,7 @@ public class BotApiParserTest(ILogger<BotApiParserTest> logger)
             };
         });
 
-        methodList.Should().NotBeEmpty();
+        methodList.ShouldNotBeEmpty();
     }
 
     [Theory]
@@ -55,6 +49,6 @@ public class BotApiParserTest(ILogger<BotApiParserTest> logger)
 
         var api = await url.GetJsonAsync<TgBotApiDoc>();
 
-        api.Should().NotBeNull();
+        api.ShouldNotBeNull();
     }
 }

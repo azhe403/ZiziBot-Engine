@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace ZiziBot.Tests.Pipelines;
 
@@ -10,6 +9,6 @@ public class DbBackupTest(MediatorService mediatorService, AppSettingRepository 
     {
         var result = await mediatorService.Send(new MongoDbBackupRequest());
 
-        result.Should().BeTrue();
+        result.ShouldBeTrue();
     }
 }
