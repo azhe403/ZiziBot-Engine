@@ -21,29 +21,34 @@ public class AddWordFilterHandler(
 
         List<PipelineResultAction> action = new();
 
-        var cmdParam = request.Params?.Skip(1).ToList();
-        if (cmdParam.NotEmpty())
-        {
-            if (cmdParam.Contains("-d"))
-                action.Add(PipelineResultAction.Delete);
-
-            if (cmdParam.Contains("-w"))
-                action.Add(PipelineResultAction.Warn);
-
-            if (cmdParam.Contains("-m"))
-                action.Add(PipelineResultAction.Mute);
-
-            if (cmdParam.Contains("-k"))
-                action.Add(PipelineResultAction.Kick);
-        }
-
-        await dataFacade.WordFilter.SaveAsync(new WordFilterDto() {
+        var wordFilterDto = new WordFilterDto() {
             ChatId = request.ChatIdentifier,
             UserId = request.UserId,
             Word = request.Word,
-            Action = action.ToArray(),
             TransactionId = request.TransactionId
-        });
+        };
+
+        var cmdParam = request.Params?.Skip(1).FirstOrDefault();
+        if (cmdParam?.StartsWith('-') ?? false)
+        {
+            if (cmdParam.Contains('d'))
+                action.Add(PipelineResultAction.Delete);
+
+            if (cmdParam.Contains('w'))
+                action.Add(PipelineResultAction.Warn);
+
+            if (cmdParam.Contains('m'))
+                action.Add(PipelineResultAction.Mute);
+
+            if (cmdParam.Contains('k'))
+                action.Add(PipelineResultAction.Kick);
+
+            wordFilterDto.IsRegex = cmdParam.Contains('r');
+        }
+
+        wordFilterDto.Action = action.ToArray();
+
+        await dataFacade.WordFilter.SaveAsync(wordFilterDto);
 
         return await serviceFacade.TelegramService.SendMessageAsync("Kata berhasil disimpan");
     }

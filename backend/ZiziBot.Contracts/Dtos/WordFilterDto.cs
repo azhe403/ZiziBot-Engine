@@ -7,6 +7,7 @@ public class WordFilterDto
     public long UserId { get; set; }
     public required string Word { get; set; }
     public bool IsGlobal { get; set; }
+    public bool IsRegex { get; set; }
     public PipelineResultAction[]? Action { get; set; }
     public string TransactionId { get; set; }
     public DateTime CreatedDate { get; set; }
