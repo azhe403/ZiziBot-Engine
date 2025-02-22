@@ -19,12 +19,12 @@ public class RegisterRssJobTask(
         });
 
         RecurringJob.AddOrUpdate<MediatorService>(
-            recurringJobId: "rss-reset",
-            methodCall: mediatorService => mediatorService.Send(new RegisterRssJobAllRequest() {
+            recurringJobId: CronJobKey.Rss_Reset,
+            methodCall: x => x.Send(new RegisterRssJobAllRequest() {
                 ResetStatus = true
             }),
             queue: CronJobKey.Queue_Rss,
-            cronExpression: TimeUtil.DayInterval(1)
+            cronExpression: TimeUtil.HourInterval(1)
         );
 
         logger.LogDebug("Registering RSS Jobs Completed");

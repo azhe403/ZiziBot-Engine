@@ -33,8 +33,7 @@ public class FetchRssHandler(
 
             if (latestArticle == null)
             {
-                logger.LogInformation("No article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId,
-                    request.RssUrl);
+                logger.LogInformation("No article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
 
                 return false;
             }
@@ -42,14 +41,13 @@ public class FetchRssHandler(
             var latestHistory = await dataFacade.MongoEf.RssHistory.AsNoTracking()
                 .Where(entity => entity.ChatId == request.ChatId)
                 .Where(entity => entity.ThreadId == request.ThreadId)
-                .Where(entity => entity.RssUrl == request.RssUrl)
+                .Where(entity => entity.Url == latestArticle.Link)
                 .Where(entity => entity.Status == EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (latestHistory != null)
             {
-                logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId,
-                    request.RssUrl);
+                logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", request.ChatId, request.RssUrl);
 
                 return false;
             }
@@ -101,7 +99,7 @@ public class FetchRssHandler(
             {
                 if (exception.Message.Contains("thread not found"))
                 {
-                    logger.LogWarning("Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
+                    logger.LogWarning(exception, "Trying send RSS without thread to ChatId: {ChatId}", request.ChatId);
                     await botClient.SendMessage(
                         chatId: request.ChatId,
                         text: truncatedMessageText,
