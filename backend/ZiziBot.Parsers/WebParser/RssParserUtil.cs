@@ -1,4 +1,5 @@
 using CodeHollow.FeedReader;
+using Flurl;
 using Octokit;
 using Feed = CodeHollow.FeedReader.Feed;
 
@@ -8,25 +9,48 @@ public static class RssParserUtil
 {
     public static async Task<Feed> ReadRssAsync(this string rssUrl)
     {
-        var feed = await FeedReader.ReadAsync(rssUrl, userAgent: Env.COMMON_UA);
-        return feed;
+        try
+        {
+            var feed = await FeedReader.ReadAsync(rssUrl, userAgent: Env.COMMON_UA);
+            return feed;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
+            return new();
+        }
     }
 
-    public static string TryFixRssUrl(this string rssUrl)
+    public static async Task<string> DetectRss(this string rssUrl)
     {
-        var fixedUrl = rssUrl;
+        var fixedUrl = rssUrl.TrimEnd("/");
 
-        if (rssUrl.EndsWith("feed"))
-            fixedUrl = rssUrl + "/";
+        if ((rssUrl.IsGithubReleaseUrl() || rssUrl.IsGithubCommitsUrl()) && !fixedUrl.EndsWith(".atom"))
+        {
+            fixedUrl += ".atom";
+            var read = await fixedUrl.ReadRssAsync();
+            if (read.Items?.Count > 0)
+                return fixedUrl;
+        }
+        else
+        {
+            if (!rssUrl.EndsWith("/feed"))
+            {
+                fixedUrl = rssUrl + "/feed";
+                var read = await fixedUrl.ReadRssAsync();
+                if (read.Items?.Count > 0)
+                    return fixedUrl;
+            }
 
-        if ((rssUrl.IsGithubReleaseUrl() || rssUrl.IsGithubCommitsUrl()) &&
-            !rssUrl.EndsWith(".atom")) fixedUrl = rssUrl + ".atom";
+            if (!rssUrl.EndsWith("/rss"))
+            {
+                fixedUrl = rssUrl.AppendPathSegment("rss");
+                var read = await fixedUrl.ReadRssAsync();
+                if (read.Items?.Count > 0)
+                    return fixedUrl;
+            }
+        }
 
-        Log.Debug(
-            "Try fix Rss URL: {Url}. After fix: {FixedUrl}",
-            rssUrl,
-            fixedUrl
-        );
 
         return fixedUrl;
     }
