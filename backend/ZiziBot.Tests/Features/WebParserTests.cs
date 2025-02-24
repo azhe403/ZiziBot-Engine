@@ -21,6 +21,7 @@ public class WebParserTests
     [InlineData("https://portapps.io/apps/", "https://portapps.io/feed")]
     [InlineData("https://github.com/telegramdesktop/tdesktop/releases", "https://github.com/telegramdesktop/tdesktop/releases.atom")]
     [InlineData("https://github.com/telegramdesktop/tdesktop/commits/dev/", "https://github.com/telegramdesktop/tdesktop/commits/dev.atom")]
+    [InlineData("https://apidog.canny.io/api/changelog/feed.rss", "https://apidog.canny.io/api/changelog/feed.rss")]
     public async Task TryFixRssUrlTest(string url, string expected)
     {
         var fixedRssUrl = await url.DetectRss();
