@@ -7,7 +7,7 @@ namespace ZiziBot.Parsers.WebParser;
 
 public static class RssParserUtil
 {
-    public static async Task<Feed> ReadRssAsync(this string rssUrl)
+    public static async Task<Feed> ReadRssAsync(this string rssUrl, bool throwIfError = false)
     {
         try
         {
@@ -17,7 +17,11 @@ public static class RssParserUtil
         catch (Exception e)
         {
             Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
-            return new();
+
+            if (throwIfError)
+                throw;
+
+            return new Feed();
         }
     }
 
@@ -54,9 +58,12 @@ public static class RssParserUtil
         }
 
         var urlParse = rssUrl.UrlParse();
-        fixedUrl = await (urlParse.Scheme + "://" + urlParse.Host).DetectRss();
-        return fixedUrl;
+        var urlParseScheme = (urlParse.Scheme + "://" + urlParse.Host);
+        if (!urlParseScheme.IsValidUrl())
+            return rssUrl;
 
+        fixedUrl = await urlParseScheme.DetectRss();
+        return fixedUrl;
     }
 
     public static bool IsGithubReleaseUrl(this string url)
