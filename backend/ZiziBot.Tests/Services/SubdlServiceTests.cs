@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace ZiziBot.Tests.Services;
 
@@ -12,6 +11,6 @@ public class SubdlServiceTests(SubdlService subdlService)
         var result = await subdlService.FetchPopular();
 
         // assert
-        result.Results.Should().NotBeNullOrEmpty();
+        result.Results.ShouldNotBeNull().ShouldNotBeEmpty();
     }
 }

@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Flurl.Http;
 using Xunit;
 
@@ -19,6 +18,6 @@ public class UupDumpServiceTests(UupDumpService uupDumpService)
     {
         var updates = await uupDumpService.GetUpdatesAsync(search);
 
-        updates.Should().NotBeNull();
+        updates.ShouldNotBeNull();
     }
 }

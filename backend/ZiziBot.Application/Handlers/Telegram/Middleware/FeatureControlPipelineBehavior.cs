@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Handlers.Telegram.Middleware;
@@ -14,20 +13,13 @@ public class FeatureControlPipelineBehavior<TRequest, TResponse>(
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var requestType = request.GetType();
-        var featureName = requestType.GetCustomAttribute<FeatureFlagAttribute>()?.FeatureName;
+        var featureName = requestType.GetCustomAttribute<FeatureFlagAttribute>()?.FeatureName ?? string.Empty;
 
-        var featureFlag = await dataFacade.MongoEf.FeatureFlag
-            .Where(x => x.Status == EventStatus.Complete)
-            .Where(x => x.Name == featureName)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        var featureFlag = await dataFacade.AppSetting.GetFlag(featureName);
 
-        if (featureFlag == null)
+        if (featureFlag == null ||
+            featureFlag.IsEnabled)
             return await next();
-
-        if (featureFlag.IsEnabled)
-        {
-            return await next();
-        }
 
         logger.LogWarning("Feature {FeatureName} is disabled by global flag", featureName);
         return new TResponse();

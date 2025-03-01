@@ -1,4 +1,6 @@
-﻿using Telegram.Bot.Types;
+﻿using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Telegram.Bot.Types;
 using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Core;
@@ -23,12 +25,20 @@ public class CreateChatActivityHandler(
             ActivityTypeName = request.ActivityType.ToString(),
             ChatId = request.SentMessage.Chat.Id,
             UserId = request.SentMessage.From.Id,
-            Chat = request.SentMessage.Chat,
-            User = request.SentMessage.From,
             Status = EventStatus.Complete,
             TransactionId = request.TransactionId,
             MessageId = request.SentMessage.MessageId
         });
+
+        var oldActivity = await dataFacade.MongoEf.ChatActivity
+                                    .Where(x => x.CreatedDate <= DateTime.UtcNow.AddMonths(-2))
+                                    .ToListAsync(cancellationToken: cancellationToken);
+
+        if (oldActivity.Count != 0)
+        {
+            Log.Information("Delete Chat Activity Count: {Count} in a 2 month", oldActivity.Count);
+            dataFacade.MongoEf.ChatActivity.RemoveRange(oldActivity);
+        }
 
         await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
 

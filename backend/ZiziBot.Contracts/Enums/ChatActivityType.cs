@@ -4,12 +4,12 @@ public enum ChatActivityType
 {
     BotBanUser,
     BotUnbanUser,
-
-    BotSendMessage,
-    BotEditMessage,
-
-    BotWarnUsername,
     BotKickMember,
+
+    BotEditMessage,
+    BotDeleteMessage,
+    BotSendMessage,
+    BotWarnUsername,
 
     BotSendWebHook,
     BotEditWebHook,

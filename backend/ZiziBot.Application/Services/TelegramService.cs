@@ -88,7 +88,7 @@ public class TelegramService(
     #region Response
     public async Task<BotResponseBase> SendMessageText(
         HtmlMessage text,
-        IReplyMarkup? replyMarkup = null,
+        ReplyMarkup? replyMarkup = null,
         long chatId = -1
     )
     {
@@ -97,7 +97,7 @@ public class TelegramService(
 
     public async Task<BotResponseBase> SendMessageText(
         string? text,
-        IReplyMarkup? replyMarkup = null,
+        ReplyMarkup? replyMarkup = null,
         long chatId = -1,
         int threadId = -1,
         TimeSpan deleteAfter = default
@@ -143,7 +143,7 @@ public class TelegramService(
             {
                 try
                 {
-                    logger.LogWarning("Trying send message without thread to ChatId: {ChatId}", targetChatId);
+                    logger.LogWarning(exception1, "Trying send message without thread to ChatId: {ChatId}", targetChatId);
                     SentMessage = await Bot.SendMessage(
                         chatId: targetChatId,
                         text: text,
@@ -223,7 +223,7 @@ public class TelegramService(
         string fileId,
         CommonMediaType? mediaType,
         string? caption = null,
-        IReplyMarkup? replyMarkup = null,
+        ReplyMarkup? replyMarkup = null,
         long customChatId = -1,
         string? customFileName = null,
         int? threadId = null
@@ -233,7 +233,7 @@ public class TelegramService(
 
         var targetThreadId = threadId ?? _request.MessageThreadId;
 
-        logger.LogInformation(message: "Sending media: {MediaType}, fileId: {FileId} to {ChatId}", args: [mediaType, fileId, targetChatId]);
+        logger.LogInformation(message: "Sending media: {MediaType}, fileId: {FileId} to {ChatId}", mediaType, fileId, targetChatId);
 
         InputFile inputFile = InputFile.FromFileId(fileId: fileId);
 
@@ -338,7 +338,7 @@ public class TelegramService(
 
             default:
                 logger.LogWarning(message: "Media unknown: {MediaType}", args: mediaType);
-                return default;
+                return null;
         }
 
         return Complete();
@@ -348,7 +348,7 @@ public class TelegramService(
         string fileId,
         CommonMediaType mediaType,
         string? caption = null,
-        IReplyMarkup? replyMarkup = null,
+        ReplyMarkup? replyMarkup = null,
         long customChatId = -1,
         string? customFileName = null,
         int? threadId = null,

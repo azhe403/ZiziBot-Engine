@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace ZiziBot.Tests.Services;
 
@@ -11,6 +10,6 @@ public class BinderByteTests(BinderByteService binderByteService)
     {
         var awbInfo = await binderByteService.CekResiMergedAsync(courier, awb);
 
-        awbInfo.Should().NotBeNull();
+        awbInfo.ShouldNotBeNull();
     }
 }

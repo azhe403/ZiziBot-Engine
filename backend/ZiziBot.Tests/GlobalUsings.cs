@@ -1,5 +1,6 @@
 // Global using directives
 
+global using Shouldly;
 global using ZiziBot.Application;
 global using ZiziBot.Application.Handlers.Telegram.Basic;
 global using ZiziBot.Application.Handlers.Telegram.Chat;

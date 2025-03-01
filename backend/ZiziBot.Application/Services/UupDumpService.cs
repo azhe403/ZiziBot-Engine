@@ -14,25 +14,26 @@ public class UupDumpService(
         var buildUpdate = await cacheService.GetOrSetAsync(
             cacheKey: $"vendor/{ListUpdatesApi.ForCacheKey()}",
             action: async () => {
-                var obj = await ListUpdatesApi.GetJsonAsync<BuildUpdate>();
+                var json = await ListUpdatesApi.GetStringAsync();
+                var obj = json.ToObject<BuildUpdate>();
 
                 return obj;
             }
         );
 
-        var filteredBuilds = buildUpdate.Response.Builds
+        var filteredBuilds = buildUpdate?.Response.Builds
             .WhereIf(search != null, build => build.BuildNumber.Contains(search))
             .ToList();
 
-        logger.LogDebug("Found about UUP: {FilteredBuilds} of {AllBuilds} build(s)", filteredBuilds.Count, buildUpdate.Response.Builds.Count);
+        logger.LogDebug("Found about UUP: {FilteredBuilds} of {AllBuilds} build(s)", filteredBuilds?.Count, buildUpdate?.Response.Builds.Count);
 
         var filteredUpdate = new BuildUpdate
         {
-            JsonApiVersion = buildUpdate.JsonApiVersion,
+            JsonApiVersion = buildUpdate?.JsonApiVersion ?? string.Empty,
             Response = new Response
             {
-                ApiVersion = buildUpdate.Response.ApiVersion,
-                Builds = filteredBuilds
+                ApiVersion = buildUpdate?.Response?.ApiVersion ?? string.Empty,
+                Builds = filteredBuilds ?? new List<Build>()
             }
         };
 

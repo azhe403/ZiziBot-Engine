@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace ZiziBot.Tests.Features;
 
@@ -14,7 +13,7 @@ public class UrlUtilTests
         var parse1 = url.UrlSegment(1);
 
         // Assert
-        parse0.Should().Be("azhe403");
-        parse1.Should().Be("ZiziBot-Engine");
+        parse0.ShouldBe("azhe403");
+        parse1.ShouldBe("ZiziBot-Engine");
     }
 }

@@ -112,8 +112,6 @@ public class SendWebhookMessageRequestHandler(
             ActivityTypeName = chatActivity.ToString(),
             ChatId = webhookChat.ChatId,
             UserId = sentMessage.From.Id,
-            Chat = sentMessage.Chat,
-            User = sentMessage.From,
             Status = EventStatus.Complete,
             TransactionId = request.TransactionId,
             MessageId = sentMessage.MessageId

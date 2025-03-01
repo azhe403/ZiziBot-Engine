@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Xunit;
+using ZiziBot.Application.Core;
 using ZiziBot.Application.Facades;
 
 namespace ZiziBot.Tests.Pipelines;
@@ -24,7 +24,7 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
             RefreshNote = refreshNote
         });
 
-        result.ResponseSource.Should().Be(ResponseSource.Bot);
+        result.ResponseSource.ShouldBe(ResponseSource.Bot);
     }
 
     [Theory]
@@ -44,11 +44,13 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
         // Act
         var botMain = await dataFacade.AppSetting.GetBotMain();
 
-        await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
+        var response = await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             Note = note
         });
+
+        response.ShouldBeOfType<BotResponseBase>();
     }
 
     [Theory]
@@ -57,11 +59,12 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
     {
         var botMain = await dataFacade.AppSetting.GetBotMain();
 
-        await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
+        var response = await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
-            // ReplyMessage = true,
             Note = note
         });
+
+        response.ShouldBeOfType<BotResponseBase>();
     }
 }

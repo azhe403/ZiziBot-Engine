@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace ZiziBot.Tests.Repository;
 
@@ -10,6 +9,6 @@ public class AppSettingTest(AppSettingRepository appSettingRepository)
     {
         var config = await appSettingRepository.GetConfigSectionAsync<EngineConfig>();
 
-        true.Should().Be(true);
+        config.ShouldNotBeNull();
     }
 }

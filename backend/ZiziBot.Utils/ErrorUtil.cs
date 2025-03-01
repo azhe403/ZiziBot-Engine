@@ -16,6 +16,7 @@ public static class ErrorUtil
             "error occurred while parsing",
             "error while copying content",
             "forcibly closed by the remote host",
+            "invalid uri",
             "message can't be deleted",
             "message content and reply markup are exactly the same",
             "message is not modified",
