@@ -16,10 +16,10 @@ public static class RssParserUtil
         }
         catch (Exception e)
         {
-            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
-
             if (throwIfError)
                 throw;
+
+            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
 
             return new Feed();
         }
