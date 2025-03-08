@@ -14,7 +14,7 @@ public class JadwalSholatOrgJobTask(DataFacade dataFacade) : IStartupTask
             CronJobKey.JadwalSholatOrg_FetchAll,
             methodCall: service => service.FeedAll(),
             queue: CronJobKey.Queue_ShalatTime,
-            cronExpression: TimeUtil.MonthInterval(1)
+            cronExpression: TimeUtil.DayInterval(1)
         );
 
         var checkCity = await dataFacade.MongoEf.JadwalSholatOrg_City.AsNoTracking()

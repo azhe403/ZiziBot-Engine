@@ -25,7 +25,7 @@ public static class DirUtil
         }
         catch (Exception e)
         {
-            Log.Debug("Failed to delete directory: {Path} with error: {e}", path, e);
+            Log.Debug(e, "Failed to delete directory: {Path} with error: {Message}", path, e.Message);
         }
 
         return path;
@@ -39,10 +39,22 @@ public static class DirUtil
         }
         catch (Exception e)
         {
-            Log.Debug("Failed to delete directory: {Path} with error: {e}", path, e);
+            Log.Debug(e, "Failed to delete directory: {Path} with error: {Message}", path, e.Message);
         }
 
         return path;
+    }
+
+    public static int DeleteFile(this List<FileInfo> listFile)
+    {
+        foreach (var fileInfo in listFile)
+        {
+            Log.Debug("Delete file: {FullName}", fileInfo.FullName);
+
+            fileInfo.Delete();
+        }
+
+        return listFile.Count;
     }
 
     public static string GetCurrentDirectory(this string path)
@@ -51,8 +63,11 @@ public static class DirUtil
         return dirName;
     }
 
-    public static string GetFileName(this string path)
+    public static string GetFileName(this string? path)
     {
+        if (path.IsNullOrWhiteSpace())
+            return string.Empty;
+
         return Path.GetFileName(path);
     }
 
@@ -78,17 +93,5 @@ public static class DirUtil
         return Directory.EnumerateFiles(dirPath, pattern, SearchOption.AllDirectories).Select(x => new FileInfo(x))
             .WhereIf(predicate != null, predicate)
             .ToList();
-    }
-
-    public static int DeleteFile(this List<FileInfo> listFile)
-    {
-        foreach (var fileInfo in listFile)
-        {
-            Log.Debug("Delete file: {FullName}", fileInfo.FullName);
-
-            fileInfo.Delete();
-        }
-
-        return listFile.Count;
     }
 }

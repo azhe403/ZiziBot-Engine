@@ -19,7 +19,7 @@ public static class HangfireServiceExtension
 
         var queues = new[] {
             "default",
-            "data",
+            CronJobKey.Queue_Data,
             CronJobKey.Queue_Rss,
             CronJobKey.Queue_ShalatTime
         };

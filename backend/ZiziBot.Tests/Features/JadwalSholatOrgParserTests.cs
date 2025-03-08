@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace ZiziBot.Tests.Features;
 
@@ -10,7 +9,7 @@ public class JadwalSholatOrgParserTests
     {
         var cities = await JadwalSholatOrgParserUtil.GetCities();
 
-        cities.Should().NotBeNullOrEmpty();
+        cities.ShouldNotBeNull();
     }
 
     [Theory(Skip = "Deprecated")]
@@ -19,7 +18,7 @@ public class JadwalSholatOrgParserTests
     {
         var shalatTimes = await JadwalSholatOrgParserUtil.FetchSchedules(cityId);
 
-        shalatTimes.Should().NotBeNullOrEmpty();
+        shalatTimes.ShouldNotBeNull();
     }
 
     [Theory(Skip = "Deprecated")]
@@ -29,7 +28,7 @@ public class JadwalSholatOrgParserTests
     {
         var shalatTimes = await JadwalSholatOrgParserUtil.FetchSchedules(cityId, month);
 
-        shalatTimes.Should().NotBeNullOrEmpty();
+        shalatTimes.ShouldNotBeNull();
     }
 
     [Theory(Skip = "Deprecated")]
@@ -39,6 +38,6 @@ public class JadwalSholatOrgParserTests
     {
         var shalatTimes = await JadwalSholatOrgParserUtil.FetchSchedules(cityId, month, year);
 
-        shalatTimes.Should().NotBeNullOrEmpty();
+        shalatTimes.ShouldNotBeNull();
     }
 }

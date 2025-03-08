@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MoreLinq;
 using SharpX.Extensions;
 using Xunit;
@@ -34,6 +33,6 @@ public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSh
     {
         var feedSchedule = await jadwalSholatOrgSinkService.FeedSchedule(cityId);
 
-        feedSchedule.Should().BeGreaterThan(0, "Expected FeedSchedule to insert at least one schedule for the given cityId");
+        feedSchedule.ShouldBeGreaterThan(0, "Expected FeedSchedule to insert at least one schedule for the given cityId");
     }
 }

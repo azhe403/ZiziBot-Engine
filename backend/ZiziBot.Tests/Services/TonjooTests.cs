@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace ZiziBot.Tests.Services;
 
@@ -11,7 +10,7 @@ public class TonjooTests(TonjooService tonjooService)
     {
         var checkAwb = await tonjooService.GetAwbInfoRaw(courier, awb);
 
-        checkAwb.Data?.Found.Should().BeTrue();
+        checkAwb.Data?.Found.ShouldBeTrue();
     }
 
     [Theory]
@@ -20,6 +19,6 @@ public class TonjooTests(TonjooService tonjooService)
     {
         var checkAwb = await tonjooService.GetAwbInfoMerged(courier, awb);
 
-        checkAwb.Should().NotBeNullOrEmpty();
+        checkAwb.ShouldNotBeNullOrEmpty();
     }
 }

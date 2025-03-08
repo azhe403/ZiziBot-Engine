@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Xunit;
 
 namespace ZiziBot.Tests.Features;
@@ -12,6 +11,25 @@ public class WebParserTests
     {
         var result = await WebParserUtil.WebSearchText(search);
 
-        result.Should().NotBeNull();
+        result.ShouldNotBeNull();
+    }
+
+    [Theory]
+    [InlineData("https://www.bloombergtechnoz.com/", "https://www.bloombergtechnoz.com/rss")]
+    [InlineData("https://dbeaver.io", "https://dbeaver.io/feed")]
+    [InlineData("https://portapps.io", "https://portapps.io/feed")]
+    [InlineData("https://portapps.io/apps/", "https://portapps.io/feed")]
+    [InlineData("https://github.com/telegramdesktop/tdesktop/releases", "https://github.com/telegramdesktop/tdesktop/releases.atom")]
+    [InlineData("https://github.com/telegramdesktop/tdesktop/commits/dev/", "https://github.com/telegramdesktop/tdesktop/commits/dev.atom")]
+    [InlineData("https://apidog.canny.io/api/changelog/feed.rss", "https://apidog.canny.io/api/changelog/feed.rss")]
+    public async Task TryFixRssUrlTest(string url, string expected)
+    {
+        var fixedRssUrl = await url.DetectRss();
+        var readRss = await fixedRssUrl.ReadRssAsync();
+
+        fixedRssUrl.ShouldBe(expected);
+
+        readRss.ShouldNotBeNull();
+        readRss.Items.Count.ShouldBeGreaterThan(0);
     }
 }

@@ -14,7 +14,7 @@ public class Startup : IStartup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.ConfigureServices();
+        _ = services.ConfigureServices().Result;
         services.AddSkippableFactSupport();
     }
 

@@ -23,6 +23,7 @@ public class WordFilterRepository(
                 UserId = dto.UserId,
                 Word = dto.Word,
                 IsGlobal = dto.IsGlobal,
+                IsRegex = dto.IsRegex,
                 Action = dto.Action,
                 Status = EventStatus.Complete,
                 TransactionId = dto.TransactionId
@@ -33,6 +34,7 @@ public class WordFilterRepository(
             wordFilter.ChatId = dto.ChatId;
             wordFilter.UserId = dto.UserId;
             wordFilter.Action = dto.Action;
+            wordFilter.IsRegex = dto.IsRegex;
             wordFilter.TransactionId = dto.TransactionId;
         }
 
@@ -55,6 +57,7 @@ public class WordFilterRepository(
                         Word = entity.Word,
                         Action = entity.Action,
                         IsGlobal = entity.IsGlobal,
+                        IsRegex = entity.IsRegex,
                         CreatedDate = entity.CreatedDate,
                         UpdatedDate = entity.UpdatedDate
                     })

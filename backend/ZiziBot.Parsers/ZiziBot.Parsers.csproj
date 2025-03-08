@@ -15,8 +15,8 @@
     <PackageReference Include="CSVFile" Version="3.2.0"/>
     <PackageReference Include="Flurl.Http" Version="4.0.2"/>
     <PackageReference Include="Jsonize" Version="3.2.0"/>
-    <PackageReference Include="Jsonize.Parser" Version="3.2.0"/>
-    <PackageReference Include="Jsonize.Serializer" Version="3.2.0"/>
+    <PackageReference Include="Jsonize.Parser" Version="3.2.1" />
+    <PackageReference Include="Jsonize.Serializer" Version="3.2.1" />
     <PackageReference Include="Markdig" Version="0.40.0"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="Octokit" Version="14.0.0"/>

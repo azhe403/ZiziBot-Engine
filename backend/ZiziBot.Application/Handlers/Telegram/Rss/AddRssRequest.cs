@@ -20,7 +20,7 @@ public class AddRssHandler(
             return await serviceFacade.TelegramService.SendMessageAsync("Masukkan RSS URL yang ingin ditambahkan");
         }
 
-        var rssUrl = request.Param.TryFixRssUrl();
+        var rssUrl = await request.Param.DetectRss();
 
         try
         {
