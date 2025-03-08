@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ZiziBot.DataSource.MongoEf.Entities;
 
@@ -6,6 +7,7 @@ namespace ZiziBot.Application.Services;
 
 public class JadwalSholatOrgSinkService(ILogger<JadwalSholatOrgSinkService> logger, DataFacade dataFacade)
 {
+    [AutomaticRetry(Attempts = 3, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     public async Task FeedAll()
     {
         await FeedCity();
@@ -69,15 +71,16 @@ public class JadwalSholatOrgSinkService(ILogger<JadwalSholatOrgSinkService> logg
 
         if (insertSchedules.IsEmpty())
         {
-            logger.LogInformation("No schedules found for city with ID {cityId}.", cityId);
+            logger.LogInformation("No schedules found for city with ID {CityId}.", cityId);
             return default;
         }
 
-        logger.LogDebug("Deleting old schedules for city {cityId}..", cityId);
-        await dataFacade.MongoEf.JadwalSholatOrg_Schedule.Where(x => x.CityId == cityId).ExecuteDeleteAsync();
+        logger.LogDebug("Deleting old schedules for city {CityId}..", cityId);
+        var jadwalSholatOrgSchedule = await dataFacade.MongoEf.JadwalSholatOrg_Schedule.Where(x => x.CityId == cityId).ToListAsync();
+        dataFacade.MongoEf.RemoveRange(jadwalSholatOrgSchedule);
         await dataFacade.MongoEf.SaveChangesAsync();
 
-        logger.LogDebug("Inserting new schedules for city {cityId}..", cityId);
+        logger.LogDebug("Inserting new schedules for city {CityId}..", cityId);
         dataFacade.MongoEf.JadwalSholatOrg_Schedule.AddRange(insertSchedules);
         await dataFacade.MongoEf.SaveChangesAsync();
 
