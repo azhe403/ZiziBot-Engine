@@ -29,7 +29,7 @@ public class FetchRssHandler(
         {
             var feed = await request.RssUrl.ReadRssAsync();
 
-            var latestArticle = feed.Items.FirstOrDefault();
+            var latestArticle = feed.Items?.FirstOrDefault();
 
             if (latestArticle == null)
             {
@@ -70,10 +70,9 @@ public class FetchRssHandler(
             {
                 var assets = await request.RssUrl.GetGithubAssetLatest();
 
-
                 if (assets?.Assets.NotEmpty() ?? false)
                 {
-                    messageText.Br().Br()
+                    messageText.Br()
                         .BoldBr("Assets");
 
                     assets.Assets.ForEach(asset => {
