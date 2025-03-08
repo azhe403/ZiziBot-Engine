@@ -13,8 +13,8 @@
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0"/>
     <PackageReference Include="Scrutor" Version="6.0.1"/>
-    <PackageReference Include="Sentry.AspNetCore" Version="5.0.1"/>
-    <PackageReference Include="Sentry.Serilog" Version="5.0.1"/>
+    <PackageReference Include="Sentry.AspNetCore" Version="5.3.0" />
+    <PackageReference Include="Sentry.Serilog" Version="5.3.0" />
     <PackageReference Include="Serilog" Version="4.2.0"/>
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
     <PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3"/>
