@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using ZiziBot.Contracts.Constants;
 
@@ -9,17 +10,14 @@ public static class ServiceExtension
 {
     public static IServiceCollection AddConsole(this IServiceCollection services)
     {
-        if (Flag.IsEnabled(Flag.CONSOLE_BLAZOR))
-        {
-            services.AddRazorPages();
-            services.AddServerSideBlazor();
-            services.AddBlazoredLocalStorage();
-            services.AddAuthorizationCore();
-            services.AddRadzenComponents();
-            services.AddReactiveViewModels();
+        services.AddRazorPages();
+        services.AddServerSideBlazor();
+        services.AddBlazoredLocalStorage();
+        services.AddAuthorizationCore();
+        services.AddRadzenComponents();
+        services.AddReactiveViewModels();
 
-            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
-        }
+        services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
         return services;
     }
@@ -32,6 +30,10 @@ public static class ServiceExtension
             app.MapRazorPages();
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
+        }
+        else
+        {
+            app.MapGet("/", () => Results.Redirect("/api"));
         }
 
         return app;

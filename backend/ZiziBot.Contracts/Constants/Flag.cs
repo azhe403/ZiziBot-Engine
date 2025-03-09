@@ -8,7 +8,7 @@ namespace ZiziBot.Contracts.Constants;
 
 public static class Flag
 {
-    public static List<FlagDto> Current { get; set; }
+    public static List<FlagDto>? Current { get; set; }
 
     public static List<FlagDto> GetFields()
     {
@@ -24,14 +24,15 @@ public static class Flag
 
     public static bool IsEnabled(string flagName)
     {
-        var flag = Current.FirstOrDefault(x => x.Name == flagName);
+        var flag = Current?.FirstOrDefault(x => x.Name == flagName);
 
         if (flag == null)
         {
             var defaultFlag = GetFields().FirstOrDefault(x => x.Name == flagName);
-            Log.Debug($"Flag {flagName} not found. Using default value: {defaultFlag?.Value ?? false}");
+            var flagValue = defaultFlag?.Value ?? false;
+            Log.Debug("Flag {FlagName} not found. Using default value: {DefaultFlagValue}", flagName, flagValue);
 
-            return defaultFlag?.Value ?? false;
+            return flagValue;
         }
 
         Log.Debug("Flag {FlagName} is {FlagValue}", flag.Name, flag.Value);
