@@ -96,6 +96,56 @@ public static class LoggingExtension
         return hostBuilder;
     }
 
+    public static IServiceCollection AddSerilog(this IServiceCollection services, WebApplicationBuilder applicationBuilder)
+    {
+        services.AddSerilog((provider, config) => {
+            var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+            var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
+
+            var logConfig = appSettingRepository.GetRequiredConfigSection<LogConfig>();
+
+            config.ReadFrom
+                .Configuration(applicationBuilder.Configuration)
+                .ReadFrom.Services(provider)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+                .MinimumLevel.Debug()
+                .Enrich.WithDemystifiedStackTraces();
+
+            if (logConfig.ProcessEnrich)
+            {
+                config.Enrich.WithDynamicProperty("MemoryUsage", () => {
+                    var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
+                    return $"{mem}";
+                }).Enrich.WithDynamicProperty("ThreadId", () => {
+                    var threadId = Environment.CurrentManagedThreadId.ToString();
+                    return $"{threadId}";
+                });
+            }
+
+            config.WriteTo.Async(cfg => cfg
+                .Console(outputTemplate: OUTPUT_TEMPLATE)
+                .WriteTo.SignalRSink<LogHub, IHub>(LogEventLevel.Debug, provider));
+
+            var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
+
+            if (sentryConfig?.IsEnabled ?? false)
+            {
+                config.WriteTo.Async(cfg => {
+                    cfg.Sentry(options => {
+                        options.Dsn = sentryConfig.Dsn;
+                        options.StackTraceMode = StackTraceMode.Enhanced;
+                        options.Release = VersionUtil.GetVersion();
+                    });
+                });
+            }
+
+            config.WriteTo.Async(configuration =>
+                configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
+        });
+
+        return services;
+    }
+
     public static IApplicationBuilder ConfigureFlurl(this IApplicationBuilder app)
     {
         FlurlHttp.Clients.WithDefaults(builder => {

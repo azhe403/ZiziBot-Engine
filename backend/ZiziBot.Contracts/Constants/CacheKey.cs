@@ -2,6 +2,8 @@ namespace ZiziBot.Contracts.Constants;
 
 public static class CacheKey
 {
+    public const string FEATURE_FLAG = "feature-flag/";
+
     public const string GLOBAL_SUDO = "global/sudo";
     public const string GLOBAL_API_DOC = "global/api-doc";
 

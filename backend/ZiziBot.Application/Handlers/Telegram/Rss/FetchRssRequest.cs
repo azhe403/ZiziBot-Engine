@@ -38,12 +38,7 @@ public class FetchRssHandler(
                 return false;
             }
 
-            var latestHistory = await dataFacade.MongoEf.RssHistory.AsNoTracking()
-                .Where(entity => entity.ChatId == request.ChatId)
-                .Where(entity => entity.ThreadId == request.ThreadId)
-                .Where(entity => entity.Url == latestArticle.Link)
-                .Where(entity => entity.Status == EventStatus.Complete)
-                .FirstOrDefaultAsync(cancellationToken);
+            var latestHistory = await dataFacade.Rss.GetLastRssArticle(request.ChatId, request.ThreadId, latestArticle.Link);
 
             if (latestHistory != null)
             {
@@ -63,7 +58,7 @@ public class FetchRssHandler(
                 .Url(latestArticle.Link, latestArticle.Title.Trim()).Br();
 
             if (!request.RssUrl.IsGithubCommitsUrl() &&
-                await dataFacade.AppSetting.GetFlagValue(Flag.RSS_INCLUDE_CONTENT))
+                await dataFacade.FeatureFlag.GetFlagValue(Flag.RSS_INCLUDE_CONTENT))
                 messageText.Text(htmlContent.Truncate(2000));
 
             if (request.RssUrl.IsGithubReleaseUrl())

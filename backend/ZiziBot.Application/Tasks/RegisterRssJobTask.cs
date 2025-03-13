@@ -6,6 +6,7 @@ namespace ZiziBot.Application.Tasks;
 public class RegisterRssJobTask(
     ILogger<RegisterRssJobTask> logger,
     AppSettingRepository appSettingRepository,
+    FeatureFlagRepository featureFlagRepository,
     MediatorService mediatorService
 ) : IStartupTask
 {
@@ -15,7 +16,7 @@ public class RegisterRssJobTask(
     {
         logger.LogInformation("Registering RSS Jobs");
         await mediatorService.Send(new RegisterRssJobAllRequest() {
-            ResetStatus = await appSettingRepository.GetFlagValue(Flag.RSS_RESET_AT_STARTUP)
+            ResetStatus = await featureFlagRepository.GetFlagValue(Flag.RSS_RESET_AT_STARTUP)
         });
 
         RecurringJob.AddOrUpdate<MediatorService>(

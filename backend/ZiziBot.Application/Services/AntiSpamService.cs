@@ -3,7 +3,6 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.DataSource.MongoEf;
 using ZiziBot.Interfaces;
 
 namespace ZiziBot.Application.Services;
@@ -11,7 +10,7 @@ namespace ZiziBot.Application.Services;
 public class AntiSpamService(
     ILogger<AntiSpamService> logger,
     ICacheService cacheService,
-    MongoEfContext mongoDbContext,
+    DataFacade dataFacade,
     ApiKeyService apiKeyService
 )
 {
@@ -47,7 +46,7 @@ public class AntiSpamService(
             staleAfter: DEFAULT_STALE_TIME,
             action: async () => {
                 var antiSpamDto = new AntiSpamDto();
-                var globalBanEntities = await mongoDbContext.GlobalBan
+                var globalBanEntities = await dataFacade.MongoEf.GlobalBan
                     .Where(entity => entity.UserId == userId && entity.Status == EventStatus.Complete)
                     .ToListAsync();
 

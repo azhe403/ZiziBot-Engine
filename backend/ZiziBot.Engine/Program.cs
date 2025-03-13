@@ -5,11 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.LoadSettings();
 
-builder.Host.ConfigureSerilog(true);
-
 builder.WebHost.ConfigureCustomListenPort();
 
 await builder.Services.ConfigureServices();
+builder.Services.AddSerilog(builder);
 builder.Services.ConfigureHangfire();
 builder.Services.AddRestApi();
 builder.Services.AddAllMiddleware();
@@ -23,7 +22,7 @@ app.UseSerilogRequestLogging();
 app.ConfigureFlurl();
 
 app.PrintAbout();
-
+await app.LoadFeatureFlag();
 await app.UseMongoMigration();
 
 app.UseAuthorization();
