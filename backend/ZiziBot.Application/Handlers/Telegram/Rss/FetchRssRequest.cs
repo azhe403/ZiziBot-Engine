@@ -27,7 +27,7 @@ public class FetchRssHandler(
 
         try
         {
-            var feed = await request.RssUrl.ReadRssAsync();
+            var feed = await request.RssUrl.ReadRssAsync(throwIfError: true);
 
             var latestArticle = feed.Items?.FirstOrDefault();
 
