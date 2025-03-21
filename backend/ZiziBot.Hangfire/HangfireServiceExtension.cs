@@ -73,7 +73,7 @@ public static class HangfireServiceExtension
             pathMatch: UrlConst.HANGFIRE_URL_PATH,
             options: new DashboardOptions() {
                 DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
-                IgnoreAntiforgeryToken = false,
+                IgnoreAntiforgeryToken = false
                 // Authorization = authorizationFilters,
                 // AsyncAuthorization = asyncAuthorizationFilters
             }

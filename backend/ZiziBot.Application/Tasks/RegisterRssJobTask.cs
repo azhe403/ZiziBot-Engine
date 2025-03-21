@@ -1,5 +1,6 @@
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Application.Handlers.Telegram.Rss;
 
 namespace ZiziBot.Application.Tasks;
 

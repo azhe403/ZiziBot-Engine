@@ -8,7 +8,6 @@ global using ZiziBot.Application.Handlers.Telegram.Chat;
 global using ZiziBot.Application.Handlers.Telegram.Core;
 global using ZiziBot.Application.Handlers.Telegram.Data;
 global using ZiziBot.Application.Handlers.Telegram.Middleware;
-global using ZiziBot.Application.Handlers.Telegram.Rss;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Application.Utils;
 global using ZiziBot.Attributes;
