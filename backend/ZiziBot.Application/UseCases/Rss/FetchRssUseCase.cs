@@ -15,11 +15,12 @@ public class FetchRssUseCase(
     ServiceFacade serviceFacade
 )
 {
-    [DisplayName("{0} - {1} -> {2}")]
+    [DisplayName("{0}:{1} -> {2}")]
     [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     public async Task<bool> Handle(long chatId, int threadId, string rssUrl)
     {
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
+        var botSettings = await dataFacade.AppSetting.GetBotMain();
 
         try
         {
@@ -27,23 +28,13 @@ public class FetchRssUseCase(
 
             foreach (var latestArticle in feed.Items.Take(3))
             {
-                if (latestArticle == null)
-                {
-                    logger.LogInformation("No article found in ChatId: {ChatId} for RSS Url: {Url}", chatId, rssUrl);
-
-                    return false;
-                }
-
                 var latestHistory = await dataFacade.Rss.GetLastRssArticle(chatId, threadId, latestArticle.Link);
 
                 if (latestHistory != null)
                 {
                     logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", chatId, rssUrl);
-
-                    return false;
+                    continue;
                 }
-
-                var botSettings = await dataFacade.AppSetting.GetBotMain();
 
                 var botClient = new TelegramBotClient(botSettings.Token);
 
