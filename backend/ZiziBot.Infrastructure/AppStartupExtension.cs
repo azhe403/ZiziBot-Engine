@@ -15,4 +15,13 @@ public static class AppStartupExtension
 
         return app;
     }
+
+    public static async Task<IApplicationBuilder> LoadFeatureFlag(this IApplicationBuilder app)
+    {
+        var featureFlagRepository = app.ApplicationServices.GetRequiredService<FeatureFlagRepository>();
+
+        Flag.Current = await featureFlagRepository.GetFlags();
+
+        return app;
+    }
 }

@@ -15,7 +15,7 @@ public class FeatureControlPipelineBehavior<TRequest, TResponse>(
         var requestType = request.GetType();
         var featureName = requestType.GetCustomAttribute<FeatureFlagAttribute>()?.FeatureName ?? string.Empty;
 
-        var featureFlag = await dataFacade.AppSetting.GetFlag(featureName);
+        var featureFlag = await dataFacade.FeatureFlag.GetFlag(featureName);
 
         if (featureFlag == null ||
             featureFlag.IsEnabled)

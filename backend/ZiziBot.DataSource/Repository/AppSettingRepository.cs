@@ -1,10 +1,6 @@
-﻿using System.ComponentModel;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
+﻿using Microsoft.EntityFrameworkCore;
 using ZiziBot.Contracts.Dtos.Entity;
 using ZiziBot.DataSource.MongoEf;
-using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
@@ -107,38 +103,5 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
             .ToList();
 
         return listBotData;
-    }
-
-    public async Task<List<FlagDto>> GetFlags()
-    {
-        var flags = await mongoEfContext.FeatureFlag.AsNoTracking()
-            .Where(x => x.Status == EventStatus.Complete)
-            .Select(x => new FlagDto() {
-                Name = x.Name,
-                Value = x.IsEnabled
-            })
-            .ToListAsync();
-
-        return flags;
-    }
-
-    public async Task<FeatureFlagEntity?> GetFlag(string flagName)
-    {
-        var flag = await mongoEfContext.FeatureFlag.AsNoTracking()
-            .Where(x => x.Name == flagName)
-            .Where(x => x.Status == EventStatus.Complete)
-            .FirstOrDefaultAsync();
-
-        return flag;
-    }
-
-    public async Task<bool> GetFlagValue(string flagName)
-    {
-        var flag = await GetFlag(flagName);
-
-        var isEnabled = (bool)flag?.IsEnabled;
-        Log.Debug("Flag: '{flagName}' is enabled: {isEnabled}", flagName, isEnabled);
-
-        return isEnabled;
     }
 }

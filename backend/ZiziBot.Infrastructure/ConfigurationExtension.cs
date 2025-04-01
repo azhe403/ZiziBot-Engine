@@ -23,7 +23,6 @@ public static class ConfigurationExtension
         var provider = services.BuildServiceProvider();
 
         var config = provider.GetRequiredService<IConfiguration>();
-        var appSettings = provider.GetRequiredService<AppSettingRepository>();
 
         services.Configure<CacheConfig>(config.GetSection("Cache"));
         services.Configure<EngineConfig>(config.GetSection("Engine"));
@@ -32,8 +31,6 @@ public static class ConfigurationExtension
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
         services.Configure<JwtConfig>(config.GetSection("Jwt"));
         services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
-
-        Flag.Current = await appSettings.GetFlags();
 
         return services;
     }
