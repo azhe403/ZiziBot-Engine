@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using CloudCraic.Hosting.BackgroundQueue.DependencyInjection;
 using Flurl.Http;
@@ -66,13 +67,18 @@ public static class ServiceExtension
 
     private static IServiceCollection AddAllService(this IServiceCollection services)
     {
+        var assembly = Assembly.Load("ZiziBot.Application");
+
         services.Scan(selector => selector.FromAssembliesOf(typeof(TaskRunnerHostedService))
             .AddClasses(filter => filter.InNamespaceOf<TaskRunnerHostedService>())
             .As<IHostedService>()
             .WithSingletonLifetime());
 
-        services.Scan(selector => selector.FromAssembliesOf(typeof(TelegramService))
-            .AddClasses(filter => filter.InNamespaceOf<TelegramService>())
+        services.Scan(selector => selector.FromAssemblies(assembly)
+            .AddClasses(x => x.InNamespaces(
+                "ZiziBot.Application.Services",
+                "ZiziBot.Application.UseCases"
+            ))
             .AsSelf()
             .WithScopedLifetime());
 

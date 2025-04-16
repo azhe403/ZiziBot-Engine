@@ -32,7 +32,7 @@ public class FetchRssUseCase(
 
                 if (latestHistory != null)
                 {
-                    logger.LogDebug("No new article found in ChatId: {ChatId} for RSS Url: {Url}", chatId, rssUrl);
+                    logger.LogDebug("Article for ChatId: {ChatId} is already sent: {Url}", chatId, latestHistory.Url);
                     continue;
                 }
 
