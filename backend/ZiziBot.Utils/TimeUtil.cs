@@ -10,12 +10,12 @@ public static class TimeUtil
     public static string GenerateVersion(this DateTime dateTime)
     {
         var timeToday = dateTime.ToString("h:mm:ss");
-        var jan2000 = new DateTime(2000, 1, 1);
+        var jan2000 = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         var majorNumber = dateTime.Year.ToString().Replace("0", "");
         var minorNumber = dateTime.Month;
         var buildNumber = (dateTime - jan2000).Days;
-        var revNumber = TimeSpan.Parse(timeToday).TotalSeconds;
+        var revNumber = TimeSpan.ParseExact(timeToday, @"h\:mm\:ss", CultureInfo.InvariantCulture).TotalSeconds;
         var projectVersion = $"{majorNumber}.{minorNumber}.{buildNumber}.{revNumber}";
 
         return projectVersion;
@@ -55,6 +55,14 @@ public static class TimeUtil
         };
 
         return greet;
+    }
+
+    public static TimeOnly ToTimeOnly(this string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return default;
+
+        return TimeOnly.Parse(input, new DateTimeFormatInfo());
     }
 
     #region Cron

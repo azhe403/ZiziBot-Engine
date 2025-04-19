@@ -18,17 +18,23 @@ public class JadwalSholatOrgSinkService(ILogger<JadwalSholatOrgSinkService> logg
     {
         var trxId = Guid.NewGuid().ToString();
         var cities = await JadwalSholatOrgParserUtil.GetCities();
-        var removeCityIds = cities.Select(x => x.CityId);
+        if (cities == null)
+        {
+            logger.LogWarning("No cities found.");
+            return;
+        }
 
-        var insertCities = cities?.Select(x => new JadwalSholatOrg_CityEntity() {
+        var removeCityIds = cities.Select(x => x.CityId).ToList();
+
+        var insertCities = cities.Select(x => new JadwalSholatOrg_CityEntity() {
             CityId = x.CityId,
             CityCode = x.CityCode,
             CityName = x.CityName,
             Status = EventStatus.Complete,
             TransactionId = trxId
-        });
+        }).ToList();
 
-        if (insertCities != null)
+        if (insertCities.Count != 0)
         {
             logger.LogDebug("Deleting old cities..");
             await dataFacade.MongoEf.JadwalSholatOrg_City.Where(entity => removeCityIds.Contains(entity.CityId)).ExecuteDeleteAsync();
