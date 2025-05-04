@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using ZiziBot.Contracts.Converters.SystemTextJson;
 
 namespace ZiziBot.WebApi;
 
@@ -39,8 +40,11 @@ public static class RestApiExtension
                     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
                 }
             )
-            .AddJsonOptions(options =>
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+            .AddJsonOptions(options => {
+                options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            })
             .ConfigureApiBehaviorOptions(options => {
                 options.InvalidModelStateResponseFactory = context => {
                     var transactionId = context.HttpContext.GetTransactionId();
