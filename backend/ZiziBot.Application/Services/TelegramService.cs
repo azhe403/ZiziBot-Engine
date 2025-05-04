@@ -57,15 +57,23 @@ public class TelegramService(
         return stamp;
     }
 
-    public async Task<string> DownloadFileAsync(string prefixName)
+    public async Task<string> DownloadFileAsync(string? prefixName = null, string? fileId = null, string? customFileName = null)
     {
-        var fileId = (_request.ReplyToMessage ?? _request.Message)?.GetFileId();
-        if (fileId.IsNullOrEmpty())
+        if (fileId.IsNullOrWhiteSpace())
         {
-            throw new ArgumentException("File not detected in this message");
+            fileId = (_request.ReplyToMessage ?? _request.Message)?.GetFileId();
+            if (fileId.IsNullOrEmpty())
+            {
+                logger.LogWarning("No file detected in Message: {MessageId}", _request.MessageId);
+            }
         }
 
-        var filePath = PathConst.TEMP_PATH + prefixName + (_request.ReplyToMessage ?? _request.Message)?.GetFileName();
+        var fileName = (_request.ReplyToMessage ?? _request.Message)?.GetFileName();
+
+        if (customFileName.IsNotNullOrWhiteSpace())
+            fileName = customFileName;
+
+        var filePath = PathConst.TEMP_PATH + prefixName + fileName;
 
         await using Stream fileStream = File.OpenWrite(filePath.EnsureDirectory());
         await Bot.GetInfoAndDownloadFile(fileId, fileStream);
