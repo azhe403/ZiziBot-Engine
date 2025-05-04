@@ -34,6 +34,7 @@ public class MongoEfContext() : DbContext
     public DbSet<NoteEntity> Note { get; set; }
     public DbSet<WelcomeMessageEntity> WelcomeMessage { get; set; }
     public DbSet<DashboardSessionEntity> DashboardSessions { get; set; }
+    public DbSet<UserOtpEntity> UserOtp { get; set; }
 
     public DbSet<AfkEntity> Afk { get; set; }
 

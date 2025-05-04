@@ -1,5 +1,7 @@
+using System.Security.Cryptography;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
@@ -7,7 +9,8 @@ public class PrepareConsoleBotRequest : BotRequestBase
 { }
 
 public class PrepareConsoleHandler(
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    DataFacade dataFacade
 ) : IBotRequestHandler<PrepareConsoleBotRequest>
 {
     public async Task<BotResponseBase> Handle(PrepareConsoleBotRequest request, CancellationToken cancellationToken)
@@ -29,6 +32,21 @@ public class PrepareConsoleHandler(
             .BoldBr("🎛 ZiziBot Console")
             .TextBr("Buka Console untuk mengelola pengaturan, catatan dan lain-lain.")
             .Br();
+
+        if (request.IsPrivateChat)
+        {
+            var otp = RandomNumberGenerator.GetInt32(100000, 999999);
+            dataFacade.MongoEf.UserOtp.Add(new UserOtpEntity() {
+                UserId = request.UserId,
+                Otp = otp,
+                Status = EventStatus.Complete,
+                TransactionId = request.TransactionId,
+                CreatedBy = request.UserId,
+                UpdatedBy = request.UserId
+            });
+
+            await dataFacade.MongoEf.SaveChangesAsync();
+        }
 
         if (webUrl.Contains("localhost"))
         {
