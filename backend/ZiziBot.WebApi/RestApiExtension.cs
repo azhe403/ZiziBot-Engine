@@ -108,7 +108,7 @@ public static class RestApiExtension
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options => {
-                // options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
+                options.DocumentFilter<HidePathDocumentFilter>();
                 options.SchemaFilter<SwaggerIgnoreFilter>();
             }
         );
@@ -153,7 +153,7 @@ public static class RestApiExtension
 
         app.UseStaticFiles();
         app.MapControllers();
-        app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
+        // app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
 
         app.UseRouting();
         app.UseCors(ALLOW_ANY_ORIGIN_POLICY);
