@@ -19,7 +19,7 @@ public class PingCallbackRequestHandler(
             return await serviceFacade.TelegramService.AnswerCallbackAsync("Kamu tidak memiliki akses");
         }
 
-        var webhookInfo = await serviceFacade.TelegramService.Bot.GetWebhookInfoAsync(cancellationToken: cancellationToken);
+        var webhookInfo = await serviceFacade.TelegramService.Bot.GetWebhookInfo(cancellationToken: cancellationToken);
 
         var messageCallback = string.Empty;
         var htmlMessage = HtmlMessage.Empty;

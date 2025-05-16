@@ -20,7 +20,7 @@ public class SendMessageTextRequestHandler(
         serviceFacade.TelegramService.SetupResponse(request);
 
         logger.LogDebug("Sending message to chat {ChatId}", request.ChatId);
-        var sentMessage = await serviceFacade.TelegramService.Bot.SendTextMessageAsync(
+        var sentMessage = await serviceFacade.TelegramService.Bot.SendMessage(
             chatId: request.ChatId,
             text: request.Text,
             replyParameters: request.ReplyToMessageId,

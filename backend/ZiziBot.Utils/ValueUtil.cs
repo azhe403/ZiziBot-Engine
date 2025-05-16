@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using Ardalis.GuardClauses;
 using Humanizer;
 
 namespace ZiziBot.Utils;
@@ -75,5 +77,15 @@ public static class ValueUtil
         }
 
         return obj;
+    }
+
+    public static string EnsureNotNullOrWhiteSpace([NotNull] [ValidatedNotNull] this string? obj)
+    {
+        return Guard.Against.NullOrWhiteSpace(obj);
+    }
+
+    public static T EnsureNotNull<T>([NotNull] [ValidatedNotNull] this T? obj) where T : class
+    {
+        return Guard.Against.Null(obj);
     }
 }

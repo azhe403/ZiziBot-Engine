@@ -27,7 +27,7 @@ public class DeleteMessageRequestHandler(
         try
         {
             logger.LogDebug("Deleting message {MessageId} from chat {ChatId}", request.MessageId, chatId);
-            await serviceFacade.TelegramService.Bot.DeleteMessageAsync(chatId, request.MessageId, cancellationToken: cancellationToken);
+            await serviceFacade.TelegramService.Bot.DeleteMessage(chatId, request.MessageId, cancellationToken: cancellationToken);
 
             logger.LogInformation("Message {MessageId} deleted from chat {ChatId}", request.MessageId, chatId);
         }

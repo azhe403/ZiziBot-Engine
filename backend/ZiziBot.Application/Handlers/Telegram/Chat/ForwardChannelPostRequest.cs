@@ -21,13 +21,13 @@ public class ForwardChannelPostHandler(
     public async Task<BotResponseBase> Handle(ForwardChannelPostRequest request, CancellationToken cancellationToken)
     {
         serviceFacade.TelegramService.SetupResponse(request);
-        logger.LogInformation("Prepare forwarding channel post..");
-        var channel = request.ChannelPostAny;
+        logger.LogInformation("Prepare forwarding channel post");
+        var channel = request.ChannelPostAny.EnsureNotNull();
 
-        var channelId = channel?.Chat.Id;
-        var textCaption = channel?.Text ?? channel?.Caption ?? string.Empty;
-        var fileId = channel.GetFileId();
-        var messageLink = channel.GetMessageLink();
+        var channelId = channel.Chat.Id;
+        var textCaption = channel.Text ?? channel.Caption ?? string.Empty;
+        var fileId = channel.GetFileId().EnsureNotNullOrWhiteSpace();
+        var messageLink = channel.GetMessageLink().EnsureNotNullOrWhiteSpace();
         var fileUniqueId = channel.GetFileUniqueId();
 
         var channelMaps = await dataFacade.MongoEf.ChannelMap
@@ -35,17 +35,17 @@ public class ForwardChannelPostHandler(
             .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
-        var replyMarkup = new InlineKeyboardMarkup(new[] {
-            new[] {
+        var replyMarkup = new InlineKeyboardMarkup([
+            [
                 InlineKeyboardButton.WithUrl("↗️ Source", messageLink)
-            }
-        });
+            ]
+        ]);
 
         await channelMaps.ForEachAsync(async channelMap => {
             var channelPost = await dataFacade.MongoEf.ChannelPost.AsNoTracking()
                 .Where(x => x.DestinationChatId == channelMap.ChatId)
                 .Where(x => x.DestinationThreadId == channelMap.ThreadId)
-                .Where(x => x.SourceMessageId == channel!.MessageId)
+                .Where(x => x.SourceMessageId == channel.MessageId)
                 .Where(x => x.Status == EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -118,7 +118,7 @@ public class ForwardChannelPostHandler(
 
                     if (channel.Type == MessageType.Text)
                     {
-                        var edit = await serviceFacade.TelegramService.Bot.EditMessageTextAsync(
+                        var edit = await serviceFacade.TelegramService.Bot.EditMessageText(
                             chatId: channelMap.ChatId,
                             messageId: channelPost.DestinationMessageId.Convert<int>(),
                             text: textCaption,
@@ -134,7 +134,7 @@ public class ForwardChannelPostHandler(
                     {
                         if (channelPost.Text != textCaption)
                         {
-                            await serviceFacade.TelegramService.Bot.EditMessageCaptionAsync(
+                            await serviceFacade.TelegramService.Bot.EditMessageCaption(
                                 chatId: channelMap.ChatId,
                                 messageId: channelPost.DestinationMessageId.Convert<int>(),
                                 caption: textCaption,
@@ -147,24 +147,29 @@ public class ForwardChannelPostHandler(
 
                         if (channelPost.FileUniqueId != fileUniqueId)
                         {
-                            InputMedia media = (int)channel.Type switch {
-                                (int)CommonMediaType.Photo => new InputMediaPhoto(new InputFileId(fileId)),
-                                (int)CommonMediaType.Audio => new InputMediaAudio(new InputFileId(fileId)),
-                                (int)CommonMediaType.Video => new InputMediaVideo(new InputFileId(fileId)),
-                                (int)CommonMediaType.Document => new InputMediaDocument(new InputFileId(fileId)),
-                                _ => throw new ArgumentOutOfRangeException(null)
+                            var inputFileId = new InputFileId(fileId);
+
+                            InputMedia? inputMedia = (int)channel.Type switch {
+                                (int)CommonMediaType.Photo => new InputMediaPhoto(inputFileId),
+                                (int)CommonMediaType.Audio => new InputMediaAudio(inputFileId),
+                                (int)CommonMediaType.Video => new InputMediaVideo(inputFileId),
+                                (int)CommonMediaType.Document => new InputMediaDocument(inputFileId),
+                                _ => null
                             };
 
-                            await serviceFacade.TelegramService.Bot.EditMessageMediaAsync(
-                                chatId: channelMap.ChatId,
-                                messageId: channelPost.DestinationMessageId.Convert<int>(),
-                                media: media,
-                                replyMarkup: replyMarkup,
-                                cancellationToken: cancellationToken
-                            );
+                            if (inputMedia != null)
+                            {
+                                await serviceFacade.TelegramService.Bot.EditMessageMedia(
+                                    chatId: channelMap.ChatId,
+                                    messageId: channelPost.DestinationMessageId.Convert<int>(),
+                                    media: inputMedia,
+                                    replyMarkup: replyMarkup,
+                                    cancellationToken: cancellationToken
+                                );
 
-                            channelPost.FileId = fileId;
-                            channelPost.FileUniqueId = fileUniqueId;
+                                channelPost.FileId = fileId;
+                                channelPost.FileUniqueId = fileUniqueId;
+                            }
                         }
                     }
                 }

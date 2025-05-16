@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Ardalis.GuardClauses;
 using AsyncAwaitBestPractices;
 using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
@@ -31,15 +30,13 @@ public class TelegramService(
 
     public void SetupResponse(BotRequestBase request)
     {
-        _request = Guard.Against.Null(request);
+        _request = request.EnsureNotNull();
 
         _timeInit = request.MessageDate.GetDelay();
         Bot = new TelegramBotClient(request.BotToken);
 
         if (_request.ReplyMessage)
             _request.ReplyToMessageId = _request.Message?.MessageId ?? 0;
-
-        Guard.Against.Null(Bot);
     }
 
     public async Task<bool> IsBotName(string name)
@@ -47,7 +44,7 @@ public class TelegramService(
         var botSettings = await dataFacade.MongoEf.BotSettings
             .FirstOrDefaultAsync(x => x.Token == _request.BotToken);
 
-        return botSettings.Name == name;
+        return botSettings?.Name == name;
     }
 
     private string GetExecStamp()
@@ -74,6 +71,8 @@ public class TelegramService(
             fileName = customFileName;
 
         var filePath = PathConst.TEMP_PATH + prefixName + fileName;
+
+        fileId.EnsureNotNullOrWhiteSpace();
 
         await using Stream fileStream = File.OpenWrite(filePath.EnsureDirectory());
         await Bot.GetInfoAndDownloadFile(fileId, fileStream);
@@ -179,9 +178,9 @@ public class TelegramService(
 
         logger.LogInformation("Message sent to chat {ChatId}", targetChatId);
 
-        var deleteAfterExec = deleteAfter != default ? deleteAfter : _request.DeleteAfter;
+        var deleteAfterExec = deleteAfter != TimeSpan.Zero ? deleteAfter : _request.DeleteAfter;
 
-        if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfterExec == default)
+        if (_request.CleanupTargets.Contains(CleanupTarget.None) || deleteAfterExec == TimeSpan.Zero)
             return Complete();
 
         logger.LogDebug("Schedule delete message {MessageId} on ChatId: {ChatId} in {DeleteAfter} seconds", SentMessage.MessageId, targetChatId, _request.DeleteAfter.TotalSeconds);
@@ -419,7 +418,7 @@ public class TelegramService(
     {
         if (SentMessage != null)
         {
-            Guard.Against.NullOrEmpty(text);
+            text.EnsureNotNullOrWhiteSpace();
             await EditMessageText(text, replyMarkup);
         }
         else
@@ -525,7 +524,7 @@ public class TelegramService(
         }
         catch (Exception e)
         {
-            return default;
+            return null;
         }
     }
 
@@ -556,9 +555,9 @@ public class TelegramService(
         }, untilDate: untilDate);
     }
 
-    public async Task KickMember(long userId = default)
+    public async Task KickMember(long userId = 0)
     {
-        if (userId == default) userId = _request.UserId;
+        if (userId == 0) userId = _request.UserId;
 
         await Bot.BanChatMember(_request.ChatId, userId);
         await Bot.UnbanChatMember(_request.ChatId, userId);
