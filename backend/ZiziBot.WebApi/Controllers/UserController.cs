@@ -18,7 +18,6 @@ public class UserController(CreateSessionOtpUseCase createSessionOtpUseCase) : A
 
     [HttpPost("session/telegram")]
     [AccessFilter(flag: Flag.REST_USER_TELEGRAM_SESSION_CREATE, checkHeader: true)]
-    [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
     public async Task<IActionResult> PostTelegramSession(ValidateTelegramSessionRequest request)
     {
