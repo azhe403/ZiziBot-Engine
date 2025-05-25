@@ -39,7 +39,7 @@ public class PrepareConsoleHandler(
             dataFacade.MongoEf.UserOtp.Add(new UserOtpEntity() {
                 UserId = request.UserId,
                 Otp = otp,
-                Status = EventStatus.Complete,
+                Status = EventStatus.InProgress,
                 TransactionId = request.TransactionId,
                 CreatedBy = request.UserId,
                 UpdatedBy = request.UserId

@@ -39,13 +39,17 @@ public class CreateSessionOtpUseCase(
 
         var userOtp = await dataFacade.MongoEf.UserOtp
             .Where(x => x.Otp == request.Otp)
-            .Where(x => x.Status == EventStatus.Complete)
+            .Where(x => x.Status == EventStatus.InProgress)
             .FirstOrDefaultAsync();
 
         if (userOtp == null)
             return _response.Unauthorized("Invalid OTP, please try again!");
 
         var token = await userService.GenerateAccessToken(userOtp.UserId);
+
+        userOtp.Status = EventStatus.Complete;
+
+        await dataFacade.MongoEf.SaveChangesAsync();
 
         return _response.Success("Success", new CreateSessionOtpResponse() {
             AccessToken = token.stringToken,
