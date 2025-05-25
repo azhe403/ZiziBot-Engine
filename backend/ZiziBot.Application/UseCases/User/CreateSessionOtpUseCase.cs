@@ -1,10 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using ZiziBot.Contracts.Validators;
+using ZiziBot.Interfaces;
 
 namespace ZiziBot.Application.UseCases.User;
 
@@ -17,7 +13,7 @@ public class CreateSessionOtpValidator : AbstractValidator<CreateSessionOtpReque
 {
     public CreateSessionOtpValidator()
     {
-        RuleFor(x => x.Otp).Required().WithMessage("Otp is required!");
+        RuleFor(x => x.Otp).NotNull().WithMessage("Otp is required!");
     }
 }
 
@@ -29,9 +25,13 @@ public class CreateSessionOtpResponse
     public double RefreshExpireIn { get; set; }
 }
 
-public class CreateSessionOtpUseCase(DataFacade dataFacade, CreateSessionOtpValidator validator)
+public class CreateSessionOtpUseCase(
+    DataFacade dataFacade,
+    CreateSessionOtpValidator validator,
+    IUserService userService
+)
 {
-    private ApiResponseBase<CreateSessionOtpResponse> response = new();
+    private readonly ApiResponseBase<CreateSessionOtpResponse> _response = new();
 
     public async Task<ApiResponseBase<CreateSessionOtpResponse>> Handle(CreateSessionOtpRequest request)
     {
@@ -43,37 +43,13 @@ public class CreateSessionOtpUseCase(DataFacade dataFacade, CreateSessionOtpVali
             .FirstOrDefaultAsync();
 
         if (userOtp == null)
-            return response.Unauthorized("Invalid OTP, please try again!");
+            return _response.Unauthorized("Invalid OTP, please try again!");
 
-        #region Generate Token
-        var jwtConfig = await dataFacade.AppSetting.GetConfigSectionAsync<JwtConfig>();
+        var token = await userService.GenerateAccessToken(userOtp.UserId);
 
-        if (jwtConfig == null)
-        {
-            return response.BadRequest("Authentication is not yet configured");
-        }
-
-        var botUser = await dataFacade.MongoEf.BotUser.Where(x => x.UserId == userOtp.UserId)
-            .FirstOrDefaultAsync();
-
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var claims = new[] {
-            new Claim(ClaimTypes.NameIdentifier, botUser?.Username ?? string.Empty),
-            new Claim(ClaimTypes.Name, botUser?.FirstName ?? string.Empty),
-            new Claim(RequestKey.UserId, userOtp.UserId.ToString()),
-        };
-
-        var dateTime = DateTime.UtcNow;
-        var tokenExpiration = dateTime.AddMinutes(15);
-        var accessExpireIn = (tokenExpiration - dateTime).TotalSeconds;
-        var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims, expires: tokenExpiration, signingCredentials: credentials);
-        var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
-        #endregion
-
-        return response.Success("Success", new CreateSessionOtpResponse() {
-            AccessToken = stringToken,
-            AccessExpireIn = (int)accessExpireIn,
+        return _response.Success("Success", new CreateSessionOtpResponse() {
+            AccessToken = token.stringToken,
+            AccessExpireIn = token.accessExpireIn,
         });
     }
 }
