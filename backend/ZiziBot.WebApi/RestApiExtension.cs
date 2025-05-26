@@ -51,13 +51,14 @@ public static class RestApiExtension
 
                     var errorDetails = context.ModelState
                         .Where(entry => entry.Value?.ValidationState == ModelValidationState.Invalid)
+                        .Where(x => x.Key != "request")
                         .Select(key => new {
                             Id = key.Key,
                             Field = key.Key.Split('.').Last(),
                             Message = key.Value?.Errors.Select(e => e.ErrorMessage)
                         }).ToList();
 
-                    var errors = errorDetails.SelectMany(x => x.Message ?? Array.Empty<string>()).ToList();
+                    var errors = errorDetails.SelectMany(x => x.Message ?? []).ToList();
 
                     return new BadRequestObjectResult(new ApiResponseBase<object>() {
                         StatusCode = HttpStatusCode.BadRequest,
