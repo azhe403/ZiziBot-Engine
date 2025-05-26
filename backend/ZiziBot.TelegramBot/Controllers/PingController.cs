@@ -13,37 +13,33 @@ public class PingController(
     public async Task Ping(CommandData data)
     {
         await mediatorService.EnqueueAsync(new PingBotRequestModel() {
-                BotToken = data.BotToken,
-                Message = data.Message,
-                DeleteAfter = TimeSpan.FromMinutes(1),
-                ReplyMessage = true,
-                CleanupTargets = new[] {
-                    CleanupTarget.FromBot,
-                    CleanupTarget.FromSender
-                }
-            }
-        );
+            BotToken = data.BotToken,
+            Message = data.Message,
+            DeleteAfter = TimeSpan.FromMinutes(1),
+            ReplyMessage = true,
+            CleanupTargets = [
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            ]
+        });
     }
 
-    // [CallbackQuery(CallbackConst.BOT)]
-    public async Task PingCallback(CommandData data, PingCallbackQueryModel model)
+    [Callback(CallbackConst.PING)]
+    public async Task PingCallback(CommandData data)
     {
         await mediatorService.EnqueueAsync(new PingCallbackBotRequestModel() {
-                BotToken = data.BotToken,
-                CallbackQuery = data.CallbackQuery,
-                ExecutionStrategy = ExecutionStrategy.Hangfire
-            }
-        );
+            BotToken = data.BotToken,
+            CallbackQuery = data.CallbackQuery,
+            ExecutionStrategy = ExecutionStrategy.Hangfire
+        });
     }
 
     [DefaultCommand]
-    // [TextCommand()]
     public async Task Default(CommandData data)
     {
         await mediatorService.EnqueueAsync(new DefaultBotRequestModel() {
-                BotToken = data.BotToken,
-                Message = data.Message
-            }
-        );
+            BotToken = data.BotToken,
+            Message = data.Message
+        });
     }
 }

@@ -16,7 +16,7 @@ public class PingCallbackRequestHandler(
 
         if (!await dataFacade.ChatSetting.IsSudoAsync(request.UserId))
         {
-            return await serviceFacade.TelegramService.AnswerCallbackAsync("Kamu tidak memiliki akses");
+            return await serviceFacade.TelegramService.AnswerCallbackAsync("Pong!");
         }
 
         var webhookInfo = await serviceFacade.TelegramService.Bot.GetWebhookInfo(cancellationToken: cancellationToken);

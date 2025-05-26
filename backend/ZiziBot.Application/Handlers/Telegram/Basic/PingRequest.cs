@@ -23,18 +23,13 @@ public class PingRequestHandler(
 
         if (await dataFacade.ChatSetting.IsSudoAsync(request.UserId))
         {
-            // replyMarkup = new InlineKeyboardMarkup(
-            //     new[] {
-            //         new[] {
-            //             new InlineKeyboardButton("WebHook Info") {
-            //                 CallbackData = new PingCallbackQueryModel() {
-            //                     Path = CallbackConst.BOT,
-            //                     Data = "webhook-info"
-            //                 }
-            //             }
-            //         }
-            //     }
-            // );
+            replyMarkup = new InlineKeyboardMarkup([
+                [
+                    new InlineKeyboardButton("Ping!") {
+                        CallbackData = "ping"
+                    }
+                ]
+            ]);
         }
 
         return await serviceFacade.TelegramService.SendMessageAsync(htmlMessage.ToString(), replyMarkup);
