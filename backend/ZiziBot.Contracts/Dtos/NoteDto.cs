@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using ZiziBot.Contracts.Enums;
 
 namespace ZiziBot.Contracts.Dtos;
 

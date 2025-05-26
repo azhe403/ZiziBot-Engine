@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.Contracts.Dtos.Entity;
+﻿using ZiziBot.Contracts.Enums;
+
+namespace ZiziBot.Contracts.Dtos.Entity;
 
 public class RssHistoryDto
 {

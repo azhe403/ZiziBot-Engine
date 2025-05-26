@@ -22,6 +22,7 @@ public static class TelegramExtension
         services.AddZiziBotTelegramBot(new BotEngineConfig() {
             EngineMode = config.TelegramEngineMode,
             WebhookUrl = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL),
+            ExecutionStrategy = config.ExecutionStrategy,
             Bot = listBotData.Select(x => new BotTokenConfig() {
                 Name = x.Name,
                 Token = x.Token
@@ -31,7 +32,7 @@ public static class TelegramExtension
         return services;
     }
 
-    public async static Task<IApplicationBuilder> RunTelegramBot(this IApplicationBuilder app)
+    public static async Task<IApplicationBuilder> RunTelegramBot(this IApplicationBuilder app)
     {
         var provider = app.ApplicationServices.CreateScope().ServiceProvider;
         var dataFacade = provider.GetRequiredService<DataFacade>();

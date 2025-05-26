@@ -1,3 +1,5 @@
+using ZiziBot.Contracts.Enums;
+
 namespace ZiziBot.Contracts.Dtos;
 
 public class ParsedDonationDto

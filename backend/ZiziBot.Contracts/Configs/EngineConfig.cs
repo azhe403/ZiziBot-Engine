@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using ZiziBot.TelegramBot.Framework.Models.Enums;
+using ExecutionStrategy = ZiziBot.TelegramBot.Framework.Models.Enums.ExecutionStrategy;
 
 namespace ZiziBot.Contracts.Configs;
 
@@ -12,6 +13,7 @@ public class EngineConfig
     public string Website { get; set; }
     public string Support { get; set; }
     public BotEngineMode TelegramEngineMode { get; set; }
+    public ExecutionStrategy ExecutionStrategy { get; set; }
 
     public bool EnableChatRestriction { get; set; }
 }
