@@ -29,8 +29,8 @@ public class PingCallbackRequestHandler(
 
         if (!webhookInfo.Url.IsNullOrEmpty())
         {
-            messageCallback = "\nEngineMode: WebHook" +
-                              "\nDetail WebHook info dikirimkan ke Private.";
+            messageCallback += "\nEngineMode: WebHook" +
+                               "\nDetail WebHook info dikirimkan ke Private.";
         }
         else
         {
