@@ -24,7 +24,7 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public Message? ChannelPostEdited => Update?.EditedChannelPost;
     public Message? ChannelPostAny => ChannelPost ?? ChannelPostEdited;
 
-    public Chat? Chat => Message?.Chat ?? default;
+    public Chat? Chat => Message?.Chat ?? null;
 
     public ForumTopicCreated? ForumTopicCreated => Message?.ForumTopicCreated;
     public ForumTopicEdited? ForumTopicEdited => Message?.ForumTopicEdited;
@@ -58,18 +58,18 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public User User => ChatJoinRequest?.From ?? Message?.From ?? CallbackQuery?.From ?? InlineQuery?.From ?? new();
     public User? ReplyToUser => ReplyToMessage?.From;
 
-    public long UserId => User?.Id ?? 0;
-    public string FirstName => Message?.From?.FirstName ?? string.Empty;
-    public string LastName => Message?.From?.LastName ?? string.Empty;
-    public string Username => Message?.From?.Username ?? string.Empty;
-    public string UserFullName => $"{Message?.From?.FirstName} {Message?.From?.LastName}".Trim();
-    public string UserLanguageCode => Message?.From?.LanguageCode ?? CallbackQuery?.From?.LanguageCode ?? InlineQuery?.From?.LanguageCode ?? "en";
+    public long UserId => User.Id;
+    public string FirstName => User.FirstName;
+    public string? LastName => User.LastName;
+    public string? Username => User.Username;
+    public string UserFullName => $"{User.FirstName} {User.LastName}".Trim();
+    public string UserLanguageCode => User.LanguageCode ?? "en";
 
     public string Text { get; set; }
 
     public DateTime RequestDate => DateTime.UtcNow;
 
-    public int MessageId => Message?.MessageId ?? default;
+    public int MessageId => Message?.MessageId ?? 0;
     public int ReplyToMessageId { get; set; }
 
     public bool ReplyMessage { get; set; } = true;
