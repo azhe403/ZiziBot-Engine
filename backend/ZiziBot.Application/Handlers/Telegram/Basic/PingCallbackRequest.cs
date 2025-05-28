@@ -20,17 +20,21 @@ public class PingCallbackRequestHandler(
         }
 
         var webhookInfo = await serviceFacade.TelegramService.Bot.GetWebhookInfo(cancellationToken: cancellationToken);
+        var config = await dataFacade.AppSetting.GetConfigSectionAsync<EngineConfig>();
 
         var messageCallback = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
 
+        messageCallback += $"\nExecutionStrategy: {config?.ExecutionStrategy}";
+
         if (!webhookInfo.Url.IsNullOrEmpty())
         {
-            messageCallback = "WebHook info dikirimkan ke Private.";
+            messageCallback = "\nEngineMode: WebHook" +
+                              "\nDetail WebHook info dikirimkan ke Private.";
         }
         else
         {
-            messageCallback = "Engine mode bukan Webhook";
+            messageCallback += "\nEngineMode: Polling";
             htmlMessage.Text(messageCallback);
         }
 

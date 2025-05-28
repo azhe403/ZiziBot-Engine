@@ -21,7 +21,7 @@ public static class TelegramExtension
 
         services.AddZiziBotTelegramBot(new BotEngineConfig() {
             EngineMode = config.TelegramEngineMode,
-            WebhookUrl = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL),
+            WebhookUrl = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL),
             ExecutionStrategy = config.ExecutionStrategy,
             Bot = listBotData.Select(x => new BotTokenConfig() {
                 Name = x.Name,
