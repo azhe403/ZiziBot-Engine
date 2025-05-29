@@ -1,7 +1,11 @@
-﻿namespace ZiziBot.Contracts.Constants;
+﻿using ZiziBot.Contracts.Enums;
+
+namespace ZiziBot.Contracts.Constants;
 
 public static class ValueConst
 {
+    public const string DB_SQLITE_CONNECTION_STRING = "Data Source=Storage/Sqlite/Data.db";
+
     public const ExecutionStrategy DEFAULT_EXECUTION_STRATEGY = ExecutionStrategy.Instant;
 
     public const int NEW_MEMBER_RAID_WINDOW_LIMIT = 7;

@@ -389,48 +389,52 @@ public class ChatSettingRepository(
         await mongoDbContext.SaveChangesAsync();
     }
 
-    public async Task<string> SaveUserActivity(BotUserDto request)
+    public async Task<string> SaveUserActivity(BotUserDto dto)
     {
         var trackingMessage = HtmlMessage.Empty;
         var botUser = await mongoDbContext.BotUser
-            .Where(entity => entity.UserId == request.UserId)
+            .Where(entity => entity.UserId == dto.UserId)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (botUser == null)
         {
-            logger.LogDebug("Adding User with UserId: {UserId}", request.UserId);
+            logger.LogDebug("Adding User with UserId: {UserId}", dto.UserId);
 
             mongoDbContext.BotUser.Add(new() {
-                UserId = request.UserId,
-                Username = request.Username,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                LanguageCode = request.LanguageCode,
+                UserId = dto.UserId,
+                Username = dto.Username,
+                ProfilePhotoId = dto.ProfilePhotoId,
+                ProfilePhotoPath = dto.ProfilePhotoPath,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                LanguageCode = dto.LanguageCode,
                 Status = EventStatus.Complete,
-                TransactionId = request.TransactionId
+                TransactionId = dto.TransactionId
             });
         }
         else
         {
-            logger.LogDebug("Updating User with UserId: {UserId}", request.UserId);
+            logger.LogDebug("Updating User with UserId: {UserId}", dto.UserId);
 
-            if (botUser.FirstName != request.FirstName)
+            if (botUser.FirstName != dto.FirstName)
                 trackingMessage.TextBr("Mengubah nama depannya");
 
-            if (botUser.LastName != request.LastName)
+            if (botUser.LastName != dto.LastName)
                 trackingMessage.TextBr("Mengubah nama belakangnya");
 
-            if (botUser.Username != request.Username)
+            if (botUser.Username != dto.Username)
                 trackingMessage.TextBr("Mengubah username-nya");
 
-            botUser.UserId = request.UserId;
-            botUser.Username = request.Username;
-            botUser.FirstName = request.FirstName;
-            botUser.LastName = request.LastName;
-            botUser.LanguageCode = request.LanguageCode;
+            botUser.UserId = dto.UserId;
+            botUser.Username = dto.Username;
+            botUser.ProfilePhotoId = dto.ProfilePhotoId;
+            botUser.ProfilePhotoPath = dto.ProfilePhotoPath;
+            botUser.FirstName = dto.FirstName;
+            botUser.LastName = dto.LastName;
+            botUser.LanguageCode = dto.LanguageCode;
             botUser.Status = EventStatus.Complete;
-            botUser.TransactionId = request.TransactionId;
+            botUser.TransactionId = dto.TransactionId;
         }
 
         await mongoDbContext.SaveChangesAsync();
@@ -439,7 +443,7 @@ public class ChatSettingRepository(
             return string.Empty;
 
         var message = HtmlMessage.Empty
-            .Bold("Pengguna: ").User(request.User).Br()
+            .Bold("Pengguna: ").User(dto.User).Br()
             .Append(trackingMessage);
 
         return message.ToString();

@@ -53,7 +53,7 @@ public class SendShalatTimeHandler(
                     ("City", cityEntity.CityName)
                 });
 
-                await botClient.SendTextMessageAsync(request.ChatId, message, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+                await botClient.SendMessage(request.ChatId, message, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {

@@ -8,13 +8,13 @@ builder.Configuration.LoadSettings();
 builder.WebHost.ConfigureCustomListenPort();
 
 await builder.Services.ConfigureServices();
+await builder.Services.ConfigureTelegramBot();
+
 builder.Services.AddSerilog(builder);
 builder.Services.ConfigureHangfire();
 builder.Services.AddRestApi();
 builder.Services.AddAllMiddleware();
 builder.Services.AddConsole();
-
-await builder.Services.ConfigureTelegramBot();
 
 var app = builder.Build();
 

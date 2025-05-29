@@ -16,7 +16,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10"/>
     <PackageReference Include="Microsoft.AspNetCore.RateLimiting" Version="7.0.0-rc.2.22476.2"/>
     <PackageReference Include="Scrutor" Version="6.0.1"/>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0"/>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2"/>
   </ItemGroup>
 
   <ItemGroup>

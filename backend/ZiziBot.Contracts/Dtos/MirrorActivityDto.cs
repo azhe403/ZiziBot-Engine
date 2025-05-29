@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.Contracts.Dtos;
+﻿using ZiziBot.Contracts.Enums;
+
+namespace ZiziBot.Contracts.Dtos;
 
 public class MirrorActivityDto
 {

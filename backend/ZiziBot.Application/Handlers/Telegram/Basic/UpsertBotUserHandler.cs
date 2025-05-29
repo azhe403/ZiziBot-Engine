@@ -1,5 +1,6 @@
 ﻿using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
+using Telegram.Bot;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
@@ -23,11 +24,16 @@ public class UpsertBotUserHandler<TRequest, TResponse>(
 
         serviceFacade.TelegramService.SetupResponse(request);
 
+        var userProfilePhotos = await serviceFacade.TelegramService.Bot.GetUserProfilePhotos(request.UserId, cancellationToken: cancellationToken);
+        var profilePhotoId = userProfilePhotos.Photos.FirstOrDefault()?.OrderByDescending(size => size.FileSize).FirstOrDefault()?.FileId ?? string.Empty;
+        var profilePhotoPath = await serviceFacade.TelegramService.DownloadFileAsync("user-profile-photo/", fileId: profilePhotoId, $"{request.UserId}.jpg");
+
         var userActivity = await dataFacade.ChatSetting.SaveUserActivity(new BotUserDto() {
             User = request.User,
             FirstName = request.FirstName,
             LastName = request.LastName,
             LanguageCode = request.UserLanguageCode,
+            ProfilePhotoId = profilePhotoId,
             Username = request.Username,
             UserId = request.UserId,
             TransactionId = request.TransactionId

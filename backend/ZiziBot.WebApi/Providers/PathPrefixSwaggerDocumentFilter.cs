@@ -9,12 +9,10 @@ public class PathPrefixSwaggerDocumentFilter(string prefix) : IDocumentFilter
 	{
 		var paths = swaggerDoc.Paths.Keys.ToList();
 
-		paths.ForEach(
-			path => {
-				var pathToChange = swaggerDoc.Paths[path];
-				swaggerDoc.Paths.Remove(path);
-				swaggerDoc.Paths.Add(prefix + path, pathToChange);
-			}
-		);
-	}
+        paths.ForEach(path => {
+            var pathToChange = swaggerDoc.Paths[path];
+            swaggerDoc.Paths.Remove(path);
+            swaggerDoc.Paths.Add(prefix + path, pathToChange);
+        });
+    }
 }

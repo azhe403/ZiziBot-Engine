@@ -23,7 +23,8 @@ public static class TelegramUtil
 
     public static string? GetMessageLink(this Message? message)
     {
-        if (message is null) return default;
+        if (message is null)
+            return null;
 
         return message.Chat.Username is not null
             ? "https://t.me/" + message.Chat.Username + "/" + message.MessageId

@@ -17,7 +17,7 @@ public class GetAboutHandler(
         var htmlMessage = HtmlMessage.Empty;
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var me = await serviceFacade.TelegramService.Bot.GetMeAsync(cancellationToken);
+        var me = await serviceFacade.TelegramService.Bot.GetMe(cancellationToken);
         var botFullMention = me.GetFullMention();
 
         var config = await dataFacade.AppSetting.GetConfigSectionAsync<EngineConfig>();

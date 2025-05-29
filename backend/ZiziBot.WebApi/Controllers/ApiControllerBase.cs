@@ -21,6 +21,16 @@ public class ApiControllerBase : ControllerBase
         return SwitchStatus(result);
     }
 
+    protected async Task<IActionResult> SendRequest<T>(Func<Task<ApiResponseBase<T>>> request)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var response = await request();
+        response.ExecutionTime = stopwatch.Elapsed;
+        stopwatch.Stop();
+
+        return SwitchStatus(response);
+    }
+
     protected IActionResult SwitchStatus<T>(ApiResponseBase<T> responseBase)
     {
         responseBase.TransactionId = HttpContext.GetTransactionId();

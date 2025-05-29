@@ -82,6 +82,9 @@ public static class Flag
     public const string REST_USER_TELEGRAM_SESSION_CREATE = "REST_USER_TELEGRAM_SESSION_CREATE";
 
     [DefaultValue(true)]
+    public const string REST_USER_SESSION_OTP_POST = "REST_USER_SESSION_OTP_POST";
+
+    [DefaultValue(true)]
     public const string REST_USER_GROUP_LIST = "REST_USER_GROUP_LIST";
 
     [DefaultValue(true)]

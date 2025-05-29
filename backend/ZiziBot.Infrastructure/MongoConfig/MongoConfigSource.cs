@@ -39,7 +39,8 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                     { "Website", "https://azhe.my.id" },
                     { "Support", "https://t.me/TeknoLuguDev" },
                     { "EnableChatRestriction", false },
-                    { "TelegramEngineMode", "Auto" }
+                    { "TelegramEngineMode", "Auto" },
+                    { "ExecutionStrategy", "Await" }
                 }
             },
             new() {

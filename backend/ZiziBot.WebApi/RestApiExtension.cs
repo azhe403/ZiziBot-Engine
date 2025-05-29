@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using ZiziBot.Contracts.Converters.SystemTextJson;
 
 namespace ZiziBot.WebApi;
 
@@ -39,21 +40,25 @@ public static class RestApiExtension
                     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
                 }
             )
-            .AddJsonOptions(options =>
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+            .AddJsonOptions(options => {
+                options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            })
             .ConfigureApiBehaviorOptions(options => {
                 options.InvalidModelStateResponseFactory = context => {
                     var transactionId = context.HttpContext.GetTransactionId();
 
                     var errorDetails = context.ModelState
                         .Where(entry => entry.Value?.ValidationState == ModelValidationState.Invalid)
+                        .Where(x => x.Key != "request")
                         .Select(key => new {
                             Id = key.Key,
                             Field = key.Key.Split('.').Last(),
                             Message = key.Value?.Errors.Select(e => e.ErrorMessage)
                         }).ToList();
 
-                    var errors = errorDetails.SelectMany(x => x.Message ?? Array.Empty<string>()).ToList();
+                    var errors = errorDetails.SelectMany(x => x.Message ?? []).ToList();
 
                     return new BadRequestObjectResult(new ApiResponseBase<object>() {
                         StatusCode = HttpStatusCode.BadRequest,
@@ -104,7 +109,7 @@ public static class RestApiExtension
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options => {
-                // options.DocumentFilter<PathPrefixSwaggerDocumentFilter>("/api");
+                options.DocumentFilter<HidePathDocumentFilter>();
                 options.SchemaFilter<SwaggerIgnoreFilter>();
             }
         );
@@ -149,7 +154,7 @@ public static class RestApiExtension
 
         app.UseStaticFiles();
         app.MapControllers();
-        app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
+        // app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
 
         app.UseRouting();
         app.UseCors(ALLOW_ANY_ORIGIN_POLICY);
