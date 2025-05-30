@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ZiziBot.Contracts.Dtos.Entity;
 using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
@@ -8,28 +9,36 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
 {
     public TelegramSinkConfigDto GetTelegramSinkConfig()
     {
-        var chatId = mongoEfContext.AppSettings.Select(x => new { x.Name, x.Value }).FirstOrDefault(entity => entity.Name == "EventLog:ChatId")?.Value;
-        var threadId = mongoEfContext.AppSettings.Select(x => new { x.Name, x.Value }).FirstOrDefault(entity => entity.Name == "EventLog:ThreadId")?.Value;
         var botToken = mongoEfContext.BotSettings.Select(x => new { x.Name, x.Token }).FirstOrDefault(entity => entity.Name == "Main");
 
         var eventLogConfig = GetConfigSection<EventLogConfig>();
 
         return new TelegramSinkConfigDto() {
             BotToken = botToken?.Token,
-            ChatId = chatId.Convert<long>(),
-            ThreadId = eventLogConfig?.EventLog
+            ChatId = eventLogConfig?.ChatId,
+            ThreadId = eventLogConfig?.ThreadId
         };
     }
 
+    public T GetRequiredConfigSection<T>() where T : new()
+    {
+        var config = GetConfigSection<T>();
+
+        return config ?? throw new InvalidOperationException("Config section not found");
+    }
+
+    public async Task<T> GetRequiredConfigSectionAsync<T>() where T : new()
+    {
+        var config = await GetConfigSectionAsync<T>();
+
+        return config ?? throw new InvalidOperationException("Config section not found");
+    }
 
     public async Task<T?> GetConfigSectionAsync<T>() where T : new()
     {
         var rootConfig = typeof(T).Name.Replace("Config", "");
 
-        var appSettings = await mongoEfContext.AppSettings.AsNoTracking()
-            .Where(entity => entity.Root == rootConfig)
-            .Select(x => new { x.Name, x.Value })
-            .ToListAsync();
+        var appSettings = await GetConfigSectionInternalAsync(rootConfig);
 
         var data = appSettings
             .DistinctBy(d => d.Name)
@@ -42,10 +51,7 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
     {
         var rootConfig = typeof(T).Name.Replace("Config", "");
 
-        var appSettings = mongoEfContext.AppSettings.AsNoTracking()
-            .Where(entity => entity.Root == rootConfig)
-            .Select(x => new { x.Name, x.Value })
-            .ToList();
+        var appSettings = GetConfigSectionInternal(rootConfig);
 
         var data = appSettings
             .DistinctBy(d => d.Name)
@@ -54,11 +60,23 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
         return data;
     }
 
-    public T GetRequiredConfigSection<T>() where T : new()
+    private List<AppSettingsEntity> GetConfigSectionInternal(string rootConfig)
     {
-        return GetConfigSection<T>() ?? new T();
+        var appSettings = mongoEfContext.AppSettings.AsNoTracking()
+            .Where(entity => entity.Root == rootConfig)
+            .ToList();
+
+        return appSettings;
     }
 
+    private async Task<List<AppSettingsEntity>> GetConfigSectionInternalAsync(string rootConfig)
+    {
+        var appSettings = await mongoEfContext.AppSettings.AsNoTracking()
+            .Where(entity => entity.Root == rootConfig)
+            .ToListAsync();
+
+        return appSettings;
+    }
 
     public async Task UpdateAppSetting(string name, string value)
     {
@@ -94,13 +112,13 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
 
     public async Task<List<BotSettingDto>> ListBots()
     {
-        var listBotData = mongoEfContext.BotSettings
+        var listBotData = await mongoEfContext.BotSettings
             .Where(settings => settings.Status == EventStatus.Complete)
             .Select(x => new BotSettingDto {
                 Name = x.Name,
                 Token = x.Token
             })
-            .ToList();
+            .ToListAsync();
 
         return listBotData;
     }
