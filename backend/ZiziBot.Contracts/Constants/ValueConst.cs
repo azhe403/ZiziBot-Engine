@@ -16,11 +16,12 @@ public static class ValueConst
 
     public readonly static char[] WordSeparator = [' ', '\n', ':', ';', ','];
 
-    public static string UNIQUE_KEY = "";
+    public static string UniqueKey { get; set; } = "";
 
     public const string NEW_MEMBER_DEFAULT_WELCOME_MESSAGE = "Hai {users}" +
                                                              "\nSelamat datang di Kontrakan <b>{ChatTitle}</b>";
 
+    public const int CENDOL_PRICE = 5000;
     public readonly static long[] SAFE_IDS = [
         777000
     ];

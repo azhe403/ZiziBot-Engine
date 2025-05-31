@@ -65,7 +65,7 @@ public static class TelegramExtension
 
         var bot = new TelegramBotClient(validBot.First(x => x.Name == "Main").Token);
         var me = await bot.GetMe();
-        ValueConst.UNIQUE_KEY = me.GetFullName().Replace(" ", "_").ToLower() ?? string.Empty;
+        ValueConst.UniqueKey = me.GetFullName().Replace(" ", "_").ToLower() ?? string.Empty;
 
         return app;
     }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Application.UseCases.Mirror;
 using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
@@ -15,7 +16,8 @@ public class SubmitPaymentBotRequest : BotRequestBase
 public class SubmitPaymentBotRequestHandler(
     ILogger<SubmitPaymentBotRequestHandler> logger,
     DataFacade dataFacade,
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    DonationSettlementUseCase donationSettlementUseCase
 )
     : IBotRequestHandler<SubmitPaymentBotRequest>
 {
@@ -59,26 +61,17 @@ public class SubmitPaymentBotRequestHandler(
         }
 
         await serviceFacade.TelegramService.SendMessageText("Sedang memverifikasi pembayaran. Silakan tunggu...");
-        var trakteerParsedDto = await serviceFacade.MirrorPaymentService.GetTrakteerApi(guidOrderId);
+
+        var trakteerParsedDto = await donationSettlementUseCase.Handle(new DonationSettlementRequest() {
+            OrderId = guidOrderId
+        });
 
         var orderId = trakteerParsedDto.OrderId;
         var orderDate = trakteerParsedDto.OrderDate;
         var cendolCount = trakteerParsedDto.CendolCount;
-        var total = trakteerParsedDto.Total;
+        var total = trakteerParsedDto.Subtotal;
         var paymentUrl = trakteerParsedDto.PaymentUrl;
-        var donationSource = "Trakteer";
-
-        if (!trakteerParsedDto.IsValid)
-        {
-            var saweriaParsedDto = await serviceFacade.MirrorPaymentService.GetSaweriaApi(guidOrderId);
-
-            orderId = saweriaParsedDto.OrderId;
-            orderDate = saweriaParsedDto.OrderDate;
-            cendolCount = saweriaParsedDto.CendolCount;
-            total = saweriaParsedDto.Total;
-            paymentUrl = saweriaParsedDto.PaymentUrl;
-            donationSource = "Saweria";
-        }
+        var donationSource = trakteerParsedDto.Source.ToString();
 
         if (orderId == null)
         {
@@ -144,12 +137,11 @@ public class SubmitPaymentBotRequestHandler(
         }
         else
         {
-            logger.LogInformation("Extending Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
+            expireDate = mirrorUser.ExpireDate < DateTime.Now
+                ? expireDate // If expired, will be started from now
+                : mirrorUser.ExpireDate.AddMonths(cendolCount); // If not expired, will be extended from expire date
 
-            expireDate = mirrorUser.ExpireDate < DateTime.Now ?
-                expireDate // If expired, will be started from now
-                :
-                mirrorUser.ExpireDate.AddMonths(cendolCount); // If not expired, will be extended from expire date
+            logger.LogInformation("Set Mirror subscription for user {UserId} with Expire date: {Date}", userId, expireDate);
 
             mirrorUser.ExpireDate = expireDate;
             mirrorUser.Status = EventStatus.Complete;
