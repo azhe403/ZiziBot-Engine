@@ -9,7 +9,12 @@ public struct DonationSettlementRequest
 }
 
 public class DonationSettlementValidator : AbstractValidator<DonationSettlementRequest>
-{ }
+{
+    public DonationSettlementValidator()
+    {
+        RuleFor(x => x.OrderId).NotEmpty();
+    }
+}
 
 public class DonationSettlementResponse
 {
