@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Flurl;
 using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.UseCases.Mirror;
@@ -32,20 +33,27 @@ public class DonationSettlementResponse
     public string? RawText { get; set; }
 }
 
-public class DonationSettlementUseCase(ILogger<DonationSettlementUseCase> logger, DonationSettlementValidator validator, MirrorPaymentService mirrorPaymentService)
+public class DonationSettlementUseCase(
+    ILogger<DonationSettlementUseCase> logger,
+    DonationSettlementValidator validator,
+    MirrorPaymentService mirrorPaymentService,
+    MirrorUserRepository mirrorUserRepository
+)
 {
     public async Task<DonationSettlementResponse> Handle(DonationSettlementRequest request)
     {
         logger.LogInformation("Reading information for OrderId: {OrderId}", request.OrderId);
 
         using var cts = new CancellationTokenSource();
+
+        var donationFromDbTask = GetDonationFromDb(request.OrderId);
         var trakteerApiTask = mirrorPaymentService.GetTrakteerApi(request.OrderId, cts.Token);
         var trakteerWebTask = mirrorPaymentService.ParseTrakteerWeb(request.OrderId, cts.Token);
 
         var saweriaApiTask = mirrorPaymentService.GetSaweriaApi(request.OrderId, cts.Token);
         var saweriaWebTask = mirrorPaymentService.ParseSaweriaWeb(request.OrderId, cts.Token);
 
-        var parsedDonationTask = await Task.WhenAny(trakteerApiTask, trakteerWebTask, saweriaApiTask, saweriaWebTask);
+        var parsedDonationTask = await Task.WhenAny(donationFromDbTask, trakteerApiTask, trakteerWebTask, saweriaApiTask, saweriaWebTask);
         var parsedDonationDto = await parsedDonationTask;
 
         logger.LogDebug("OrderId: {OrderId} from Source: {Source} is Valid: {IsValid}", request.OrderId, parsedDonationDto.Source, parsedDonationDto.IsValid);
@@ -66,5 +74,31 @@ public class DonationSettlementUseCase(ILogger<DonationSettlementUseCase> logger
         };
 
         return donationSettlement;
+    }
+
+    private async Task<ParsedDonationDto> GetDonationFromDb(string orderId)
+    {
+        var o = new ParsedDonationDto();
+        var data = await mirrorUserRepository.GetDonation(orderId);
+
+        if (data == null)
+        {
+            await Task.Delay(30000); // buffer 30 seconds
+            return o;
+        }
+
+        o.Method = ParseMethod.WebHookTrakteer;
+        o.IsValid = true;
+        o.Source = DonationSource.Trakteer;
+        o.OrderId = data.OrderId;
+        o.PaymentUrl = ValueConst.TRAKTEER_PAYMENT.AppendPathSegment(data.OrderId);
+        o.OrderDate = data.OrderDate;
+        o.PaymentMethod = string.Empty;
+        o.Cendols = data.Quantity.ToString();
+        o.AdminFees = data.Price - data.NetAmount;
+        o.Subtotal = data.Price;
+        o.RawText = null;
+
+        return o;
     }
 }
