@@ -47,7 +47,7 @@ public static class CacheTowerExtension
             cacheConfig.RedisConnection,
             new(
                 CurrentSerializer,
-                PrefixRoot: ValueConst.UNIQUE_KEY
+                PrefixRoot: ValueConst.UniqueKey
             )
         ));
 

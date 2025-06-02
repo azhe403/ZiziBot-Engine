@@ -4,6 +4,7 @@ namespace ZiziBot.Contracts.Dtos;
 
 public class ParsedDonationDto
 {
+    public ParseMethod Method { get; set; }
     public bool IsValid { get; set; }
     public DonationSource Source { get; set; }
     public string? OrderId { get; set; }
@@ -15,6 +16,15 @@ public class ParsedDonationDto
     public int AdminFees { get; set; }
     public int Subtotal { get; set; }
     public string? RawText { get; set; }
+}
+
+public enum ParseMethod
+{
+    Unknown,
+    InternalTrakteer,
+    TrakteerApi,
+    InternalSaweria,
+    SaweriaApi,
 }
 
 public class TrakteerApiDto

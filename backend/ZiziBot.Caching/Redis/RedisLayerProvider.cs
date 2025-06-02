@@ -12,7 +12,7 @@ internal class RedisLayerProvider(
     private string ConnectionString { get; set; } = connectionString;
     private ConnectionMultiplexer Connection { get; set; }
     private IDatabaseAsync Database { get; set; }
-    private static string PrefixRoot => ValueConst.UNIQUE_KEY;
+    private static string PrefixRoot => ValueConst.UniqueKey;
 
     public ValueTask CleanupAsync()
     {

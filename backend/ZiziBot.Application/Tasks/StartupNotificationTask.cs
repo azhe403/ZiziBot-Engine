@@ -10,16 +10,17 @@ public class StartupNotificationTask(AppSettingRepository appSettingRepository) 
     public async Task ExecuteAsync()
     {
         var config = await appSettingRepository.GetBotMain();
-        var eventConfig = await appSettingRepository.GetConfigSectionAsync<EventLogConfig>();
-
-        if (eventConfig == null)
-            return;
+        var eventConfig = await appSettingRepository.GetRequiredConfigSectionAsync<EventLogConfig>();
+        var engineConfig = await appSettingRepository.GetRequiredConfigSectionAsync<EngineConfig>();
 
         var bot = new TelegramBotClient(config.Token);
 
         var message = HtmlMessage.Empty
             .Bold("Startup Notification").Br()
-            .Bold("Date: ").Code(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss zz"));
+            .Bold("Date: ").Code(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss zz")).Br()
+            .Bold("ExecutionStrategy: ").Code(engineConfig.ExecutionStrategy.ToString()).Br()
+            .Bold("EngineMode: ").Code(engineConfig.TelegramEngineMode.ToString()).Br()
+            .Text("#task #startup");
 
         await bot.SendMessage(eventConfig.ChatId, message.ToString(), parseMode: ParseMode.Html);
     }

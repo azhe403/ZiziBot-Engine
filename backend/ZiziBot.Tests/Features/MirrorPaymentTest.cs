@@ -58,7 +58,7 @@ public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentSer
             trakteerApi.OrderId.ShouldNotBeNullOrEmpty();
             trakteerApi.CendolCount.ShouldBeGreaterThan(0);
             trakteerApi.AdminFees.ShouldBeGreaterThan(0);
-            trakteerApi.Total.ShouldBeGreaterThan(0);
+            trakteerApi.Subtotal.ShouldBeGreaterThan(0);
             trakteerApi.OrderDate.ShouldBeGreaterThan(default);
             trakteerApi.PaymentMethod.ShouldNotBeNullOrEmpty();
         }
@@ -75,7 +75,7 @@ public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentSer
         {
             saweriaApi.OrderId.ShouldNotBeNullOrEmpty();
             saweriaApi.CendolCount.ShouldBeGreaterThan(0);
-            saweriaApi.Total.ShouldBeGreaterThan(0);
+            saweriaApi.Subtotal.ShouldBeGreaterThan(0);
             saweriaApi.OrderDate.ShouldBeGreaterThan(default);
         }
     }

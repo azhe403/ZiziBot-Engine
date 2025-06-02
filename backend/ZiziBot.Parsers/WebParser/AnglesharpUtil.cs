@@ -7,7 +7,7 @@ namespace ZiziBot.Parsers.WebParser;
 
 public static class AnglesharpUtil
 {
-    public static async Task<IDocument?> OpenUrl(this string url, ClearanceHandler? clearanceHandler = null)
+    public static async Task<IDocument?> OpenUrl(this string url, ClearanceHandler? clearanceHandler = null, CancellationToken cancellationToken = default)
     {
         var httpClient = new HttpClient();
         if (clearanceHandler != null)
@@ -24,7 +24,7 @@ public static class AnglesharpUtil
             .WithDefaultLoader();
 
         var context = BrowsingContext.New(config);
-        var document = await context.OpenAsync(url);
+        var document = await context.OpenAsync(url, cancellation: cancellationToken);
 
         return document;
     }

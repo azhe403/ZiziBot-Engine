@@ -26,7 +26,6 @@ public class UpsertBotUserHandler<TRequest, TResponse>(
 
         var userProfilePhotos = await serviceFacade.TelegramService.Bot.GetUserProfilePhotos(request.UserId, cancellationToken: cancellationToken);
         var profilePhotoId = userProfilePhotos.Photos.FirstOrDefault()?.OrderByDescending(size => size.FileSize).FirstOrDefault()?.FileId ?? string.Empty;
-        var profilePhotoPath = await serviceFacade.TelegramService.DownloadFileAsync("user-profile-photo/", fileId: profilePhotoId, $"{request.UserId}.jpg");
 
         var userActivity = await dataFacade.ChatSetting.SaveUserActivity(new BotUserDto() {
             User = request.User,
