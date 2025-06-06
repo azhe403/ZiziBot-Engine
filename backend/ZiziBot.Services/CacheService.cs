@@ -11,9 +11,9 @@ public class CacheService(
 )
     : ICacheService
 {
-    readonly CacheConfig _cacheConfig = cacheConfig.Value;
-    string _expireAfter = "24h";
-    string _staleAfter = "15s";
+    private readonly CacheConfig _cacheConfig = cacheConfig.Value;
+    private string _expireAfter = "24h";
+    private string _staleAfter = "15s";
 
     public async Task<T> GetOrSetAsync<T>(
         string cacheKey,
@@ -37,10 +37,11 @@ public class CacheService(
         var expireAfterSpan = _expireAfter.ToTimeSpan();
         var staleAfterSpan = _staleAfter.ToTimeSpan();
 
+        cacheKey = cacheKey.ForCacheKey();
+
         try
         {
-            logger.LogDebug("Loading Cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}",
-                cacheKey, staleAfterSpan, expireAfterSpan);
+            logger.LogDebug("Loading Cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
 
             var cacheSettings = new CacheSettings(expireAfterSpan, staleAfterSpan);
 
@@ -48,8 +49,7 @@ public class CacheService(
                 cacheKey: cacheKey.Trim(),
                 valueFactory: async (_) => {
                     logger.LogDebug(
-                        "Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}",
-                        cacheKey, staleAfterSpan, expireAfterSpan);
+                        "Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
 
                     return await action();
                 },
