@@ -125,6 +125,9 @@ public static class StringUtil
             .Replace("https://", "")
             .Replace("http://", "")
             .Replace(".", "-")
+            .Replace("?", "_")
+            .Replace("=", "_")
+            .HtmlDecode()
             .RegexReplaceEval(@"(%20|\s)+", "_")
             .TrimEnd('_');
 
@@ -146,6 +149,7 @@ public static class StringUtil
 
         int valueLength = value.Length;
         int startIndex = 0;
+
         while (source.IndexOf(value, startIndex, comparisonType) == startIndex)
         {
             startIndex += valueLength;
@@ -165,6 +169,7 @@ public static class StringUtil
         int sourceLength = source.Length;
         int valueLength = value.Length;
         int count = sourceLength;
+
         while (source.LastIndexOf(value, count, comparisonType) == count - valueLength)
         {
             count -= valueLength;

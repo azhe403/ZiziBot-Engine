@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using Humanizer;
 
 namespace ZiziBot.Types.Vendor.FathimahApi.v2;
 
@@ -37,10 +36,10 @@ public class CityData
     public Jadwal Jadwal { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    public Dictionary<string, string>? ShalatDict => Jadwal
-        .ToDictionary(letterCasing: LetterCasing.Title)
+    public Dictionary<string,string> ShalatDict => Jadwal
+        .ToDictionary(StringType.TitleCase)
         .Where(pair => pair.Key != "Tanggal" & pair.Key != "Date")
-        .ToDictionary(pair => pair.Key, pair => pair.Value);
+        .ToDictionary(pair => pair.Key,pair => pair.Value.ToString() ?? string.Empty);
 }
 
 public class Jadwal
