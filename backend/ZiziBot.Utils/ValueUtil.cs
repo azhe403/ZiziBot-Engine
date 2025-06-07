@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
 using Humanizer;
+using ZiziBot.Contracts.Enums;
 
 namespace ZiziBot.Utils;
 
@@ -10,10 +11,12 @@ public static class ValueUtil
     public static T Convert<T>(this object? input, T defaultVal)
     {
         var converter = TypeDescriptor.GetConverter(typeof(T));
+
         if (converter != null)
         {
             return (T)converter.ConvertFromString(input.ToString());
         }
+
         return defaultVal;
     }
 
@@ -44,9 +47,9 @@ public static class ValueUtil
         }
     }
 
-    public static Dictionary<string, string> ToDictionary(this object? values, LetterCasing letterCasing = LetterCasing.LowerCase)
+    public static Dictionary<string, object> ToDictionary(this object? values, StringType stringType = StringType.Original)
     {
-        var symbols = new Dictionary<string, string>();
+        var symbols = new Dictionary<string, object>();
 
         if (values != null)
         {
@@ -55,7 +58,16 @@ public static class ValueUtil
             foreach (var property in properties)
             {
                 var value = property.GetValue(values, null) ?? string.Empty;
-                symbols.Add(property.Name.Underscore().Humanize(letterCasing), value.ToString() ?? string.Empty);
+                var propertyName = property.Name;
+                propertyName = stringType switch {
+                    StringType.Original => propertyName,
+                    StringType.SnakeCase => propertyName.Underscore().ToLower(),
+                    StringType.PascalCase => propertyName.Pascalize(),
+                    StringType.TitleCase => propertyName.Titleize(),
+                    _ => propertyName
+                };
+
+                symbols.Add(propertyName, value.ToString() ?? string.Empty);
             }
         }
 

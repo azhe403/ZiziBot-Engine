@@ -1,6 +1,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using ZiziBot.DataSource.MongoEf.Entities;
 using ZiziBot.DataSource.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Note;
@@ -26,6 +28,7 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
 {
     public SaveNoteValidator()
     {
+        RuleFor(x => x.Model.Id).Must(x => ObjectId.TryParse(x,out _)).When(x => !string.IsNullOrWhiteSpace(x.Model.Id)).WithMessage("Id is invalid");
         RuleFor(x => x.Model.ChatId).NotEqual(0).WithMessage("ChatId is required");
         RuleFor(x => x.Model.Query).NotNull().WithMessage("Slug is required");
     }
@@ -46,7 +49,7 @@ public class CreateNoteHandler(
             return response.BadRequest("You don't have permission to create note for this Chat");
         }
 
-        var save = await dataFacade.ChatSetting.Save(new() {
+        var save = await dataFacade.ChatSetting.Save(new NoteEntity {
             Id = request.Model.Id.ToObjectId(),
             ChatId = request.Model.ChatId,
             Query = request.Model.Query,

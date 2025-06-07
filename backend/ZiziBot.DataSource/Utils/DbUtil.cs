@@ -19,6 +19,8 @@ public static class DbUtil
 
     public static ObjectId ToObjectId(this string? input)
     {
+        if (input == null) return ObjectId.Empty;
+
         return ObjectId.Parse(input);
     }
 

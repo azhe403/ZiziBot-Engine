@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace ZiziBot.Types.Vendor.FathimahApi.v1;
 
@@ -24,10 +23,10 @@ public class Schedule
     public Shalat Shalat { get; set; }
 
     [JsonIgnore]
-    public Dictionary<string, string> ShalatDict => Shalat
-        .ToDictionary(letterCasing: LetterCasing.Title)
+    public Dictionary<string,string> ShalatDict => Shalat
+        .ToDictionary(StringType.TitleCase)
         .Where(pair => pair.Key != "Tanggal")
-        .ToDictionary(pair => pair.Key, pair => pair.Value);
+        .ToDictionary(pair => pair.Key,pair => pair.Value.ToString() ?? string.Empty);
 }
 
 public class Shalat

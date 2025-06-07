@@ -6,7 +6,7 @@ namespace ZiziBot.Infrastructure.MongoConfig;
 
 public class MongoConfigSource(string connectionString) : IConfigurationSource
 {
-    readonly MongoEfContext _dbContext = new();
+    private readonly MongoEfContext _dbContext = new();
 
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
@@ -114,6 +114,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                     { "UseCustomSaweriaApi", false },
                     { "PaymentExpirationDays", 3 },
                     { "Dummystreamer", "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+                    { "TrakteerWebHookToken", "YOUR_WEBHOOK_TOKEN" },
                 }
             },
             new() {

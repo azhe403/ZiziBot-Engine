@@ -85,8 +85,7 @@ public class SubmitPaymentBotRequestHandler(
 
         if (orderDate <= DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).AddDays(-mirrorConfig!.PaymentExpirationDays))
         {
-            return await serviceFacade.TelegramService.EditMessageText(
-                "Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
+            return await serviceFacade.TelegramService.EditMessageText("Bukti pembayaran sudah kadaluarsa. Silakan lakukan pembayaran ulang.");
         }
 
         var mirrorApproval = await dataFacade.MongoEf.MirrorApproval

@@ -41,7 +41,7 @@ public class GetShalatTimeHandler(
 
                 var shalatTime = await serviceFacade.FathimahApiService.GetShalatTime(city.CityId, true);
                 shalatTime.Schedule?.ShalatDict?.ForEach(shalat => {
-                    htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value).Br();
+                    htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value.ToString()).Br();
                 });
 
                 htmlMessage.Br();

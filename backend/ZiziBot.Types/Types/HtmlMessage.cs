@@ -29,7 +29,7 @@ public class HtmlMessage
     public HtmlMessage User(long id, string text) => Url($"tg://user?id={id}", text);
     public HtmlMessage User(User? user) => user == null ? this : User(user.Id, user.GetFullName());
 
-    public HtmlMessage Text(string text, bool encoded = false)
+    public HtmlMessage Text(string? text, bool encoded = false)
     {
         _stringBuilder.Append(encoded ? WebUtility.HtmlEncode(text) : text);
 

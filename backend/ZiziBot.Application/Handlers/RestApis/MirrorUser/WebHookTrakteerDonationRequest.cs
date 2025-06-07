@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
@@ -9,7 +11,7 @@ public class WebHookTrakteerDonationRequest : ApiPostRequestBase<WebHookTrakteer
 public class WebHookTrakteerDonationRequestBody
 {
     [JsonPropertyName("created_at")]
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     [JsonPropertyName("transaction_id")]
     public string TransactionId { get; set; }
@@ -33,13 +35,13 @@ public class WebHookTrakteerDonationRequestBody
     public string UnitIcon { get; set; }
 
     [JsonPropertyName("quantity")]
-    public long Quantity { get; set; }
+    public int Quantity { get; set; }
 
     [JsonPropertyName("price")]
-    public long Price { get; set; }
+    public int Price { get; set; }
 
     [JsonPropertyName("net_amount")]
-    public long NetAmount { get; set; }
+    public int NetAmount { get; set; }
 }
 
 public class WebHookTrakteerDonationRequestValidator : AbstractValidator<WebHookTrakteerDonationRequestBody>
@@ -48,12 +50,41 @@ public class WebHookTrakteerDonationRequestValidator : AbstractValidator<WebHook
 public class WebHookTrakteerDonationResponse
 { }
 
-public class WebHookTrakteerDonationHandler : IApiRequestHandler<WebHookTrakteerDonationRequest, WebHookTrakteerDonationResponse>
+public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequestHandler<WebHookTrakteerDonationRequest, WebHookTrakteerDonationResponse>
 {
-    ApiResponseBase<WebHookTrakteerDonationResponse> response = new();
+    private readonly ApiResponseBase<WebHookTrakteerDonationResponse> response = new();
 
     public async Task<ApiResponseBase<WebHookTrakteerDonationResponse>> Handle(WebHookTrakteerDonationRequest request, CancellationToken cancellationToken)
     {
+        var mirrorDonation = await dataFacade.MongoEf.MirrorDonation
+            .Where(x => x.OrderId == request.Body.TransactionId)
+            .Where(x => x.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (mirrorDonation != null)
+        {
+            return response.BadRequest("Donasi Mirror sudah diproses");
+        }
+
+        dataFacade.MongoEf.MirrorDonation.Add(new MirrorDonationEntity {
+            Status = EventStatus.Complete,
+            TransactionId = request.TransactionId,
+            OrderId = request.Body.TransactionId,
+            OrderDate = request.Body.CreatedAt,
+            Type = request.Body.Type,
+            SupporteName = request.Body.SupporterName,
+            SupporterAvatar = request.Body.SupporterAvatar,
+            SupporterMessage = request.Body.SupporterMessage,
+            Unit = request.Body.Unit,
+            UnitIcon = request.Body.UnitIcon,
+            Quantity = request.Body.Quantity,
+            Price = request.Body.Price,
+            NetAmount = request.Body.NetAmount,
+            Source = DonationSource.Trakteer
+        });
+
+        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+
         return response.Success("Trakteer webhook berhasil diproses");
     }
 }
