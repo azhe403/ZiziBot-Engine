@@ -22,6 +22,8 @@ public static class ValueConst
                                                              "\nSelamat datang di Kontrakan <b>{ChatTitle}</b>";
 
     public const int CENDOL_PRICE = 5000;
+    public const string TRAKTEER_PAYMENT = "https://trakteer.id/payment-status";
+
     public readonly static long[] SAFE_IDS = [
         777000
     ];

@@ -48,7 +48,7 @@ public class CheckConsoleSessionHandler(
         LoginWidget loginWidget = new(botSetting.Token);
 
         var sessionData = request.Model.ToDictionary()
-            .Select(pair => new KeyValuePair<string, string>(pair.Key.Replace(" ", "_"), pair.Value))
+            .Select(pair => new KeyValuePair<string,string>(pair.Key.Replace(" ","_"),pair.Value.ToString() ?? string.Empty))
             .Where(pair => pair.Value.IsNotNullOrEmpty())
             .Where(pair => pair.Key != "session_id");
 

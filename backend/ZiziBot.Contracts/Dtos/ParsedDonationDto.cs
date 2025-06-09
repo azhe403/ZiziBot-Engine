@@ -25,6 +25,7 @@ public enum ParseMethod
     TrakteerApi,
     InternalSaweria,
     SaweriaApi,
+    WebHookTrakteer
 }
 
 public class TrakteerApiDto

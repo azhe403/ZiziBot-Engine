@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using NanoidDotNet;
+using Serilog;
 using ZiziBot.Contracts.Constants;
 
 namespace ZiziBot.Utils;
@@ -119,14 +120,20 @@ public static class StringUtil
         return hashHmac;
     }
 
-    public static string ForCacheKey(this string url)
+    public static string ForCacheKey(this string input)
     {
-        var key = url
+        var key = input
             .Replace("https://", "")
             .Replace("http://", "")
             .Replace(".", "-")
+            .Replace("?", "_")
+            .Replace("=", "_")
+            .HtmlDecode()
             .RegexReplaceEval(@"(%20|\s)+", "_")
-            .TrimEnd('_');
+            .TrimEnd('_')
+            .TrimEnd("/");
+
+        Log.Debug("Convert cache key from {Before} => {After}", input, key);
 
         return key;
     }
@@ -146,6 +153,7 @@ public static class StringUtil
 
         int valueLength = value.Length;
         int startIndex = 0;
+
         while (source.IndexOf(value, startIndex, comparisonType) == startIndex)
         {
             startIndex += valueLength;
@@ -165,6 +173,7 @@ public static class StringUtil
         int sourceLength = source.Length;
         int valueLength = value.Length;
         int count = sourceLength;
+
         while (source.LastIndexOf(value, count, comparisonType) == count - valueLength)
         {
             count -= valueLength;

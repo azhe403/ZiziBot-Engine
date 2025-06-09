@@ -1,18 +1,18 @@
 using System.ComponentModel;
 using Hangfire;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
 public class FetchRssUseCase(
     ILogger<FetchRssUseCase> logger,
     DataFacade dataFacade,
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    ReadRssUseCase readRssUseCase
 )
 {
     [DisplayName("{0}:{1} -> {2}")]
@@ -24,7 +24,7 @@ public class FetchRssUseCase(
 
         try
         {
-            var feed = await rssUrl.ReadRssAsync(throwIfError: true);
+            var feed = await readRssUseCase.Handle(rssUrl);
 
             foreach (var latestArticle in feed.Items.Take(3))
             {
@@ -38,39 +38,12 @@ public class FetchRssUseCase(
 
                 var botClient = new TelegramBotClient(botSettings.Token);
 
-                var htmlContent = await latestArticle.Content.HtmlForTelegram();
-
-                var messageText = HtmlMessage.Empty
-                    .Url(feed.Link, feed.Title.Trim()).Br()
-                    .Url(latestArticle.Link, latestArticle.Title.Trim()).Br();
-
-                if (!rssUrl.IsGithubCommitsUrl() &&
-                    await dataFacade.FeatureFlag.GetFlagValue(Flag.RSS_INCLUDE_CONTENT))
-                    messageText.Text(htmlContent.Truncate(2000));
-
-                if (rssUrl.IsGithubReleaseUrl())
-                {
-                    var assets = await rssUrl.GetGithubAssetLatest();
-
-                    if (assets?.Assets.NotEmpty() ?? false)
-                    {
-                        messageText.Br()
-                            .BoldBr("Assets");
-
-                        assets.Assets.ForEach(asset => {
-                            messageText.Url(asset.BrowserDownloadUrl, asset.Name).Br();
-                        });
-                    }
-                }
-
-                var truncatedMessageText = messageText.ToString();
-
                 try
                 {
                     await botClient.SendMessage(
                         chatId: chatId,
                         messageThreadId: threadId,
-                        text: truncatedMessageText,
+                        text: latestArticle.Content,
                         parseMode: ParseMode.Html,
                         linkPreviewOptions: true
                     );
@@ -82,21 +55,21 @@ public class FetchRssUseCase(
                         logger.LogWarning(exception, "Trying send RSS without thread to ChatId: {ChatId}", chatId);
                         await botClient.SendMessage(
                             chatId: chatId,
-                            text: truncatedMessageText,
+                            text: latestArticle.Content,
                             parseMode: ParseMode.Html,
                             linkPreviewOptions: true
                         );
                     }
                 }
 
-                dataFacade.MongoEf.RssHistory.Add(new() {
+                dataFacade.MongoEf.RssHistory.Add(new RssHistoryEntity {
                     ChatId = chatId,
                     ThreadId = threadId,
                     RssUrl = rssUrl,
                     Title = latestArticle.Title,
                     Url = latestArticle.Link,
                     Author = latestArticle.Author,
-                    PublishDate = latestArticle.PublishingDate.GetValueOrDefault(DateTime.Now),
+                    PublishDate = latestArticle.PublishDate,
                     Status = EventStatus.Complete
                 });
             }

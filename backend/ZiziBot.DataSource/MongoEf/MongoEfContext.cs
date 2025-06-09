@@ -50,6 +50,7 @@ public class MongoEfContext() : DbContext
     public DbSet<MirrorUserEntity> MirrorUser { get; set; }
     public DbSet<MirrorApprovalEntity> MirrorApproval { get; set; }
     public DbSet<MirrorActivityEntity> MirrorActivity { get; set; }
+    public DbSet<MirrorDonationEntity> MirrorDonation { get; set; }
 
     public DbSet<BangHasan_ShalatCityEntity> BangHasan_ShalatCity { get; set; }
 

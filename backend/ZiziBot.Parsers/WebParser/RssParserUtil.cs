@@ -76,12 +76,26 @@ public static class RssParserUtil
         return url.Contains("github.com") && url.Contains("commits");
     }
 
-    public static async Task<Release?> GetGithubAssetLatest(this string url)
+    public static bool IsGithubUrl(this string url)
+    {
+        return url.Contains("github.com");
+    }
+
+    public static async Task<Release?> GetGithubAssetLatest(this string url, string? token = null)
     {
         if (!url.IsGithubReleaseUrl())
-            return default;
+            return null;
 
-        var client = new GitHubClient(new ProductHeaderValue("ZiziBot"));
+        var random = StringUtil.GetNanoId();
+        var client = new GitHubClient(new ProductHeaderValue(random));
+
+        if (!string.IsNullOrEmpty(token))
+            client.Credentials = new Credentials(token);
+
+        var rateLimit = await client.RateLimit.GetRateLimits();
+
+        Log.Debug("GitHub RateLimit: {@RateLimit}", rateLimit.Rate);
+
         var repoGroup = url.Split("/")[3];
         var repoName = url.Split("/")[4];
 

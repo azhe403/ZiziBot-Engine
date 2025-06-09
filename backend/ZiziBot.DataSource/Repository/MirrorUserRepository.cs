@@ -32,4 +32,14 @@ public class MirrorUserRepository(
 
         return await mongoEfContext.SaveChangesAsync();
     }
+
+    public async Task<MirrorDonationEntity?> GetDonation(string orderId)
+    {
+        var mirrorDonationEntity = await mongoEfContext.MirrorDonation.AsNoTracking()
+            .Where(x => x.OrderId == orderId)
+            .Where(x => x.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync();
+
+        return mirrorDonationEntity;
+    }
 }

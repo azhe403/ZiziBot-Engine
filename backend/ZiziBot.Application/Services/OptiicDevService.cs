@@ -12,7 +12,7 @@ public class OptiicDevService(ILogger<OptiicDevService> logger, IOptionsSnapshot
     {
         logger.LogInformation("Scanning image {fileName}", fileName);
 
-        var apiKey = OptiicDevConfig.ApiKeys.RandomPick();
+        var apiKey = OptiicDevConfig.ApiKeys().RandomPick();
 
         var response = await UrlConst.OCR_URL_API.PostMultipartAsync(
             content => {

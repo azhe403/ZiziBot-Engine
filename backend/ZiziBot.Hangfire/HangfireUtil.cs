@@ -1,4 +1,5 @@
-﻿using Hangfire.Storage;
+using System.Linq.Expressions;
+using Hangfire.Storage;
 using Serilog;
 
 namespace ZiziBot.Hangfire;
@@ -27,5 +28,16 @@ public static class HangfireUtil
 
         Log.Information("Deleting RSS {Count} Jobs finish..", rssJobs.Count);
 
+    }
+
+    public static void RemoveRecurringJob(string jobId)
+    {
+        Log.Debug("Removing Recurring Job: {JobId}", jobId);
+        RecurringJob.RemoveIfExists(jobId);
+    }
+
+    public static void Enqueue<T>(Expression<Func<T, Task>> methodCall)
+    {
+        BackgroundJob.Enqueue<T>(methodCall);
     }
 }

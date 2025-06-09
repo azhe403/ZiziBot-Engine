@@ -8,6 +8,8 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Application.UseCases.Chat;
+using CreateChatActivityRequest = ZiziBot.Application.UseCases.Chat.CreateChatActivityRequest;
 using File = System.IO.File;
 
 namespace ZiziBot.Application.Services;
@@ -170,11 +172,11 @@ public class TelegramService(
         if (SentMessage == null)
             return Complete();
 
-        await mediator.Send(new CreateChatActivityRequest() {
+        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest() {
             ActivityType = ChatActivityType.BotSendMessage,
             SentMessage = SentMessage,
             TransactionId = _request.TransactionId
-        });
+        }));
 
         logger.LogInformation("Message sent to chat {ChatId}", targetChatId);
 
@@ -217,11 +219,11 @@ public class TelegramService(
 
         await Bot.EditMessageText(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
 
-        await mediator.Send(new CreateChatActivityRequest() {
+        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest() {
             ActivityType = ChatActivityType.BotEditMessage,
             SentMessage = SentMessage,
             TransactionId = _request.TransactionId
-        });
+        }));
 
         return Complete();
     }

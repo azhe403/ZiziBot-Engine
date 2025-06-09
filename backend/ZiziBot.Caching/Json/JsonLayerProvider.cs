@@ -32,13 +32,13 @@ public class JsonLayerProvider : ILocalCacheLayer
         var jsonFile = CacheToFile(cacheKey: cacheKey);
 
         if (!File.Exists(path: jsonFile))
-            return default;
+            return null;
 
         var json = await File.ReadAllTextAsync(path: jsonFile);
 
         var content = json.ToObject<JsonCacheEntry<T>>();
         if (content == null)
-            return default;
+            return null;
 
         return new(Value: content.CacheValue, Expiry: content.ExpireDate);
     }
@@ -67,7 +67,7 @@ public class JsonLayerProvider : ILocalCacheLayer
         return default;
     }
 
-    async Task CleanupCache(bool any = false)
+    private async Task CleanupCache(bool any = false)
     {
         await Task.Delay(1);
 
@@ -91,7 +91,7 @@ public class JsonLayerProvider : ILocalCacheLayer
         }
     }
 
-    string CacheToFile(string cacheKey)
+    private string CacheToFile(string cacheKey)
     {
         var jsonFile = Path.Combine(path1: DirPath, path2: cacheKey + ".json");
 
