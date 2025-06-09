@@ -122,4 +122,25 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
 
         return listBotData;
     }
+
+    public async Task<string> GetApiKeyAsync(ApiKeyCategory category, ApiKeyVendor name)
+    {
+        var apiKey = await mongoEfContext.ApiKey
+            .OrderBy(entity => entity.LastUsedDate)
+            .Where(entity => entity.Category == category)
+            .Where(entity => entity.Name == name)
+            .Where(entity => entity.Status == EventStatus.Complete)
+            .FirstOrDefaultAsync();
+
+        if (apiKey != null)
+        {
+            apiKey.LastUsedDate = DateTime.UtcNow;
+            apiKey.TransactionId = Guid.NewGuid().ToString();
+            await mongoEfContext.SaveChangesAsync();
+
+            return apiKey.ApiKey;
+        }
+
+        return string.Empty;
+    }
 }

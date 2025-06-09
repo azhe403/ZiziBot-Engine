@@ -15,14 +15,14 @@ public class GroupRepository(MongoEfContext mongoDbContext, ICacheService cacheS
             .FirstOrDefaultAsync();
 
         if (query == null)
-            return default;
+            return null;
 
         var listChatSetting = await mongoDbContext.ChatSetting
             .Where(entity => entity.ChatId == query.ChatId)
             .FirstOrDefaultAsync();
 
         if (listChatSetting == null)
-            return default;
+            return null;
 
         var data = new WelcomeMessageDto() {
             Id = query.Id.ToString(),
