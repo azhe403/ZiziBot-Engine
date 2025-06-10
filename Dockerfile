@@ -1,6 +1,6 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-ARG DOTNET_TAG=8.0-alpine
+ARG DOTNET_TAG=9.0-alpine
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_TAG} AS base
 WORKDIR /app

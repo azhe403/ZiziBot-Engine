@@ -20,6 +20,6 @@ public class MemberChangesTest(MediatorService mediatorService, IConfiguration c
             });
         }
 
-        Assert.True(true);
+        true.ShouldBeTrue();
     }
 }

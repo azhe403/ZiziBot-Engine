@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -12,7 +12,6 @@
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
     <PackageReference Include="morelinq" Version="4.4.0" />
     <PackageReference Include="Nanoid" Version="3.1.0"/>
-    <PackageReference Include="Serilog" Version="4.3.0"/>
     <PackageReference Include="TimeSpanParserUtil" Version="1.2.0"/>
   </ItemGroup>
 

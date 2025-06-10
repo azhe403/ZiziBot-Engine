@@ -10,10 +10,10 @@ public class CacheTowerTests(CacheService cacheService)
         var testData1 = "testData1";
 
         var cacheData1 = await cacheService.GetOrSetAsync(cacheKey: "test", action: () => Task.FromResult(testData1));
-        Assert.Equal(testData1, cacheData1);
+        testData1.ShouldBeEquivalentTo(cacheData1);
 
         var guidData = Guid.NewGuid();
         var cacheGuid = await cacheService.GetOrSetAsync(cacheKey: "test-guid", action: () => Task.FromResult(guidData));
-        Assert.Equal(guidData, cacheGuid);
+        guidData.ShouldBeEquivalentTo(cacheGuid);
     }
 }
