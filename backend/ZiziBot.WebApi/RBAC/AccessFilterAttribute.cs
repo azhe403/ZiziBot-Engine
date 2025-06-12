@@ -13,6 +13,7 @@ public class AccessFilterAttribute : TypeFilterAttribute
     ) : base(typeof(AccessFilterAuthorizationFilter))
     {
         Arguments = [
+            flag,
             apiRoleLevel,
             checkHeader,
             needAuthenticated

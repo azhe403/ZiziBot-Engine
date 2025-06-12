@@ -8,6 +8,7 @@ using ZiziBot.Application.Facades;
 namespace ZiziBot.WebApi.RBAC;
 
 public class AccessFilterAuthorizationFilter(
+    string flag,
     RoleLevel roleLevel,
     bool checkHeader,
     bool needAuthenticated,
@@ -24,13 +25,14 @@ public class AccessFilterAuthorizationFilter(
 
         var userId = context.HttpContext.Request.Headers.GetUserId();
         var bearerToken = context.HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
+        var items = context.HttpContext.Items;
 
         if (needAuthenticated)
         {
             if (string.IsNullOrWhiteSpace(bearerToken))
             {
                 context.Result = new UnauthorizedObjectResult(new ApiResponseBase<object>() {
-                    Message = "Session invalid, please login to continue"
+                    Message = "Access token not valid"
                 });
 
                 return;
@@ -52,6 +54,8 @@ public class AccessFilterAuthorizationFilter(
             }
         }
 
+        var roles = items[RequestKey.UserRole]?.ToString();
+
         switch (roleLevel)
         {
             case RoleLevel.ChatAdminOrPrivate:
@@ -67,6 +71,12 @@ public class AccessFilterAuthorizationFilter(
             case RoleLevel.ChatAdmin:
                 break;
             case RoleLevel.Sudo:
+                if (roles != nameof(RoleLevel.Sudo))
+                {
+                    response.StatusCode = HttpStatusCode.Forbidden;
+                    response.Message = "You are not authorized to access this resource.";
+                }
+
                 break;
         }
 
