@@ -40,7 +40,6 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
         var includeRssContent = await dataFacade.FeatureFlag.GetFlagValue(Flag.RSS_INCLUDE_CONTENT);
 
         var feed = await serviceFacade.CacheService.GetOrSetAsync("rss/" + rssUrl, async () => {
-            var githubApiKey = await dataFacade.AppSetting.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
             var feed = await rssUrl.ReadRssAsync(throwIfError: true);
 
             var readRssResponse = new ReadRssResponse() {
@@ -62,6 +61,8 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
 
                 if (isGithubReleaseUrl)
                 {
+                    var githubApiKey = await dataFacade.AppSetting.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
+
                     logger.LogDebug("Collecting GitHub assets for URL: {Url}", rssUrl);
                     var assets = await rssUrl.GetGithubAssetLatest(githubApiKey);
 
