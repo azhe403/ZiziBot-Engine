@@ -123,6 +123,13 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
         return listBotData;
     }
 
+    public async Task<string> GetRequiredApiKeyAsync(ApiKeyCategory category, ApiKeyVendor name)
+    {
+        var apiKey = await GetApiKeyAsync(category, name);
+
+        return apiKey ?? throw new InvalidOperationException("Api key not found");
+    }
+
     public async Task<string> GetApiKeyAsync(ApiKeyCategory category, ApiKeyVendor name)
     {
         var apiKey = await mongoEfContext.ApiKey
@@ -132,15 +139,13 @@ public class AppSettingRepository(MongoEfContext mongoEfContext)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
-        if (apiKey != null)
-        {
-            apiKey.LastUsedDate = DateTime.UtcNow;
-            apiKey.TransactionId = Guid.NewGuid().ToString();
-            await mongoEfContext.SaveChangesAsync();
+        if (apiKey == null)
+            return string.Empty;
 
-            return apiKey.ApiKey;
-        }
+        apiKey.LastUsedDate = DateTime.UtcNow;
+        apiKey.TransactionId = Guid.NewGuid().ToString();
+        await mongoEfContext.SaveChangesAsync();
 
-        return string.Empty;
+        return apiKey.ApiKey;
     }
 }

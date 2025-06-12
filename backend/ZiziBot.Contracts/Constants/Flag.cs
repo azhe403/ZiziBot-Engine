@@ -158,6 +158,9 @@ public static class Flag
 
     [DefaultValue(true)]
     public const string REST_PRODUCTIVITY_WEBHOOK = "REST_PRODUCTIVITY_WEBHOOK";
+
+    [DefaultValue(true)]
+    public const string REST_API_KEY_GET = "REST_API_KEY_GET";
     #endregion
     #endregion
 }
