@@ -86,21 +86,19 @@ public static class RssParserUtil
         if (!url.IsGithubReleaseUrl())
             return null;
 
-        var random = StringUtil.GetNanoId();
-        var client = new GitHubClient(new ProductHeaderValue(random));
+        Log.Debug("Collecting GitHub assets for URL: {Url}", url);
+        var client = new GitHubClient(new ProductHeaderValue("ZiziBot"));
 
-        if (!string.IsNullOrEmpty(token))
+        if (!string.IsNullOrWhiteSpace(token))
             client.Credentials = new Credentials(token);
-
-        var rateLimit = await client.RateLimit.GetRateLimits();
-
-        Log.Debug("GitHub RateLimit: {@RateLimit}", rateLimit.Rate);
 
         var repoGroup = url.Split("/")[3];
         var repoName = url.Split("/")[4];
 
-        var assets = await client.Repository.Release.GetLatest(repoGroup, repoName);
+        Log.Debug("Getting GitHub release assets for URL: {Url}", url);
+        var release = await client.Repository.Release.GetLatest(repoGroup, repoName);
 
-        return assets;
+        Log.Debug("Got Assets for URl: {Url} {Count} item(s)", url, release.Assets.Count);
+        return release;
     }
 }

@@ -20,7 +20,7 @@ public class GetListApiKeyResponse
     public int? Remaining { get; set; }
     public int? Limit { get; set; }
     public string? LimitUnit { get; set; }
-    public DateTime? ResetUsageDate { get; set; }
+    public DateTimeOffset ResetUsageDate { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
 }

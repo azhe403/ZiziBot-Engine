@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Telegram.Bot.Types;
 using ZiziBot.DataSource.MongoEf.Entities;
@@ -17,6 +18,7 @@ public class CreateChatActivityUseCase(
     ServiceFacade serviceFacade
 )
 {
+    [DisableConcurrentExecution(5)]
     public async Task<bool> Handle(CreateChatActivityRequest request)
     {
         dataFacade.MongoEf.ChatActivity.Add(new ChatActivityEntity {

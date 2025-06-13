@@ -26,4 +26,9 @@ public class DataFacade(
     public RssRepository Rss => rssRepository;
     public MirrorUserRepository MirrorUser => mirrorUserRepository;
     public WordFilterRepository WordFilter => wordFilterRepository;
+
+    public async Task<int> SaveChangesAsync()
+    {
+        return await MongoEf.SaveChangesAsync();
+    }
 }
