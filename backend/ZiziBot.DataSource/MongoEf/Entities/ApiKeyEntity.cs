@@ -13,6 +13,6 @@ public class ApiKeyEntity : EntityBase
     public int? Remaining { get; set; }
     public int? Limit { get; set; }
     public string? LimitUnit { get; set; }
-    public DateTimeOffset ResetUsageDate { get; set; }
+    public DateTimeOffset? ResetUsageDate { get; set; }
     public string? Note { get; set; }
 }
