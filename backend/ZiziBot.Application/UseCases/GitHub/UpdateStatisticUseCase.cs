@@ -10,7 +10,7 @@ public class UpdateStatisticUseCase(
     DataFacade dataFacade
 )
 {
-    [DisableConcurrentExecution(3)]
+    [MaximumConcurrentExecutions(3)]
     public async Task Handle(string? token)
     {
         logger.LogDebug("Updating GitHub token usage statistic");
@@ -34,7 +34,7 @@ public class UpdateStatisticUseCase(
         query.Remaining = limit.Rate.Remaining;
         query.Limit = limit.Rate.Limit;
         query.LimitUnit = "Hourly";
-        query.ResetUsageDate = limit.Rate.Reset;
+        query.ResetUsageDate = limit.Rate.Reset.UtcDateTime;
 
         await dataFacade.SaveChangesAsync();
     }
