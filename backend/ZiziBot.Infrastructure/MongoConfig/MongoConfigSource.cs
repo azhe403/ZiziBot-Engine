@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ZiziBot.DataSource.MongoEf;
+using ZiziBot.DataSource.MongoEf.Entities;
 using ZiziBot.TelegramBot.Framework.Models.Enums;
 using ExecutionStrategy = ZiziBot.TelegramBot.Framework.Models.Enums.ExecutionStrategy;
 
@@ -85,7 +86,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
         };
 
         var pendekin = new PendekinConfig() {
-            RouterBaseUrl = "https://127.0.0.1:7140"
+            RouterBaseUrl = "127.0.0.1:7140"
         };
 
         var sentry = new SentryConfig() {
@@ -95,7 +96,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
 
         var gcp = new GcpConfig() {
             IsEnabled = false,
-            FirebaseProjectUrl = "https://yourapp.firebaseio.com",
+            FirebaseProjectUrl = "yourapp.firebaseio.com",
             FirebaseServiceAccountJson = "{\"your_firebase_service_account_json\":\"string\"}"
         };
 
@@ -106,31 +107,31 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
 
         var binderByte = new BinderByteConfig() {
             IsEnabled = false,
-            BaseUrl = "https://api.your-domain.com",
+            BaseUrl = "api.your-domain.com",
             ApiKey = "YOUR_API_KEY"
         };
 
         var seedAppSettings = new List<SeedSettingDto> {
             new() {
-                Root = "Engine",
+                Root = nameof(ConfigRoot.Engine),
                 KeyPair = engine.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = "Log",
+                Root = nameof(ConfigRoot.EventLog),
                 KeyPair = new() {
                     { "ProcessEnrich", false }
                 }
             },
             new() {
-                Root = "Jwt",
+                Root = nameof(ConfigRoot.Jwt),
                 KeyPair = jwt.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = "EventLog",
+                Root = nameof(ConfigRoot.EventLog),
                 KeyPair = eventLog.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = "Hangfire",
+                Root = nameof(ConfigRoot.Hangfire),
                 KeyPair = hangfire.ToDictionary(StringType.PascalCase)
             },
             new() {
@@ -141,31 +142,31 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                 }
             },
             new() {
-                Root = "Cache",
+                Root = nameof(ConfigRoot.Cache),
                 KeyPair = cache.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = "Sentry",
+                Root = nameof(ConfigRoot.Sentry),
                 KeyPair = sentry.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = "Mirror",
+                Root = nameof(ConfigRoot.Mirror),
                 KeyPair = mirror.ToDictionary(StringType.SnakeCase)
             },
             new() {
-                Root = "Pendekin",
+                Root = nameof(ConfigRoot.Pendekin),
                 KeyPair = pendekin.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = "Gcp",
+                Root = nameof(ConfigRoot.Gcp),
                 KeyPair = gcp.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = "OptiicDev",
+                Root = nameof(ConfigRoot.OptiicDev),
                 KeyPair = optiicDev.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = "BinderByte",
+                Root = nameof(ConfigRoot.BinderByte),
                 KeyPair = binderByte.ToDictionary(StringType.PascalCase)
             }
         };
@@ -198,7 +199,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
 
             if (appSetting != null) return;
 
-            _dbContext.AppSettings.Add(new() {
+            _dbContext.AppSettings.Add(new AppSettingsEntity {
                 Root = seed.Root,
                 Name = seed.Key,
                 Field = seed.Key,
