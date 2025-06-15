@@ -56,6 +56,18 @@ public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequest
 
     public async Task<ApiResponseBase<WebHookTrakteerDonationResponse>> Handle(WebHookTrakteerDonationRequest request, CancellationToken cancellationToken)
     {
+        var mirrorConfig = await dataFacade.AppSetting.GetRequiredConfigSectionAsync<MirrorConfig>();
+
+        if (!request.Headers.TryGetValue("X-Webhook-Token", out var headerToken))
+        {
+            return response.Unauthorized("Token tidak valid");
+        }
+
+        if (headerToken != mirrorConfig.TrakteerWebHookToken)
+        {
+            return response.Unauthorized("Token tidak valid, silakan atur Token di Setting");
+        }
+
         var mirrorDonation = await dataFacade.MongoEf.MirrorDonation
             .Where(x => x.OrderId == request.Body.TransactionId)
             .Where(x => x.Status == EventStatus.Complete)
