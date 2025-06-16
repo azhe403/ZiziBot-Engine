@@ -26,7 +26,7 @@ public class CreateWebhookHandler(
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         var routeId = await StringUtil.GetNanoIdAsync();
-        var webhookApi = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL) + "/api/webhook/";
+        var webhookApi = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL) + "/api/webhook/";
         var webhookUrl = webhookApi + routeId;
         var htmlMessage = HtmlMessage.Empty
             .Bold("Webhook").Br();
