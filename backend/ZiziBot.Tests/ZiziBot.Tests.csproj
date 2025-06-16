@@ -10,7 +10,7 @@
     <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
     <PackageReference Include="Shouldly" Version="4.3.0"/>
-    <PackageReference Include="Xunit.DependencyInjection" Version="10.4.2"/>
+    <PackageReference Include="Xunit.DependencyInjection" Version="10.5.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

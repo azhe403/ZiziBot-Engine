@@ -9,8 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net.Commands" Version="3.14.1"/>
     <PackageReference Include="Discord.Net.Interactions" Version="3.14.1"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.5"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
