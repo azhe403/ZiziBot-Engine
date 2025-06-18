@@ -11,30 +11,33 @@ public class UpdateStatisticUseCase(
 )
 {
     [MaximumConcurrentExecutions(3)]
-    public async Task Handle(string? token)
+    [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    public async Task Handle()
     {
         logger.LogDebug("Updating GitHub token usage statistic");
 
-        var query = await dataFacade.MongoEf.ApiKey
-            .Where(x => x.ApiKey == token)
+        var githubApiKey = await dataFacade.MongoEf.ApiKey
+            .Where(x => x.Name == ApiKeyVendor.GitHub)
             .Where(x => x.Status != EventStatus.Inactive)
-            .FirstOrDefaultAsync();
-
-        if (query == null)
-            return;
+            .ToListAsync();
 
         var client = new GitHubClient(new ProductHeaderValue("ZiziBot"));
 
-        if (!string.IsNullOrWhiteSpace(token))
-            client.Credentials = new Credentials(token);
+        foreach (var apiKey in githubApiKey)
+        {
+            var token = apiKey.ApiKey;
 
-        var limit = await client.RateLimit.GetRateLimits();
+            if (!string.IsNullOrWhiteSpace(token))
+                client.Credentials = new Credentials(token);
 
-        query.LastUsedDate = DateTime.UtcNow;
-        query.Remaining = limit.Rate.Remaining;
-        query.Limit = limit.Rate.Limit;
-        query.LimitUnit = "Hourly";
-        query.ResetUsageDate = limit.Rate.Reset.UtcDateTime;
+            var limit = await client.RateLimit.GetRateLimits();
+
+            apiKey.LastUsedDate = DateTime.UtcNow;
+            apiKey.Remaining = limit.Rate.Remaining;
+            apiKey.Limit = limit.Rate.Limit;
+            apiKey.LimitUnit = "Hourly";
+            apiKey.ResetUsageDate = limit.Rate.Reset.UtcDateTime;
+        }
 
         await dataFacade.SaveChangesAsync();
     }

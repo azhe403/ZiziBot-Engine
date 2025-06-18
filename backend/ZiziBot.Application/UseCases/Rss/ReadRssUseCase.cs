@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Octokit;
-using ZiziBot.Application.UseCases.GitHub;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
@@ -84,8 +83,6 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
                             messageText.Url(asset.BrowserDownloadUrl, asset.Name).Br();
                         });
                     }
-
-                    HangfireUtil.Enqueue<UpdateStatisticUseCase>(x => x.Handle(githubApiKey));
                 }
 
                 var truncatedMessageText = messageText.ToString();
