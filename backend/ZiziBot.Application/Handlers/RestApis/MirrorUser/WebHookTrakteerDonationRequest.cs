@@ -75,7 +75,7 @@ public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequest
 
         if (mirrorDonation != null)
         {
-            return response.BadRequest("Donasi Mirror sudah diproses");
+            return response.Success("Donasi Mirror sudah diproses");
         }
 
         dataFacade.MongoEf.MirrorDonation.Add(new MirrorDonationEntity {
