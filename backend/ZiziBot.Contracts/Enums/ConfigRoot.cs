@@ -2,6 +2,7 @@
 
 public enum ConfigRoot
 {
+    All,
     Engine,
     Flag,
     Cache,

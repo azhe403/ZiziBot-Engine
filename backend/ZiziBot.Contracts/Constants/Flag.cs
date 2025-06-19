@@ -147,6 +147,9 @@ public static class Flag
 
     [DefaultValue(true)]
     public const string REST_API_KEY_GET = "REST_API_KEY_GET";
+
+    [DefaultValue(true)]
+    public const string REST_APP_SETTING_GET_LIST = "REST_APP_SETTING_GET_LIST";
     #endregion
     #endregion
 }
