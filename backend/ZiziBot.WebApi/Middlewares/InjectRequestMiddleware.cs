@@ -9,12 +9,8 @@ public class InjectRequestMiddleware(DataFacade dataFacade) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        var userRoles = new List<RoleLevel>();
         var bearerToken = context.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-        if (string.IsNullOrEmpty(bearerToken))
-        {
-            await next(context);
-            return;
-        }
 
         if (!context.Request.Path.StartsWithSegments("/api"))
         {
@@ -27,61 +23,58 @@ public class InjectRequestMiddleware(DataFacade dataFacade) : IMiddleware
             "/api/logging"
         };
 
-        if (ignorePaths.Any(s => context.Request.Path.Value.StartsWith(s)))
+        if (ignorePaths.Any(s => context.Request.Path.Value?.StartsWith(s) == true))
         {
             await next(context);
             return;
         }
 
-        #region Check Dashboard Session
-        var dashboardSession = await dataFacade.MongoEf.DashboardSessions
-            .Where(entity =>
-                entity.BearerToken == bearerToken &&
-                entity.Status == EventStatus.Complete
-            )
-            .FirstOrDefaultAsync();
-
-        if (dashboardSession == null)
+        if (!string.IsNullOrWhiteSpace(bearerToken))
         {
-            await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>() {
-                StatusCode = HttpStatusCode.Unauthorized,
-                Message = "Unauthorized"
-            });
+            #region Check Dashboard Session
+            var dashboardSession = await dataFacade.MongoEf.DashboardSessions.AsNoTracking()
+                .Where(x => x.Status == EventStatus.Complete)
+                .Where(x => x.BearerToken == bearerToken)
+                .FirstOrDefaultAsync();
 
-            return;
+            if (dashboardSession == null)
+            {
+                await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>() {
+                    StatusCode = HttpStatusCode.Unauthorized,
+                    Message = "Access token is not valid"
+                });
+
+                return;
+            }
+
+            context.Items.TryAdd(RequestKey.UserId, dashboardSession.TelegramUserId.ToString());
+            #endregion
+
+            #region Add List ChatId
+            var chatAdmin = await dataFacade.MongoEf.ChatAdmin.AsNoTracking()
+                .Where(x => x.Status == EventStatus.Complete)
+                .Where(x => x.UserId == dashboardSession.TelegramUserId)
+                .ToListAsync();
+
+            var chatIds = chatAdmin.Select(y => y.ChatId).Distinct();
+
+            context.Items.TryAdd(RequestKey.ListChatId, chatIds.ToJson());
+            #endregion
+
+            #region Add User Role
+            var checkSudo = await dataFacade.MongoEf.Sudoers.AsNoTracking()
+                .Where(x => x.Status == EventStatus.Complete)
+                .Where(x => x.UserId == dashboardSession.TelegramUserId)
+                .FirstOrDefaultAsync();
+
+            if (checkSudo != null)
+            {
+                userRoles.Add(RoleLevel.Sudo);
+            }
+
+            context.Items.TryAdd(RequestKey.UserRole, userRoles);
+            #endregion
         }
-
-        context.Items.TryAdd(RequestKey.UserId, dashboardSession.TelegramUserId.ToString());
-        #endregion
-
-        #region Add List ChatId
-        var chatAdmin = await dataFacade.MongoEf.ChatAdmin
-            .Where(entity =>
-                entity.UserId == dashboardSession.TelegramUserId &&
-                entity.Status == EventStatus.Complete
-            )
-            .ToListAsync();
-
-        var chatIds = chatAdmin.Select(y => y.ChatId).Distinct();
-
-        context.Items.TryAdd(RequestKey.ListChatId, chatIds.ToJson());
-        #endregion
-
-        #region Add User Role
-        var userRole = ApiRole.Guest;
-
-        var checkSudo = await dataFacade.MongoEf.Sudoers
-            .FirstOrDefaultAsync(entity =>
-                entity.UserId == dashboardSession.TelegramUserId &&
-                entity.Status == EventStatus.Complete);
-
-        if (checkSudo != null)
-        {
-            userRole = ApiRole.Sudo;
-        }
-
-        context.Items.TryAdd(RequestKey.UserRole, userRole.ToString());
-        #endregion
 
         await next(context);
     }

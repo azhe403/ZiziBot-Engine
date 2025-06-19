@@ -23,21 +23,11 @@ public class AccessFilterAuthorizationFilter(
             TransactionId = context.HttpContext.GetTransactionId()
         };
 
-        var userId = context.HttpContext.Request.Headers.GetUserId();
         var bearerToken = context.HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
         var items = context.HttpContext.Items;
 
         if (needAuthenticated)
         {
-            if (string.IsNullOrWhiteSpace(bearerToken))
-            {
-                context.Result = new UnauthorizedObjectResult(new ApiResponseBase<object>() {
-                    Message = "Access token not valid"
-                });
-
-                return;
-            }
-
             var session = await dataFacade.MongoEf.DashboardSessions
                 .Where(x => x.BearerToken == bearerToken)
                 .Where(x => x.Status == EventStatus.Complete)
@@ -54,30 +44,12 @@ public class AccessFilterAuthorizationFilter(
             }
         }
 
-        var roles = items[RequestKey.UserRole]?.ToString();
+        var roles = items[RequestKey.UserRole] as List<RoleLevel>;
 
-        switch (roleLevel)
+        if (roles?.Contains(roleLevel) != true)
         {
-            case RoleLevel.ChatAdminOrPrivate:
-                if (!await CheckListChatId(userId))
-                {
-                    response.StatusCode = HttpStatusCode.Forbidden;
-                    response.Message = "You are not authorized to access this resource.";
-                }
-
-                break;
-            case RoleLevel.User:
-                break;
-            case RoleLevel.ChatAdmin:
-                break;
-            case RoleLevel.Sudo:
-                if (roles != nameof(RoleLevel.Sudo))
-                {
-                    response.StatusCode = HttpStatusCode.Forbidden;
-                    response.Message = "You are not authorized to access this resource.";
-                }
-
-                break;
+            response.StatusCode = HttpStatusCode.Forbidden;
+            response.Message = "You are not authorized to access this resource.";
         }
 
         if (response.StatusCode == 0) return;
@@ -85,12 +57,5 @@ public class AccessFilterAuthorizationFilter(
         context.Result = new JsonResult(response) {
             StatusCode = (int?)response.StatusCode
         };
-    }
-
-    private async Task<bool> CheckListChatId(long userId)
-    {
-        var chatAdmin = await dataFacade.Group.GetChatAdminByUserId(userId);
-
-        return chatAdmin.Any();
     }
 }
