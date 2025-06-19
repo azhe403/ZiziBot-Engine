@@ -8,6 +8,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
+[Obsolete("Please use from UseCase")]
 public class FetchRssRequest : IRequest<bool>
 {
     public long ChatId { get; set; }

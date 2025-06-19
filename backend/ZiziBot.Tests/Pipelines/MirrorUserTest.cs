@@ -29,8 +29,7 @@ public class MirrorUserTest(
             await dataFacade.MongoEf.SaveChangesAsync();
         }
 
-        // Assert
-        Assert.NotNull(bot);
+        bot.ShouldNotBeNull();
 
         await mediatorService.Send(new SubmitPaymentBotRequest() {
             BotToken = bot.Token,
@@ -57,7 +56,7 @@ public class MirrorUserTest(
         }
 
         // Assert
-        Assert.NotNull(bot);
+        bot.ShouldNotBeNull();
 
         await mediatorService.Send(new SubmitPaymentBotRequest() {
             BotToken = bot.Token,
@@ -75,7 +74,7 @@ public class MirrorUserTest(
         var bot = await dataFacade.AppSetting.GetBotMain();
         await dataFacade.AppSetting.UpdateAppSetting("Mirror:PaymentExpirationDays", "3");
 
-        Assert.NotNull(bot);
+        bot.ShouldNotBeNull();
 
         await mediatorService.Send(new SubmitPaymentBotRequest() {
             BotToken = bot.Token,
@@ -93,7 +92,7 @@ public class MirrorUserTest(
         // Arrange
         var bot = await dataFacade.AppSetting.GetBotMain();
 
-        Assert.NotNull(bot);
+        bot.ShouldNotBeNull();
 
         await mediatorService.Send(new SubmitPaymentBotRequest() {
             BotToken = bot.Token,
@@ -109,12 +108,14 @@ public class MirrorUserTest(
         // Arrange
         var bot = await dataFacade.AppSetting.GetBotMain();
 
-        Assert.NotNull(bot);
+        bot.ShouldNotBeNull();
 
-        await mediatorService.Send(new SubmitPaymentBotRequest() {
+        var response = await mediatorService.Send(new SubmitPaymentBotRequest() {
             BotToken = bot.Token,
             Message = SampleMessages.CommonMessage,
             Payload = url
         });
+
+        response.ShouldBeNull();
     }
 }

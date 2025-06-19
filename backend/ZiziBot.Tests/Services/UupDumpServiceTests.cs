@@ -1,4 +1,3 @@
-using Flurl.Http;
 using Xunit;
 
 namespace ZiziBot.Tests.Services;
@@ -10,7 +9,6 @@ public class UupDumpServiceTests(UupDumpService uupDumpService)
         new object[] { new DateOnly(2017, 3, 1), 712 },
     };
 
-    [SkippableTheory(typeof(FlurlHttpException), typeof(FlurlParsingException))]
     [InlineData("")]
     [InlineData("19041")]
     [InlineData("22000")]

@@ -16,6 +16,7 @@ public class FetchRssUseCase(
 )
 {
     [DisplayName("{0}:{1} -> {2}")]
+    [MaximumConcurrentExecutions(10)]
     [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     public async Task<bool> Handle(long chatId, int threadId, string rssUrl)
     {

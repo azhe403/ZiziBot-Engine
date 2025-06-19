@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Telegram.Bot.Types;
 using ZiziBot.DataSource.MongoEf.Entities;
@@ -17,6 +18,7 @@ public class CreateChatActivityUseCase(
     ServiceFacade serviceFacade
 )
 {
+    [MaximumConcurrentExecutions(3)]
     public async Task<bool> Handle(CreateChatActivityRequest request)
     {
         dataFacade.MongoEf.ChatActivity.Add(new ChatActivityEntity {
@@ -35,7 +37,7 @@ public class CreateChatActivityUseCase(
 
         if (oldActivity.Count != 0)
         {
-            Log.Information("Delete Chat Activity Count: {Count} in a 2 month", oldActivity.Count);
+            Log.Information("Delete Chat Activity Count: {Count} in 2 months", oldActivity.Count);
             dataFacade.MongoEf.ChatActivity.RemoveRange(oldActivity);
         }
 

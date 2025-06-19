@@ -53,13 +53,14 @@ public class MirrorUserController : ApiControllerBase
     }
 
     [HttpPost("verify-user")]
+    [AccessFilter(flag:Flag.REST_MIRROR_VERIFY_USER, apiRoleLevel: RoleLevel.None)]
     public async Task<IActionResult> VerifyUser(VerifyUserRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost("trakteer-webhook")]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    [AccessFilter(flag: Flag.REST_MIRROR_TRAKTEER_WEBHOOK, apiRoleLevel: RoleLevel.None)]
     public async Task<IActionResult> WebHookTrakteer(WebHookTrakteerDonationRequest request)
     {
         return await SendRequest(request);

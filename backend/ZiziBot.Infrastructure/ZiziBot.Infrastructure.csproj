@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -11,10 +11,10 @@
     <PackageReference Include="dotenv.net" Version="3.2.1"/>
     <PackageReference Include="HelpMate.Core" Version="2.1.0"/>
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0"/>
-    <PackageReference Include="Scrutor" Version="6.0.1"/>
-    <PackageReference Include="Sentry.AspNetCore" Version="5.8.0"/>
-    <PackageReference Include="Sentry.Serilog" Version="5.8.0"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.6" />
+    <PackageReference Include="Scrutor" Version="6.1.0"/>
+    <PackageReference Include="Sentry.AspNetCore" Version="5.10.0"/>
+    <PackageReference Include="Sentry.Serilog" Version="5.10.0"/>
     <PackageReference Include="Serilog" Version="4.3.0"/>
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
     <PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3"/>

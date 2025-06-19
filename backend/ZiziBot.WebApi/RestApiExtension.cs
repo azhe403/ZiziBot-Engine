@@ -54,7 +54,7 @@ public static class RestApiExtension
                         .Where(x => x.Key != "request")
                         .Select(key => new {
                             Id = key.Key,
-                            Field = key.Key.Split('.').Last(),
+                            Field = key.Key.Split('.').LastOrDefault(),
                             Message = key.Value?.Errors.Select(e => e.ErrorMessage)
                         }).ToList();
 
@@ -63,7 +63,7 @@ public static class RestApiExtension
                     return new BadRequestObjectResult(new ApiResponseBase<object>() {
                         StatusCode = HttpStatusCode.BadRequest,
                         TransactionId = transactionId,
-                        Message = "Please ensure your request",
+                        Message = errors.Aggregate((a, b) => $"{a}\n{b}"),
                         Result = new {
                             Error = errors.Aggregate((a, b) => $"{a}\n{b}"),
                             Errors = errors,
@@ -154,7 +154,6 @@ public static class RestApiExtension
 
         app.UseStaticFiles();
         app.MapControllers();
-        // app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
 
         app.UseRouting();
         app.UseCors(ALLOW_ANY_ORIGIN_POLICY);

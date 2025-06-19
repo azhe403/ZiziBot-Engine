@@ -10,7 +10,7 @@ public class HidePathDocumentFilter : IDocumentFilter
         var paths = swaggerDoc.Paths.Keys.ToList();
         var filteredPaths = paths.Where(p => p.Contains("webhook")).ToList();
 
-        filteredPaths.ForEach(path => swaggerDoc.Paths.Remove(path));
+        // filteredPaths.ForEach(path => swaggerDoc.Paths.Remove(path));
         swaggerDoc.Paths.Remove("/");
     }
 }

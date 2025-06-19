@@ -20,7 +20,7 @@ public static class AppStartupExtension
     {
         var featureFlagRepository = app.ApplicationServices.GetRequiredService<FeatureFlagRepository>();
 
-        Flag.Current = await featureFlagRepository.GetFlags();
+        EnvUtil.Current = await featureFlagRepository.GetFlags();
 
         return app;
     }

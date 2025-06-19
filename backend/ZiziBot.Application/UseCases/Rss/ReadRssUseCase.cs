@@ -1,4 +1,5 @@
 ﻿using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Octokit;
@@ -40,7 +41,6 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
         var includeRssContent = await dataFacade.FeatureFlag.GetFlagValue(Flag.RSS_INCLUDE_CONTENT);
 
         var feed = await serviceFacade.CacheService.GetOrSetAsync("rss/" + rssUrl, async () => {
-            var githubApiKey = await dataFacade.AppSetting.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
             var feed = await rssUrl.ReadRssAsync(throwIfError: true);
 
             var readRssResponse = new ReadRssResponse() {
@@ -50,27 +50,36 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
 
             var isGithubCommitsUrl = rssUrl.IsGithubCommitsUrl();
 
-            var readRssItems = feed.Items.Select(async x => {
-                var htmlContent = await x.Content.HtmlForTelegram();
+            var readRssItems = feed.Items.Skip(5).Select(async feedItem => {
+                var htmlContent = await feedItem.Content.HtmlForTelegram();
 
                 var messageText = HtmlMessage.Empty
                     .Url(feed.Link, feed.Title.Trim()).Br()
-                    .Url(x.Link, x.Title.Trim()).Br();
+                    .Url(feedItem.Link, feedItem.Title.Trim()).Br();
 
                 if (!isGithubCommitsUrl && includeRssContent)
                     messageText.Text(htmlContent.Truncate(2000));
 
                 if (isGithubReleaseUrl)
                 {
-                    logger.LogDebug("Collecting GitHub assets for URL: {Url}", rssUrl);
+                    var apiKey = await dataFacade.MongoEf.ApiKey
+                        .OrderBy(x => x.LastUsedDate)
+                        .Where(x => x.Name == ApiKeyVendor.GitHub)
+                        .Where(x => x.Status == EventStatus.Complete)
+                        .FirstOrDefaultAsync();
+
+                    var githubApiKey = apiKey?.ApiKey;
+
                     var assets = await rssUrl.GetGithubAssetLatest(githubApiKey);
 
-                    if (assets?.Assets.NotEmpty() ?? false)
+                    var releaseAssets = assets?.Assets;
+
+                    if (releaseAssets?.NotEmpty() ?? false)
                     {
                         messageText.Br()
                             .BoldBr("Assets");
 
-                        assets.Assets.ForEach(asset => {
+                        releaseAssets.ForEach(asset => {
                             messageText.Url(asset.BrowserDownloadUrl, asset.Name).Br();
                         });
                     }
@@ -78,13 +87,15 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
 
                 var truncatedMessageText = messageText.ToString();
 
+                await dataFacade.SaveChangesAsync();
+
                 return new ReadRssItem {
-                    Link = x.Link,
-                    Title = x.Title,
-                    Author = x.Author,
-                    PublishDate = x.PublishingDate ?? DateTime.UtcNow,
+                    Link = feedItem.Link,
+                    Title = feedItem.Title,
+                    Author = feedItem.Author,
+                    PublishDate = feedItem.PublishingDate ?? DateTime.UtcNow,
                     Content = truncatedMessageText,
-                    Description = x.Description
+                    Description = feedItem.Description
                 };
             }).ToList();
 

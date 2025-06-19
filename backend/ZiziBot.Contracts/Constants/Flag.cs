@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
-using Serilog;
 using ZiziBot.Contracts.Dtos;
 
 // ReSharper disable InconsistentNaming
@@ -8,8 +7,6 @@ namespace ZiziBot.Contracts.Constants;
 
 public static class Flag
 {
-    public static List<FlagDto>? Current { get; set; }
-
     public static List<FlagDto> GetFields()
     {
         var properties = typeof(Flag).GetFields();
@@ -20,23 +17,6 @@ public static class Flag
         }).ToList();
 
         return values;
-    }
-
-    public static bool IsEnabled(string flagName)
-    {
-        var flag = Current?.FirstOrDefault(x => x.Name == flagName);
-
-        if (flag == null)
-        {
-            var defaultFlag = GetFields().FirstOrDefault(x => x.Name == flagName);
-            var flagValue = defaultFlag?.Value ?? false;
-            Log.Debug("Flag {FlagName} not found. Using default value: {DefaultFlagValue}", flagName, flagValue);
-
-            return flagValue;
-        }
-
-        Log.Debug("Flag {FlagName} is {FlagValue}", flag.Name, flag.Value);
-        return flag.Value;
     }
 
     #region Flags
@@ -148,6 +128,12 @@ public static class Flag
     public const string REST_MIRROR_USER_DELETE = "REST_MIRROR_USER_DELETE";
 
     [DefaultValue(true)]
+    public const string REST_MIRROR_TRAKTEER_WEBHOOK = "REST_MIRROR_TRAKTEER_WEBHOOK";
+
+    [DefaultValue(true)]
+    public const string REST_MIRROR_VERIFY_USER = "REST_MIRROR_VERIFY_USER";
+
+    [DefaultValue(true)]
     public const string REST_PRODUCTIVITY_PENDEKIN_CREATE = "REST_PRODUCTIVITY_PENDEKIN_CREATE";
 
     [DefaultValue(true)]
@@ -158,6 +144,9 @@ public static class Flag
 
     [DefaultValue(true)]
     public const string REST_PRODUCTIVITY_WEBHOOK = "REST_PRODUCTIVITY_WEBHOOK";
+
+    [DefaultValue(true)]
+    public const string REST_API_KEY_GET = "REST_API_KEY_GET";
     #endregion
     #endregion
 }

@@ -15,8 +15,7 @@ public class FirebaseTests(FirebaseService firebaseService) : IAsyncLifetime
         var path = "test/post/" + Guid.NewGuid();
 
         await firebaseService.PostAsync(path, data);
-
-        Assert.True(true);
+        true.ShouldBeTrue();
     }
 
     [Fact]
@@ -31,17 +30,17 @@ public class FirebaseTests(FirebaseService firebaseService) : IAsyncLifetime
         var path = "test/put";
 
         await firebaseService.PutAsync(path, data);
-
-        Assert.True(true);
+        true.ShouldBeTrue();
     }
 
-    public Task InitializeAsync()
-    {
-        return Task.CompletedTask;
-    }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await firebaseService.DeleteAsync("test");
+    }
+
+    public ValueTask InitializeAsync()
+    {
+        throw new NotImplementedException();
     }
 }

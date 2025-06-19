@@ -24,7 +24,7 @@ public static class ServiceExtension
 
     public static WebApplication ConfigureConsole(this WebApplication app)
     {
-        if (Flag.IsEnabled(Flag.CONSOLE_BLAZOR))
+        if (EnvUtil.IsEnabled(Flag.CONSOLE_BLAZOR))
         {
             app.UseBlazorFrameworkFiles();
             app.MapRazorPages();

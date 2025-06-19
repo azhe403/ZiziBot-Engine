@@ -1,8 +1,14 @@
+using Serilog;
+using ZiziBot.Contracts.Constants;
+using ZiziBot.Contracts.Dtos;
+
 namespace ZiziBot.Utils;
 
 public static class EnvUtil
 {
-    public static string GetEnv(string key, string? defaultValue = default, bool throwIsMissing = false)
+    public static List<FlagDto>? Current { get; set; }
+
+    public static string GetEnv(string key, string? defaultValue = null, bool throwIsMissing = false)
     {
         var envVal = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
         if (!string.IsNullOrEmpty(envVal))
@@ -39,5 +45,22 @@ public static class EnvUtil
     {
         var envVal = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
         return string.Equals(envVal, value, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsEnabled(string flagName)
+    {
+        var flag = Current?.FirstOrDefault(x => x.Name == flagName);
+
+        if (flag == null)
+        {
+            var defaultFlag = Flag.GetFields().FirstOrDefault(x => x.Name == flagName);
+            var flagValue = defaultFlag?.Value ?? false;
+            Log.Debug("Flag {FlagName} not found. Using default value: {DefaultFlagValue}", flagName, flagValue);
+
+            return flagValue;
+        }
+
+        Log.Debug("Flag {FlagName} is {FlagValue}", flag.Name, flag.Value);
+        return flag.Value;
     }
 }
