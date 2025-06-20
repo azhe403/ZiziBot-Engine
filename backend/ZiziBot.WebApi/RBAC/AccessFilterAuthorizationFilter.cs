@@ -10,10 +10,7 @@ namespace ZiziBot.WebApi.RBAC;
 public class AccessFilterAuthorizationFilter(
     string flag,
     RoleLevel roleLevel,
-    bool checkHeader,
-    bool needAuthenticated,
     ILogger<AccessFilterAuthorizationFilter> logger,
-    GroupRepository groupRepository,
     DataFacade dataFacade
 ) : IAsyncAuthorizationFilter
 {
@@ -23,25 +20,27 @@ public class AccessFilterAuthorizationFilter(
             TransactionId = context.HttpContext.GetTransactionId()
         };
 
-        var bearerToken = context.HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
+        logger.LogDebug("Access '{Flag}' role level minimum: {Role}", flag, roleLevel);
+
+        if (roleLevel == RoleLevel.None)
+            return;
+
+        var bearerToken = context.HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "").Trim();
         var items = context.HttpContext.Items;
 
-        if (needAuthenticated)
+        var session = await dataFacade.MongoEf.DashboardSessions
+            .Where(x => x.BearerToken == bearerToken)
+            .Where(x => x.Status == EventStatus.Complete)
+            .OrderByDescending(x => x.CreatedDate)
+            .FirstOrDefaultAsync();
+
+        if (session == null)
         {
-            var session = await dataFacade.MongoEf.DashboardSessions
-                .Where(x => x.BearerToken == bearerToken)
-                .Where(x => x.Status == EventStatus.Complete)
-                .OrderByDescending(x => x.CreatedDate)
-                .FirstOrDefaultAsync();
+            context.Result = new UnauthorizedObjectResult(new ApiResponseBase<object>() {
+                Message = "Access token is invalid."
+            });
 
-            if (session == null)
-            {
-                context.Result = new UnauthorizedObjectResult(new ApiResponseBase<object>() {
-                    Message = "Session invalid, please login to continue"
-                });
-
-                return;
-            }
+            return;
         }
 
         var roles = items[RequestKey.UserRole] as List<RoleLevel>;

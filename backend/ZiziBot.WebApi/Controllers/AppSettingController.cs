@@ -8,7 +8,7 @@ namespace ZiziBot.WebApi.Controllers;
 public class AppSettingController(GetListAppSettingUseCase getListAppSettingUseCase) : ApiControllerBase
 {
     [HttpGet]
-    [AccessFilter(flag: Flag.REST_APP_SETTING_GET_LIST, apiRoleLevel: RoleLevel.Sudo)]
+    [AccessFilter(flag: Flag.REST_APP_SETTING_GET_LIST, roleLevel: RoleLevel.Sudo)]
     public async Task<IActionResult> GetList(GetListAppSettingRequest request)
     {
         return await SendRequest(() => getListAppSettingUseCase.Handle(request));

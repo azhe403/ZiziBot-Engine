@@ -92,6 +92,15 @@ public static class Flag
     public const string REST_ANTISPAM_ESS_DELETE = "REST_ANTISPAM_ESS_DELETE";
 
     [DefaultValue(true)]
+    public const string REST_ANTISPAM_ESS_GET_LIST = "";
+
+    [DefaultValue(true)]
+    public const string REST_ANTISPAM_ESS_UNDELETE = "";
+
+    [DefaultValue(true)]
+    public const string REST_ANTISPAM_ESS_CHECK_BAN = "";
+
+    [DefaultValue(true)]
     public const string REST_GROUP_WELCOME_MESSAGE_CREATE = "REST_GROUP_WELCOME_MESSAGE_CREATE";
 
     [DefaultValue(true)]
