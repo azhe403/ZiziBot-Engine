@@ -5,8 +5,6 @@ namespace ZiziBot.Application.Tasks;
 
 public class StartupNotificationTask(AppSettingRepository appSettingRepository) : IStartupTask
 {
-    public bool SkipAwait { get; set; }
-
     public async Task ExecuteAsync()
     {
         var config = await appSettingRepository.GetBotMain();

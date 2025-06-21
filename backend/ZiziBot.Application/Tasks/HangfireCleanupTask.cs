@@ -4,44 +4,41 @@ namespace ZiziBot.Application.Tasks;
 
 public class HangfireCleanupTask : IStartupTask
 {
-    public bool SkipAwait { get; set; } = true;
-
     public Task ExecuteAsync()
     {
-        var api = JobStorage.Current.GetMonitoringApi();
-        var processingJobs = api.ProcessingJobs(0, int.MaxValue);
-        var servers = api.Servers();
-
-        #region Requeue orphan jobs
-
-        var orphanJobs = processingJobs
-            .Where(job => servers.All(server => server.Name != job.Value.ServerId));
-
-        foreach (var orphanJob in orphanJobs)
+        if (EnvUtil.IsEnabled(Flag.HANGFIRE))
         {
-            BackgroundJob.Requeue(orphanJob.Key);
-        }
+            var api = JobStorage.Current.GetMonitoringApi();
+            var processingJobs = api.ProcessingJobs(0, int.MaxValue);
+            var servers = api.Servers();
 
-        #endregion
+            #region Requeue orphan jobs
+            var orphanJobs = processingJobs
+                .Where(job => servers.All(server => server.Name != job.Value.ServerId));
 
-        #region Remove Enqueued
-
-        var toDelete = new List<string>();
-
-        foreach (var queue in api.Queues())
-        {
-            for (var i = 0; i < Math.Ceiling(queue.Length / 1000d); i++)
+            foreach (var orphanJob in orphanJobs)
             {
-                api.EnqueuedJobs(queue.Name, 1000 * i, 1000).ForEach(x => toDelete.Add(x.Key));
+                BackgroundJob.Requeue(orphanJob.Key);
             }
-        }
+            #endregion
 
-        foreach (var jobId in toDelete)
-        {
-            BackgroundJob.Delete(jobId);
-        }
+            #region Remove Enqueued
+            var toDelete = new List<string>();
 
-        #endregion
+            foreach (var queue in api.Queues())
+            {
+                for (var i = 0; i < Math.Ceiling(queue.Length / 1000d); i++)
+                {
+                    api.EnqueuedJobs(queue.Name, 1000 * i, 1000).ForEach(x => toDelete.Add(x.Key));
+                }
+            }
+
+            foreach (var jobId in toDelete)
+            {
+                BackgroundJob.Delete(jobId);
+            }
+            #endregion
+        }
 
         return Task.CompletedTask;
     }

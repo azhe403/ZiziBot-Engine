@@ -8,8 +8,6 @@ public class SeedFlagTask(
     DataFacade dataFacade
 ) : IStartupTask
 {
-    public bool SkipAwait { get; set; }
-
     public async Task ExecuteAsync()
     {
         logger.LogInformation("");
