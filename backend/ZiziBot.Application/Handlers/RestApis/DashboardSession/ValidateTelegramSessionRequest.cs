@@ -42,7 +42,7 @@ public class ValidateTelegramSessionHandler(
 
         LoginWidget loginWidget = new(botSetting.Token);
 
-        var sessionData = request.Body.ToDictionary()
+        var sessionData = request.Body.ToDictionary(StringType.SnakeCase)
             .Select(pair => new KeyValuePair<string,string>(pair.Key.Replace(" ","_"),pair.Value.ToString() ?? string.Empty))
             .Where(pair => pair.Value.IsNotNullOrEmpty())
             .Where(pair => pair.Key != "session_id");

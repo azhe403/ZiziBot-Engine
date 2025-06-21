@@ -48,6 +48,8 @@ public class InjectRequestMiddleware(DataFacade dataFacade) : IMiddleware
             }
 
             context.Items.TryAdd(RequestKey.UserId, dashboardSession.TelegramUserId.ToString());
+
+            userRoles.Add(RoleLevel.User);
             #endregion
 
             #region Add List ChatId
