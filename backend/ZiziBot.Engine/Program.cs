@@ -22,7 +22,6 @@ app.UseSerilogRequestLogging();
 app.ConfigureFlurl();
 
 app.PrintAbout();
-await app.LoadFeatureFlag();
 await app.UseMongoMigration();
 
 app.UseAuthorization();

@@ -32,6 +32,11 @@ public static class ConfigurationExtension
         services.Configure<JwtConfig>(config.GetSection("Jwt"));
         services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
 
+        #region Feature Flags
+        var featureFlagRepository = provider.GetRequiredService<FeatureFlagRepository>();
+        EnvUtil.Current = await featureFlagRepository.GetFlags();
+        #endregion
+
         return services;
     }
 

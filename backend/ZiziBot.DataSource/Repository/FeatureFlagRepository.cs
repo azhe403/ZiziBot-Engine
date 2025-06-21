@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Serilog;
+using ZiziBot.Contracts.Dtos.Entity;
 using ZiziBot.DataSource.MongoEf;
-using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.DataSource.Repository;
 
@@ -20,7 +20,7 @@ public class FeatureFlagRepository(MongoEfContext mongoEfContext, ICacheService 
         return flags;
     }
 
-    public async Task<FeatureFlagEntity?> GetFlag(string flagName)
+    public async Task<FeatureFlagDto?> GetFlag(string flagName)
     {
         if (flagName.IsNullOrWhiteSpace())
             return null;
@@ -33,7 +33,20 @@ public class FeatureFlagRepository(MongoEfContext mongoEfContext, ICacheService 
                     .Where(x => x.Status == EventStatus.Complete)
                     .FirstOrDefaultAsync();
 
-                return flag;
+                if (flag == null)
+                    return null;
+
+                return new FeatureFlagDto() {
+                    Id = flag.Id.ToString(),
+                    Name = flag.Name,
+                    IsEnabled = flag.IsEnabled,
+                    Status = (int)flag.Status,
+                    CreatedDate = flag.CreatedDate,
+                    CreatedBy = flag.CreatedBy,
+                    UpdatedDate = flag.CreatedDate,
+                    UpdatedBy = flag.UpdatedBy,
+                    TransactionId = flag.TransactionId
+                };
             }
         );
 

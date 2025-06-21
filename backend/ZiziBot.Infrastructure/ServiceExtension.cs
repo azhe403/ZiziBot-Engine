@@ -17,17 +17,13 @@ public static class ServiceExtension
 {
     public async static Task<IServiceCollection> ConfigureServices(this IServiceCollection services)
     {
-        await services.ConfigureSettings();
-        services.AddMongoMigration();
-
-        services.AddMediator();
-
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-        services.AddBackgroundQueue();
         services.AddCacheTower();
         services.AddAllService();
-
+        await services.ConfigureSettings();
+        services.AddMongoMigration();
+        services.AddMediator();
+        services.AddBackgroundQueue();
         services.ConfigureFlurl();
 
         return services;
