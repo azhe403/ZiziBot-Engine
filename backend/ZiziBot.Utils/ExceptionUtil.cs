@@ -4,9 +4,9 @@ namespace ZiziBot.Utils;
 
 public static class ExceptionUtil
 {
-    public static StackTrace ToStackTrace(this Exception exception)
+    public static StackTrace? ToStackTrace(this Exception exception)
     {
-        StackTrace stackTrace = new(exception, true);
+        var stackTrace = new StackTrace(exception, true);
         return stackTrace;
     }
 }

@@ -86,9 +86,9 @@ public static class StringUtil
         return Enum.TryParse<TValue>(value, true, out var result) ? result : defaultValue;
     }
 
-    public static string? ResolveVariable(this string? input, IEnumerable<(string placeholder, string value)> placeHolders)
+    public static string ResolveVariable(this string? input, IEnumerable<(string placeholder, string value)> placeHolders)
     {
-        return placeHolders.Aggregate(input, (current, ph) => current?.Replace($"{{{ph.placeholder}}}", ph.value, StringComparison.CurrentCultureIgnoreCase));
+        return placeHolders.Aggregate(input, (current, ph) => current?.Replace($"{{{ph.placeholder}}}", ph.value, StringComparison.CurrentCultureIgnoreCase)) ?? string.Empty;
     }
 
     public static string Sha256Hash(string value)
