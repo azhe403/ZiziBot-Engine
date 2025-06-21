@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -16,45 +15,54 @@ public class AccessFilterAuthorizationFilter(
 {
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
+        var userRoles = new List<RoleLevel>();
         var response = new ApiResponseBase<object> {
             TransactionId = context.HttpContext.GetTransactionId()
         };
 
         logger.LogDebug("Access '{Flag}' role level minimum: {Role}", flag, roleLevel);
 
-        if (roleLevel == RoleLevel.None)
+        if (roleLevel == RoleLevel.None) // allow anonymous
             return;
 
         var bearerToken = context.HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "").Trim();
-        var items = context.HttpContext.Items;
 
-        var session = await dataFacade.MongoEf.DashboardSessions
-            .Where(x => x.BearerToken == bearerToken)
-            .Where(x => x.Status == EventStatus.Complete)
-            .OrderByDescending(x => x.CreatedDate)
-            .FirstOrDefaultAsync();
-
-        if (session == null)
+        if (!string.IsNullOrWhiteSpace(bearerToken))
         {
-            context.Result = new UnauthorizedObjectResult(new ApiResponseBase<object>() {
-                Message = "Access token is invalid."
-            });
+            #region Check Dashboard Session
+            var dashboardSession = await dataFacade.MongoEf.DashboardSessions.AsNoTracking()
+                .Where(x => x.BearerToken == bearerToken)
+                .Where(x => x.Status == EventStatus.Complete)
+                .OrderByDescending(x => x.CreatedDate)
+                .FirstOrDefaultAsync();
 
-            return;
+            if (dashboardSession == null)
+            {
+                response.Unauthorized("Access token is not valid");
+                context.Result = new UnauthorizedObjectResult(response);
+                return;
+            }
+
+            userRoles.Add(RoleLevel.User);
+            #endregion
+
+            #region Add User Role
+            var checkSudo = await dataFacade.MongoEf.Sudoers.AsNoTracking()
+                .Where(x => x.Status == EventStatus.Complete)
+                .Where(x => x.UserId == dashboardSession.TelegramUserId)
+                .FirstOrDefaultAsync();
+
+            if (checkSudo != null)
+            {
+                userRoles.Add(RoleLevel.Sudo);
+            }
+            #endregion
         }
 
-        var roles = items[RequestKey.UserRole] as List<RoleLevel>;
-
-        if (roles?.Contains(roleLevel) != true)
+        if (!userRoles.Contains(roleLevel))
         {
-            response.StatusCode = HttpStatusCode.Forbidden;
-            response.Message = "You are not authorized to access this resource.";
+            response.Unauthorized("You are not authorized to access this resource");
+            context.Result = new UnauthorizedObjectResult(response);
         }
-
-        if (response.StatusCode == 0) return;
-
-        context.Result = new JsonResult(response) {
-            StatusCode = (int?)response.StatusCode
-        };
     }
 }

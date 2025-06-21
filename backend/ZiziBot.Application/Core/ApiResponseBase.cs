@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -11,6 +12,7 @@ public class ApiResponseBase<TResult>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? TransactionId { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public TimeSpan ExecutionTime { get; set; }
 
     public string Message { get; set; }
