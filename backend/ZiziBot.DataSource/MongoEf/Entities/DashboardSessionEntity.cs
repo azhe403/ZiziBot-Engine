@@ -14,4 +14,5 @@ public class DashboardSessionEntity : EntityBase
     public string Hash { get; set; }
     public string SessionId { get; set; }
     public string BearerToken { get; set; }
+    public DateTime? ExpireDate { get; set; }
 }

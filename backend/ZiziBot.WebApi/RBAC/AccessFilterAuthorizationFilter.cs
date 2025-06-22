@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Application.Facades;
+using ZiziBot.Contracts.Dtos;
 
 namespace ZiziBot.WebApi.RBAC;
 
@@ -15,6 +16,7 @@ public class AccessFilterAuthorizationFilter(
 {
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
+        DataRbac dataRbac = new();
         var userRoles = new List<RoleLevel>();
         var response = new ApiResponseBase<object> {
             TransactionId = context.HttpContext.GetTransactionId()
@@ -43,6 +45,14 @@ public class AccessFilterAuthorizationFilter(
                 return;
             }
 
+            dataRbac.AccessToken = bearerToken;
+            dataRbac.TransactionId = dashboardSession.TransactionId;
+            dataRbac.UserId = dashboardSession.TelegramUserId;
+            dataRbac.UserName = dashboardSession.Username;
+            dataRbac.UserPhotoUrl = dashboardSession.PhotoUrl;
+            dataRbac.UserFirstName = dashboardSession.FirstName;
+            dataRbac.UserLastName = dashboardSession.LastName;
+
             userRoles.Add(RoleLevel.User);
             #endregion
 
@@ -66,5 +76,11 @@ public class AccessFilterAuthorizationFilter(
             response.Unauthorized("You are not authorized to access this resource");
             context.Result = new UnauthorizedObjectResult(response);
         }
+
+        dataRbac = new DataRbac() {
+            UserRoles = userRoles
+        };
+
+        context.HttpContext.Items.TryAdd("DRBAC", dataRbac);
     }
 }
