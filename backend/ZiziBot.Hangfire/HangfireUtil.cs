@@ -27,7 +27,6 @@ public static class HangfireUtil
         });
 
         Log.Information("Deleting RSS {Count} Jobs finish..", rssJobs.Count);
-
     }
 
     public static void RemoveRecurringJob(string jobId)
@@ -38,6 +37,23 @@ public static class HangfireUtil
 
     public static void Enqueue<T>(Expression<Func<T, Task>> methodCall)
     {
+        if (!EnvUtil.IsEnabled(Flag.HANGFIRE))
+        {
+            var compile = methodCall.Compile();
+            var instance = Activator.CreateInstance<T>();
+            _ = compile.Invoke(instance);
+
+            return;
+        }
+
         BackgroundJob.Enqueue<T>(methodCall);
+    }
+
+    public static void Schedule<T>(Expression<Func<T, Task>> methodCall, TimeSpan delay)
+    {
+        if (!EnvUtil.IsEnabled(Flag.HANGFIRE))
+            return;
+
+        BackgroundJob.Schedule(methodCall, delay);
     }
 }

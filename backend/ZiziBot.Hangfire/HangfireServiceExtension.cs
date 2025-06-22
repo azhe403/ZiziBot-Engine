@@ -18,46 +18,52 @@ public static class HangfireServiceExtension
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
         var hangfireConfig = serviceProvider.GetRequiredService<IOptionsSnapshot<HangfireConfig>>().Value;
 
-        var queues = new[] {
-            "default",
-            CronJobKey.Queue_Data,
-            CronJobKey.Queue_Rss,
-            CronJobKey.Queue_ShalatTime
-        };
+        if (EnvUtil.IsEnabled(Flag.HANGFIRE))
+        {
+            var queues = new[] {
+                "default",
+                CronJobKey.Queue_Data,
+                CronJobKey.Queue_Rss,
+                CronJobKey.Queue_ShalatTime
+            };
 
-        JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
-            CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
-            CurrentStorage.Sqlite => new SQLiteStorage(PathConst.HANGFIRE_SQLITE_PATH.EnsureDirectory()),
-            CurrentStorage.LiteDb => new LiteDbStorage(PathConst.HANGFIRE_LITEDB_PATH.EnsureDirectory()),
-            _ => new InMemoryStorage(new InMemoryStorageOptions())
-        };
+            JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
+                CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
+                CurrentStorage.Sqlite => new SQLiteStorage(PathConst.HANGFIRE_SQLITE_PATH.EnsureDirectory()),
+                CurrentStorage.LiteDb => new LiteDbStorage(PathConst.HANGFIRE_LITEDB_PATH.EnsureDirectory()),
+                _ => new InMemoryStorage(new InMemoryStorageOptions())
+            };
 
-        services.AddHangfire(
-            configuration => {
-                configuration
-                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                    .UseSimpleAssemblyNameTypeSerializer()
-                    .UseRecommendedSerializerSettings()
-                    .UseDarkDashboard()
-                    .UseStorage(jobStorage)
-                    .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
-                    .UseMediatR();
-            }
-        );
+            services.AddHangfire(configuration => {
+                    configuration
+                        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                        .UseSimpleAssemblyNameTypeSerializer()
+                        .UseRecommendedSerializerSettings()
+                        .UseDarkDashboard()
+                        .UseStorage(jobStorage)
+                        .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
+                        .UseMediatR();
+                }
+            );
 
-        services.AddHangfireServer(
-            optionsAction: (provider, options) => {
-                options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
-                options.ServerTimeout = TimeSpan.FromMinutes(10);
-                options.Queues = queues;
-            },
-            storage: jobStorage,
-            additionalProcesses: new IBackgroundProcess[] {
-                new ProcessMonitor(TimeSpan.FromSeconds(3))
-            }
-        );
+            services.AddHangfireServer(
+                optionsAction: (provider, options) => {
+                    options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
+                    options.ServerTimeout = TimeSpan.FromMinutes(10);
+                    options.Queues = queues;
+                },
+                storage: jobStorage,
+                additionalProcesses: new IBackgroundProcess[] {
+                    new ProcessMonitor(TimeSpan.FromSeconds(3))
+                }
+            );
 
-        services.AddSingleton<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
+            services.AddSingleton<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
+        }
+        else
+        {
+            logger.LogDebug("Hangfire is disabled!");
+        }
 
         return services;
     }
@@ -65,20 +71,29 @@ public static class HangfireServiceExtension
     public static IApplicationBuilder UseHangfire(this IApplicationBuilder app)
     {
         var serviceProvider = app.ApplicationServices;
-        var authorizationFilters = serviceProvider.GetServices<IDashboardAuthorizationFilter>();
-        var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
-        var appSettingRepository = serviceProvider.GetRequiredService<AppSettingRepository>();
-        var config = appSettingRepository.GetConfigSection<HangfireConfig>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
 
-        app.UseHangfireDashboard(
-            pathMatch: UrlConst.HANGFIRE_URL_PATH,
-            options: new DashboardOptions() {
-                DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
-                IgnoreAntiforgeryToken = false
-                // Authorization = authorizationFilters,
-                // AsyncAuthorization = asyncAuthorizationFilters
-            }
-        );
+        if (EnvUtil.IsEnabled(Flag.HANGFIRE))
+        {
+            var authorizationFilters = serviceProvider.GetServices<IDashboardAuthorizationFilter>();
+            var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
+            var appSettingRepository = serviceProvider.GetRequiredService<AppSettingRepository>();
+            var config = appSettingRepository.GetConfigSection<HangfireConfig>();
+
+            app.UseHangfireDashboard(
+                pathMatch: UrlConst.HANGFIRE_URL_PATH,
+                options: new DashboardOptions() {
+                    DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
+                    IgnoreAntiforgeryToken = false
+                    // Authorization = authorizationFilters,
+                    // AsyncAuthorization = asyncAuthorizationFilters
+                }
+            );
+        }
+        else
+        {
+            logger.LogInformation("Hangfire is disabled!");
+        }
 
         return app;
     }
