@@ -5,7 +5,6 @@ global using MediatR;
 global using ZiziBot.Application.Core;
 global using ZiziBot.Application.Facades;
 global using ZiziBot.Application.Handlers.Telegram.Chat;
-global using ZiziBot.Application.Handlers.Telegram.Core;
 global using ZiziBot.Application.Handlers.Telegram.Data;
 global using ZiziBot.Application.Handlers.Telegram.Middleware;
 global using ZiziBot.Application.Services;

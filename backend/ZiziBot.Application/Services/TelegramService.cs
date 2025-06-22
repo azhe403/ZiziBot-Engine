@@ -8,6 +8,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Application.Handlers.Telegram.Core;
 using ZiziBot.Application.UseCases.Chat;
 using CreateChatActivityRequest = ZiziBot.Application.UseCases.Chat.CreateChatActivityRequest;
 using File = System.IO.File;
