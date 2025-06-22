@@ -62,8 +62,7 @@ public static class RssParserUtil
         if (!urlParseScheme.IsValidUrl())
             return rssUrl;
 
-        fixedUrl = await urlParseScheme.DetectRss();
-        return fixedUrl;
+        throw new Exception("Cannot detect rss url");
     }
 
     public static bool IsGithubReleaseUrl(this string url)
