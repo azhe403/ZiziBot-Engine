@@ -7,7 +7,7 @@ public class SessionCleanerUseCase(DataFacade dataFacade)
     public async Task Handle()
     {
         var sessions = await dataFacade.MongoEf.DashboardSessions
-            .Where(x => x.CreatedDate <= DateTime.UtcNow.AddMonths(-1))
+            .Where(x => x.ExpireDate <= DateTime.UtcNow)
             .ToListAsync();
 
         sessions.ForEach(x => {
