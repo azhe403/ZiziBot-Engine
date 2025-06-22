@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -33,6 +34,10 @@ public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
     [BindNever]
     [SwaggerIgnore]
     public ApiRole? SessionUserRole => Items[RequestKey.UserRole]?.ToString()?.ToEnum(ApiRole.Guest);
+
+    [BindNever]
+    [SwaggerIgnore]
+    public ImmutableList<RoleLevel> UserRoles => (Items["UserRoles"] as RoleLevel[] ?? []).ToImmutableList();
 
     [BindNever]
     [SwaggerIgnore]

@@ -56,6 +56,8 @@ public class AccessFilterAuthorizationFilter(
             {
                 userRoles.Add(RoleLevel.Sudo);
             }
+
+            context.HttpContext.Items.TryAdd("UserRoles", userRoles.ToArray());
             #endregion
         }
 
