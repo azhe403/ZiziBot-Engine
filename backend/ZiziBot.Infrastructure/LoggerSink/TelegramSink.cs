@@ -11,9 +11,9 @@ namespace ZiziBot.Infrastructure.LoggerSink;
 
 public class TelegramSink : ILogEventSink
 {
-    public string? BotToken { get; init; }
-    public long? ChatId { get; init; }
-    public long? ThreadId { get; set; }
+    public string BotToken { get; init; }
+    public long ChatId { get; init; }
+    public long ThreadId { get; set; }
 
     private string ApiUrl => $"https://api.telegram.org/bot{BotToken}/sendMessage";
 
@@ -21,7 +21,7 @@ public class TelegramSink : ILogEventSink
     {
         var exception = logEvent.Exception;
 
-        if (ChatId == 0 || BotToken == null)
+        if (ChatId == 0 || string.IsNullOrWhiteSpace(BotToken))
         {
             return;
         }
@@ -64,7 +64,7 @@ public class TelegramSink : ILogEventSink
         if (stackFrame != null)
         {
             htmlMessage
-                .Bold("File: ").CodeBr(stackFrame.GetFileName()!)
+                .Bold("File: ").CodeBr(stackFrame.GetFileName().GetFileName())
                 .Bold("Coordinate: ").CodeBr($"{stackFrame.GetFileLineNumber()}:{stackFrame.GetFileColumnNumber()}")
                 .Bold("Namespace: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Namespace!)
                 .Bold("Assembly: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.GetName().Name ?? string.Empty)
@@ -72,7 +72,7 @@ public class TelegramSink : ILogEventSink
                 .Bold("Assembly Location: ").CodeBr(stackFrame.GetMethod()!.DeclaringType!.Assembly.Location);
         }
 
-        htmlMessage.Bold("#").Text(logEvent.Level.ToString()).Text(" ").Text($"#LOG_{logEvent.Timestamp.ToString("yyyyMMdd")}");
+        htmlMessage.Bold("#").Text(logEvent.Level.ToString()).Text(" ").Text($"#LOG_{logEvent.Timestamp:yyyyMMdd}");
 
         SendMessageText(htmlMessage.ToString()).SafeFireAndForget(ex => Log.Error(ex, "Error when sending Telegram message: {ex}", ex.Message));
     }
@@ -90,7 +90,7 @@ public class TelegramSink : ILogEventSink
         var json = payload.ToJson();
 
         var responseMessage = await client.PostAsync(ApiUrl, new StringContent(json, Encoding.UTF8, "application/json"));
-        SelfLog.WriteLine("Telegram response: {response}", await responseMessage.Content.ReadAsStringAsync());
+        Log.Verbose("Telegram response: {response}", await responseMessage.Content.ReadAsStringAsync());
     }
 }
 
@@ -111,8 +111,8 @@ public static class TelegramSinkExtension
 
         configuration.Sink(logEventSink: new TelegramSink() {
             BotToken = botToken,
-            ChatId = chatId,
-            ThreadId = threadId
+            ChatId = chatId ?? 0,
+            ThreadId = threadId ?? 0
         }, logEventLevel);
 
         return configuration;
