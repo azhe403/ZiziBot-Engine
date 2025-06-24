@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using Sentry.Hangfire;
 
 namespace ZiziBot.Hangfire;
 
@@ -42,21 +43,44 @@ public static class HangfireServiceExtension
                         .UseDarkDashboard()
                         .UseStorage(jobStorage)
                         .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
-                        .UseMediatR();
+                        .UseMediatR()
+                        .UseSentry();
                 }
             );
 
-            services.AddHangfireServer(
-                optionsAction: (provider, options) => {
-                    options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
-                    options.ServerTimeout = TimeSpan.FromMinutes(10);
-                    options.Queues = queues;
-                },
-                storage: jobStorage,
-                additionalProcesses: new IBackgroundProcess[] {
-                    new ProcessMonitor(TimeSpan.FromSeconds(3))
+            if (EnvUtil.IsEnabled(Flag.HANGFIRE_SEPARATED_SERVER))
+            {
+                logger.LogDebug("Hangfire is running in a separated server!");
+
+                foreach (var queue in queues)
+                {
+                    services.AddHangfireServer(
+                        optionsAction: (provider, options) => {
+                            options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
+                            options.Queues = [queue];
+                        },
+                        storage: jobStorage,
+                        additionalProcesses: [
+                            new ProcessMonitor(TimeSpan.FromSeconds(3))
+                        ]
+                    );
                 }
-            );
+            }
+            else
+            {
+                logger.LogDebug("Hangfire is running in a single server!");
+
+                services.AddHangfireServer(
+                    optionsAction: (provider, options) => {
+                        options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
+                        options.Queues = queues;
+                    },
+                    storage: jobStorage,
+                    additionalProcesses: [
+                        new ProcessMonitor(TimeSpan.FromSeconds(3))
+                    ]
+                );
+            }
 
             services.AddSingleton<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
         }
@@ -75,19 +99,26 @@ public static class HangfireServiceExtension
 
         if (EnvUtil.IsEnabled(Flag.HANGFIRE))
         {
-            var authorizationFilters = serviceProvider.GetServices<IDashboardAuthorizationFilter>();
-            var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
             var appSettingRepository = serviceProvider.GetRequiredService<AppSettingRepository>();
             var config = appSettingRepository.GetConfigSection<HangfireConfig>();
 
+            var dashboardOptions = new DashboardOptions() {
+                DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
+                IgnoreAntiforgeryToken = false,
+            };
+
+            if (EnvUtil.IsEnabled(Flag.HANGFIRE_ENABLE_AUTH))
+            {
+                var authorizationFilters = serviceProvider.GetServices<IDashboardAuthorizationFilter>();
+                var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
+
+                dashboardOptions.Authorization = authorizationFilters;
+                dashboardOptions.AsyncAuthorization = asyncAuthorizationFilters;
+            }
+
             app.UseHangfireDashboard(
                 pathMatch: UrlConst.HANGFIRE_URL_PATH,
-                options: new DashboardOptions() {
-                    DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
-                    IgnoreAntiforgeryToken = false
-                    // Authorization = authorizationFilters,
-                    // AsyncAuthorization = asyncAuthorizationFilters
-                }
+                options: dashboardOptions
             );
         }
         else

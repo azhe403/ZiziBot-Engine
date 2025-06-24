@@ -12,26 +12,26 @@ public class HangfireAuthorizationFilter(
     public async Task<bool> AuthorizeAsync(DashboardContext context)
     {
         var httpContext = context.GetHttpContext();
-        httpContext.Request.Cookies.TryGetValue("bearer_token", out var sessionId);
+        httpContext.Request.Cookies.TryGetValue("bearer_token", out var accessToken);
 
-        logger.LogDebug("Checking Hangfire authorization..");
+        logger.LogDebug("Checking Hangfire authorization");
 
-        if (sessionId != null)
+        if (accessToken != null)
         {
-            var checkSession = await CheckSession(sessionId);
-            logger.LogDebug("SessionId is have access? {CheckSession}", checkSession);
+            var checkSession = await CheckSession(accessToken);
+            logger.LogDebug("SessionId is having access? {CheckSession}", checkSession);
 
             if (checkSession)
                 return true;
         }
 
-        logger.LogInformation("Session expired or invalid. Redirecting to Home..");
+        logger.LogInformation("Session expired or invalid. Redirecting Home");
         httpContext.Response.Redirect("/", true);
 
         return true;
     }
 
-    async Task<bool> CheckSession(string sessionId)
+    private async Task<bool> CheckSession(string sessionId)
     {
         var dashboardSessions = await mongoDbContext.DashboardSessions.AsNoTracking()
             .Where(entity => entity.BearerToken == sessionId)
@@ -41,7 +41,7 @@ public class HangfireAuthorizationFilter(
         if (dashboardSessions == null)
             return false;
 
-        var sudoer = mongoDbContext.Sudoers
+        var sudoer = await mongoDbContext.Sudoers.AsNoTracking()
             .Where(entity => entity.UserId == dashboardSessions.TelegramUserId)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();

@@ -28,6 +28,12 @@ public static class Flag
     public const string HANGFIRE = "HANGFIRE";
 
     [DefaultValue(true)]
+    public const string HANGFIRE_SEPARATED_SERVER = "HANGFIRE_SEPARATED_SERVER";
+
+    [DefaultValue(false)]
+    public const string HANGFIRE_ENABLE_AUTH = "HANGFIRE_ENABLE_AUTH";
+
+    [DefaultValue(true)]
     public const string RSS_BROADCASTER = "RSS_BROADCASTER";
 
     [DefaultValue(false)]
