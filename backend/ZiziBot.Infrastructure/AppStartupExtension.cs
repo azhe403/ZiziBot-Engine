@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Infrastructure;
 
@@ -19,6 +20,8 @@ public static class AppStartupExtension
     public static async Task<IApplicationBuilder> LoadFeatureFlag(this IApplicationBuilder app)
     {
         var featureFlagRepository = app.ApplicationServices.GetRequiredService<FeatureFlagRepository>();
+
+        ServiceExtension.GlobalServiceProvider = app.ApplicationServices;
 
         EnvUtil.Current = await featureFlagRepository.GetFlags();
 

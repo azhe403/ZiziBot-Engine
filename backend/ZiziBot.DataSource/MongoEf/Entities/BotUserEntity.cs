@@ -7,6 +7,7 @@ public class BotUserEntity : EntityBase
 {
     public long UserId { get; set; }
     public string? Username { get; set; }
+    public string? Password { get; set; }
     public string? ProfilePhotoId { get; set; }
     public string? ProfilePhotoPath { get; set; }
     public string? FirstName { get; set; }

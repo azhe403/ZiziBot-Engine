@@ -16,19 +16,17 @@
     <PackageReference Include="MediatR" Version="12.5.0"/>
     <PackageReference Include="morelinq" Version="4.4.0" />
     <PackageReference Include="Octokit.Webhooks" Version="2.4.1"/>
+    <PackageReference Include="Sentry" Version="5.11.1"/>
     <PackageReference Include="SerilogTimings" Version="3.1.0"/>
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.0"/>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Exceptions\ZiziBot.Exceptions.csproj"/>
     <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
     <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
     <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj"/>
     <ProjectReference Include="..\ZiziBot.Services\ZiziBot.Services.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Types\ZiziBot.Types.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
   </ItemGroup>
 
 </Project>

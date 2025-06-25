@@ -1,7 +1,8 @@
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Types.Vendor.FathimahApi.v2;
+using ZiziBot.Common.Interfaces;
+using ZiziBot.Common.Vendor.FathimahApi.v2;
 
 namespace ZiziBot.Services;
 

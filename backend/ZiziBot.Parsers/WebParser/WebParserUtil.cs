@@ -3,6 +3,8 @@ using CloudflareSolverRe;
 using Flurl;
 using Flurl.Http;
 using PickAll;
+using ZiziBot.Common.Types;
+using ZiziBot.Common.Utils;
 using Url = Flurl.Url;
 
 namespace ZiziBot.Parsers.WebParser;

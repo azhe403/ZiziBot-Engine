@@ -11,6 +11,8 @@ public class SendShalatTimeUseCase(
 {
     public async Task<bool> Handle(long chatId)
     {
+        var startChild = SentrySdk.StartTransaction(this.GetType().FullName, chatId.ToString());
+
         var botMain = await dataFacade.AppSetting.GetBotMain();
 
         const string defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
@@ -20,6 +22,7 @@ public class SendShalatTimeUseCase(
         if (cityList.IsEmpty())
         {
             logger.LogInformation("City list is empty for ChatId: {ChatId}", chatId);
+            startChild.Finish();
             return false;
         }
 
@@ -29,6 +32,8 @@ public class SendShalatTimeUseCase(
         {
             try
             {
+                startChild.StartChild(this.GetType().FullName, cityEntity.CityName);
+
                 var currentShalat = await serviceFacade.FathimahApiService.GetCurrentShalatTime(cityEntity.CityId);
 
                 var currentDate = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE);
@@ -37,6 +42,7 @@ public class SendShalatTimeUseCase(
                 {
                     logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'", cityEntity.CityName, currentDate.ToString("HH:mm"));
 
+                    startChild.Finish();
                     continue;
                 }
 
@@ -52,6 +58,8 @@ public class SendShalatTimeUseCase(
                     Text = messageText,
                     DeleteAfter = TimeSpan.FromDays(7)
                 });
+
+                startChild.Finish();
             }
             catch (Exception exception)
             {
@@ -64,6 +72,8 @@ public class SendShalatTimeUseCase(
                 {
                     logger.LogError(exception, "Error occurred to send Salat Time notification to ChatId: {ChatId}", chatId);
                 }
+
+                startChild.Finish(SpanStatus.FailedPrecondition);
             }
         }
 

@@ -12,7 +12,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ZiziBot.Contracts.Converters.SystemTextJson;
+using ZiziBot.Common.Configs;
+using ZiziBot.Common.Converters.SystemTextJson;
 
 namespace ZiziBot.WebApi;
 

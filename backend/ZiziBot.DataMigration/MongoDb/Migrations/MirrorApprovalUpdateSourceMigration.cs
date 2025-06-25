@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using ZiziBot.Contracts.Enums;
+using ZiziBot.Common.Enums;
 using ZiziBot.DataMigration.MongoDb.Interfaces;
 
 namespace ZiziBot.DataMigration.MongoDb.Migrations;

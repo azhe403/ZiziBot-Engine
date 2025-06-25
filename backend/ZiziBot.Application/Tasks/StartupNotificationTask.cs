@@ -1,5 +1,6 @@
 ﻿using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Tasks;
 

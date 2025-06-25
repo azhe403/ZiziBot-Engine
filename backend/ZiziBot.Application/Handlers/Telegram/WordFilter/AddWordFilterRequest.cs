@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
+﻿using ZiziBot.Common.Dtos;
+
+namespace ZiziBot.Application.Handlers.Telegram.WordFilter;
 
 public class AddWordFilterRequest : BotRequestBase
 {

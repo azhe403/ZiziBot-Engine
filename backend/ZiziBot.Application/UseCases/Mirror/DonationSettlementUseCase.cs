@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Flurl;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.UseCases.Mirror;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
-using ZiziBot.Contracts.Enums;
+using ZiziBot.Common.Enums;
 using ZiziBot.DataMigration.MongoDb.Interfaces;
 using ZiziBot.DataSource.MongoEf;
 

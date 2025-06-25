@@ -1,12 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using ZiziBot.Contracts.Dtos.Entity;
+using ZiziBot.Common.Dtos.Entity;
+using ZiziBot.Common.Interfaces;
+using ZiziBot.Common.Utils;
 using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.DataSource.Repository;
 
-public class FeatureFlagRepository(MongoEfContext mongoEfContext, ICacheService cacheService)
+public class FeatureFlagRepository(MongoEfContext mongoEfContext, IServiceProvider serviceProvider)
 {
+    private ICacheService cacheService => serviceProvider.GetRequiredService<ICacheService>();
+
     public async Task<List<FlagDto>?> GetFlags()
     {
         var flags = await mongoEfContext.FeatureFlag.AsNoTracking()

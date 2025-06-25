@@ -3,6 +3,7 @@ using Firebase.Database.Query;
 using Firebase.Database.Streaming;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Options;
+using ZiziBot.Common.Exceptions;
 
 namespace ZiziBot.Services;
 

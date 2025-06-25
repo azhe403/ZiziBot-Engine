@@ -17,7 +17,6 @@ public class JobService(ILogger<JobService> logger)
                 threadId,
                 rssUrl
             ),
-            queue: CronJobKey.Queue_Rss,
             cronExpression: TimeUtil.MinuteInterval(3)
         );
 

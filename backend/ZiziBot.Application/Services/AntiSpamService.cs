@@ -3,7 +3,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Interfaces;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.Services;
 

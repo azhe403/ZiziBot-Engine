@@ -1,3 +1,5 @@
+using ZiziBot.Common.Dtos;
+
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 
 public class ListNoteRequest : ApiRequestBase<List<NoteDto>>

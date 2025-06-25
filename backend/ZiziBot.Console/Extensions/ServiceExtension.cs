@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using ZiziBot.Contracts.Constants;
+using ZiziBot.Common.Constants;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Console.Extensions;
 

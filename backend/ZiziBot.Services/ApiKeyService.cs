@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Contracts.Enums;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Interfaces;
 using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Services;

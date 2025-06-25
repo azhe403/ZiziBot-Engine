@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 

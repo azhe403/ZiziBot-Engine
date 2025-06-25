@@ -5,6 +5,7 @@ using Jsonize.Serializer;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Parsers;
 

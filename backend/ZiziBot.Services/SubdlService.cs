@@ -1,6 +1,8 @@
 ﻿using Flurl;
 using Flurl.Http;
-using ZiziBot.Types.Vendor.Subdl;
+using ZiziBot.Common.Interfaces;
+using ZiziBot.Common.Utils;
+using ZiziBot.Common.Vendor.Subdl;
 
 namespace ZiziBot.Services;
 

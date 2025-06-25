@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Utils;
 using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Tests.Pipelines;

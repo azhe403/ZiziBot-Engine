@@ -1,6 +1,5 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.Interfaces;
 
 namespace ZiziBot.Application.UseCases.User;
 

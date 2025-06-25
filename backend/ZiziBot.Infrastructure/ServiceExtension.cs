@@ -15,12 +15,14 @@ namespace ZiziBot.Infrastructure;
 
 public static class ServiceExtension
 {
-    public async static Task<IServiceCollection> ConfigureServices(this IServiceCollection services)
+    public static IServiceProvider GlobalServiceProvider { get; set; }
+
+    public static async Task<IServiceCollection> ConfigureServices(this IServiceCollection services)
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddCacheTower();
         services.AddAllService();
         await services.ConfigureSettings();
+        services.AddCacheTower();
         services.AddMongoMigration();
         services.AddMediator();
         services.AddBackgroundQueue();

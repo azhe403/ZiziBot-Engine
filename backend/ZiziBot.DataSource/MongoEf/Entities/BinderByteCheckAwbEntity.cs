@@ -1,5 +1,5 @@
 ﻿using MongoDB.EntityFrameworkCore;
-using ZiziBot.Types.Vendor.BinderByte;
+using ZiziBot.Common.Vendor.BinderByte;
 
 namespace ZiziBot.DataSource.MongoEf.Entities;
 

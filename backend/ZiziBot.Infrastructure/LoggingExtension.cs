@@ -5,11 +5,13 @@ using Flurl.Http;
 using Flurl.Http.Configuration;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.AspNetCore.SignalR.Extensions;
+using ZiziBot.Common.Utils;
 using IHub = Serilog.Sinks.AspNetCore.SignalR.Interfaces.IHub;
 
 namespace ZiziBot.Infrastructure;
@@ -92,6 +94,30 @@ public static class LoggingExtension
             config.WriteTo.Async(configuration =>
                 configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
         });
+
+        return hostBuilder;
+    }
+
+    public static IWebHostBuilder ConfigureSentry(this IWebHostBuilder hostBuilder)
+    {
+        if (Env.SentryDsn.IsNotNullOrWhiteSpace())
+        {
+            hostBuilder.UseSentry((context, options) => {
+                options.Dsn = Env.SentryDsn;
+                options.TracesSampleRate = 1.0;
+                options.ProfilesSampleRate = 1.0;
+                options.Release = VersionUtil.GetVersion();
+                options.AddProfilingIntegration();
+            });
+
+            SentrySdk.Init(options => {
+                options.Dsn = Env.SentryDsn;
+                options.TracesSampleRate = 1.0;
+                options.ProfilesSampleRate = 1.0;
+                options.Release = VersionUtil.GetVersion();
+                options.AddProfilingIntegration();
+            });
+        }
 
         return hostBuilder;
     }

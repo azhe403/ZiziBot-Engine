@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
 using ZiziBot.Application.Facades;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Tests.Pipelines;
 

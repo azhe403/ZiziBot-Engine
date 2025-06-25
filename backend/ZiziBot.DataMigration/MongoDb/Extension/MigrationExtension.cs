@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using ZiziBot.Contracts.Constants;
+using ZiziBot.Common.Constants;
+using ZiziBot.Common.Utils;
 using ZiziBot.DataMigration.MongoDb.Interfaces;
-using ZiziBot.Utils;
 
 namespace ZiziBot.DataMigration.MongoDb.Extension;
 

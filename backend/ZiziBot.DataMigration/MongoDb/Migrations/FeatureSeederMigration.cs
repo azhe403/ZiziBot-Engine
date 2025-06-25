@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
-using ZiziBot.Contracts.Constants;
-using ZiziBot.Contracts.Enums;
+using ZiziBot.Common.Constants;
+using ZiziBot.Common.Enums;
 using ZiziBot.DataMigration.MongoDb.Interfaces;
 using ZiziBot.DataSource.MongoEf;
 using ZiziBot.DataSource.MongoEf.Entities;

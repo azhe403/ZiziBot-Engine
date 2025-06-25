@@ -1,4 +1,5 @@
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Parsers;
 

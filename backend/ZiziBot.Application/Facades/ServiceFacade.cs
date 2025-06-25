@@ -1,36 +1,21 @@
-﻿using ZiziBot.Interfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace ZiziBot.Application.Facades;
 
-public class ServiceFacade(
-    IMediator mediator,
-    ICacheService cacheService,
-    MediatorService mediatorService,
-    JobService jobService,
-    TelegramService telegramService,
-    AntiSpamService antiSpamService,
-    TonjooService tonjooService,
-    BinderByteService binderByteService,
-    FathimahApiService fathimahApiService,
-    MirrorPaymentService mirrorPaymentService,
-    OcrSpaceService ocrSpaceService,
-    SubdlService subdlService,
-    UupDumpService uupDumpService,
-    WebhookService webhookService
-)
+public class ServiceFacade(IServiceProvider serviceProvider)
 {
-    public IMediator Mediator { get; } = mediator;
-    public ICacheService CacheService { get; } = cacheService;
-    public MediatorService MediatorService { get; } = mediatorService;
-    public JobService JobService { get; } = jobService;
-    public TelegramService TelegramService { get; } = telegramService;
-    public AntiSpamService AntiSpamService { get; } = antiSpamService;
-    public TonjooService TonjooService { get; } = tonjooService;
-    public BinderByteService BinderByteService { get; } = binderByteService;
-    public FathimahApiService FathimahApiService { get; } = fathimahApiService;
-    public MirrorPaymentService MirrorPaymentService { get; } = mirrorPaymentService;
-    public OcrSpaceService OcrSpaceService { get; } = ocrSpaceService;
-    public SubdlService SubdlService { get; } = subdlService;
-    public UupDumpService UupDumpService { get; } = uupDumpService;
-    public WebhookService WebhookService { get; } = webhookService;
+    public IMediator Mediator => serviceProvider.GetRequiredService<IMediator>();
+    public ICacheService CacheService => serviceProvider.GetRequiredService<ICacheService>();
+    public MediatorService MediatorService => serviceProvider.GetRequiredService<MediatorService>();
+    public JobService JobService => serviceProvider.GetRequiredService<JobService>();
+    public TelegramService TelegramService => serviceProvider.GetRequiredService<TelegramService>();
+    public AntiSpamService AntiSpamService => serviceProvider.GetRequiredService<AntiSpamService>();
+    public TonjooService TonjooService => serviceProvider.GetRequiredService<TonjooService>();
+    public BinderByteService BinderByteService => serviceProvider.GetRequiredService<BinderByteService>();
+    public FathimahApiService FathimahApiService => serviceProvider.GetRequiredService<FathimahApiService>();
+    public MirrorPaymentService MirrorPaymentService => serviceProvider.GetRequiredService<MirrorPaymentService>();
+    public OcrSpaceService OcrSpaceService => serviceProvider.GetRequiredService<OcrSpaceService>();
+    public SubdlService SubdlService => serviceProvider.GetRequiredService<SubdlService>();
+    public UupDumpService UupDumpService => serviceProvider.GetRequiredService<UupDumpService>();
+    public WebhookService WebhookService => serviceProvider.GetRequiredService<WebhookService>();
 }

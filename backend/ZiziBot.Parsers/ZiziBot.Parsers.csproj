@@ -25,9 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Types\ZiziBot.Types.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Common\ZiziBot.Common.csproj"/>
   </ItemGroup>
 
 </Project>

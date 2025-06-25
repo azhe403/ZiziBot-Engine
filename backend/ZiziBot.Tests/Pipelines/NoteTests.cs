@@ -1,6 +1,7 @@
 using Xunit;
 using ZiziBot.Application.Core;
 using ZiziBot.Application.Facades;
+using ZiziBot.Common.Enums;
 
 namespace ZiziBot.Tests.Pipelines;
 

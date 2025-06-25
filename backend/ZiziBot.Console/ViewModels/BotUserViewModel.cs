@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ZiziBot.Application.Facades;
-using ZiziBot.Contracts.Enums;
+using ZiziBot.Common.Enums;
 using ZiziBot.DataSource.MongoEf.Entities;
 
 namespace ZiziBot.Console.ViewModels;

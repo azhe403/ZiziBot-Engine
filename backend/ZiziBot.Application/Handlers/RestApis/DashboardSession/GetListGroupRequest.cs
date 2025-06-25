@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 

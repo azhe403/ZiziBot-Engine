@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Html.Dom;
-using ZiziBot.Types.Vendor.JadwalSholatOrg;
+using ZiziBot.Common.Utils;
+using ZiziBot.Common.Vendor.JadwalSholatOrg;
 
 namespace ZiziBot.Parsers.WebParser;
 

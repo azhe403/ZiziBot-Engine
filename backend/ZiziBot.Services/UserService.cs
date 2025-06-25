@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using ZiziBot.Common.Exceptions;
+using ZiziBot.Common.Interfaces;
 using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Services;

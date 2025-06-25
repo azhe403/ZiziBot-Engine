@@ -4,8 +4,8 @@ using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
+using ZiziBot.Common.Vendor.BinderByte;
 using ZiziBot.DataSource.MongoEf.Entities;
-using Data = ZiziBot.Types.Vendor.BinderByte.Data;
 
 namespace ZiziBot.Application.Services;
 

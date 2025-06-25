@@ -1,6 +1,8 @@
 using CacheTower;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ZiziBot.Common.Interfaces;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Services;
 
@@ -22,7 +24,8 @@ public class CacheService(
         bool evictBefore = false,
         bool evictAfter = false,
         string? expireAfter = null,
-        string? staleAfter = null
+        string? staleAfter = null,
+        bool throwIfError = false
     )
     {
         if (disableCache)
@@ -64,6 +67,9 @@ public class CacheService(
         catch (Exception exception)
         {
             logger.LogError(exception, "Error loading cache with Key: {Key}", cacheKey);
+
+            if (throwIfError)
+                throw;
 
             await EvictAsync(cacheKey);
 

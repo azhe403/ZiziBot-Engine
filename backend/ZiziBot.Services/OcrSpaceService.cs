@@ -1,6 +1,8 @@
 ﻿using Flurl.Http;
-using ZiziBot.Contracts.Enums;
-using ZiziBot.Types.Vendor.OcrSpace;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Interfaces;
+using ZiziBot.Common.Utils;
+using ZiziBot.Common.Vendor.OcrSpace;
 
 namespace ZiziBot.Services;
 

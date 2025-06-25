@@ -2,6 +2,7 @@ using System.ComponentModel;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Sentry.Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.DataSource.MongoEf.Entities;
@@ -16,15 +17,19 @@ public class FetchRssUseCase(
 )
 {
     [DisplayName("{0}:{1} -> {2}")]
-    [MaximumConcurrentExecutions(10)]
     [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    [SentryMonitorSlug("FetchRssUseCase")]
+    [Queue(CronJobKey.Queue_Rss)]
     public async Task<bool> Handle(long chatId, int threadId, string rssUrl)
     {
+        var startChild = SentrySdk.StartTransaction(this.GetType().FullName ?? "FetchRssUseCase", rssUrl);
+
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
         var botSettings = await dataFacade.AppSetting.GetBotMain();
 
         try
         {
+            var botClient = new TelegramBotClient(botSettings.Token);
             var feed = await readRssUseCase.Handle(rssUrl);
 
             foreach (var latestArticle in feed.Items.Take(3))
@@ -36,8 +41,6 @@ public class FetchRssUseCase(
                     logger.LogDebug("Article for ChatId: {ChatId} is already sent: {Url}", chatId, latestHistory.Url);
                     continue;
                 }
-
-                var botClient = new TelegramBotClient(botSettings.Token);
 
                 try
                 {
@@ -74,6 +77,8 @@ public class FetchRssUseCase(
                     Status = EventStatus.Complete
                 });
             }
+
+            startChild?.Finish(SpanStatus.Ok);
         }
         catch (Exception exception)
         {
@@ -95,10 +100,13 @@ public class FetchRssUseCase(
 
                     RecurringJob.RemoveIfExists(rssSetting.CronJobId);
                 });
+
+                startChild?.Finish(SpanStatus.FailedPrecondition);
             }
             else
             {
                 logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", chatId, rssUrl);
+                startChild?.Finish(SpanStatus.Aborted);
             }
         }
 

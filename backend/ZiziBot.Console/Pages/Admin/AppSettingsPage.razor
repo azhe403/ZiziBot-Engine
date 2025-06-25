@@ -1,7 +1,8 @@
 ﻿@page "/admin/app-settings"
 @attribute [Authorize(Roles = "Sudo")]
+@using ZiziBot.Common.Constants
+@using ZiziBot.Common.Types
 @using ZiziBot.DataSource.MongoEf.Entities
-@using ZiziBot.Types.Types
 @inherits WebComponentBase<AppSettingsViewModel>
 
 <TitleControl Value="AppSettings"></TitleControl>

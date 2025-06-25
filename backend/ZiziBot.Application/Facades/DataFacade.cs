@@ -1,31 +1,20 @@
-﻿using ZiziBot.DataSource.MongoEf;
-using ZiziBot.Interfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
+using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Application.Facades;
 
-public class DataFacade(
-    ICacheService cacheService,
-    MongoEfContext mongoEf,
-    AdditionalRepository additionalRepository,
-    AppSettingRepository appSettingRepository,
-    FeatureFlagRepository featureFlagRepository,
-    ChatSettingRepository chatSettingRepository,
-    GroupRepository groupRepository,
-    RssRepository rssRepository,
-    MirrorUserRepository mirrorUserRepository,
-    WordFilterRepository wordFilterRepository
-) : IDataFacade
+public class DataFacade(IServiceProvider serviceProvider) : IDataFacade
 {
-    public ICacheService Cache => cacheService;
-    public MongoEfContext MongoEf => mongoEf;
-    public AdditionalRepository Additional => additionalRepository;
-    public AppSettingRepository AppSetting => appSettingRepository;
-    public FeatureFlagRepository FeatureFlag => featureFlagRepository;
-    public ChatSettingRepository ChatSetting => chatSettingRepository;
-    public GroupRepository Group => groupRepository;
-    public RssRepository Rss => rssRepository;
-    public MirrorUserRepository MirrorUser => mirrorUserRepository;
-    public WordFilterRepository WordFilter => wordFilterRepository;
+    public ICacheService Cache => serviceProvider.GetRequiredService<ICacheService>();
+    public MongoEfContext MongoEf => serviceProvider.GetRequiredService<MongoEfContext>();
+    public AdditionalRepository Additional => serviceProvider.GetRequiredService<AdditionalRepository>();
+    public AppSettingRepository AppSetting => serviceProvider.GetRequiredService<AppSettingRepository>();
+    public FeatureFlagRepository FeatureFlag => serviceProvider.GetRequiredService<FeatureFlagRepository>();
+    public ChatSettingRepository ChatSetting => serviceProvider.GetRequiredService<ChatSettingRepository>();
+    public GroupRepository Group => serviceProvider.GetRequiredService<GroupRepository>();
+    public RssRepository Rss => serviceProvider.GetRequiredService<RssRepository>();
+    public MirrorUserRepository MirrorUser => serviceProvider.GetRequiredService<MirrorUserRepository>();
+    public WordFilterRepository WordFilter => serviceProvider.GetRequiredService<WordFilterRepository>();
 
     public async Task<int> SaveChangesAsync()
     {

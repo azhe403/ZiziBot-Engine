@@ -1,4 +1,5 @@
 using ZiziBot.Application.Facades;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Console.Pages;
 

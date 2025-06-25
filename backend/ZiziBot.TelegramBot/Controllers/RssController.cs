@@ -23,4 +23,18 @@ public class RssController(
             }
         });
     }
+
+    [Command("drss")]
+    public async Task DisableRss(CommandData data)
+    {
+        await mediatorService.EnqueueAsync(new DisableRssRequest() {
+            BotToken = data.BotToken,
+            Message = data.Message,
+            MinimumRole = RoleLevel.ChatAdminOrPrivate,
+            CleanupTargets = new[] {
+                CleanupTarget.FromBot,
+                CleanupTarget.FromSender
+            }
+        });
+    }
 }

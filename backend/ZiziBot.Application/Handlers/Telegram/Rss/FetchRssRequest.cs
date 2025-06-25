@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ZiziBot.Application.Facades;
-using ZiziBot.Contracts.Enums;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Types;
 using ZiziBot.DataSource.MongoEf.Entities;
-using ZiziBot.Types.Types;
 using Unit = System.Reactive.Unit;
 
 namespace ZiziBot.Console.ViewModels;

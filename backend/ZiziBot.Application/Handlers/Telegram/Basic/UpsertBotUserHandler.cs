@@ -1,6 +1,7 @@
 ﻿using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 

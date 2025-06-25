@@ -1,6 +1,8 @@
 using dotenv.net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ZiziBot.Common.Exceptions;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Infrastructure;
 
@@ -35,6 +37,16 @@ public static class ConfigurationExtension
         #region Feature Flags
         var featureFlagRepository = provider.GetRequiredService<FeatureFlagRepository>();
         EnvUtil.Current = await featureFlagRepository.GetFlags();
+        #endregion
+
+        #region Env
+        var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+        var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
+
+        if (sentryConfig?.IsEnabled == true)
+        {
+            Env.SentryDsn = sentryConfig.Dsn;
+        }
         #endregion
 
         return services;

@@ -2,6 +2,7 @@
     "recommendations": [
         "ms-dotnettools.csharp",
         "muhammad-sammy.csharp",
-        "ms-dotnettools.csdevkit"
+        "ms-dotnettools.csdevkit",
+        "mongodb.mongodb-vscode"
     ]
 }

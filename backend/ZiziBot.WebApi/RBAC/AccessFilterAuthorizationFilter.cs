@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Application.Facades;
-using ZiziBot.Contracts.Dtos;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.WebApi.RBAC;
 

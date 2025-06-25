@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Attributes\ZiziBot.Attributes.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Common\ZiziBot.Common.csproj"/>
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 ﻿using MongoDB.EntityFrameworkCore;
-using ZiziBot.Types.Vendor.TonjooStudio;
+using ZiziBot.Common.Vendor.TonjooStudio;
 
 namespace ZiziBot.DataSource.MongoEf.Entities;
 
