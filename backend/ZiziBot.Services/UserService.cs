@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ZiziBot.Common.Exceptions;
 using ZiziBot.Common.Interfaces;
-using ZiziBot.DataSource.MongoEf;
+using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Services;
 
-public class UserService(MongoEfContext mongoEfContext, AppSettingRepository appSettingRepository) : IUserService
+public class UserService(MongoDbContext mongoDbContext, AppSettingRepository appSettingRepository) : IUserService
 {
     public async Task<(string stringToken, DateTime tokenExpiration, int accessExpireIn)> GenerateAccessToken(long userId)
     {
@@ -18,7 +18,7 @@ public class UserService(MongoEfContext mongoEfContext, AppSettingRepository app
         if (jwtConfig == null)
             throw new AppException("JWT Config not found");
 
-        var botUser = await mongoEfContext.BotUser.Where(x => x.UserId == userId)
+        var botUser = await mongoDbContext.BotUser.Where(x => x.UserId == userId)
             .FirstOrDefaultAsync();
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));

@@ -10,7 +10,7 @@ public class RegisterShalatTimeTask(DataFacade dataFacade) : IStartupTask
     {
         if (EnvUtil.IsEnabled(Flag.HANGFIRE))
         {
-            var cities = await dataFacade.MongoEf.BangHasan_ShalatCity.AsNoTracking()
+            var cities = await dataFacade.MongoDb.BangHasan_ShalatCity.AsNoTracking()
                 .Where(entity => entity.Status == EventStatus.Complete)
                 .Select(entity => entity.ChatId)
                 .Distinct()

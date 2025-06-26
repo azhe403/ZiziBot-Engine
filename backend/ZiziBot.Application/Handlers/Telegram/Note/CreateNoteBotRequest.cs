@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using ZiziBot.Common.Types;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
@@ -51,7 +51,7 @@ public class CreateNoteHandler(
             await serviceFacade.TelegramService.SendMessageText("Balas sebuah pesan yang akan disimpan");
         }
 
-        var note = await dataFacade.MongoEf.Note
+        var note = await dataFacade.MongoDb.Note
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Query == request.Query)
             .Where(entity => entity.Status == EventStatus.Complete)
@@ -88,7 +88,7 @@ public class CreateNoteHandler(
         {
             await serviceFacade.TelegramService.SendMessageText("Sedang membuat catatan...");
 
-            dataFacade.MongoEf.Note.Add(new NoteEntity() {
+            dataFacade.MongoDb.Note.Add(new NoteEntity() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 Query = request.Query,
@@ -101,7 +101,7 @@ public class CreateNoteHandler(
             });
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         await serviceFacade.TelegramService.EditMessageText("Memperbarui cache..");
         await dataFacade.ChatSetting.GetAllByChat(request.ChatIdentifier, true);

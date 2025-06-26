@@ -106,7 +106,7 @@ public class FetchRssHandler(
                 }
             }
 
-            dataFacade.MongoEf.RssHistory.Add(new() {
+            dataFacade.MongoDb.RssHistory.Add(new() {
                 ChatId = request.ChatId,
                 ThreadId = request.ThreadId,
                 RssUrl = request.RssUrl,
@@ -121,7 +121,7 @@ public class FetchRssHandler(
         {
             if (exception.IsIgnorable())
             {
-                var findRssSetting = await dataFacade.MongoEf.RssSetting
+                var findRssSetting = await dataFacade.MongoDb.RssSetting
                     .Where(entity => entity.ChatId == request.ChatId)
                     .Where(entity => entity.RssUrl == request.RssUrl)
                     .Where(entity => entity.Status == EventStatus.Complete)
@@ -144,7 +144,7 @@ public class FetchRssHandler(
             }
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return true;
     }

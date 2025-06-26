@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using ZiziBot.Common.Types;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
@@ -37,7 +37,7 @@ public class PrepareConsoleHandler(
         if (request.IsPrivateChat)
         {
             var otp = RandomNumberGenerator.GetInt32(100000, 999999);
-            dataFacade.MongoEf.UserOtp.Add(new UserOtpEntity() {
+            dataFacade.MongoDb.UserOtp.Add(new UserOtpEntity() {
                 UserId = request.UserId,
                 Otp = otp,
                 Status = EventStatus.InProgress,
@@ -46,7 +46,7 @@ public class PrepareConsoleHandler(
                 UpdatedBy = request.UserId
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync();
+            await dataFacade.MongoDb.SaveChangesAsync();
         }
 
         if (webUrl.Contains("localhost"))

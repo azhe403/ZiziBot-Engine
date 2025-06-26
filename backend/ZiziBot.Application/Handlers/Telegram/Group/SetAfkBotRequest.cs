@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ZiziBot.Common.Types;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -19,7 +19,7 @@ public class SetAfkRequestHandler(
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var afkEntity = await dataFacade.MongoEf.Afk
+        var afkEntity = await dataFacade.MongoDb.Afk
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == request.UserId &&
                     entity.Status == EventStatus.Complete,
@@ -27,7 +27,7 @@ public class SetAfkRequestHandler(
 
         if (afkEntity == null)
         {
-            dataFacade.MongoEf.Afk.Add(new AfkEntity() {
+            dataFacade.MongoDb.Afk.Add(new AfkEntity() {
                 UserId = request.UserId,
                 ChatId = request.ChatIdentifier,
                 Reason = request.Reason,
@@ -42,7 +42,7 @@ public class SetAfkRequestHandler(
             afkEntity.Status = EventStatus.Complete;
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         var htmlMessage = HtmlMessage.Empty
             .User(request.User)

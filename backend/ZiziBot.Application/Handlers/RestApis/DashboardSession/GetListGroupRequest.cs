@@ -15,7 +15,7 @@ public class GetListGroupHandler(
         ApiResponseBase<List<ChatInfoDto>?> response = new();
 
         #region Check Dashboard Session
-        var dashboardSession = await dataFacade.MongoEf.DashboardSessions
+        var dashboardSession = await dataFacade.MongoDb.DashboardSessions
             .Where(entity => entity.BearerToken == request.BearerToken)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -28,7 +28,7 @@ public class GetListGroupHandler(
         var userId = dashboardSession.TelegramUserId;
         #endregion
 
-        var chatAdmin = await dataFacade.MongoEf.ChatAdmin
+        var chatAdmin = await dataFacade.MongoDb.ChatAdmin
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
@@ -40,7 +40,7 @@ public class GetListGroupHandler(
 
         var chatIds = chatAdmin.Select(y => y.ChatId);
 
-        var listChatSetting = await dataFacade.MongoEf.ChatSetting
+        var listChatSetting = await dataFacade.MongoDb.ChatSetting
             .Where(x => chatIds.Contains(x.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 

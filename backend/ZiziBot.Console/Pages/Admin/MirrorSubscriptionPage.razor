@@ -1,7 +1,7 @@
 @page "/admin/mirror-subscription"
 @attribute [Authorize(Roles = "Sudo")]
 @using ZiziBot.Common.Constants
-@using ZiziBot.DataSource.MongoEf.Entities
+@using ZiziBot.Database.MongoDb.Entities
 @inherits WebComponentBase<MirrorSubscriptionViewModel>
 
 <TitleControl Value="Mirror Subscription"></TitleControl>

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
@@ -68,7 +68,7 @@ public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequest
             return response.Unauthorized("Token tidak valid, silakan atur Token di Setting");
         }
 
-        var mirrorDonation = await dataFacade.MongoEf.MirrorDonation
+        var mirrorDonation = await dataFacade.MongoDb.MirrorDonation
             .Where(x => x.OrderId == request.Body.TransactionId)
             .Where(x => x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -78,7 +78,7 @@ public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequest
             return response.Success("Donasi Mirror sudah diproses");
         }
 
-        dataFacade.MongoEf.MirrorDonation.Add(new MirrorDonationEntity {
+        dataFacade.MongoDb.MirrorDonation.Add(new MirrorDonationEntity {
             Status = EventStatus.Complete,
             TransactionId = request.TransactionId,
             OrderId = request.Body.TransactionId,
@@ -95,7 +95,7 @@ public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequest
             Source = DonationSource.Trakteer
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Trakteer webhook berhasil diproses");
     }

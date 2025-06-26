@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.Infrastructure", "b
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.Hangfire", "backend\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj", "{E6B44B13-69D0-4F9F-B920-AC4E1302C77D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.DataSource", "backend\ZiziBot.DataSource\ZiziBot.DataSource.csproj", "{C284CD70-E4AD-4467-9ACF-9676A6C47FE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.Database", "backend\ZiziBot.Database\ZiziBot.Database.csproj", "{C284CD70-E4AD-4467-9ACF-9676A6C47FE9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZiziBot.Caching", "backend\ZiziBot.Caching\ZiziBot.Caching.csproj", "{D1BBF5D0-040B-4D35-B2C2-C1D2A0E39EC5}"
 EndProject

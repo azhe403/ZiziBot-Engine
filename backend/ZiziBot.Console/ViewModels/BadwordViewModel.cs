@@ -1,6 +1,7 @@
 using System.Reactive.Linq;
 using Microsoft.AspNetCore.Components.Web;
 using ZiziBot.Common.Dtos;
+using ZiziBot.Database.Repository;
 using Unit = System.Reactive.Unit;
 
 namespace ZiziBot.Console.ViewModels;

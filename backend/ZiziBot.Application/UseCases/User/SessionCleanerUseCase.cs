@@ -6,14 +6,14 @@ public class SessionCleanerUseCase(DataFacade dataFacade)
 {
     public async Task Handle()
     {
-        var sessions = await dataFacade.MongoEf.DashboardSessions
+        var sessions = await dataFacade.MongoDb.DashboardSessions
             .Where(x => x.ExpireDate <= DateTime.UtcNow)
             .ToListAsync();
 
         sessions.ForEach(x => {
-            dataFacade.MongoEf.DashboardSessions.Remove(x);
+            dataFacade.MongoDb.DashboardSessions.Remove(x);
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
     }
 }

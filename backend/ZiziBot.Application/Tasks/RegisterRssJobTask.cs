@@ -45,6 +45,7 @@ public class RegisterRssJobTask(
             else
             {
                 RecurringJob.RemoveIfExists(CronJobKey.Rss_Reset);
+                HangfireUtil.RemoveRssJobs();
             }
         }
     }

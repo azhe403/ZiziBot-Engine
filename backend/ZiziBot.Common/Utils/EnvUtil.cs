@@ -56,12 +56,12 @@ public static class EnvUtil
         {
             var defaultFlag = Flag.GetFields().FirstOrDefault(x => x.Name == flagName);
             var flagValue = defaultFlag?.Value ?? false;
-            Log.Debug("Flag {FlagName} not found. Using default value: {DefaultFlagValue}", flagName, flagValue);
+            Log.Verbose("Flag {FlagName} not found. Using default value: {DefaultFlagValue}", flagName, flagValue);
 
             return flagValue;
         }
 
-        Log.Debug("Flag {FlagName} is {FlagValue}", flag.Name, flag.Value);
+        Log.Verbose("Flag {FlagName} is {FlagValue}", flag.Name, flag.Value);
         return flag.Value;
     }
 }

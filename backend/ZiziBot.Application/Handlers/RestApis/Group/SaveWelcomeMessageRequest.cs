@@ -1,8 +1,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.DataSource.MongoEf.Entities;
-using ZiziBot.DataSource.Utils;
+using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Database.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
@@ -47,15 +47,15 @@ public class SaveWelcomeMessageHandler(
             return response.BadRequest("You don't have access to this Group");
         }
 
-        var findWelcome = await dataFacade.MongoEf.WelcomeMessage
+        var findWelcome = await dataFacade.MongoDb.WelcomeMessage
             .FirstOrDefaultAsync(x => x.Id == request.Model.Id.ToObjectId(), cancellationToken);
 
         if (findWelcome == null)
         {
-            var welcomeMessage = await dataFacade.MongoEf.WelcomeMessage
+            var welcomeMessage = await dataFacade.MongoDb.WelcomeMessage
                 .FirstOrDefaultAsync(x => x.ChatId == request.Model.ChatId, cancellationToken);
 
-            dataFacade.MongoEf.WelcomeMessage.Add(new WelcomeMessageEntity {
+            dataFacade.MongoDb.WelcomeMessage.Add(new WelcomeMessageEntity {
                 ChatId = request.Model.ChatId,
                 Text = request.Model.Text,
                 RawButton = request.Model.RawButton,
@@ -75,7 +75,7 @@ public class SaveWelcomeMessageHandler(
             findWelcome.Status = EventStatus.InProgress;
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Save Welcome Message successfully", true);
     }

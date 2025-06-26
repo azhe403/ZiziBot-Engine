@@ -10,7 +10,7 @@ global using ZiziBot.Application.Handlers.Telegram.Mirror;
 global using ZiziBot.Application.Handlers.Telegram.Note;
 global using ZiziBot.Application.Handlers.Telegram.Rss;
 global using ZiziBot.Application.Services;
-global using ZiziBot.DataSource.Repository;
+global using ZiziBot.Database.Repository;
 global using ZiziBot.Infrastructure;
 global using ZiziBot.Parsers.WebParser;
 global using ZiziBot.Services;

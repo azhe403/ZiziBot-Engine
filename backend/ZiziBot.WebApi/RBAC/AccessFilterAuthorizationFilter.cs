@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Application.Facades;
 using ZiziBot.Common.Dtos;
+using ZiziBot.Database;
 
 namespace ZiziBot.WebApi.RBAC;
 
@@ -32,7 +32,7 @@ public class AccessFilterAuthorizationFilter(
         if (!string.IsNullOrWhiteSpace(bearerToken))
         {
             #region Check Dashboard Session
-            var dashboardSession = await dataFacade.MongoEf.DashboardSessions.AsNoTracking()
+            var dashboardSession = await dataFacade.MongoDb.DashboardSessions.AsNoTracking()
                 .Where(x => x.BearerToken == bearerToken)
                 .Where(x => x.Status == EventStatus.Complete)
                 .OrderByDescending(x => x.CreatedDate)
@@ -57,7 +57,7 @@ public class AccessFilterAuthorizationFilter(
             #endregion
 
             #region Add User Role
-            var checkSudo = await dataFacade.MongoEf.Sudoers.AsNoTracking()
+            var checkSudo = await dataFacade.MongoDb.Sudoers.AsNoTracking()
                 .Where(x => x.Status == EventStatus.Complete)
                 .Where(x => x.UserId == dashboardSession.TelegramUserId)
                 .FirstOrDefaultAsync();

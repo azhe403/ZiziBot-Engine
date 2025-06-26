@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ZiziBot.Common.Dtos;
 using ZiziBot.Common.Types;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
@@ -33,7 +33,7 @@ public class ValidateTelegramSessionHandler(
     {
         ApiResponseBase<ValidateDashboardSessionIdResponseDto> response = new();
 
-        var botSetting = await dataFacade.MongoEf.BotSettings
+        var botSetting = await dataFacade.MongoDb.BotSettings
             .Where(entity => entity.Status == EventStatus.Complete)
             .Where(entity => entity.Name == "Main")
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -60,7 +60,7 @@ public class ValidateTelegramSessionHandler(
             return response.Unauthorized($"Session is invalid. please send '/console' on Chat for create new session");
         }
 
-        var dashboardSession = await dataFacade.MongoEf.DashboardSessions
+        var dashboardSession = await dataFacade.MongoDb.DashboardSessions
             .Where(entity => entity.TelegramUserId == request.Body.Id)
             .Where(entity => entity.SessionId == request.Body.SessionId)
             .Where(entity => entity.Status == EventStatus.Complete)
@@ -94,7 +94,7 @@ public class ValidateTelegramSessionHandler(
 
             stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            dataFacade.MongoEf.DashboardSessions.Add(new DashboardSessionEntity() {
+            dataFacade.MongoDb.DashboardSessions.Add(new DashboardSessionEntity() {
                 TelegramUserId = request.Body.Id,
                 FirstName = request.Body.FirstName,
                 LastName = request.Body.LastName,
@@ -116,7 +116,7 @@ public class ValidateTelegramSessionHandler(
             stringToken = dashboardSession.BearerToken;
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Session saved successfully", new ValidateDashboardSessionIdResponseDto() {
             IsSessionValid = true,

@@ -21,7 +21,7 @@ public class GetUserInfoHandler(DataFacade dataFacade) : IApiRequestHandler<GetU
     public async Task<ApiResponseBase<GetUserInfoResponse>> Handle(GetUserInfoRequest request, CancellationToken cancellationToken)
     {
         var response = ApiResponse.Create<GetUserInfoResponse>();
-        var session = await dataFacade.MongoEf.DashboardSessions.AsNoTracking()
+        var session = await dataFacade.MongoDb.DashboardSessions.AsNoTracking()
             .Where(x => x.BearerToken == request.BearerToken)
             .Where(x => x.Status == EventStatus.Complete)
             .OrderByDescending(x => x.CreatedDate)

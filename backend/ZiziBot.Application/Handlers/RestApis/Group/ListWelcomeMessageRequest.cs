@@ -31,7 +31,7 @@ public class ListWelcomeMessageHandler(
     {
         var response = new ApiResponseBase<List<WelcomeMessageResponse>>();
 
-        var query = await dataFacade.MongoEf.WelcomeMessage.AsNoTracking()
+        var query = await dataFacade.MongoDb.WelcomeMessage.AsNoTracking()
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => entity.Status != (int)EventStatus.Deleted)
             .Where(entity => request.ListChatId.Contains(entity.ChatId))

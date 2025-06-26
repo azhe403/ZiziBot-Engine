@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Types;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -20,7 +20,7 @@ public class CreateWebhookHandler(
 
         await serviceFacade.TelegramService.SendMessageText("Sedang membuat webhook..");
 
-        var webhookChat = await dataFacade.MongoEf.WebhookChat
+        var webhookChat = await dataFacade.MongoDb.WebhookChat
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == EventStatus.Complete)
             .Where(entity => entity.MessageThreadId == request.MessageThreadId)
@@ -34,7 +34,7 @@ public class CreateWebhookHandler(
 
         if (webhookChat == null)
         {
-            dataFacade.MongoEf.WebhookChat.Add(new WebhookChatEntity() {
+            dataFacade.MongoDb.WebhookChat.Add(new WebhookChatEntity() {
                 ChatId = request.ChatIdentifier,
                 MessageThreadId = request.MessageThreadId,
                 RouteId = routeId,
@@ -47,7 +47,7 @@ public class CreateWebhookHandler(
         }
 
         htmlMessage.Code(webhookUrl);
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return await serviceFacade.TelegramService.EditMessageText(htmlMessage.ToString());
     }

@@ -29,7 +29,7 @@ public class CheckDashboardSessionRequestHandler(
         };
 
         #region Check Dashboard Session
-        var dashboardSession = await dataFacade.MongoEf.DashboardSessions
+        var dashboardSession = await dataFacade.MongoDb.DashboardSessions
             .Where(session => session.TelegramUserId == request.UserId)
             .Where(session => session.SessionId == request.SessionId)
             .Where(session => session.Status == EventStatus.Complete)
@@ -42,7 +42,7 @@ public class CheckDashboardSessionRequestHandler(
         #endregion
 
         #region Get User Role
-        var checkSudo = await dataFacade.MongoEf.Sudoers
+        var checkSudo = await dataFacade.MongoDb.Sudoers
             .FirstOrDefaultAsync(sudoer => sudoer.UserId == request.UserId, cancellationToken: cancellationToken);
 
         if (checkSudo != null)

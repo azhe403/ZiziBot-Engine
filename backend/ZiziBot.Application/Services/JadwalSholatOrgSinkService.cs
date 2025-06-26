@@ -1,7 +1,7 @@
 ﻿using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Services;
 
@@ -37,18 +37,18 @@ public class JadwalSholatOrgSinkService(ILogger<JadwalSholatOrgSinkService> logg
         if (insertCities.Count != 0)
         {
             logger.LogDebug("Deleting old cities..");
-            await dataFacade.MongoEf.JadwalSholatOrg_City.Where(entity => removeCityIds.Contains(entity.CityId)).ExecuteDeleteAsync();
-            await dataFacade.MongoEf.SaveChangesAsync();
+            await dataFacade.MongoDb.JadwalSholatOrg_City.Where(entity => removeCityIds.Contains(entity.CityId)).ExecuteDeleteAsync();
+            await dataFacade.MongoDb.SaveChangesAsync();
 
             logger.LogDebug("Inserting new cities..");
-            dataFacade.MongoEf.JadwalSholatOrg_City.AddRange(insertCities);
-            await dataFacade.MongoEf.SaveChangesAsync();
+            dataFacade.MongoDb.JadwalSholatOrg_City.AddRange(insertCities);
+            await dataFacade.MongoDb.SaveChangesAsync();
         }
     }
 
     public async Task FeedSchedule()
     {
-        var cities = await dataFacade.MongoEf.JadwalSholatOrg_City.ToListAsync();
+        var cities = await dataFacade.MongoDb.JadwalSholatOrg_City.ToListAsync();
 
         foreach (var city in cities)
         {
@@ -82,13 +82,13 @@ public class JadwalSholatOrgSinkService(ILogger<JadwalSholatOrgSinkService> logg
         }
 
         logger.LogDebug("Deleting old schedules for city {CityId}..", cityId);
-        var jadwalSholatOrgSchedule = await dataFacade.MongoEf.JadwalSholatOrg_Schedule.Where(x => x.CityId == cityId).ToListAsync();
-        dataFacade.MongoEf.RemoveRange(jadwalSholatOrgSchedule);
-        await dataFacade.MongoEf.SaveChangesAsync();
+        var jadwalSholatOrgSchedule = await dataFacade.MongoDb.JadwalSholatOrg_Schedule.Where(x => x.CityId == cityId).ToListAsync();
+        dataFacade.MongoDb.RemoveRange(jadwalSholatOrgSchedule);
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         logger.LogDebug("Inserting new schedules for city {CityId}..", cityId);
-        dataFacade.MongoEf.JadwalSholatOrg_Schedule.AddRange(insertSchedules);
-        await dataFacade.MongoEf.SaveChangesAsync();
+        dataFacade.MongoDb.JadwalSholatOrg_Schedule.AddRange(insertSchedules);
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         return insertSchedules.Count;
     }

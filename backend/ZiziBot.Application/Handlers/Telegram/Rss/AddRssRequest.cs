@@ -26,7 +26,7 @@ public class AddRssHandler(
             var rssUrl = await request.Param.DetectRss();
             await serviceFacade.TelegramService.SendMessageAsync("Sedang memverifikasi URL..");
 
-            var rssSetting = await dataFacade.MongoEf.RssSetting
+            var rssSetting = await dataFacade.MongoDb.RssSetting
                 .Where(entity => entity.RssUrl == rssUrl)
                 .Where(entity => entity.ChatId == request.ChatIdentifier)
                 .Where(entity => entity.ThreadId == request.MessageThreadId)
@@ -38,7 +38,7 @@ public class AddRssHandler(
 
             var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
 
-            dataFacade.MongoEf.RssSetting.Add(new() {
+            dataFacade.MongoDb.RssSetting.Add(new() {
                 ChatId = request.ChatIdentifier,
                 RssUrl = rssUrl,
                 ThreadId = request.MessageThreadId,
@@ -47,7 +47,7 @@ public class AddRssHandler(
                 Status = EventStatus.Complete
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
             await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job..");
 

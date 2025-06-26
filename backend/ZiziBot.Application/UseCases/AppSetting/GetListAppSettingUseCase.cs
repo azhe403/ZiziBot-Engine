@@ -26,7 +26,7 @@ public class GetListAppSettingUseCase(AppSettingRepository appSettingRepository,
     {
         var response = ApiResponse.Create<List<GetListAppSettingResponse>>();
 
-        var appSettingsEntities = await dataFacade.MongoEf.AppSettings.AsNoTracking()
+        var appSettingsEntities = await dataFacade.MongoDb.AppSettings.AsNoTracking()
             .WhereIf(request.AvailabilityStatus == AvailabilityStatus.Active, x => x.Status == EventStatus.Complete)
             .WhereIf(request.AvailabilityStatus == AvailabilityStatus.Deleted, x => x.Status == EventStatus.Deleted)
             .WhereIf(request.AvailabilityStatus == AvailabilityStatus.Inactive, x => x.Status == EventStatus.Inactive)

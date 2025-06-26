@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.DataSource.Utils;
+using ZiziBot.Database.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Pendekin;
 
@@ -35,7 +35,7 @@ public class GetPendekinHandler(
     public async Task<ApiResponseBase<GetPendekinResponse>> Handle(GetPendekinRequest request, CancellationToken cancellationToken)
     {
         var response = ApiResponse.Create<GetPendekinResponse>();
-        var pendekinMap = await dataFacade.MongoEf.PendekinMap.AsNoTracking()
+        var pendekinMap = await dataFacade.MongoDb.PendekinMap.AsNoTracking()
             .WhereIf(!request.ShortPath.IsObjectId(), x => x.ShortPath == request.ShortPath)
             .WhereIf(request.ShortPath.IsObjectId(), x => x.Id == request.ShortPath.ToObjectId())
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);

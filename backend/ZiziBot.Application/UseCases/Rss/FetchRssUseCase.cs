@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Sentry.Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
@@ -22,6 +22,9 @@ public class FetchRssUseCase(
     [Queue(CronJobKey.Queue_Rss)]
     public async Task<bool> Handle(long chatId, int threadId, string rssUrl)
     {
+        if (!EnvUtil.IsEnabled(Flag.RSS_BROADCASTER))
+            return true;
+
         var startChild = SentrySdk.StartTransaction(this.GetType().FullName ?? "FetchRssUseCase", rssUrl);
 
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
@@ -66,7 +69,7 @@ public class FetchRssUseCase(
                     }
                 }
 
-                dataFacade.MongoEf.RssHistory.Add(new RssHistoryEntity {
+                dataFacade.MongoDb.RssHistory.Add(new RssHistoryEntity {
                     ChatId = chatId,
                     ThreadId = threadId,
                     RssUrl = rssUrl,
@@ -84,7 +87,7 @@ public class FetchRssUseCase(
         {
             if (exception.IsIgnorable())
             {
-                var findRssSetting = await dataFacade.MongoEf.RssSetting
+                var findRssSetting = await dataFacade.MongoDb.RssSetting
                     .Where(entity => entity.ChatId == chatId)
                     .Where(entity => entity.RssUrl == rssUrl)
                     .Where(entity => entity.Status == EventStatus.Complete)
@@ -110,7 +113,7 @@ public class FetchRssUseCase(
             }
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         return true;
     }

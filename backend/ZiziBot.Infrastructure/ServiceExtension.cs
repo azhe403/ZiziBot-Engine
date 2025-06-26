@@ -9,7 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using ZiziBot.Application.Facades;
-using ZiziBot.DataMigration.MongoDb.Extension;
+using ZiziBot.Database;
+using ZiziBot.Database.Extension;
 
 namespace ZiziBot.Infrastructure;
 
@@ -90,10 +91,8 @@ public static class ServiceExtension
             .AsSelfWithInterfaces()
             .WithTransientLifetime());
 
-        services.Scan(selector => selector.FromAssembliesOf(typeof(DataFacade))
-            .AddClasses(filter => filter.InNamespaceOf<DataFacade>())
-            .AsSelf()
-            .WithTransientLifetime());
+        services.AddTransient<ServiceFacade>();
+        services.AddTransient<DataFacade>();
 
         return services;
     }

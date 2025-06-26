@@ -1,7 +1,7 @@
 using Xunit;
 using ZiziBot.Application.Core;
-using ZiziBot.Application.Facades;
 using ZiziBot.Common.Enums;
+using ZiziBot.Database;
 
 namespace ZiziBot.Tests.Pipelines;
 
@@ -33,13 +33,13 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
     public async Task DeleteNoteTest(string note)
     {
         // Arrange
-        dataFacade.MongoEf.Note.Add(new() {
+        dataFacade.MongoDb.Note.Add(new() {
             ChatId = SampleMessages.CommonMessage.Chat.Id,
             Query = note,
             Status = EventStatus.Complete
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
 
         // Act

@@ -17,7 +17,7 @@ public static class ConfigurationExtension
         return builder.LoadLocalSettings();
     }
 
-    public async static Task<IServiceCollection> ConfigureSettings(this IServiceCollection services)
+    public static async Task<IServiceCollection> ConfigureSettings(this IServiceCollection services)
     {
         services.AddDataSource();
         services.AddDataRepository();

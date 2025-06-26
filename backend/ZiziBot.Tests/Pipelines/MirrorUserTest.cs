@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
-using ZiziBot.Application.Facades;
 using ZiziBot.Common.Enums;
 using ZiziBot.Common.Utils;
+using ZiziBot.Database;
 
 namespace ZiziBot.Tests.Pipelines;
 
@@ -20,7 +20,7 @@ public class MirrorUserTest(
         // Arrange
         var orderId = url.UrlSegment(1, url);
         var bot = await dataFacade.AppSetting.GetBotMain();
-        var payment = await dataFacade.MongoEf.MirrorApproval
+        var payment = await dataFacade.MongoDb.MirrorApproval
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(entity => entity.OrderId == orderId);
 
@@ -28,7 +28,7 @@ public class MirrorUserTest(
         {
             payment.Status = (int)EventStatus.Deleted;
 
-            await dataFacade.MongoEf.SaveChangesAsync();
+            await dataFacade.MongoDb.SaveChangesAsync();
         }
 
         bot.ShouldNotBeNull();
@@ -46,7 +46,7 @@ public class MirrorUserTest(
     {
         // Arrange
         var bot = await dataFacade.AppSetting.GetBotMain();
-        var payment = await dataFacade.MongoEf.MirrorApproval
+        var payment = await dataFacade.MongoDb.MirrorApproval
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(entity => entity.OrderId == url);
 
@@ -54,7 +54,7 @@ public class MirrorUserTest(
         {
             payment.Status = EventStatus.Deleted;
 
-            await dataFacade.MongoEf.SaveChangesAsync();
+            await dataFacade.MongoDb.SaveChangesAsync();
         }
 
         // Assert

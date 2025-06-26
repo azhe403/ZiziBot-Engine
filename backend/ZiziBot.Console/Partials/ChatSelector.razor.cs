@@ -1,6 +1,6 @@
-using ZiziBot.Application.Facades;
 using ZiziBot.Common.Dtos;
 using ZiziBot.Common.Utils;
+using ZiziBot.Database;
 
 namespace ZiziBot.Console.Partials;
 

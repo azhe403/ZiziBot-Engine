@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.DataSource.MongoEf;
+using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Hangfire;
 
 public class HangfireAuthorizationFilter(
     ILogger<HangfireAuthorizationFilter> logger,
-    MongoEfContext mongoDbContext
+    MongoDbContext mongoDbContext
 ) : IDashboardAsyncAuthorizationFilter
 {
     public async Task<bool> AuthorizeAsync(DashboardContext context)

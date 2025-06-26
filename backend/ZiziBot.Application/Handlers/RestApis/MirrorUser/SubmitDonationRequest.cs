@@ -33,7 +33,7 @@ public class SubmitDonationHandler(
         CancellationToken cancellationToken
     )
     {
-        var mirrorApproval = await dataFacade.MongoEf.MirrorApproval
+        var mirrorApproval = await dataFacade.MongoDb.MirrorApproval
             .Where(x => x.OrderId == request.Body.OrderId && x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -49,7 +49,7 @@ public class SubmitDonationHandler(
             return _response.BadRequest("OrderId tidak valid");
         }
 
-        dataFacade.MongoEf.MirrorApproval.Add(new() {
+        dataFacade.MongoDb.MirrorApproval.Add(new() {
             UserId = request.SessionUserId,
             DonationSource = parsedDonationDto.Source,
             DonationSourceName = parsedDonationDto.Source.ToString(),
@@ -69,7 +69,7 @@ public class SubmitDonationHandler(
         var cendolCount = parsedDonationDto.CendolCount;
 
 
-        var mirrorUser = await dataFacade.MongoEf.MirrorUser.Where(x =>
+        var mirrorUser = await dataFacade.MongoDb.MirrorUser.Where(x =>
                 x.UserId == request.SessionUserId &&
                 x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
@@ -79,7 +79,7 @@ public class SubmitDonationHandler(
 
         if (mirrorUser == null)
         {
-            dataFacade.MongoEf.MirrorUser.Add(new() {
+            dataFacade.MongoDb.MirrorUser.Add(new() {
                 UserId = request.SessionUserId,
                 ExpireDate = expireDate,
                 Status = EventStatus.Complete,
@@ -98,7 +98,7 @@ public class SubmitDonationHandler(
             mirrorUser.TransactionId = request.TransactionId;
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return _response.Success("Pembayaran berhasil diverifikasi.", true);
     }

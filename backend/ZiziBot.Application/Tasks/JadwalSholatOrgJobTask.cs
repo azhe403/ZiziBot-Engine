@@ -17,11 +17,11 @@ public class JadwalSholatOrgJobTask(DataFacade dataFacade) : IStartupTask
                 cronExpression: TimeUtil.DayInterval(1)
             );
 
-            var checkCity = await dataFacade.MongoEf.JadwalSholatOrg_City.AsNoTracking()
+            var checkCity = await dataFacade.MongoDb.JadwalSholatOrg_City.AsNoTracking()
                 .Where(entity => entity.Status == EventStatus.Complete)
                 .CountAsync();
 
-            var checkSchedule = await dataFacade.MongoEf.JadwalSholatOrg_Schedule.AsNoTracking()
+            var checkSchedule = await dataFacade.MongoDb.JadwalSholatOrg_Schedule.AsNoTracking()
                 .Where(entity => entity.Status == EventStatus.Complete)
                 .CountAsync();
 

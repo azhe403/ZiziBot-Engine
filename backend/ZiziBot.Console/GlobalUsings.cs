@@ -16,5 +16,4 @@ global using ZiziBot.Application.Services;
 global using ZiziBot.Console.Extensions;
 global using ZiziBot.Console.Middleware;
 global using ZiziBot.Console.ViewModels;
-global using ZiziBot.DataSource.Repository;
 global using ZiziBot.Parsers;

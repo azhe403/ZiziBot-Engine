@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ZiziBot.Common.Dtos;
 using ZiziBot.Common.Types;
-using ZiziBot.DataSource.MongoEf;
 
 namespace ZiziBot.Application.Handlers.Web.Console;
 
@@ -25,7 +24,7 @@ public class CheckConsoleSessionResponseDto
 
 public class CheckConsoleSessionHandler(
     ILogger<CheckConsoleSessionHandler> logger,
-    MongoEfContext mongoDbContext,
+    DataFacade dataFacade,
     AppSettingRepository appSettingRepository
 )
     : IWebRequestHandler<CheckConsoleSessionRequest, CheckConsoleSessionResponseDto>
@@ -37,7 +36,7 @@ public class CheckConsoleSessionHandler(
     {
         WebResponseBase<CheckConsoleSessionResponseDto> response = new();
 
-        var botSetting = await mongoDbContext.BotSettings
+        var botSetting = await dataFacade.MongoDb.BotSettings
             .Where(entity => entity.Status == EventStatus.Complete)
             .Where(entity => entity.Name == "Main")
             .FirstOrDefaultAsync(cancellationToken);
@@ -75,7 +74,7 @@ public class CheckConsoleSessionHandler(
             "Guest"
         };
 
-        var findSudo = await mongoDbContext.Sudoers.AsNoTracking()
+        var findSudo = await dataFacade.MongoDb.Sudoers.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
             .Where(x => x.UserId == request.Model.Id)
             .FirstOrDefaultAsync(cancellationToken);
@@ -104,7 +103,7 @@ public class CheckConsoleSessionHandler(
 
         var stringToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        mongoDbContext.DashboardSessions.Add(new() {
+        dataFacade.MongoDb.DashboardSessions.Add(new() {
             TelegramUserId = request.Model.Id,
             FirstName = request.Model.FirstName,
             LastName = request.Model.LastName,
@@ -117,7 +116,7 @@ public class CheckConsoleSessionHandler(
             Status = EventStatus.Complete
         });
 
-        await mongoDbContext.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Session saved successfully", new() {
             IsSessionValid = true,

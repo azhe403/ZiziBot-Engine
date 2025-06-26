@@ -12,7 +12,7 @@ global using ZiziBot.Application.Handlers.RestApis.Webhook;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Common.Constants;
 global using ZiziBot.Common.Enums;
-global using ZiziBot.DataSource.Repository;
+global using ZiziBot.Database.Repository;
 global using ZiziBot.Infrastructure.LoggerSink;
 global using ZiziBot.Parsers;
 global using ZiziBot.WebApi.Middlewares;

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using ZiziBot.Common.Vendor.BinderByte;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Services;
 
@@ -98,7 +98,7 @@ public class BinderByteService(
 
     public async Task<BinderByteCheckAwbEntity?> GetStoredAwb(string awb)
     {
-        var collection = await dataFacade.MongoEf.BinderByteCheckAwb
+        var collection = await dataFacade.MongoDb.BinderByteCheckAwb
             .FirstOrDefaultAsync(resi => resi.AwbInfo.Summary.Awb == awb);
 
         return collection;
@@ -106,14 +106,14 @@ public class BinderByteService(
 
     public async Task SaveAwbInfo(Data data)
     {
-        dataFacade.MongoEf.BinderByteCheckAwb.Add(new() {
+        dataFacade.MongoDb.BinderByteCheckAwb.Add(new() {
             Awb = data.Summary.Awb,
             Courier = data.Summary.Courier,
             AwbInfo = data,
             Status = EventStatus.Complete
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
     }
 
     public async Task<RootResponse> CekResiRawAsync(string courier, string awb)

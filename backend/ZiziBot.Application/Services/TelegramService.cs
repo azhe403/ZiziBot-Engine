@@ -46,7 +46,7 @@ public class TelegramService(
 
     public async Task<bool> IsBotName(string name)
     {
-        var botSettings = await dataFacade.MongoEf.BotSettings
+        var botSettings = await dataFacade.MongoDb.BotSettings
             .FirstOrDefaultAsync(x => x.Token == _request.BotToken);
 
         return botSettings?.Name == name;

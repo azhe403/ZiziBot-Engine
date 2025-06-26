@@ -31,7 +31,7 @@ public class GetListApiKeyUseCase(DataFacade dataFacade)
 
     public async Task<ApiResponseBase<List<GetListApiKeyResponse>>> Handle(GetListApiKeyRequest request)
     {
-        var query = await dataFacade.MongoEf.ApiKey
+        var query = await dataFacade.MongoDb.ApiKey
             .WhereIf(request.AvailabilityStatus == AvailabilityStatus.Active, x => x.Status == EventStatus.Complete)
             .WhereIf(request.AvailabilityStatus == AvailabilityStatus.Deleted, x => x.Status == EventStatus.Deleted)
             .WhereIf(request.AvailabilityStatus == AvailabilityStatus.Inactive, x => x.Status == EventStatus.Inactive)

@@ -15,7 +15,7 @@ public class UpdateStatisticUseCase(
     {
         logger.LogDebug("Updating GitHub token usage statistic");
 
-        var githubApiKey = await dataFacade.MongoEf.ApiKey
+        var githubApiKey = await dataFacade.MongoDb.ApiKey
             .OrderByDescending(x => x.Remaining)
             .Where(x => x.Name == ApiKeyVendor.GitHub)
             .Where(x => x.Status != EventStatus.Inactive)

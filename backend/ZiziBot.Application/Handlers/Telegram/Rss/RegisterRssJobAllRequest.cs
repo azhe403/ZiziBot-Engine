@@ -18,19 +18,19 @@ public class RegisterRssJobAllHandler(
     {
         if (request.ResetStatus)
         {
-            var rssSettingsAll = await dataFacade.MongoEf.RssSetting.ToListAsync(cancellationToken: cancellationToken);
+            var rssSettingsAll = await dataFacade.MongoDb.RssSetting.ToListAsync(cancellationToken: cancellationToken);
 
             rssSettingsAll.ForEach(entity => {
                 entity.LastErrorMessage = string.Empty;
                 entity.Status = EventStatus.Complete;
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
         }
 
         HangfireUtil.RemoveRssJobs();
 
-        var rssSettings = await dataFacade.MongoEf.RssSetting
+        var rssSettings = await dataFacade.MongoDb.RssSetting
             .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 
@@ -51,7 +51,7 @@ public class RegisterRssJobAllHandler(
             rssSettingEntity.TransactionId = Guid.NewGuid().ToString();
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return true;
     }

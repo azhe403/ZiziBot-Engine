@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.DataSource.Utils;
+using ZiziBot.Database.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Group;
 
@@ -39,7 +39,7 @@ public class DeleteWelcomeMessageHandler(
             return response.BadRequest("You don't have access to this Group");
         }
 
-        var findWelcome = await dataFacade.MongoEf.WelcomeMessage
+        var findWelcome = await dataFacade.MongoDb.WelcomeMessage
             .Where(x => x.ChatId == request.Model.ChatId)
             .Where(x => x.Status != EventStatus.Deleted)
             .Where(x => x.Id == request.Model.Id.ToObjectId())
@@ -54,7 +54,7 @@ public class DeleteWelcomeMessageHandler(
         findWelcome.UserId = request.SessionUserId;
         findWelcome.TransactionId = request.TransactionId;
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Delete Welcome Message successfully", true);
     }
