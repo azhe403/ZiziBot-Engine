@@ -152,7 +152,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             },
             new() {
                 Root = nameof(ConfigRoot.Mirror),
-                KeyPair = mirror.ToDictionary(StringType.SnakeCase)
+                KeyPair = mirror.ToDictionary(StringType.PascalCase)
             },
             new() {
                 Root = nameof(ConfigRoot.Pendekin),
