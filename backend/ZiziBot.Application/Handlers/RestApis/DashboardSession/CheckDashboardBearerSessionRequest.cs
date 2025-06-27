@@ -36,7 +36,7 @@ public class CheckDashboardBearerSessionRequestHandler(
         #region Check Dashboard Session
         var dashboardSession = await dataFacade.MongoDb.DashboardSessions
             .Where(entity =>
-                entity.BearerToken == request.BearerToken &&
+                entity.BearerToken == request.UserInfo.BearerToken &&
                 entity.Status == EventStatus.Complete
             )
             .FirstOrDefaultAsync(cancellationToken);

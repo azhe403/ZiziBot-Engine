@@ -26,7 +26,7 @@ public class SelectWelcomeMessageHandler(
         var listWelcomeMessage = await dataFacade.MongoDb.WelcomeMessage
             .Where(entity => entity.ChatId == request.Model.ChatId)
             .Where(entity => entity.Status != EventStatus.Deleted)
-            .Where(entity => request.ListChatId.Contains(entity.ChatId))
+            .Where(entity => request.UserInfo.ListChatId.Contains(entity.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
         if (listWelcomeMessage.Count == 0)

@@ -34,7 +34,7 @@ public class SaveRssHandler(
     {
         ApiResponseBase<bool> response = new();
 
-        if (!request.ListChatId.Contains(request.Body.ChatId))
+        if (!request.UserInfo.ListChatId.Contains(request.Body.ChatId))
         {
             return response.BadRequest($"Kamu tidak mempunyai akses ke ChatId: {request.Body.ChatId}");
         }

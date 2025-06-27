@@ -34,7 +34,7 @@ public class DeleteWelcomeMessageHandler(
     {
         var response = new ApiResponseBase<object>();
 
-        if (!request.AdminChatId.Contains(request.Model.ChatId))
+        if (!request.UserInfo.AdminChatId.Contains(request.Model.ChatId))
         {
             return response.BadRequest("You don't have access to this Group");
         }
@@ -51,8 +51,8 @@ public class DeleteWelcomeMessageHandler(
         }
 
         findWelcome.Status = EventStatus.Deleted;
-        findWelcome.UserId = request.SessionUserId;
-        findWelcome.TransactionId = request.TransactionId;
+        findWelcome.UserId = request.UserInfo.UserId;
+        findWelcome.TransactionId = request.UserInfo.TransactionId;
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 

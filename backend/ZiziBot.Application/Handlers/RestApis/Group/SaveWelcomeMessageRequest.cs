@@ -42,7 +42,7 @@ public class SaveWelcomeMessageHandler(
     {
         var response = new ApiResponseBase<object>();
 
-        if (!request.AdminChatId.Contains(request.Model.ChatId))
+        if (!request.UserInfo.AdminChatId.Contains(request.Model.ChatId))
         {
             return response.BadRequest("You don't have access to this Group");
         }
@@ -62,7 +62,7 @@ public class SaveWelcomeMessageHandler(
                 Media = request.Model.Media,
                 DataType = request.Model.DataType,
                 Status = welcomeMessage == null ? EventStatus.Complete : EventStatus.Inactive,
-                TransactionId = request.TransactionId
+                TransactionId = request.UserInfo.TransactionId
             });
         }
         else
@@ -71,7 +71,7 @@ public class SaveWelcomeMessageHandler(
             findWelcome.RawButton = request.Model.RawButton;
             findWelcome.Media = request.Model.Media;
             findWelcome.DataType = request.Model.DataType;
-            findWelcome.TransactionId = request.TransactionId;
+            findWelcome.TransactionId = request.UserInfo.TransactionId;
             findWelcome.Status = EventStatus.InProgress;
         }
 

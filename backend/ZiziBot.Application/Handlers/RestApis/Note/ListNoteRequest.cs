@@ -15,7 +15,7 @@ public class ListNoteHandler(
     {
         var response = new ApiResponseBase<List<NoteDto>>();
 
-        if (!request.ListChatId.Contains(request.ChatId))
+        if (!request.UserInfo.ListChatId.Contains(request.ChatId))
         {
             return response.BadRequest("ChatId is not in your list");
         }

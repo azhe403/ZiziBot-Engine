@@ -44,7 +44,7 @@ public class CreateNoteHandler(
     {
         ApiResponseBase<bool> response = new();
 
-        if (!request.ListChatId.Contains(request.Model.ChatId))
+        if (!request.UserInfo.ListChatId.Contains(request.Model.ChatId))
         {
             return response.BadRequest("You don't have permission to create note for this Chat");
         }

@@ -16,10 +16,12 @@ public class AccessFilterAuthorizationFilter(
 {
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
-        DataRbac dataRbac = new();
+        var userInfo = new UserInfo();
         var userRoles = new List<RoleLevel>();
+        var transactionId = context.HttpContext.GetTransactionId();
+
         var response = new ApiResponseBase<object> {
-            TransactionId = context.HttpContext.GetTransactionId()
+            TransactionId = transactionId
         };
 
         logger.LogDebug("Access '{Flag}' role level minimum: {Role}", flag, roleLevel);
@@ -32,7 +34,7 @@ public class AccessFilterAuthorizationFilter(
         if (!string.IsNullOrWhiteSpace(bearerToken))
         {
             #region Check Dashboard Session
-            var dashboardSession = await dataFacade.MongoDb.DashboardSessions.AsNoTracking()
+            var dashboardSession = await dataFacade.MongoDb.DashboardSessions
                 .Where(x => x.BearerToken == bearerToken)
                 .Where(x => x.Status == EventStatus.Complete)
                 .OrderByDescending(x => x.CreatedDate)
@@ -45,15 +47,19 @@ public class AccessFilterAuthorizationFilter(
                 return;
             }
 
-            dataRbac.AccessToken = bearerToken;
-            dataRbac.TransactionId = dashboardSession.TransactionId;
-            dataRbac.UserId = dashboardSession.TelegramUserId;
-            dataRbac.UserName = dashboardSession.Username;
-            dataRbac.UserPhotoUrl = dashboardSession.PhotoUrl;
-            dataRbac.UserFirstName = dashboardSession.FirstName;
-            dataRbac.UserLastName = dashboardSession.LastName;
+            userInfo.IsAuthenticated = true;
+            userInfo.BearerToken = bearerToken;
+            userInfo.TransactionId = transactionId;
+            userInfo.UserId = dashboardSession.TelegramUserId;
+            userInfo.UserName = dashboardSession.Username;
+            userInfo.UserPhotoUrl = dashboardSession.PhotoUrl;
+            userInfo.UserFirstName = dashboardSession.FirstName;
+            userInfo.UserLastName = dashboardSession.LastName;
 
             userRoles.Add(RoleLevel.User);
+
+            dashboardSession.ExpireDate = DateTime.UtcNow.AddDays(7);
+            dashboardSession.TransactionId = transactionId;
             #endregion
 
             #region Add User Role
@@ -67,7 +73,9 @@ public class AccessFilterAuthorizationFilter(
                 userRoles.Add(RoleLevel.Sudo);
             }
 
-            context.HttpContext.Items.TryAdd("UserRoles", userRoles.ToArray());
+            userInfo.UserRoles = userRoles;
+
+            await dataFacade.SaveChangesAsync();
             #endregion
         }
 
@@ -77,10 +85,6 @@ public class AccessFilterAuthorizationFilter(
             context.Result = new UnauthorizedObjectResult(response);
         }
 
-        dataRbac = new DataRbac() {
-            UserRoles = userRoles
-        };
-
-        context.HttpContext.Items.TryAdd("DRBAC", dataRbac);
+        context.HttpContext.Items.TryAdd(ValueConst.USER_INFO, userInfo);
     }
 }

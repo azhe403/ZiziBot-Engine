@@ -61,7 +61,7 @@ public class VerifyUserHandler(
             UserId = mirrorUser.UserId,
             ActivityTypeId = request.Body.ActivityType,
             Url = request.Body.Url,
-            TransactionId = request.TransactionId
+            TransactionId = request.UserInfo.TransactionId
         });
 
         return Response.Success("Mirror User verified successfully", new() {

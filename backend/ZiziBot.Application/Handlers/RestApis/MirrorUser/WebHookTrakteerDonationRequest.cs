@@ -80,7 +80,7 @@ public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequest
 
         dataFacade.MongoDb.MirrorDonation.Add(new MirrorDonationEntity {
             Status = EventStatus.Complete,
-            TransactionId = request.TransactionId,
+            TransactionId = request.UserInfo.TransactionId,
             OrderId = request.Body.TransactionId,
             OrderDate = request.Body.CreatedAt,
             Type = request.Body.Type,

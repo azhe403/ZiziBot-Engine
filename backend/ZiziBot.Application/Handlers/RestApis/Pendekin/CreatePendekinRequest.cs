@@ -55,9 +55,9 @@ public class CreatePendekinHandler(
             OriginalUrl = request.Body.OriginalUrl,
             ShortPath = shortPath,
             Status = EventStatus.Complete,
-            CreatedBy = request.SessionUserId,
-            UpdatedBy = request.SessionUserId,
-            TransactionId = request.TransactionId
+            CreatedBy = request.UserInfo.UserId,
+            UpdatedBy = request.UserInfo.UserId,
+            TransactionId = request.UserInfo.TransactionId
         });
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);

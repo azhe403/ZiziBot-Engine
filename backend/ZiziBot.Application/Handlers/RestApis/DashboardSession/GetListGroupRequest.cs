@@ -16,7 +16,7 @@ public class GetListGroupHandler(
 
         #region Check Dashboard Session
         var dashboardSession = await dataFacade.MongoDb.DashboardSessions
-            .Where(entity => entity.BearerToken == request.BearerToken)
+            .Where(entity => entity.BearerToken == request.UserInfo.BearerToken)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -46,7 +46,7 @@ public class GetListGroupHandler(
 
         List<ChatInfoDto> listPermission = new();
         listPermission.Add(new ChatInfoDto() {
-            ChatId = request.SessionUserId,
+            ChatId = request.UserInfo.UserId,
             ChatTitle = "Saya"
         });
 

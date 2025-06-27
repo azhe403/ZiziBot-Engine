@@ -71,7 +71,7 @@ public class PostWebhookPayloadHandler(
         await serviceFacade.MediatorService.EnqueueAsync(new SendWebhookMessageRequest() {
             TargetId = request.targetId,
             Event = webhookHeader.Event,
-            TransactionId = request.TransactionId,
+            TransactionId = request.UserInfo.TransactionId,
             WebhookSource = webhookSource,
             RawHeaders = request.Headers.ToHeaderRawKv(),
             RawBody = content,

@@ -37,4 +37,6 @@ public static class ValueConst
         500,
         1000
     ];
+
+    public const string USER_INFO = "UserInfo";
 }
