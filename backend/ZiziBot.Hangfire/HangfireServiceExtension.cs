@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using Newtonsoft.Json;
 using Sentry.Hangfire;
 using Serilog;
+using ZiziBot.Common.Exceptions;
 
 namespace ZiziBot.Hangfire;
 
@@ -105,6 +106,7 @@ public static class HangfireServiceExtension
             var dashboardOptions = new DashboardOptions() {
                 DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
                 IgnoreAntiforgeryToken = false,
+                AppPath = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL)
             };
 
             if (EnvUtil.IsEnabled(Flag.HANGFIRE_ENABLE_AUTH))
@@ -169,7 +171,7 @@ public static class HangfireServiceExtension
                 .ToList()
                 .ForEach(x => mongoClient.GetDatabase(databaseName).DropCollection(x));
 
-            throw;
+            throw new AppException("Fail to create Hangfire MongoDB Storage. Please restart Engine");
         }
     }
 
