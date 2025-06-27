@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Serilog;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
@@ -16,10 +18,11 @@ public class AddRssHandler(
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
+        if (!EnvUtil.IsEnabled(Flag.RSS_BROADCASTER))
+            return await serviceFacade.TelegramService.SendMessageAsync("Fitur RSS saat ini sedang dimatikan");
+
         if (request.Param.IsNullOrEmpty())
-        {
             return await serviceFacade.TelegramService.SendMessageAsync("Masukkan RSS URL yang ingin ditambahkan");
-        }
 
         try
         {
@@ -36,9 +39,9 @@ public class AddRssHandler(
             if (rssSetting != null)
                 return await serviceFacade.TelegramService.SendMessageAsync("RSS Sudah disimpan");
 
-            var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
+            var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "Rss:", size: 7);
 
-            dataFacade.MongoDb.RssSetting.Add(new() {
+            var create = dataFacade.MongoDb.RssSetting.Add(new RssSettingEntity {
                 ChatId = request.ChatIdentifier,
                 RssUrl = rssUrl,
                 ThreadId = request.MessageThreadId,
@@ -51,13 +54,16 @@ public class AddRssHandler(
 
             await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job..");
 
-            await serviceFacade.JobService.Register(request.ChatIdentifier, request.MessageThreadId, rssUrl, uniqueId);
+            var rssJobId = "RSS:" + create.Entity.Id;
+
+            await serviceFacade.JobService.Register(request.ChatIdentifier, request.MessageThreadId, rssUrl, rssJobId);
 
             return await serviceFacade.TelegramService.SendMessageAsync("RSS Berhasil disimpan");
         }
         catch (Exception e)
         {
-            return await serviceFacade.TelegramService.SendMessageAsync("Sepertinya bukan URL yang valid");
+            Log.Error(e, "Failed when adding RSS Url: {Url} to ChatId: {ChatId}", request.Param, request.ChatIdentifier);
+            return await serviceFacade.TelegramService.SendMessageAsync("Sepertinya bukan RSS yang valid");
         }
     }
 }
