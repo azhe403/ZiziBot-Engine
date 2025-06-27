@@ -54,8 +54,7 @@ public class ValidateTelegramSessionHandler(
 
         if (checkAuthorization != WebAuthorization.Valid)
         {
-            logger.LogDebug("Session is not valid for SessionId: {SessionId}. Result: {Result}",
-                request.Body.SessionId, checkAuthorization);
+            logger.LogDebug("Session is not valid for SessionId: {SessionId}. Result: {Result}", request.Body.SessionId, checkAuthorization);
 
             return response.Unauthorized($"Session is invalid. please send '/console' on Chat for create new session");
         }
@@ -83,11 +82,7 @@ public class ValidateTelegramSessionHandler(
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, request.Body.Username),
-                new Claim(ClaimTypes.Name, request.Body.FirstName),
-                new Claim(ClaimTypes.Role, request.SessionUserRole.ToString()),
                 new Claim(RequestKey.UserId, request.Body.Id.ToString()),
-                new Claim("photoUrl", request.Body.PhotoUrl ?? ""),
             };
 
             var token = new JwtSecurityToken(jwtConfig.Issuer, jwtConfig.Audience, claims, expires: DateTime.Now.AddMinutes(15), signingCredentials: credentials);
