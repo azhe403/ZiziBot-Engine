@@ -10,7 +10,7 @@ namespace ZiziBot.Caching.Extensions;
 
 public static class CacheTowerExtension
 {
-    static ICacheSerializer CurrentSerializer => new SystemTextJsonCacheSerializer(new() {
+    private static ICacheSerializer CurrentSerializer => new SystemTextJsonCacheSerializer(new() {
         WriteIndented = true
     });
 
@@ -18,9 +18,15 @@ public static class CacheTowerExtension
     {
         var serviceProvider = services.BuildServiceProvider();
         var cacheConfig = serviceProvider.GetRequiredService<IOptions<CacheConfig>>().Value;
+        var gcpConfig = serviceProvider.GetRequiredService<IOptions<GcpConfig>>().Value;
 
-        services.AddCacheStack(
-            builder => {
+        var firebaseConfig = new FirebaseCacheOptions() {
+            ProjectUrl = gcpConfig.FirebaseProjectUrl,
+            ServiceAccountJson = gcpConfig.FirebaseServiceAccountJson,
+            RootDir = cacheConfig.PrefixRoot
+        };
+
+        services.AddCacheStack(builder => {
                 builder
                     .WithCleanupFrequency(TimeSpan.FromMinutes(10))
                     .AddMemoryCacheLayer()
@@ -28,14 +34,14 @@ public static class CacheTowerExtension
                     .ConfigureSqliteCacheLayer(cacheConfig)
                     .ConfigureMongoDbCacheLayer(cacheConfig)
                     .ConfigureRedisCacheLayer(cacheConfig)
-                    .ConfigureFirebaseCacheLayer(cacheConfig);
+                    .ConfigureFirebaseCacheLayer(firebaseConfig: firebaseConfig);
             }
         );
 
         return services;
     }
 
-    static ICacheStackBuilder ConfigureRedisCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    private static ICacheStackBuilder ConfigureRedisCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
     {
         if (!cacheConfig.UseRedis)
             return builder;
@@ -54,7 +60,7 @@ public static class CacheTowerExtension
         return builder;
     }
 
-    static ICacheStackBuilder ConfigureFileCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
+    private static ICacheStackBuilder ConfigureFileCacheLayer(this ICacheStackBuilder builder, CacheConfig cacheConfig)
     {
         if (!cacheConfig.UseJsonFile)
             return builder;
@@ -65,40 +71,42 @@ public static class CacheTowerExtension
                 Serializer = CurrentSerializer
             });
 
-        // builder.AddFileCacheLayer(
-        //     new(
-        //         PathConst.CACHE_TOWER_PATH.EnsureDirectory(),
-        //         CurrentSerializer
-        //     )
-        // );
-
         return builder;
     }
 
-    static ICacheStackBuilder ConfigureJsonCacheLayer(this ICacheStackBuilder builder)
-    {
-        return builder;
-    }
-
-    static ICacheStackBuilder ConfigureFirebaseCacheLayer(
+    private static ICacheStackBuilder ConfigureFirebaseCacheLayer(
         this ICacheStackBuilder builder,
-        CacheConfig cacheConfig
+        CacheConfig? cacheConfig = null,
+        FirebaseCacheOptions? firebaseConfig = null
     )
     {
-        if (!cacheConfig.UseFirebase)
+        if (cacheConfig?.UseFirebase == false)
             return builder;
 
-        var firebaseOptions = new FirebaseCacheOptions {
-            ProjectUrl = cacheConfig.FirebaseProjectUrl,
-            ServiceAccountJson = cacheConfig.FirebaseServiceAccountJson
-        };
+        FirebaseCacheOptions firebaseOptions;
+
+        if (firebaseConfig != null)
+        {
+            firebaseOptions = firebaseConfig;
+        }
+        else if (cacheConfig != null)
+        {
+            firebaseOptions = new FirebaseCacheOptions {
+                ProjectUrl = cacheConfig.FirebaseProjectUrl,
+                ServiceAccountJson = cacheConfig.FirebaseServiceAccountJson
+            };
+        }
+        else
+        {
+            return builder;
+        }
 
         builder.CacheLayers.Add(new FirebaseLayerProvider(firebaseOptions));
 
         return builder;
     }
 
-    static ICacheStackBuilder ConfigureSqliteCacheLayer(
+    private static ICacheStackBuilder ConfigureSqliteCacheLayer(
         this ICacheStackBuilder builder,
         CacheConfig cacheConfig
     )
@@ -113,7 +121,7 @@ public static class CacheTowerExtension
         return builder;
     }
 
-    static ICacheStackBuilder ConfigureMongoDbCacheLayer(
+    private static ICacheStackBuilder ConfigureMongoDbCacheLayer(
         this ICacheStackBuilder builder,
         CacheConfig cacheConfig
     )

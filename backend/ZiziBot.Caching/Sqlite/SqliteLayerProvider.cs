@@ -1,49 +1,53 @@
 ﻿using CacheTower;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace ZiziBot.Caching.Sqlite;
 
 internal class SqliteLayerProvider : ICacheLayer
 {
     private readonly string _dbPath;
+    private SqliteCachingDbContext Db => new SqliteCachingDbContext(_dbPath);
 
     public SqliteLayerProvider(string dbPath)
     {
         _dbPath = dbPath;
 
-        GetContext().Database.EnsureCreated();
+        Db.Database.EnsureCreated();
+        Log.Verbose("Table structure for CacheTower sqlite created");
     }
 
     public async ValueTask FlushAsync()
     {
-        var dbContext = GetContext();
-
-        await dbContext.SqliteCache.ExecuteDeleteAsync();
-        await dbContext.SaveChangesAsync();
+        Log.Verbose("Flush CacheTower sqlite layer");
+        await Db.SqliteCache.ExecuteDeleteAsync();
+        await Db.SaveChangesAsync();
+        Log.Verbose("Flush CacheTower sqlite layer has done");
     }
 
     public async ValueTask CleanupAsync()
     {
-        var dbContext = GetContext();
-
-        await dbContext.SqliteCache.Where(x => x.ExpiryDate < DateTime.UtcNow).ExecuteDeleteAsync();
-        await dbContext.SaveChangesAsync();
+        Log.Verbose("Cleanup CacheTower sqlite layer");
+        await Db.SqliteCache.Where(x => x.ExpiryDate < DateTime.UtcNow).ExecuteDeleteAsync();
+        await Db.SaveChangesAsync();
+        Log.Verbose("Cleanup CacheTower sqlite layer done");
     }
 
     public async ValueTask EvictAsync(string cacheKey)
     {
-        var dbContext = GetContext();
-
-        await dbContext.SqliteCache.Where(x => x.CacheKey == cacheKey).ExecuteDeleteAsync();
-        await dbContext.SaveChangesAsync();
+        Log.Verbose("Evict CacheTower sqlite layer. Key: {CacheKey}", cacheKey);
+        await Db.SqliteCache.Where(x => x.CacheKey == cacheKey).ExecuteDeleteAsync();
+        await Db.SaveChangesAsync();
+        Log.Verbose("Evict CacheTower sqlite layer has done. Key: {CacheKey}", cacheKey);
     }
 
     public async ValueTask<CacheEntry<T>?> GetAsync<T>(string cacheKey)
     {
         var cacheEntry = default(CacheEntry<T>);
-        var dbContext = GetContext();
 
-        var obj = await dbContext.SqliteCache.Where(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
+        var obj = await Db.SqliteCache.AsNoTracking()
+            .Where(x => x.CacheKey == cacheKey)
+            .FirstOrDefaultAsync();
 
         if (obj != null)
         {
@@ -56,12 +60,14 @@ internal class SqliteLayerProvider : ICacheLayer
 
     public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
     {
-        var dbContext = GetContext();
+        var findCache = await Db.SqliteCache
+            .Where(x => x.CacheKey == cacheKey)
+            .FirstOrDefaultAsync();
 
-        var findCache = await dbContext.SqliteCache.FirstOrDefaultAsync(x => x.CacheKey == cacheKey);
         if (findCache == null)
         {
-            await dbContext.SqliteCache.AddAsync(new SqliteCacheEntity() {
+            Log.Verbose("Set CacheTower sqlite layer. Key: {CacheKey}", cacheKey);
+            await Db.SqliteCache.AddAsync(new SqliteCacheEntity() {
                 CacheKey = cacheKey,
                 ExpiryDate = cacheEntry.Expiry,
                 CreatedDate = DateTime.UtcNow,
@@ -70,28 +76,24 @@ internal class SqliteLayerProvider : ICacheLayer
         }
         else
         {
+            Log.Verbose("Update CacheTower sqlite layer. Key: {CacheKey}", cacheKey);
             findCache.ExpiryDate = cacheEntry.Expiry;
             findCache.Value = cacheEntry.Value.ToJson();
         }
 
-        await dbContext.SaveChangesAsync();
+        await Db.SaveChangesAsync();
+        Log.Verbose("Save CacheTower sqlite layer done");
     }
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
     {
-        var dbContext = GetContext();
-
-        var obj = await dbContext.SqliteCache.AsNoTracking()
+        var obj = await Db.SqliteCache.AsNoTracking()
             .Where(x => x.CacheKey == cacheKey)
             .FirstOrDefaultAsync();
 
-        return obj != null;
-    }
+        var isAvailable = obj != null;
+        Log.Verbose("IsAvailable CacheTower sqlite layer. Key: {CacheKey}. Result: {IsAvailable}", cacheKey, isAvailable);
 
-    private SqliteCachingDbContext GetContext()
-    {
-        var dbContext = new SqliteCachingDbContext(_dbPath);
-
-        return dbContext;
+        return isAvailable;
     }
 }
