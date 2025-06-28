@@ -5,14 +5,16 @@ using Microsoft.Extensions.Logging;
 using Sentry.Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
 public class FetchRssUseCase(
     ILogger<FetchRssUseCase> logger,
-    DataFacade dataFacade,
-    ServiceFacade serviceFacade,
+    MongoDbContext mongoDbContext,
+    AppSettingRepository appSettingRepository,
+    RssRepository rssRepository,
     ReadRssUseCase readRssUseCase
 )
 {
@@ -28,7 +30,7 @@ public class FetchRssUseCase(
         var startChild = SentrySdk.StartTransaction(this.GetType().FullName ?? "FetchRssUseCase", rssUrl);
 
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
-        var botSettings = await dataFacade.AppSetting.GetBotMain();
+        var botSettings = await appSettingRepository.GetBotMain();
 
         try
         {
@@ -37,7 +39,7 @@ public class FetchRssUseCase(
 
             foreach (var latestArticle in feed.Items.Take(3))
             {
-                var latestHistory = await dataFacade.Rss.GetLastRssArticle(chatId, threadId, latestArticle.Link);
+                var latestHistory = await rssRepository.GetLastRssArticle(chatId, threadId, latestArticle.Link);
 
                 if (latestHistory != null)
                 {
@@ -69,7 +71,7 @@ public class FetchRssUseCase(
                     }
                 }
 
-                dataFacade.MongoDb.RssHistory.Add(new RssHistoryEntity {
+                mongoDbContext.RssHistory.Add(new RssHistoryEntity {
                     ChatId = chatId,
                     ThreadId = threadId,
                     RssUrl = rssUrl,
@@ -87,7 +89,7 @@ public class FetchRssUseCase(
         {
             if (exception.IsIgnorable())
             {
-                var findRssSetting = await dataFacade.MongoDb.RssSetting
+                var findRssSetting = await mongoDbContext.RssSetting
                     .Where(entity => entity.ChatId == chatId)
                     .Where(entity => entity.RssUrl == rssUrl)
                     .Where(entity => entity.Status == EventStatus.Complete)
@@ -113,7 +115,7 @@ public class FetchRssUseCase(
             }
         }
 
-        await dataFacade.MongoDb.SaveChangesAsync();
+        await mongoDbContext.SaveChangesAsync();
 
         return true;
     }
