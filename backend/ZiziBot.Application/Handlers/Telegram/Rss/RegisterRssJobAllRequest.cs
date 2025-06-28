@@ -38,7 +38,7 @@ public class RegisterRssJobAllHandler(
 
         foreach (var rssSettingEntity in rssSettings)
         {
-            var jobId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
+            var jobId = $"{CronJobKey.Rss_Prefix}:{rssSettingEntity.Id}";
 
             await serviceFacade.Mediator.Send(new RegisterRssJobUrlRequest {
                 ChatId = rssSettingEntity.ChatId,

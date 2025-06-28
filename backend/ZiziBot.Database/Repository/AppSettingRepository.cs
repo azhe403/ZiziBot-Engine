@@ -100,7 +100,7 @@ public class AppSettingRepository(MongoDbContext mongoDbContext, IServiceProvide
 
     public async Task<BotSettingDto> GetBotMain()
     {
-        var cached = await cacheService.GetOrSetAsync("config_bot-main", async () => {
+        var cached = await cacheService.GetOrSetAsync("config/bot-main", async () => {
             var botSetting = await mongoDbContext.BotSettings.AsNoTracking()
                 .Where(entity => entity.Name == "Main")
                 .Where(entity => entity.Status == EventStatus.Complete)

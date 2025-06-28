@@ -7,6 +7,7 @@ public static class CronJobKey
     public const string Queue_Data = "data";
 
     public const string Rss_Reset = "rss-reset";
+    public const string Rss_Prefix = "RSS";
 
     public const string JadwalSholatOrg_FetchCity = "jadwal-sholat-org_fetch-city";
     public const string JadwalSholatOrg_FetchSchedule = "jadwal-sholat-org_fetch-schedule";

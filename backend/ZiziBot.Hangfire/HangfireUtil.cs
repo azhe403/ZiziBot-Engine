@@ -11,7 +11,7 @@ public static class HangfireUtil
         Log.Information("Collecting previous RSS Jobs..");
         var storageConnection = JobStorage.Current.GetConnection();
         var recurringJobs = storageConnection.GetRecurringJobs();
-        var rssJobs = recurringJobs.Where(dto => dto.Id.StartsWith("RssJob", StringComparison.InvariantCultureIgnoreCase)).ToList();
+        var rssJobs = recurringJobs.Where(dto => dto.Id.StartsWith(CronJobKey.Rss_Prefix, StringComparison.InvariantCultureIgnoreCase)).ToList();
         Log.Debug("Found {Count} RSS Jobs", rssJobs.Count);
 
         return rssJobs;

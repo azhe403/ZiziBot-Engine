@@ -97,8 +97,6 @@ public class ReadRssUseCase(
 
                 var truncatedMessageText = messageText.ToString();
 
-                await mongoDbContext.SaveChangesAsync();
-
                 return new ReadRssItem {
                     Link = feedItem.Link,
                     Title = feedItem.Title,

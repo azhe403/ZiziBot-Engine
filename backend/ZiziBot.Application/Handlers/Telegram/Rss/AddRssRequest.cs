@@ -39,7 +39,7 @@ public class AddRssHandler(
             if (rssSetting != null)
                 return await serviceFacade.TelegramService.SendMessageAsync("RSS Sudah disimpan");
 
-            var uniqueId = await StringUtil.GetNanoIdAsync(prefix: "Rss:", size: 7);
+            var uniqueId = await StringUtil.GetNanoIdAsync(prefix: $"{CronJobKey.Rss_Prefix}:", size: 7);
 
             var create = dataFacade.MongoDb.RssSetting.Add(new RssSettingEntity {
                 ChatId = request.ChatIdentifier,
@@ -54,7 +54,7 @@ public class AddRssHandler(
 
             await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job..");
 
-            var rssJobId = "RSS:" + create.Entity.Id;
+            var rssJobId = $"{CronJobKey.Rss_Prefix}:{create.Entity.Id}";
 
             await serviceFacade.JobService.Register(request.ChatIdentifier, request.MessageThreadId, rssUrl, rssJobId);
 
