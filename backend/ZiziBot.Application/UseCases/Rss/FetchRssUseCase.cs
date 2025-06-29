@@ -27,8 +27,6 @@ public class FetchRssUseCase(
         if (!EnvUtil.IsEnabled(Flag.RSS_BROADCASTER))
             return true;
 
-        var startChild = SentrySdk.StartTransaction(this.GetType().FullName ?? "FetchRssUseCase", rssUrl);
-
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
         var botSettings = await appSettingRepository.GetBotMain();
 
@@ -82,8 +80,6 @@ public class FetchRssUseCase(
                     Status = EventStatus.Complete
                 });
             }
-
-            startChild?.Finish(SpanStatus.Ok);
         }
         catch (Exception exception)
         {
@@ -105,13 +101,10 @@ public class FetchRssUseCase(
 
                     RecurringJob.RemoveIfExists(rssSetting.CronJobId);
                 });
-
-                startChild?.Finish(SpanStatus.FailedPrecondition);
             }
             else
             {
                 logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", chatId, rssUrl);
-                startChild?.Finish(SpanStatus.Aborted);
             }
         }
 
