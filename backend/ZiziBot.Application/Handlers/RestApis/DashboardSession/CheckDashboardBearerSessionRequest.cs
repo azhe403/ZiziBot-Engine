@@ -34,9 +34,9 @@ public class CheckDashboardBearerSessionRequestHandler(
         ApiResponseBase<CheckDashboardBearerSessionResponseDto> response = new();
 
         #region Check Dashboard Session
-        var dashboardSession = await dataFacade.MongoEf.DashboardSessions
+        var dashboardSession = await dataFacade.MongoDb.DashboardSessions
             .Where(entity =>
-                entity.BearerToken == request.BearerToken &&
+                entity.BearerToken == request.UserInfo.BearerToken &&
                 entity.Status == EventStatus.Complete
             )
             .FirstOrDefaultAsync(cancellationToken);
@@ -59,7 +59,7 @@ public class CheckDashboardBearerSessionRequestHandler(
             Features = new()
         };
 
-        var checkSudo = await dataFacade.MongoEf.Sudoers
+        var checkSudo = await dataFacade.MongoDb.Sudoers
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == userId &&
                     entity.Status == EventStatus.Complete,

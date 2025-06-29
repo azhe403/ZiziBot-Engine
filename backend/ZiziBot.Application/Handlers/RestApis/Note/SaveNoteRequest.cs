@@ -2,8 +2,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
-using ZiziBot.DataSource.MongoEf.Entities;
-using ZiziBot.DataSource.Utils;
+using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Database.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 
@@ -44,7 +44,7 @@ public class CreateNoteHandler(
     {
         ApiResponseBase<bool> response = new();
 
-        if (!request.ListChatId.Contains(request.Model.ChatId))
+        if (!request.UserInfo.ListChatId.Contains(request.Model.ChatId))
         {
             return response.BadRequest("You don't have permission to create note for this Chat");
         }

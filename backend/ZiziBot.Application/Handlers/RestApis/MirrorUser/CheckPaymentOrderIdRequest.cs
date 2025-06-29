@@ -1,4 +1,5 @@
 using ZiziBot.Application.UseCases.Mirror;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 

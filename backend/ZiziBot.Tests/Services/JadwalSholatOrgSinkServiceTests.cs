@@ -2,7 +2,7 @@
 using MoreLinq;
 using SharpX.Extensions;
 using Xunit;
-using ZiziBot.Application.Facades;
+using ZiziBot.Database;
 
 namespace ZiziBot.Tests.Services;
 
@@ -11,8 +11,8 @@ public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSh
     [Fact(Skip = "Deprecated")]
     public async Task FeedCityTest()
     {
-        await dataFacade.MongoEf.JadwalSholatOrg_City.Where(entity => true).ExecuteDeleteAsync();
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.JadwalSholatOrg_City.Where(entity => true).ExecuteDeleteAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         await jadwalSholatOrgSinkService.FeedCity();
     }
@@ -20,7 +20,7 @@ public class JadwalSholatOrgSinkServiceTests(JadwalSholatOrgSinkService jadwalSh
     [Fact(Skip = "Deprecated")]
     public async Task FeedScheduleTest()
     {
-        var cities = await dataFacade.MongoEf.JadwalSholatOrg_City.ToListAsync();
+        var cities = await dataFacade.MongoDb.JadwalSholatOrg_City.ToListAsync();
 
         var randomCities = cities.Shuffle().Take(3);
 

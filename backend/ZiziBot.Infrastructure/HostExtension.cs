@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Infrastructure;
 

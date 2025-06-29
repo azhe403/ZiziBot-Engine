@@ -4,14 +4,15 @@ using Octokit.Webhooks;
 using Octokit.Webhooks.Events;
 using Octokit.Webhooks.Events.PullRequest;
 using Octokit.Webhooks.Events.Star;
-using ZiziBot.Types.Vendor.GitHub;
-using ZiziBot.Types.Vendor.GitLab;
+using ZiziBot.Common.Types;
+using ZiziBot.Common.Vendor.GitHub;
+using ZiziBot.Common.Vendor.GitLab;
 
 namespace ZiziBot.Application.Services;
 
 public class WebhookService
 {
-    public async Task<WebhookResponseBase<bool>> ParseGitHub(WebhookHeader header, string payload)
+    public async Task<WebhookResponseBase<bool>> ParseGitHub(WebhookHeader? header, string payload)
     {
         var htmlMessage = HtmlMessage.Empty;
         var response = new WebhookResponseBase<bool>();
@@ -178,7 +179,7 @@ public class WebhookService
         return response;
     }
 
-    public async Task<WebhookResponseBase<bool>> ParseGitLab(WebhookHeader header, string payload)
+    public async Task<WebhookResponseBase<bool>> ParseGitLab(WebhookHeader? header, string payload)
     {
         var request = payload.Deserialize<GitLabEvent>();
         var response = new WebhookResponseBase<bool>();

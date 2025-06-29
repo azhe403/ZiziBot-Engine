@@ -1,6 +1,7 @@
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Inline;
 

@@ -21,19 +21,19 @@ public class RegisterRssJobAllUseCase(
 
         if (request.ResetStatus)
         {
-            var rssSettingsAll = await dataFacade.MongoEf.RssSetting.ToListAsync();
+            var rssSettingsAll = await dataFacade.MongoDb.RssSetting.ToListAsync();
 
             rssSettingsAll.ForEach(entity => {
                 entity.LastErrorMessage = string.Empty;
                 entity.Status = EventStatus.Complete;
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync();
+            await dataFacade.MongoDb.SaveChangesAsync();
         }
 
         HangfireUtil.RemoveRssJobs();
 
-        var rssSettings = await dataFacade.MongoEf.RssSetting
+        var rssSettings = await dataFacade.MongoDb.RssSetting
             .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync();
 
@@ -41,7 +41,7 @@ public class RegisterRssJobAllUseCase(
 
         foreach (var rssSettingEntity in rssSettings)
         {
-            var jobId = await StringUtil.GetNanoIdAsync(prefix: "RssJob:", size: 7);
+            var jobId = $"{CronJobKey.Rss_Prefix}:{rssSettingEntity.Id}";
 
             await registerRssJobUrlUseCase.Handle(new RegisterRssJobUrlRequest() {
                 ChatId = rssSettingEntity.ChatId,
@@ -54,7 +54,7 @@ public class RegisterRssJobAllUseCase(
             rssSettingEntity.TransactionId = transactionId;
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         return true;
     }

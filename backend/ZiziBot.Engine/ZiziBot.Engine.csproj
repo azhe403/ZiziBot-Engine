@@ -7,7 +7,21 @@
     <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
     <InvariantGlobalization>false</InvariantGlobalization>
     <TargetFramework>net9.0</TargetFramework>
+    <TargetPort>7120</TargetPort>
   </PropertyGroup>
+
+  <Target Name="KillPort7120BeforeAny" BeforeTargets="BeforeBuild;Build;Run;DebugRun">
+    <Message Importance="high" Text="🔪 Killing process on port 7120 before $(MSBuildProjectName)..."/>
+
+    <!-- Windows -->
+    <Exec Condition=" '$(OS)' == 'Windows_NT' "
+          Command="for /f &quot;tokens=5&quot; %%a in ('netstat -ano ^| findstr :7120') do taskkill /PID %%a /F"/>
+
+    <!-- Linux/macOS -->
+    <Exec Condition=" '$(OS)' != 'Windows_NT' "
+          Command='fuser -k 7120/tcp || echo ✅ Port 7120 already free.'/>
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.6" />
@@ -16,7 +30,7 @@
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
     <ProjectReference Include="..\ZiziBot.Console\ZiziBot.Console.csproj"/>
     <ProjectReference Include="..\ZiziBot.DataMigration\ZiziBot.DataMigration.csproj"/>
-    <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Database\ZiziBot.Database.csproj"/>
     <ProjectReference Include="..\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj"/>
     <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj"/>
     <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>

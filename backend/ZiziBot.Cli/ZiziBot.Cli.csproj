@@ -11,7 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
   </ItemGroup>
   <ItemGroup>
     <None Update=".env">

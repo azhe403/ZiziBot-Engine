@@ -1,6 +1,7 @@
 using CodeHollow.FeedReader;
 using Flurl;
 using Octokit;
+using ZiziBot.Common.Utils;
 using Feed = CodeHollow.FeedReader.Feed;
 
 namespace ZiziBot.Parsers.WebParser;
@@ -16,10 +17,10 @@ public static class RssParserUtil
         }
         catch (Exception e)
         {
+            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
+
             if (throwIfError)
                 throw;
-
-            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
 
             return new Feed();
         }
@@ -62,8 +63,7 @@ public static class RssParserUtil
         if (!urlParseScheme.IsValidUrl())
             return rssUrl;
 
-        fixedUrl = await urlParseScheme.DetectRss();
-        return fixedUrl;
+        throw new Exception("Cannot detect rss url");
     }
 
     public static bool IsGithubReleaseUrl(this string url)

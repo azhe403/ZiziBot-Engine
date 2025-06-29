@@ -1,4 +1,4 @@
-using ZiziBot.Application.Facades;
+using ZiziBot.Database;
 
 namespace ZiziBot.Console.Pages
 {

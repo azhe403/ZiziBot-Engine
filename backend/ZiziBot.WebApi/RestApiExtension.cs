@@ -12,7 +12,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ZiziBot.Contracts.Converters.SystemTextJson;
+using ZiziBot.Common.Configs;
+using ZiziBot.Common.Converters.SystemTextJson;
 
 namespace ZiziBot.WebApi;
 
@@ -28,7 +29,7 @@ public static class RestApiExtension
         services.AddSignalR();
         services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters()
-            .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>(ServiceLifetime.Transient);
+            .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>();
 
         services
             .Configure<ApiBehaviorOptions>(options => {
@@ -138,7 +139,7 @@ public static class RestApiExtension
                 selector.FromAssembliesOf(typeof(GlobalExceptionMiddleware))
                     .AddClasses(filter => filter.InNamespaceOf<GlobalExceptionMiddleware>())
                     .AsSelf()
-                    .WithTransientLifetime();
+                    .WithScopedLifetime();
             }
         );
 

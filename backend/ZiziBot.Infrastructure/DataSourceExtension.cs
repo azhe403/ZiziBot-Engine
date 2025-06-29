@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using ZiziBot.DataSource.MongoEf;
+using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Infrastructure;
 
@@ -7,7 +7,7 @@ public static class DataSourceExtension
 {
     public static IServiceCollection AddDataSource(this IServiceCollection services)
     {
-        services.AddTransient<MongoEfContext>();
+        services.AddScoped<MongoDbContext>();
 
         return services;
     }
@@ -18,7 +18,7 @@ public static class DataSourceExtension
             selector.FromAssembliesOf(typeof(AppSettingRepository))
                 .AddClasses(filter => filter.InNamespaceOf(typeof(AppSettingRepository)))
                 .AsSelf()
-                .WithTransientLifetime();
+                .WithScopedLifetime();
         });
 
         return services;

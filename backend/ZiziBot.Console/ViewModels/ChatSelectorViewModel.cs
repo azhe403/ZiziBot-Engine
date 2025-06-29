@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.Console.ViewModels;
+﻿using ZiziBot.Common.Dtos;
+
+namespace ZiziBot.Console.ViewModels;
 
 public class ChatSelectorViewModel : ReactiveObject
 {

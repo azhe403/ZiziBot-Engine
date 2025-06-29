@@ -1,6 +1,6 @@
 ﻿using CacheTower;
 using MongoDB.Driver;
-using ZiziBot.DataSource.Utils;
+using ZiziBot.Database.Utils;
 
 namespace ZiziBot.Caching.MongoDb;
 

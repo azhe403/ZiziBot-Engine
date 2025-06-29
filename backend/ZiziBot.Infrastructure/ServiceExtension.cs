@@ -9,25 +9,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using ZiziBot.Application.Facades;
-using ZiziBot.DataMigration.MongoDb.Extension;
+using ZiziBot.Database;
+using ZiziBot.Database.Extension;
 
 namespace ZiziBot.Infrastructure;
 
 public static class ServiceExtension
 {
-    public async static Task<IServiceCollection> ConfigureServices(this IServiceCollection services)
+    public static IServiceProvider GlobalServiceProvider { get; set; }
+
+    public static async Task<IServiceCollection> ConfigureServices(this IServiceCollection services)
     {
-        await services.ConfigureSettings();
-        services.AddMongoMigration();
-
-        services.AddMediator();
-
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-        services.AddBackgroundQueue();
-        services.AddCacheTower();
         services.AddAllService();
-
+        await services.ConfigureSettings();
+        services.AddCacheTower();
+        services.AddMongoMigration();
+        services.AddMediator();
+        services.AddBackgroundQueue();
         services.ConfigureFlurl();
 
         return services;
@@ -90,12 +89,10 @@ public static class ServiceExtension
         services.Scan(selector => selector.FromAssembliesOf(typeof(CacheService))
             .AddClasses(filter => filter.InNamespaceOf<CacheService>())
             .AsSelfWithInterfaces()
-            .WithTransientLifetime());
+            .WithScopedLifetime());
 
-        services.Scan(selector => selector.FromAssembliesOf(typeof(DataFacade))
-            .AddClasses(filter => filter.InNamespaceOf<DataFacade>())
-            .AsSelf()
-            .WithTransientLifetime());
+        services.AddScoped<ServiceFacade>();
+        services.AddScoped<DataFacade>();
 
         return services;
     }

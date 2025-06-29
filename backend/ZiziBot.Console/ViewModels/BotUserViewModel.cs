@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ZiziBot.Application.Facades;
-using ZiziBot.Contracts.Enums;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Common.Enums;
+using ZiziBot.Database;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Console.ViewModels;
 
@@ -14,7 +14,7 @@ public class BotUserViewModel(DataFacade dataFacade) : ReactiveObject, IActivata
 
     public async Task GetUsers()
     {
-        BotUsers = await dataFacade.MongoEf.BotUser.AsNoTracking()
+        BotUsers = await dataFacade.MongoDb.BotUser.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
             .ToListAsync();
     }

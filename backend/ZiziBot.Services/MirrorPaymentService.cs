@@ -3,8 +3,9 @@ using AngleSharp.Html.Dom;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Contracts.Dtos;
-using ZiziBot.Contracts.Enums;
+using ZiziBot.Common.Dtos;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Services;
 

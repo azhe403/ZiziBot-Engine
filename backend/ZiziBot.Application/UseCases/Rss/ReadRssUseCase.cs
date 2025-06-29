@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Octokit;
+using ZiziBot.Common.Types;
+using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
@@ -31,16 +33,22 @@ public class Assets
     public int Size { get; set; }
 }
 
-public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade serviceFacade, DataFacade dataFacade)
+public class ReadRssUseCase(
+    ILogger<ReadRssUseCase> logger,
+    ICacheService cacheService,
+    MongoDbContext mongoDbContext,
+    AppSettingRepository appSettingRepository,
+    FeatureFlagRepository featureFlagRepository
+)
 {
     public async Task<ReadRssResponse> Handle(string rssUrl)
     {
         logger.LogInformation("Reading RSS: {Url}", rssUrl);
 
         var isGithubReleaseUrl = rssUrl.IsGithubReleaseUrl();
-        var includeRssContent = await dataFacade.FeatureFlag.GetFlagValue(Flag.RSS_INCLUDE_CONTENT);
+        var includeRssContent = await featureFlagRepository.GetFlagValue(Flag.RSS_INCLUDE_CONTENT);
 
-        var feed = await serviceFacade.CacheService.GetOrSetAsync("rss/" + rssUrl, async () => {
+        var feed = await cacheService.GetOrSetAsync("rss/" + rssUrl, async () => {
             var feed = await rssUrl.ReadRssAsync(throwIfError: true);
 
             var readRssResponse = new ReadRssResponse() {
@@ -62,13 +70,15 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
 
                 if (isGithubReleaseUrl)
                 {
-                    var apiKey = await dataFacade.MongoEf.ApiKey
-                        .OrderBy(x => x.LastUsedDate)
-                        .Where(x => x.Name == ApiKeyVendor.GitHub)
-                        .Where(x => x.Status == EventStatus.Complete)
-                        .FirstOrDefaultAsync();
+                    if (Env.GithubToken.IsNullOrWhiteSpace())
+                    {
+                        var apiKey = await appSettingRepository.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
+                        Env.GithubToken = apiKey?.ApiKey;
 
-                    var githubApiKey = apiKey?.ApiKey;
+                        logger.LogDebug("Github usage remaining {Remaining}", apiKey?.Remaining);
+                    }
+
+                    var githubApiKey = Env.GithubToken;
 
                     var assets = await rssUrl.GetGithubAssetLatest(githubApiKey);
 
@@ -87,8 +97,6 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
 
                 var truncatedMessageText = messageText.ToString();
 
-                await dataFacade.SaveChangesAsync();
-
                 return new ReadRssItem {
                     Link = feedItem.Link,
                     Title = feedItem.Title,
@@ -104,7 +112,7 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
             readRssResponse.Items = rssItems.ToList();
 
             return readRssResponse;
-        });
+        }, throwIfError: true);
 
         return feed;
     }

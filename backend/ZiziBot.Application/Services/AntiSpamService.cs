@@ -3,7 +3,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Interfaces;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.Services;
 
@@ -46,7 +46,7 @@ public class AntiSpamService(
             staleAfter: DEFAULT_STALE_TIME,
             action: async () => {
                 var antiSpamDto = new AntiSpamDto();
-                var globalBanEntities = await dataFacade.MongoEf.GlobalBan
+                var globalBanEntities = await dataFacade.MongoDb.GlobalBan
                     .Where(entity => entity.UserId == userId && entity.Status == EventStatus.Complete)
                     .ToListAsync();
 

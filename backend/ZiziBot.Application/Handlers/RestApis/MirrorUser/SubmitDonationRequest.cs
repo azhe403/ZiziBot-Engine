@@ -33,7 +33,7 @@ public class SubmitDonationHandler(
         CancellationToken cancellationToken
     )
     {
-        var mirrorApproval = await dataFacade.MongoEf.MirrorApproval
+        var mirrorApproval = await dataFacade.MongoDb.MirrorApproval
             .Where(x => x.OrderId == request.Body.OrderId && x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -49,8 +49,8 @@ public class SubmitDonationHandler(
             return _response.BadRequest("OrderId tidak valid");
         }
 
-        dataFacade.MongoEf.MirrorApproval.Add(new() {
-            UserId = request.SessionUserId,
+        dataFacade.MongoDb.MirrorApproval.Add(new() {
+            UserId = request.UserInfo.UserId,
             DonationSource = parsedDonationDto.Source,
             DonationSourceName = parsedDonationDto.Source.ToString(),
             PaymentUrl = parsedDonationDto.PaymentUrl,
@@ -63,14 +63,14 @@ public class SubmitDonationHandler(
             PaymentMethod = parsedDonationDto.PaymentMethod,
             OrderId = parsedDonationDto.OrderId,
             Status = EventStatus.Complete,
-            TransactionId = request.TransactionId
+            TransactionId = request.UserInfo.TransactionId
         });
 
         var cendolCount = parsedDonationDto.CendolCount;
 
 
-        var mirrorUser = await dataFacade.MongoEf.MirrorUser.Where(x =>
-                x.UserId == request.SessionUserId &&
+        var mirrorUser = await dataFacade.MongoDb.MirrorUser.Where(x =>
+                x.UserId == request.UserInfo.UserId &&
                 x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
@@ -79,11 +79,11 @@ public class SubmitDonationHandler(
 
         if (mirrorUser == null)
         {
-            dataFacade.MongoEf.MirrorUser.Add(new() {
-                UserId = request.SessionUserId,
+            dataFacade.MongoDb.MirrorUser.Add(new() {
+                UserId = request.UserInfo.UserId,
                 ExpireDate = expireDate,
                 Status = EventStatus.Complete,
-                TransactionId = request.TransactionId
+                TransactionId = request.UserInfo.TransactionId
             });
         }
 
@@ -95,10 +95,10 @@ public class SubmitDonationHandler(
 
             mirrorUser.ExpireDate = expireDate;
             mirrorUser.Status = EventStatus.Complete;
-            mirrorUser.TransactionId = request.TransactionId;
+            mirrorUser.TransactionId = request.UserInfo.TransactionId;
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return _response.Success("Pembayaran berhasil diverifikasi.", true);
     }

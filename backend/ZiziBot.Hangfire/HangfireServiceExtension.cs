@@ -1,5 +1,4 @@
 using Hangfire.LiteDB;
-using Hangfire.Server;
 using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +6,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using Sentry.Hangfire;
+using Serilog;
+using ZiziBot.Common.Exceptions;
 
 namespace ZiziBot.Hangfire;
 
@@ -18,46 +20,75 @@ public static class HangfireServiceExtension
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
         var hangfireConfig = serviceProvider.GetRequiredService<IOptionsSnapshot<HangfireConfig>>().Value;
 
-        var queues = new[] {
-            "default",
-            CronJobKey.Queue_Data,
-            CronJobKey.Queue_Rss,
-            CronJobKey.Queue_ShalatTime
-        };
+        if (EnvUtil.IsEnabled(Flag.HANGFIRE))
+        {
+            var queues = new[] {
+                "default",
+                CronJobKey.Queue_Data,
+                CronJobKey.Queue_Rss,
+                CronJobKey.Queue_ShalatTime
+            };
 
-        JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
-            CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
-            CurrentStorage.Sqlite => new SQLiteStorage(PathConst.HANGFIRE_SQLITE_PATH.EnsureDirectory()),
-            CurrentStorage.LiteDb => new LiteDbStorage(PathConst.HANGFIRE_LITEDB_PATH.EnsureDirectory()),
-            _ => new InMemoryStorage(new InMemoryStorageOptions())
-        };
+            JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
+                CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
+                CurrentStorage.Sqlite => new SQLiteStorage(PathConst.HANGFIRE_SQLITE_PATH.EnsureDirectory()),
+                CurrentStorage.LiteDb => new LiteDbStorage(PathConst.HANGFIRE_LITEDB_PATH.EnsureDirectory()),
+                _ => new InMemoryStorage(new InMemoryStorageOptions())
+            };
 
-        services.AddHangfire(
-            configuration => {
-                configuration
-                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                    .UseSimpleAssemblyNameTypeSerializer()
-                    .UseRecommendedSerializerSettings()
-                    .UseDarkDashboard()
-                    .UseStorage(jobStorage)
-                    .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
-                    .UseMediatR();
+            services.AddHangfire(configuration => {
+                    configuration
+                        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                        .UseSimpleAssemblyNameTypeSerializer()
+                        .UseRecommendedSerializerSettings()
+                        .UseDarkDashboard()
+                        .UseStorage(jobStorage)
+                        .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
+                        .UseMediatR()
+                        .UseSentry();
+                }
+            );
+
+            if (EnvUtil.IsEnabled(Flag.HANGFIRE_SEPARATED_SERVER))
+            {
+                logger.LogDebug("Hangfire is running in a separated server!");
+
+                foreach (var queue in queues)
+                {
+                    services.AddHangfireServer(
+                        optionsAction: (provider, options) => {
+                            options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
+                            options.Queues = [queue];
+                        },
+                        storage: jobStorage,
+                        additionalProcesses: [
+                            new ProcessMonitor(TimeSpan.FromSeconds(3))
+                        ]
+                    );
+                }
             }
-        );
+            else
+            {
+                logger.LogDebug("Hangfire is running in a single server!");
 
-        services.AddHangfireServer(
-            optionsAction: (provider, options) => {
-                options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
-                options.ServerTimeout = TimeSpan.FromMinutes(10);
-                options.Queues = queues;
-            },
-            storage: jobStorage,
-            additionalProcesses: new IBackgroundProcess[] {
-                new ProcessMonitor(TimeSpan.FromSeconds(3))
+                services.AddHangfireServer(
+                    optionsAction: (provider, options) => {
+                        options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
+                        options.Queues = queues;
+                    },
+                    storage: jobStorage,
+                    additionalProcesses: [
+                        new ProcessMonitor(TimeSpan.FromSeconds(3))
+                    ]
+                );
             }
-        );
 
-        services.AddSingleton<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
+            services.AddScoped<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
+        }
+        else
+        {
+            logger.LogDebug("Hangfire is disabled!");
+        }
 
         return services;
     }
@@ -65,20 +96,39 @@ public static class HangfireServiceExtension
     public static IApplicationBuilder UseHangfire(this IApplicationBuilder app)
     {
         var serviceProvider = app.ApplicationServices;
-        var authorizationFilters = serviceProvider.GetServices<IDashboardAuthorizationFilter>();
-        var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
-        var appSettingRepository = serviceProvider.GetRequiredService<AppSettingRepository>();
-        var config = appSettingRepository.GetConfigSection<HangfireConfig>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
 
-        app.UseHangfireDashboard(
-            pathMatch: UrlConst.HANGFIRE_URL_PATH,
-            options: new DashboardOptions() {
+        if (EnvUtil.IsEnabled(Flag.HANGFIRE))
+        {
+            var scope = serviceProvider.CreateScope();
+            var serviceScope = scope.ServiceProvider;
+            var appSettingRepository = serviceScope.GetRequiredService<AppSettingRepository>();
+            var config = appSettingRepository.GetConfigSection<HangfireConfig>();
+
+            var dashboardOptions = new DashboardOptions() {
                 DashboardTitle = config?.DashboardTitle ?? "Hangfire Dashboard",
-                IgnoreAntiforgeryToken = false
-                // Authorization = authorizationFilters,
-                // AsyncAuthorization = asyncAuthorizationFilters
+                IgnoreAntiforgeryToken = false,
+                AppPath = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL)
+            };
+
+            if (EnvUtil.IsEnabled(Flag.HANGFIRE_ENABLE_AUTH))
+            {
+                var authorizationFilters = serviceScope.GetServices<IDashboardAuthorizationFilter>();
+                var asyncAuthorizationFilters = serviceScope.GetServices<IDashboardAsyncAuthorizationFilter>();
+
+                dashboardOptions.Authorization = authorizationFilters;
+                dashboardOptions.AsyncAuthorization = asyncAuthorizationFilters;
             }
-        );
+
+            app.UseHangfireDashboard(
+                pathMatch: UrlConst.HANGFIRE_URL_PATH,
+                options: dashboardOptions
+            );
+        }
+        else
+        {
+            logger.LogInformation("Hangfire is disabled!");
+        }
 
         return app;
     }
@@ -91,22 +141,40 @@ public static class HangfireServiceExtension
         settings.ServerApi = new ServerApi(ServerApiVersion.V1);
         var mongoClient = new MongoClient(settings);
 
-        mongoClient.GetDatabase(mongoUrlBuilder.DatabaseName);
+        var databaseName = mongoUrlBuilder.DatabaseName;
 
-        var mongoStorage = new MongoStorage(
-            mongoClient: mongoClient,
-            databaseName: mongoUrlBuilder.DatabaseName,
-            storageOptions: new MongoStorageOptions() {
-                MigrationOptions = new MongoMigrationOptions {
-                    MigrationStrategy = new MigrateMongoMigrationStrategy(),
-                    BackupStrategy = new CollectionMongoBackupStrategy()
-                },
-                CheckConnection = false,
-                CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.Poll
-            }
-        );
+        mongoClient.GetDatabase(databaseName);
 
-        return mongoStorage;
+        try
+        {
+            var mongoStorage = new MongoStorage(
+                mongoClient: mongoClient,
+                databaseName: databaseName,
+                storageOptions: new MongoStorageOptions() {
+                    MigrationOptions = new MongoMigrationOptions {
+                        MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                        BackupStrategy = new CollectionMongoBackupStrategy()
+                    },
+                    CheckConnection = false,
+                    CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.Poll
+                }
+            );
+
+            return mongoStorage;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Fail to create Hangfire MongoDB Storage. Try to reset the database.");
+
+            mongoClient.GetDatabase(databaseName)
+                .ListCollectionNames()
+                .ToList()
+                .Where(x => x.StartsWith("hangfire", StringComparison.OrdinalIgnoreCase))
+                .ToList()
+                .ForEach(x => mongoClient.GetDatabase(databaseName).DropCollection(x));
+
+            throw new AppException("Fail to create Hangfire MongoDB Storage. Please restart Engine");
+        }
     }
 
     private static IGlobalConfiguration UseMediatR(this IGlobalConfiguration configuration)

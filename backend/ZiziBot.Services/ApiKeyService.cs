@@ -1,13 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Contracts.Enums;
-using ZiziBot.DataSource.MongoEf;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Interfaces;
+using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Services;
 
 public class ApiKeyService(
     ILogger<ApiKeyService> logger,
-    MongoEfContext mongoDbContext
+    MongoDbContext mongoDbContext
 ) : IApiKeyService
 {
     readonly ILogger<ApiKeyService> _logger = logger;

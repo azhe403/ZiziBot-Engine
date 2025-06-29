@@ -12,13 +12,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Attributes\ZiziBot.Attributes.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Contracts\ZiziBot.Contracts.csproj"/>
-    <ProjectReference Include="..\ZiziBot.DataSource\ZiziBot.DataSource.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Utils\ZiziBot.Utils.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Common\ZiziBot.Common.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Database\ZiziBot.Database.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MongoDB.EntityFrameworkCore" Version="9.0.0"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MongoDb\"/>
   </ItemGroup>
 
 </Project>
