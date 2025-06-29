@@ -11,7 +11,7 @@ public class JadwalSholatOrgSinkService(ILogger<JadwalSholatOrgSinkService> logg
     public async Task FeedAll()
     {
         await FeedCity();
-        await FeedSchedule();
+        // await FeedSchedule();
     }
 
     public async Task FeedCity()
