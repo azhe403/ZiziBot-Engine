@@ -149,7 +149,7 @@ public static class WebParserUtil
     {
         if (htmlString.IsNullOrEmpty()) return htmlString;
 
-        var doc = await htmlString.OpenHtml();
+        using var doc = await htmlString.OpenHtml();
 
         foreach (var element in doc!.QuerySelectorAll("img, svg, body, head"))
         {

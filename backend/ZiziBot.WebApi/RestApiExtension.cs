@@ -29,7 +29,7 @@ public static class RestApiExtension
         services.AddSignalR();
         services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters()
-            .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>(ServiceLifetime.Transient);
+            .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>();
 
         services
             .Configure<ApiBehaviorOptions>(options => {
@@ -139,7 +139,7 @@ public static class RestApiExtension
                 selector.FromAssembliesOf(typeof(GlobalExceptionMiddleware))
                     .AddClasses(filter => filter.InNamespaceOf<GlobalExceptionMiddleware>())
                     .AsSelf()
-                    .WithTransientLifetime();
+                    .WithScopedLifetime();
             }
         );
 

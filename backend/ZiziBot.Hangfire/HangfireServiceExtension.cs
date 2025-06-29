@@ -83,7 +83,7 @@ public static class HangfireServiceExtension
                 );
             }
 
-            services.AddSingleton<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
+            services.AddScoped<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
         }
         else
         {
@@ -100,7 +100,9 @@ public static class HangfireServiceExtension
 
         if (EnvUtil.IsEnabled(Flag.HANGFIRE))
         {
-            var appSettingRepository = serviceProvider.GetRequiredService<AppSettingRepository>();
+            var scope = serviceProvider.CreateScope();
+            var serviceScope = scope.ServiceProvider;
+            var appSettingRepository = serviceScope.GetRequiredService<AppSettingRepository>();
             var config = appSettingRepository.GetConfigSection<HangfireConfig>();
 
             var dashboardOptions = new DashboardOptions() {
@@ -111,8 +113,8 @@ public static class HangfireServiceExtension
 
             if (EnvUtil.IsEnabled(Flag.HANGFIRE_ENABLE_AUTH))
             {
-                var authorizationFilters = serviceProvider.GetServices<IDashboardAuthorizationFilter>();
-                var asyncAuthorizationFilters = serviceProvider.GetServices<IDashboardAsyncAuthorizationFilter>();
+                var authorizationFilters = serviceScope.GetServices<IDashboardAuthorizationFilter>();
+                var asyncAuthorizationFilters = serviceScope.GetServices<IDashboardAsyncAuthorizationFilter>();
 
                 dashboardOptions.Authorization = authorizationFilters;
                 dashboardOptions.AsyncAuthorization = asyncAuthorizationFilters;

@@ -19,8 +19,7 @@ namespace ZiziBot.Infrastructure;
 public static class LoggingExtension
 {
     // ReSharper disable InconsistentNaming
-    private const string TEMPLATE_BASE =
-        $"[{{Level:u3}}] {{MemoryUsage}} {{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}}{{Message:lj}}{{NewLine}}{{Exception}}";
 
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
@@ -64,10 +63,10 @@ public static class LoggingExtension
             {
                 config.Enrich.WithDynamicProperty("MemoryUsage", () => {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
-                    return $"{mem}";
+                    return $" MEM {mem} ";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
                     var threadId = Environment.CurrentManagedThreadId.ToString();
-                    return $"{threadId}";
+                    return $" Thread {threadId} ";
                 });
             }
 
@@ -125,7 +124,9 @@ public static class LoggingExtension
     public static IServiceCollection AddSerilog(this IServiceCollection services, WebApplicationBuilder applicationBuilder)
     {
         services.AddSerilog((provider, config) => {
-            var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+            using var scope = provider.CreateScope();
+
+            var appSettingRepository = scope.ServiceProvider.GetRequiredService<AppSettingRepository>();
             var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
 
             var logConfig = appSettingRepository.GetRequiredConfigSection<LogConfig>();
@@ -141,10 +142,10 @@ public static class LoggingExtension
             {
                 config.Enrich.WithDynamicProperty("MemoryUsage", () => {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
-                    return $"{mem}";
+                    return $" {mem} ";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
                     var threadId = Environment.CurrentManagedThreadId.ToString();
-                    return $"{threadId}";
+                    return $" {threadId} ";
                 });
             }
 

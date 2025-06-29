@@ -12,15 +12,17 @@ public class MigrationRunner(IServiceProvider serviceProvider, IMongoDatabase da
 
     public async Task ApplyMigrationAsync()
     {
-        IEnumerable<IMigrationBase> preMigrations = serviceProvider.GetServices<IPreMigration>().ToList();
+        using var scope = serviceProvider.CreateScope();
+        var serviceScope = scope.ServiceProvider;
+        IEnumerable<IMigrationBase> preMigrations = serviceScope.GetServices<IPreMigration>().ToList();
         logger.LogDebug("Applying Pre-Migration. Total: {Count} Migrations", preMigrations.Count());
         await ApplyMigrationInternal(preMigrations);
 
-        var migrations = serviceProvider.GetServices<IMigration>().ToList();
+        var migrations = serviceScope.GetServices<IMigration>().ToList();
         logger.LogDebug("Applying Migration. Total: {Count} Migrations", migrations.Count());
         await ApplyMigrationInternal(migrations);
 
-        IEnumerable<IMigrationBase> postMigrations = serviceProvider.GetServices<IPostMigration>().ToList();
+        IEnumerable<IMigrationBase> postMigrations = serviceScope.GetServices<IPostMigration>().ToList();
         logger.LogDebug("Applying Post-Migration. Total: {Count} Migrations", postMigrations.Count());
         await ApplyMigrationInternal(postMigrations);
     }

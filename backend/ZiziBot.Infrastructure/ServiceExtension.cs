@@ -89,10 +89,10 @@ public static class ServiceExtension
         services.Scan(selector => selector.FromAssembliesOf(typeof(CacheService))
             .AddClasses(filter => filter.InNamespaceOf<CacheService>())
             .AsSelfWithInterfaces()
-            .WithTransientLifetime());
+            .WithScopedLifetime());
 
-        services.AddTransient<ServiceFacade>();
-        services.AddTransient<DataFacade>();
+        services.AddScoped<ServiceFacade>();
+        services.AddScoped<DataFacade>();
 
         return services;
     }

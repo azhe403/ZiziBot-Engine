@@ -77,18 +77,11 @@ public class MongoDbContext() : DbContext
         }
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         EnsureTimestamp();
 
         return base.SaveChangesAsync(cancellationToken);
-    }
-
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new())
-    {
-        EnsureTimestamp();
-
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
     public IQueryable<TEntity> GetQueryable<TEntity>() where TEntity : EntityBase

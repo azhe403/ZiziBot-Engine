@@ -11,14 +11,17 @@ public static class ServiceExtension
 {
     public static IServiceCollection AddConsole(this IServiceCollection services)
     {
-        services.AddRazorPages();
-        services.AddServerSideBlazor();
-        services.AddBlazoredLocalStorage();
-        services.AddAuthorizationCore();
-        services.AddRadzenComponents();
-        services.AddReactiveViewModels();
+        if (EnvUtil.IsEnabled(Flag.CONSOLE_BLAZOR))
+        {
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
+            services.AddBlazoredLocalStorage();
+            services.AddAuthorizationCore();
+            services.AddRadzenComponents();
+            services.AddReactiveViewModels();
 
-        services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+        }
 
         return services;
     }

@@ -25,21 +25,21 @@ public static class MigrationExtension
             selector.FromAssembliesOf(typeof(IMigration))
                 .AddClasses(filter => filter.AssignableTo<IMigration>())
                 .As<IMigration>()
-                .WithTransientLifetime()
+                .WithScopedLifetime()
         );
 
         services.Scan(selector =>
             selector.FromAssembliesOf(typeof(IPreMigration))
                 .AddClasses(filter => filter.AssignableTo<IPreMigration>())
                 .As<IPreMigration>()
-                .WithTransientLifetime()
+                .WithScopedLifetime()
         );
 
         services.Scan(selector =>
             selector.FromAssembliesOf(typeof(IPostMigration))
                 .AddClasses(filter => filter.AssignableTo<IPostMigration>())
                 .As<IPostMigration>()
-                .WithTransientLifetime()
+                .WithScopedLifetime()
         );
     }
 
