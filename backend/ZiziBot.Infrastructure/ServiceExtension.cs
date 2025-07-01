@@ -92,7 +92,6 @@ public static class ServiceExtension
             .WithScopedLifetime());
 
         services.AddScoped<ServiceFacade>();
-        services.AddScoped<DataFacade>();
 
         return services;
     }

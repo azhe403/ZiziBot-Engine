@@ -60,7 +60,7 @@ public class FetchRssHandler(
                 .Url(latestArticle.Link, latestArticle.Title.Trim()).Br();
 
             if (!request.RssUrl.IsGithubCommitsUrl() &&
-                await dataFacade.FeatureFlag.GetFlagValue(Flag.RSS_INCLUDE_CONTENT))
+                await dataFacade.FeatureFlag.IsEnabled(Flag.RSS_INCLUDE_CONTENT))
                 messageText.Text(htmlContent.Truncate(2000));
 
             if (request.RssUrl.IsGithubReleaseUrl())

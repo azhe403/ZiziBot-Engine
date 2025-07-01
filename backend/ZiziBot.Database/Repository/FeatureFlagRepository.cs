@@ -22,6 +22,8 @@ public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvid
             })
             .ToListAsync();
 
+        EnvUtil.Current = flags;
+
         return flags;
     }
 
@@ -58,7 +60,7 @@ public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvid
         return cache;
     }
 
-    public async Task<bool> GetFlagValue(string flagName)
+    public async Task<bool> IsEnabled(string flagName)
     {
         var flag = await GetFlag(flagName);
 

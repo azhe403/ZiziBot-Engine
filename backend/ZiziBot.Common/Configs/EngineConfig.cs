@@ -12,8 +12,9 @@ public class EngineConfig
     public string Vendor { get; set; }
     public string Website { get; set; }
     public string Support { get; set; }
+    public string WebhookUrl { get; set; }
+    public string ConsoleUrl { get; set; }
     public BotEngineMode TelegramEngineMode { get; set; }
     public ExecutionStrategy ExecutionStrategy { get; set; }
-
     public bool EnableChatRestriction { get; set; }
 }

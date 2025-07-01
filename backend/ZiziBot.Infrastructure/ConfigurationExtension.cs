@@ -36,7 +36,7 @@ public static class ConfigurationExtension
 
         #region Feature Flags
         var featureFlagRepository = provider.GetRequiredService<FeatureFlagRepository>();
-        EnvUtil.Current = await featureFlagRepository.GetFlags();
+        await featureFlagRepository.GetFlags();
         #endregion
 
         #region Env

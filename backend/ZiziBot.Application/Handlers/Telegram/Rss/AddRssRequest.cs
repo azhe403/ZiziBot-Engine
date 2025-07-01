@@ -18,7 +18,7 @@ public class AddRssHandler(
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
-        if (!EnvUtil.IsEnabled(Flag.RSS_BROADCASTER))
+        if (!await dataFacade.FeatureFlag.IsEnabled(Flag.RSS_BROADCASTER))
             return await serviceFacade.TelegramService.SendMessageAsync("Fitur RSS saat ini sedang dimatikan");
 
         if (request.Param.IsNullOrEmpty())

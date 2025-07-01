@@ -14,6 +14,7 @@ public class FetchRssUseCase(
     ILogger<FetchRssUseCase> logger,
     MongoDbContext mongoDbContext,
     AppSettingRepository appSettingRepository,
+    FeatureFlagRepository featureFlagRepository,
     RssRepository rssRepository,
     ReadRssUseCase readRssUseCase
 )
@@ -24,7 +25,7 @@ public class FetchRssUseCase(
     [Queue(CronJobKey.Queue_Rss)]
     public async Task<bool> Handle(long chatId, int threadId, string rssUrl)
     {
-        if (!EnvUtil.IsEnabled(Flag.RSS_BROADCASTER))
+        if (!await featureFlagRepository.IsEnabled(Flag.RSS_BROADCASTER))
             return true;
 
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
@@ -34,6 +35,12 @@ public class FetchRssUseCase(
         {
             var botClient = new TelegramBotClient(botSettings.Token);
             var feed = await readRssUseCase.Handle(rssUrl);
+
+            if (feed.Items.Count == 0)
+            {
+                logger.LogWarning("No RSS article found for ChatId: {ChatId}. Url: {Url}", chatId, rssUrl);
+                return true;
+            }
 
             foreach (var latestArticle in feed.Items.Take(3))
             {

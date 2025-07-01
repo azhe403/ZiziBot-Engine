@@ -46,7 +46,7 @@ public class ReadRssUseCase(
         logger.LogInformation("Reading RSS: {Url}", rssUrl);
 
         var isGithubReleaseUrl = rssUrl.IsGithubReleaseUrl();
-        var includeRssContent = await featureFlagRepository.GetFlagValue(Flag.RSS_INCLUDE_CONTENT);
+        var includeRssContent = await featureFlagRepository.IsEnabled(Flag.RSS_INCLUDE_CONTENT);
 
         var feed = await cacheService.GetOrSetAsync("rss/" + rssUrl, async () => {
             var feed = await rssUrl.ReadRssAsync(throwIfError: true);
