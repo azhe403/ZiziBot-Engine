@@ -25,7 +25,7 @@ public class JadwalSholatOrgJobTask(DataFacade dataFacade) : IStartupTask
                 .Where(entity => entity.Status == EventStatus.Complete)
                 .CountAsync();
 
-            if (checkCity > 0 || checkSchedule > 0)
+            if (checkCity > 0)
             {
                 Log.Information("JadwalSholat.org data is already exist, skip seeding data at startup.");
                 return;
