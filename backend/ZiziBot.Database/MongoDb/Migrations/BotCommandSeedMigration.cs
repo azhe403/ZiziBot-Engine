@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.Database.MongoDb.Entities;
 using ZiziBot.Database.MongoDb.Interfaces;
@@ -10,12 +9,12 @@ public class BotCommandSeedMigration(ILogger<BotCommandSeedMigration> logger, Mo
 {
     readonly ILogger<BotCommandSeedMigration> _logger = logger;
 
-    public async Task DownAsync(IMongoDatabase db)
+    public async Task DownAsync()
     {
         await Task.Delay(1);
     }
 
-    public async Task UpAsync(IMongoDatabase db)
+    public async Task UpAsync()
     {
         mongoDbContext.BotCommand.AddRange(new List<BotCommandEntity>() {
             new() {

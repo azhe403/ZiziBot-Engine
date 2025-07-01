@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
 using ZiziBot.Database.MongoDb.Entities;
 using ZiziBot.Database.MongoDb.Interfaces;
 
@@ -7,7 +6,7 @@ namespace ZiziBot.Database.MongoDb.Migrations;
 
 public class FeatureSeederMigration(MongoDbContext mongoDbContext) : IPreMigration
 {
-    public async Task UpAsync(IMongoDatabase db)
+    public async Task UpAsync()
     {
         var transactionId = Guid.NewGuid().ToString();
         var listFlags = Flag.GetFields();
@@ -34,6 +33,6 @@ public class FeatureSeederMigration(MongoDbContext mongoDbContext) : IPreMigrati
         await mongoDbContext.SaveChangesAsync();
     }
 
-    public async Task DownAsync(IMongoDatabase db)
+    public async Task DownAsync()
     { }
 }

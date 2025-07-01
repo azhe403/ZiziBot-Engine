@@ -15,7 +15,7 @@ public static class MigrationExtension
         var url = new MongoUrl(connectionStr);
 
         services.AddSingleton<MigrationRunner>();
-        services.AddSingleton<IMongoDatabase>(provider => {
+        services.AddScoped<IMongoDatabase>(provider => {
             var client = new MongoClient(connectionStr);
             var database = client.GetDatabase(url.DatabaseName);
             return database;

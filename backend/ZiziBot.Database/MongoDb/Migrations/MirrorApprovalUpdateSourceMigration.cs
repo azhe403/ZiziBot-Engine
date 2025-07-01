@@ -4,11 +4,11 @@ using ZiziBot.Database.MongoDb.Interfaces;
 
 namespace ZiziBot.Database.MongoDb.Migrations;
 
-public class MirrorApprovalUpdateSourceMigration : IPostMigration
+public class MirrorApprovalUpdateSourceMigration(IMongoDatabase database) : IPostMigration
 {
-    public async Task UpAsync(IMongoDatabase db)
+    public async Task UpAsync()
     {
-        var collection = db.GetCollection<BsonDocument>("MirrorApproval");
+        var collection = database.GetCollection<BsonDocument>("MirrorApproval");
         var filter = Builders<BsonDocument>.Filter.Empty;
         var listMirrorApproval = await collection.Find(filter).ToListAsync();
         var update = Builders<BsonDocument>.Update.Set("UpdatedDate", DateTime.UtcNow);
@@ -40,6 +40,6 @@ public class MirrorApprovalUpdateSourceMigration : IPostMigration
         }
     }
 
-    public async Task DownAsync(IMongoDatabase db)
+    public async Task DownAsync()
     { }
 }
