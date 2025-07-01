@@ -21,7 +21,7 @@ public class RegisterRssJobTask(
             {
                 logger.LogInformation("Registering RSS Jobs");
                 await registerRssJobAllUseCase.Handle(new RegisterRssJobAllRequest() {
-                    ResetStatus = await featureFlagRepository.GetFlagValue(Flag.RSS_RESET_AT_STARTUP)
+                    ResetStatus = await featureFlagRepository.IsEnabled(Flag.RSS_RESET_AT_STARTUP)
                 });
 
                 RecurringJob.AddOrUpdate<RegisterRssJobAllUseCase>(

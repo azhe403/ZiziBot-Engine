@@ -21,10 +21,6 @@ public class JadwalSholatOrgJobTask(DataFacade dataFacade) : IStartupTask
                 .Where(entity => entity.Status == EventStatus.Complete)
                 .CountAsync();
 
-            var checkSchedule = await dataFacade.MongoDb.JadwalSholatOrg_Schedule.AsNoTracking()
-                .Where(entity => entity.Status == EventStatus.Complete)
-                .CountAsync();
-
             if (checkCity > 0)
             {
                 Log.Information("JadwalSholat.org data is already exist, skip seeding data at startup.");
