@@ -129,13 +129,14 @@ public static class LoggingExtension
             var appSettingRepository = scope.ServiceProvider.GetRequiredService<AppSettingRepository>();
             var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
 
-            var logConfig = appSettingRepository.GetRequiredConfigSection<LogConfig>();
+            var logConfig = appSettingRepository.GetRequiredConfigSection<EventLogConfig>();
 
             config.ReadFrom
                 .Configuration(applicationBuilder.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .MinimumLevel.Debug()
+                .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
                 .Enrich.WithDemystifiedStackTraces();
 
             if (logConfig.ProcessEnrich)
@@ -144,14 +145,30 @@ public static class LoggingExtension
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
                     return $" {mem} ";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
-                    var threadId = Environment.CurrentManagedThreadId.ToString();
+                    var threadId = Environment.CurrentManagedThreadId.ToString("000000").Replace("0", " ");
                     return $" {threadId} ";
                 });
             }
 
-            config.WriteTo.Async(cfg => cfg
-                .Console(outputTemplate: OUTPUT_TEMPLATE)
-                .WriteTo.SignalRSink<LogHub, IHub>(LogEventLevel.Debug, provider));
+            if (logConfig.WriteToFile)
+            {
+                config.WriteTo.Async(cfg => cfg.File($"{PathConst.LOG}/log-.log",
+                    outputTemplate: OUTPUT_TEMPLATE,
+                    rollingInterval: RollingInterval.Day,
+                    flushToDiskInterval: TimeSpan.FromSeconds(2),
+                    shared: true
+                ));
+            }
+
+            if (logConfig.WriteToSignalR)
+            {
+                config.WriteTo.Async(cfg => cfg.SignalRSink<LogHub, IHub>(LogEventLevel.Debug, provider));
+            }
+
+            if (logConfig.WriteToTelegram)
+            {
+                config.WriteTo.Async(cfg => cfg.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
+            }
 
             var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
 
@@ -165,9 +182,6 @@ public static class LoggingExtension
                     });
                 });
             }
-
-            config.WriteTo.Async(configuration =>
-                configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
         });
 
         return services;
@@ -184,14 +198,14 @@ public static class LoggingExtension
                     var request = call.Request;
                     call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
 
-                    Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
+                    Log.Information("Flurl request {Method}: {Url}", request.Verb, request.Url);
                 });
 
                 builder.AfterCall(flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
 
-                    Log.Information("FlurlHttp: {Method} {Url}: {StatusCode}. Elapsed: {Elapsed}",
+                    Log.Information("Flurl response {Method}: {Url}: {StatusCode}. Elapsed: {Elapsed}",
                         request.Verb,
                         request.Url,
                         response?.StatusCode,

@@ -11,6 +11,8 @@ public static class PathConst
     public const string HANGFIRE_SQLITE_PATH = "Storage/Hangfire/Sqlite/Sqlite.db";
     public const string HANGFIRE_LITEDB_PATH = "Storage/Hangfire/LiteDb/LiteDb.db";
 
-    public static readonly string BACKUP = Path.Combine(Environment.CurrentDirectory, "Storage", "Backup");
+    public static readonly string STORAGE = Path.Combine(Environment.CurrentDirectory, "Storage");
+    public static readonly string BACKUP = Path.Combine(STORAGE, "Backup");
+    public static readonly string LOG = Path.Combine(STORAGE, "Log");
     public static readonly string MONGODB_BACKUP = Path.Combine(BACKUP, "MongoDB/");
 }

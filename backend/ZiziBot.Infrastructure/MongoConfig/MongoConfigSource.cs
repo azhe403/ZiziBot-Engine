@@ -118,12 +118,6 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                 KeyPair = engine.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = nameof(ConfigRoot.EventLog),
-                KeyPair = new() {
-                    { "ProcessEnrich", false }
-                }
-            },
-            new() {
                 Root = nameof(ConfigRoot.Jwt),
                 KeyPair = jwt.ToDictionary(StringType.PascalCase)
             },
