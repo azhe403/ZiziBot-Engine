@@ -47,6 +47,8 @@ public static class ConfigurationExtension
         {
             Env.SentryDsn = sentryConfig.Dsn;
         }
+
+        await appSettingRepository.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
         #endregion
 
         return services;

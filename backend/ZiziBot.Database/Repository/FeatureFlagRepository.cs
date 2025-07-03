@@ -65,7 +65,7 @@ public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvid
         var flag = await GetFlag(flagName);
 
         var isEnabled = (bool)flag?.IsEnabled;
-        Log.Debug("Flag: '{flagName}' is enabled: {isEnabled}", flagName, isEnabled);
+        Log.Verbose("Flag '{flagName}' is enabled: {isEnabled}", flagName, isEnabled);
 
         return isEnabled;
     }

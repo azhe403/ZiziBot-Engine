@@ -86,6 +86,27 @@ public static class RssParserUtil
         if (!url.IsGithubReleaseUrl())
             return null;
 
+        Log.Debug("Collecting GitHub assets latest for URL: {Url}", url);
+        var client = new GitHubClient(new ProductHeaderValue("ZiziBot"));
+
+        if (!string.IsNullOrWhiteSpace(token))
+            client.Credentials = new Credentials(token);
+
+        var repoGroup = url.Split("/")[3];
+        var repoName = url.Split("/")[4];
+
+        Log.Debug("Getting GitHub release assets latest for URL: {Url}", url);
+        var release = await client.Repository.Release.GetLatest(repoGroup, repoName);
+
+        Log.Debug("Got Assets for URl: {Url} {Count} item(s)", url, release.Assets.Count);
+        return release;
+    }
+
+    public static async Task<IReadOnlyList<Release>?> GetGithubAssets(this string url, string? token = null)
+    {
+        if (!url.IsGithubReleaseUrl())
+            return null;
+
         Log.Debug("Collecting GitHub assets for URL: {Url}", url);
         var client = new GitHubClient(new ProductHeaderValue("ZiziBot"));
 
@@ -96,9 +117,9 @@ public static class RssParserUtil
         var repoName = url.Split("/")[4];
 
         Log.Debug("Getting GitHub release assets for URL: {Url}", url);
-        var release = await client.Repository.Release.GetLatest(repoGroup, repoName);
+        var release = await client.Repository.Release.GetAll(repoGroup, repoName);
 
-        Log.Debug("Got Assets for URl: {Url} {Count} item(s)", url, release.Assets.Count);
+        Log.Debug("Got Assets for URl: {Url} {Count} item(s)", url, release.Count);
         return release;
     }
 }

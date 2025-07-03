@@ -123,17 +123,19 @@ public static class StringUtil
     public static string ForCacheKey(this string input)
     {
         var key = input
+            .UrlDecode()
+            .HtmlDecode()
             .Replace("https://", "")
             .Replace("http://", "")
             .Replace(".", "-")
             .Replace("?", "_")
             .Replace("=", "_")
-            .HtmlDecode()
-            .RegexReplaceEval(@"(%20|\s)+", "_")
+            .RegexReplaceEval(@"(%20|%22|\s)+", "_")
             .TrimEnd('_')
             .TrimEnd("/");
 
-        Log.Debug("Convert cache key from {Before} => {After}", input, key);
+        if (input != key)
+            Log.Debug("Convert cache key from {Before} => {After}", input, key);
 
         return key;
     }

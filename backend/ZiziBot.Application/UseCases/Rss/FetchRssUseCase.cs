@@ -36,7 +36,7 @@ public class FetchRssUseCase(
             var botClient = new TelegramBotClient(botSettings.Token);
             var feed = await readRssUseCase.Handle(rssUrl);
 
-            if (feed.Items.Count == 0)
+            if (feed.Items.IsEmpty())
             {
                 logger.LogWarning("No RSS article found for ChatId: {ChatId}. Url: {Url}", chatId, rssUrl);
                 return true;
@@ -84,7 +84,9 @@ public class FetchRssUseCase(
                     Url = latestArticle.Link,
                     Author = latestArticle.Author,
                     PublishDate = latestArticle.PublishDate,
-                    Status = EventStatus.Complete
+                    Status = EventStatus.Complete,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
                 });
             }
         }

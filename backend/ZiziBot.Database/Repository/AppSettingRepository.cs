@@ -154,7 +154,7 @@ public class AppSettingRepository(MongoDbContext mongoDbContext, IServiceProvide
 
         var apiKey = await query.FirstOrDefaultAsync();
 
-        if (Env.GithubToken.IsNotNullOrWhiteSpace() &&
+        if (Env.GithubToken.IsNullOrWhiteSpace() &&
             apiKey is { Name: ApiKeyVendor.GitHub, Remaining: > 0 })
             Env.GithubToken = apiKey.ApiKey;
 

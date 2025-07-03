@@ -145,7 +145,7 @@ public static class LoggingExtension
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
                     return $" {mem} ";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
-                    var threadId = Environment.CurrentManagedThreadId.ToString("000000").Replace("0", " ");
+                    var threadId = Environment.CurrentManagedThreadId.ToString("000000");
                     return $" {threadId} ";
                 });
             }
