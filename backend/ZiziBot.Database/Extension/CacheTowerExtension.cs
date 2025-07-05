@@ -2,11 +2,14 @@ using CacheTower;
 using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using ZiziBot.Caching.Json;
-using ZiziBot.Caching.MongoDb;
-using ZiziBot.Caching.Redis;
+using ZiziBot.Common.Utils;
+using ZiziBot.Database.Caching.Firebase;
+using ZiziBot.Database.Caching.Json;
+using ZiziBot.Database.Caching.MongoDb;
+using ZiziBot.Database.Caching.Redis;
+using ZiziBot.Database.Caching.Sqlite;
 
-namespace ZiziBot.Caching.Extensions;
+namespace ZiziBot.Database.Extension;
 
 public static class CacheTowerExtension
 {

@@ -11,7 +11,6 @@ global using ZiziBot.Application.Handlers.Telegram.Permission;
 global using ZiziBot.Application.HostedServices;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Application.Tasks;
-global using ZiziBot.Caching.Extensions;
 global using ZiziBot.Common;
 global using ZiziBot.Common.Configs;
 global using ZiziBot.Common.Constants;

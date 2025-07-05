@@ -13,6 +13,7 @@ global using ZiziBot.Application.Services;
 global using ZiziBot.Common.Constants;
 global using ZiziBot.Common.Enums;
 global using ZiziBot.Database.Repository;
+global using ZiziBot.Database.Service;
 global using ZiziBot.Infrastructure.LoggerSink;
 global using ZiziBot.Parsers;
 global using ZiziBot.WebApi.Middlewares;

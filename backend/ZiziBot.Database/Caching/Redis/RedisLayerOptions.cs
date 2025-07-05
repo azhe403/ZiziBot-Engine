@@ -1,6 +1,6 @@
 ﻿using CacheTower;
 
-namespace ZiziBot.Caching.Redis;
+namespace ZiziBot.Database.Caching.Redis;
 
 internal record struct RedisLayerOptions(
     ICacheSerializer Serializer,

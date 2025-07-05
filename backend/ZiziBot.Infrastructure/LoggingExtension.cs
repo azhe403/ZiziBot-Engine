@@ -19,26 +19,17 @@ namespace ZiziBot.Infrastructure;
 public static class LoggingExtension
 {
     // ReSharper disable InconsistentNaming
-    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}}{{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
 
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
-
-    public static void SerilogBootstrap()
-    {
-        Log.Logger = new LoggerConfiguration()
-            // .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            // .Enrich.FromLogContext()
-            .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
-            .CreateBootstrapLogger(); // <-- Change this line!
-    }
 
     public static IHostBuilder ConfigureSerilogLite(this IHostBuilder hostBuilder)
     {
         hostBuilder.UseSerilog((context, provider, config) => {
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
-                .MinimumLevel.Debug()
+                .MinimumLevel.Verbose()
                 .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
                 .Enrich.WithDemystifiedStackTraces();
 
@@ -60,12 +51,12 @@ public static class LoggingExtension
             var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
             var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
 
-            var logConfig = appSettingRepository.GetRequiredConfigSection<LogConfig>();
+            var logConfig = appSettingRepository.GetRequiredConfigSection<EventLogConfig>();
 
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                .MinimumLevel.Debug()
+                .MinimumLevel.Is(logConfig.LogLevel)
                 .Enrich.WithDemystifiedStackTraces();
 
             if (logConfig.ProcessEnrich)
@@ -75,7 +66,7 @@ public static class LoggingExtension
                     return $" MEM {mem} ";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
                     var threadId = Environment.CurrentManagedThreadId.ToString();
-                    return $" Thread {threadId} ";
+                    return $" Thread {threadId}";
                 });
             }
 
@@ -135,32 +126,32 @@ public static class LoggingExtension
         services.AddSerilog((provider, config) => {
             using var scope = provider.CreateScope();
 
-            var appSettingRepository = scope.ServiceProvider.GetService<AppSettingRepository>();
-            var sinkConfig = appSettingRepository?.GetTelegramSinkConfig();
+            var appSettingRepository = scope.ServiceProvider.GetRequiredService<AppSettingRepository>();
+            var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
 
-            var logConfig = appSettingRepository?.GetRequiredConfigSection<EventLogConfig>();
+            var logConfig = appSettingRepository.GetRequiredConfigSection<EventLogConfig>();
 
             config.ReadFrom
                 .Configuration(applicationBuilder.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                .MinimumLevel.Debug()
+                .MinimumLevel.Is(logConfig.LogLevel)
                 .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
                 .Enrich.FromLogContext()
                 .Enrich.WithDemystifiedStackTraces();
 
-            if (logConfig?.ProcessEnrich == true)
+            if (logConfig.ProcessEnrich)
             {
                 config.Enrich.WithDynamicProperty("MemoryUsage", () => {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
                     return $" {mem} ";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
                     var threadId = Environment.CurrentManagedThreadId.ToString("000000");
-                    return $" {threadId} ";
+                    return $" {threadId}";
                 });
             }
 
-            if (logConfig?.WriteToFile == true)
+            if (logConfig.WriteToFile)
             {
                 config.WriteTo.Async(cfg => cfg.File($"{PathConst.LOG}/log-.log",
                     outputTemplate: OUTPUT_TEMPLATE,
@@ -170,17 +161,17 @@ public static class LoggingExtension
                 ));
             }
 
-            if (logConfig?.WriteToSignalR == true)
+            if (logConfig.WriteToSignalR)
             {
-                config.WriteTo.Async(cfg => cfg.SignalRSink<LogHub, IHub>(LogEventLevel.Debug, provider));
+                config.WriteTo.Async(cfg => cfg.SignalRSink<LogHub, IHub>(logConfig.LogLevel, provider));
             }
 
-            if (logConfig?.WriteToTelegram == true)
+            if (logConfig.WriteToTelegram)
             {
-                config.WriteTo.Async(cfg => cfg.Telegram(sinkConfig?.BotToken, sinkConfig?.ChatId, sinkConfig?.ThreadId));
+                config.WriteTo.Async(cfg => cfg.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
             }
 
-            var sentryConfig = appSettingRepository?.GetConfigSection<SentryConfig>();
+            var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
 
             if (sentryConfig?.IsEnabled ?? false)
             {
@@ -208,7 +199,7 @@ public static class LoggingExtension
                     var request = call.Request;
                     call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
 
-                    Log.Information("Flurl request {Method}: {Url}", request.Verb, request.Url);
+                    Log.Debug("Flurl request {Method}: {Url}", request.Verb, request.Url);
                 });
 
                 builder.AfterCall(flurlCall => {

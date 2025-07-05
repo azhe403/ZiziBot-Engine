@@ -2,7 +2,7 @@
 using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.Repository;
 
-namespace ZiziBot.Database;
+namespace ZiziBot.Database.Service;
 
 public class DataFacade(
     ICacheService cache,

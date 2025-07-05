@@ -1,4 +1,4 @@
-﻿namespace ZiziBot.Caching.Json;
+﻿namespace ZiziBot.Database.Caching.Json;
 
 public class JsonCacheEntry<TValue>
 {

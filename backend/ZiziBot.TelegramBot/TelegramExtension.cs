@@ -4,8 +4,8 @@ using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using ZiziBot.Common.Configs;
 using ZiziBot.Common.Constants;
-using ZiziBot.Database;
 using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Database.Service;
 using ZiziBot.TelegramBot.Framework.Extensions;
 using ZiziBot.TelegramBot.Framework.Models.Configs;
 

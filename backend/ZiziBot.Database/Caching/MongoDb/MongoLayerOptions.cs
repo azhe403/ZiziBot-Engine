@@ -1,6 +1,6 @@
 ﻿using CacheTower;
 
-namespace ZiziBot.Caching.MongoDb;
+namespace ZiziBot.Database.Caching.MongoDb;
 
 internal record struct MongoLayerOptions(
     string ConnectionString,

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using ZiziBot.Common.Interfaces;
 using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Services;
+namespace ZiziBot.Database.Service;
 
 public class CacheService(
     ILogger<CacheService> logger,

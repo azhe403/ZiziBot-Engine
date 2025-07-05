@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Serilog.Events;
 using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.MongoDb.Entities;
@@ -50,12 +51,17 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             Issuer = "YOUR_ISSUER",
         };
 
-        var eventLog = new EventLogConfig() {
+        var eventLog = new EventLogConfig {
             ChatId = 12345,
             ThreadId = 34567,
             BackupDB = 0,
             Exception = 0,
             EventLog = 0,
+            LogLevel = LogEventLevel.Debug,
+            ProcessEnrich = false,
+            WriteToFile = true,
+            WriteToSignalR = false,
+            WriteToTelegram = false,
         };
 
         var cache = new CacheConfig() {

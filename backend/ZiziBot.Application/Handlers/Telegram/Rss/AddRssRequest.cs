@@ -39,7 +39,7 @@ public class AddRssHandler(
             if (rssSetting != null)
                 return await serviceFacade.TelegramService.SendMessageAsync("RSS Sudah disimpan");
 
-            var uniqueId = await StringUtil.GetNanoIdAsync(prefix: $"{CronJobKey.Rss_Prefix}:", size: 7);
+            var uniqueId = await StringUtil.GenerateRssKeyAsync();
 
             var create = dataFacade.MongoDb.RssSetting.Add(new RssSettingEntity {
                 ChatId = request.ChatIdentifier,
@@ -54,16 +54,16 @@ public class AddRssHandler(
 
             await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job..");
 
-            var rssJobId = $"{CronJobKey.Rss_Prefix}:{create.Entity.Id}";
+            await serviceFacade.JobService.Register(request.ChatIdentifier, request.MessageThreadId, rssUrl, uniqueId, true);
 
-            await serviceFacade.JobService.Register(request.ChatIdentifier, request.MessageThreadId, rssUrl, rssJobId);
-
-            return await serviceFacade.TelegramService.SendMessageAsync("RSS Berhasil disimpan");
+            return await serviceFacade.TelegramService.SendMessageAsync("RSS Berhasil disimpan" +
+                                                                        "\nURL: " +
+                                                                        rssUrl);
         }
         catch (Exception e)
         {
             Log.Error(e, "Failed when adding RSS Url: {Url} to ChatId: {ChatId}", request.Param, request.ChatIdentifier);
-            return await serviceFacade.TelegramService.SendMessageAsync("Sepertinya bukan RSS yang valid");
+            return await serviceFacade.TelegramService.SendMessageAsync("Terjadi sesuatu ketika menambahkan RSS");
         }
     }
 }

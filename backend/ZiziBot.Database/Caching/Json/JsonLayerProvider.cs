@@ -1,11 +1,11 @@
 ﻿using CacheTower;
 using Serilog;
+using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Caching.Json;
+namespace ZiziBot.Database.Caching.Json;
 
 public class JsonLayerProvider : ILocalCacheLayer
 {
-    private static readonly SemaphoreSlim SemaphoreSlim = new(1);
     public required string DirPath { get; set; }
 
     public required ICacheSerializer Serializer { get; set; }
@@ -20,12 +20,10 @@ public class JsonLayerProvider : ILocalCacheLayer
         await CleanupCache();
     }
 
-    public ValueTask EvictAsync(string cacheKey)
+    public async ValueTask EvictAsync(string cacheKey)
     {
         var jsonFile = CacheToFile(cacheKey: cacheKey);
-        jsonFile.DeleteFile();
-
-        return default;
+        await jsonFile.DeleteThreadSafeAsync();
     }
 
     public async ValueTask<CacheEntry<T>?> GetAsync<T>(string cacheKey)
@@ -35,7 +33,7 @@ public class JsonLayerProvider : ILocalCacheLayer
         if (!File.Exists(path: jsonFile))
             return null;
 
-        var json = await File.ReadAllTextAsync(path: jsonFile);
+        var json = await jsonFile.ReadAllTextThreadSafeAsync();
 
         var content = json.ToObject<JsonCacheEntry<T>>();
         if (content == null)
@@ -54,27 +52,18 @@ public class JsonLayerProvider : ILocalCacheLayer
             CacheValue = cacheEntry.Value
         };
 
-        await SemaphoreSlim.WaitAsync();
-
-        try
-        {
-            await File.WriteAllTextAsync(path: jsonFile, contents: content.ToJson(true));
-        }
-        finally
-        {
-            SemaphoreSlim.Release();
-        }
+        await jsonFile.WriteAllTextThreadSafeAsync(content.ToJson());
     }
 
-    public ValueTask<bool> IsAvailableAsync(string cacheKey)
+    public async ValueTask<bool> IsAvailableAsync(string cacheKey)
     {
-        var jsonFile = CacheToFile(cacheKey: cacheKey);
-        if (File.Exists(path: jsonFile))
-        {
-            return new(true);
-        }
+        await Task.Delay(1);
 
-        return default;
+        var jsonFile = CacheToFile(cacheKey: cacheKey);
+        var isAvailable = File.Exists(path: jsonFile);
+        Log.Verbose("IsAvailable CacheTower json layer. Key: {CacheKey}. Result: {IsAvailable}", cacheKey, isAvailable);
+
+        return isAvailable;
     }
 
     private async Task CleanupCache(bool any = false)
@@ -97,13 +86,13 @@ public class JsonLayerProvider : ILocalCacheLayer
                 continue;
 
             Log.Debug("Deleting JSON cache: {Path}", cache.Path);
-            cache.Path.DeleteFile();
+            await cache.Path.DeleteThreadSafeAsync();
         }
     }
 
     private string CacheToFile(string cacheKey)
     {
-        var jsonFile = Path.Combine(path1: DirPath, path2: cacheKey + ".json");
+        var jsonFile = Path.Combine(path1: DirPath, path2: cacheKey, ".json");
 
         return jsonFile.EnsureDirectory();
     }

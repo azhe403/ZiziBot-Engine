@@ -6,7 +6,7 @@ namespace ZiziBot.Application.Services;
 
 public class JobService(ILogger<JobService> logger)
 {
-    public async Task<bool> Register(long chatId, int threadId, string rssUrl, string jobId)
+    public async Task<bool> Register(long chatId, int threadId, string rssUrl, string jobId, bool triggerNow = false)
     {
         logger.LogDebug("Registering RSS Job. ChatId: {ChatId}, ThreadId: {ThreadId} RssUrl: {RssUrl}", chatId, threadId, rssUrl);
 
@@ -19,6 +19,9 @@ public class JobService(ILogger<JobService> logger)
             ),
             cronExpression: TimeUtil.MinuteInterval(3)
         );
+
+        if (triggerNow)
+            RecurringJob.TriggerJob(jobId);
 
         await Task.Delay(1);
 

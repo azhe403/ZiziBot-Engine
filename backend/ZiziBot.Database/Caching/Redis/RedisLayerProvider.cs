@@ -1,7 +1,8 @@
 ﻿using CacheTower;
 using StackExchange.Redis;
+using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Caching.Redis;
+namespace ZiziBot.Database.Caching.Redis;
 
 internal class RedisLayerProvider(
     string connectionString,

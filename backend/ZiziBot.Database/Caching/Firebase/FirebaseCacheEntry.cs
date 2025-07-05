@@ -1,4 +1,4 @@
-namespace ZiziBot.Caching.Firebase;
+namespace ZiziBot.Database.Caching.Firebase;
 
 internal class FirebaseCacheEntry<T>
 {

@@ -29,8 +29,6 @@
     <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>
     <ProjectReference Include="..\ZiziBot.Common\ZiziBot.Common.csproj"/>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Caching\ZiziBot.Caching.csproj"/>
-    <ProjectReference Include="..\ZiziBot.DataMigration\ZiziBot.DataMigration.csproj"/>
     <ProjectReference Include="..\ZiziBot.Database\ZiziBot.Database.csproj"/>
     <ProjectReference Include="..\ZiziBot.Services\ZiziBot.Services.csproj"/>
   </ItemGroup>

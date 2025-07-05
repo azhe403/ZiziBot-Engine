@@ -1,8 +1,10 @@
 ﻿using CacheTower;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using ZiziBot.Database.Sqlite;
+using ZiziBot.Database.Sqlite.Entities;
 
-namespace ZiziBot.Caching.Sqlite;
+namespace ZiziBot.Database.Caching.Sqlite;
 
 internal class SqliteLayerProvider : ICacheLayer
 {

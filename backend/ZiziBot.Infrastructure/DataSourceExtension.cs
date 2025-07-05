@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using ZiziBot.Database;
 using ZiziBot.Database.MongoDb;
+using ZiziBot.Database.Service;
 
 namespace ZiziBot.Infrastructure;
 
@@ -9,8 +9,11 @@ public static class DataSourceExtension
     public static IServiceCollection AddDataSource(this IServiceCollection services)
     {
         services.AddTransient<MongoDbContext>();
-        services.AddTransient<DataFacade>();
 
+        services.Scan(selector => selector.FromAssembliesOf(typeof(CacheService))
+            .AddClasses(filter => filter.InNamespaceOf<CacheService>())
+            .AsSelfWithInterfaces()
+            .WithTransientLifetime());
 
         return services;
     }

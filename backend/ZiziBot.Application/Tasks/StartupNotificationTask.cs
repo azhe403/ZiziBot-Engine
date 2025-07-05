@@ -1,13 +1,17 @@
-﻿using Telegram.Bot;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Tasks;
 
-public class StartupNotificationTask(AppSettingRepository appSettingRepository) : IStartupTask
+public class StartupNotificationTask(IServiceScopeFactory serviceScope) : IStartupTask
 {
     public async Task ExecuteAsync()
     {
+        using var service = serviceScope.CreateScope();
+        var appSettingRepository = service.ServiceProvider.GetRequiredService<AppSettingRepository>();
+
         var config = await appSettingRepository.GetBotMain();
         var eventConfig = await appSettingRepository.GetRequiredConfigSectionAsync<EventLogConfig>();
         var engineConfig = await appSettingRepository.GetRequiredConfigSectionAsync<EngineConfig>();

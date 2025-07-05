@@ -3,7 +3,6 @@ using AsyncAwaitBestPractices;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
-using Serilog.Debugging;
 using Serilog.Events;
 using ZiziBot.Common.Types;
 using ZiziBot.Common.Utils;
@@ -86,6 +85,7 @@ public class TelegramSink : ILogEventSink
             message_thread_id = ThreadId,
             text = message,
             parse_mode = "HTML",
+            disable_web_page_preview = true
         };
 
         var json = payload.ToJson();

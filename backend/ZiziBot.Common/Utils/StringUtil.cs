@@ -49,10 +49,16 @@ public static class StringUtil
         return Nanoid.Generate(alphabet: Nanoid.Alphabets.LettersAndDigits, size: size);
     }
 
-    public async static Task<string> GetNanoIdAsync(string prefix = "", int size = 11)
+    public static async Task<string> GetNanoIdAsync(string prefix = "", int size = 11)
     {
         var id = await Nanoid.GenerateAsync(alphabet: Nanoid.Alphabets.LettersAndDigits, size: size);
         return $"{prefix}{id}";
+    }
+
+    public static async Task<string> GenerateRssKeyAsync()
+    {
+        var uniqueId = await GetNanoIdAsync(prefix: $"{CronJobKey.Rss_Prefix}:", size: 7);
+        return uniqueId;
     }
 
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)

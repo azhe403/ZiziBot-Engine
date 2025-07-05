@@ -2,7 +2,7 @@
 using Xunit;
 using ZiziBot.Common.Enums;
 using ZiziBot.Common.Utils;
-using ZiziBot.Database;
+using ZiziBot.Database.Service;
 
 namespace ZiziBot.Tests.Pipelines;
 

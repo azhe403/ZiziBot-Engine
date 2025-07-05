@@ -1,8 +1,10 @@
 ﻿using CacheTower;
 using MongoDB.Driver;
+using Serilog;
 using ZiziBot.Database.Utils;
+using ObjectId = MongoDB.Bson.ObjectId;
 
-namespace ZiziBot.Caching.MongoDb;
+namespace ZiziBot.Database.Caching.MongoDb;
 
 internal class MongoLayerProvider(MongoLayerOptions options) : IDistributedCacheLayer
 {
@@ -31,26 +33,35 @@ internal class MongoLayerProvider(MongoLayerOptions options) : IDistributedCache
         var cache = await Collection.Find(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
         var cacheEntry = default(CacheEntry<T>);
 
-        if (cache != default)
-            cacheEntry = new((T)cache.Value, cache.Expiry);
+        if (cache != null)
+            cacheEntry = new(cache.Value.ToObject<T>(), cache.Expiry);
 
         return cacheEntry;
     }
 
     public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
     {
-        await Collection.FindOneAndReplaceAsync(x => x.CacheKey == cacheKey, new MongoCacheEntry {
+        var existing = await Collection.Find(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
+        var entry = new MongoCacheEntry {
+            Id = existing?.Id ?? ObjectId.GenerateNewId(), // Keep existing ID or generate new one
             CacheKey = cacheKey,
-            CreatedDate = DateTime.UtcNow,
+            CreatedDate = existing?.CreatedDate ?? DateTime.UtcNow, // Keep original creation date
             Value = cacheEntry.Value.ToJson(),
             Expiry = cacheEntry.Expiry
-        }, new() {
+        };
+
+        await Collection.ReplaceOneAsync(x => x.CacheKey == cacheKey, entry, new ReplaceOptions() {
             IsUpsert = true
         });
     }
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
     {
-        return true;
+        var documentCount = await Collection.EstimatedDocumentCountAsync();
+
+        var isAvailable = documentCount >= 0;
+        Log.Verbose("IsAvailable CacheTower mongo layer. Key: {CacheKey}. Result: {IsAvailable}", cacheKey, isAvailable);
+
+        return isAvailable;
     }
 }

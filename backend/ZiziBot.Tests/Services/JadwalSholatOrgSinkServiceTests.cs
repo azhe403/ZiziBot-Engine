@@ -2,7 +2,7 @@
 using MoreLinq;
 using SharpX.Extensions;
 using Xunit;
-using ZiziBot.Database;
+using ZiziBot.Database.Service;
 
 namespace ZiziBot.Tests.Services;
 

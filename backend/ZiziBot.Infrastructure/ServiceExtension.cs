@@ -87,8 +87,8 @@ public static class ServiceExtension
             .As<IStartupTask>()
             .WithScopedLifetime());
 
-        services.Scan(selector => selector.FromAssembliesOf(typeof(CacheService))
-            .AddClasses(filter => filter.InNamespaceOf<CacheService>())
+        services.Scan(selector => selector.FromAssembliesOf(typeof(ApiKeyService))
+            .AddClasses(filter => filter.InNamespaceOf<ApiKeyService>())
             .AsSelfWithInterfaces()
             .WithScopedLifetime());
 

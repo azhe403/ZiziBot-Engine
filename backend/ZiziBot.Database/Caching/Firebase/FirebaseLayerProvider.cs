@@ -3,8 +3,9 @@ using Firebase.Database;
 using Firebase.Database.Query;
 using Google.Apis.Auth.OAuth2;
 using Serilog;
+using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Caching.Firebase;
+namespace ZiziBot.Database.Caching.Firebase;
 
 internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICacheLayer
 {
@@ -85,9 +86,9 @@ internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICache
         var obj = await GetClient()
             .Child(cacheOptions.RootDir)
             .Child(cacheKey)
-            .OnceAsync<object>();
+            .OnceAsJsonAsync();
 
-        var isAvailable = obj.Any();
+        var isAvailable = obj.IsNotNullOrWhiteSpace();
         Log.Verbose("IsAvailable CacheTower firebase layer. Key: {CacheKey}. Result: {IsAvailable}", cacheKey, isAvailable);
 
         return isAvailable;
