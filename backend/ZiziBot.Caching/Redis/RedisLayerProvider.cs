@@ -54,7 +54,7 @@ internal class RedisLayerProvider(
             return options.Serializer.Deserialize<CacheEntry<T>>(stream);
         }
 
-        return default;
+        return null;
     }
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)

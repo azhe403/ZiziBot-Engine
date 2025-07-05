@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using ZiziBot.Application.Facades;
-using ZiziBot.Database;
 using ZiziBot.Database.Extension;
 
 namespace ZiziBot.Infrastructure;
@@ -20,11 +19,11 @@ public static class ServiceExtension
 
     public static async Task<IServiceCollection> ConfigureServices(this IServiceCollection services)
     {
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddAllService();
         await services.ConfigureSettings();
         services.AddCacheTower();
         services.AddMongoMigration();
+        await services.PrefetchRepository();
         services.AddMediator();
         services.AddBackgroundQueue();
         services.ConfigureFlurl();
@@ -67,6 +66,8 @@ public static class ServiceExtension
     private static IServiceCollection AddAllService(this IServiceCollection services)
     {
         var assembly = Assembly.Load("ZiziBot.Application");
+
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
         services.Scan(selector => selector.FromAssembliesOf(typeof(TaskRunnerHostedService))
             .AddClasses(filter => filter.InNamespaceOf<TaskRunnerHostedService>())

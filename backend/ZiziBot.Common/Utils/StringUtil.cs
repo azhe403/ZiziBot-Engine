@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
+using Flurl;
 using NanoidDotNet;
 using Serilog;
 using ZiziBot.Common.Constants;
@@ -122,6 +123,18 @@ public static class StringUtil
 
     public static string ForCacheKey(this string input)
     {
+        if (input.IsValidUrl())
+        {
+            var urlParse = input.UrlParse();
+            var qParam = urlParse.QueryParams.Select((x) => $"{x.Name}={x.Value}").StrJoin("/");
+            var prefixed = Url.Combine(urlParse.RemoveQuery(), qParam.IsNotNullOrWhiteSpace() ? Sha256Hash(qParam) : "");
+
+            if(input != prefixed)
+                Log.Debug("Convert cache key from {Before} => {After}", input, prefixed);
+
+            input = prefixed;
+        }
+
         var key = input
             .UrlDecode()
             .HtmlDecode()

@@ -17,7 +17,7 @@
     <PackageReference Include="Jsonize" Version="3.2.0"/>
     <PackageReference Include="Jsonize.Parser" Version="3.2.1" />
     <PackageReference Include="Jsonize.Serializer" Version="3.2.1" />
-    <PackageReference Include="Markdig" Version="0.41.2"/>
+    <PackageReference Include="Markdig" Version="0.41.3"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="Octokit" Version="14.0.0"/>
     <PackageReference Include="PickAll" Version="1.3.1"/>

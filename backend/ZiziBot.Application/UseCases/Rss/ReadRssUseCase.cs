@@ -7,14 +7,14 @@ using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
-public class ReadRssResponse
+public struct ReadRssResponse
 {
     public string Link { get; set; }
     public string Title { get; set; }
     public List<ReadRssItem> Items { get; set; }
 }
 
-public class ReadRssItem
+public struct ReadRssItem
 {
     public string Link { get; set; }
     public string Title { get; set; }
@@ -32,7 +32,7 @@ public class Assets
     public int Size { get; set; }
 }
 
-public class ReadRssUseCase(
+public sealed class ReadRssUseCase(
     ILogger<ReadRssUseCase> logger,
     ICacheService cacheService,
     MongoDbContext mongoDbContext,
@@ -48,7 +48,9 @@ public class ReadRssUseCase(
         var isGithubCommitsUrl = rssUrl.IsGithubCommitsUrl();
         var includeRssContent = await featureFlagRepository.IsEnabled(Flag.RSS_INCLUDE_CONTENT);
 
-        var feed = await cacheService.GetOrSetAsync("rss/" + rssUrl.UrlDecode(), async () => {
+        var cacheKey = rssUrl.ForCacheKey();
+
+        var feed = await cacheService.GetOrSetAsync(CacheKey.RSS + cacheKey, async () => {
             var feed = await rssUrl.ReadRssAsync(throwIfError: true);
 
             var readRssResponse = new ReadRssResponse() {
@@ -79,7 +81,7 @@ public class ReadRssUseCase(
                     return new ReadRssItem {
                         Link = feedItem.HtmlUrl,
                         Title = feedItem.Name,
-                        Author = feedItem.Author.Login,
+                        Author = feedItem.Author?.Login ?? "-",
                         PublishDate = feedItem.PublishedAt?.UtcDateTime ?? DateTime.UtcNow,
                         Content = messageText.ToString(),
                     };

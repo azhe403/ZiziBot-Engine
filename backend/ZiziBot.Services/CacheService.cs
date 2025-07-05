@@ -51,13 +51,14 @@ public class CacheService(
             var cache = await cacheStack.GetOrSetAsync<T>(
                 cacheKey: cacheKey.Trim(),
                 valueFactory: async (_) => {
-                    logger.LogDebug(
-                        "Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
+                    logger.LogDebug("Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
 
                     return await action();
                 },
                 settings: cacheSettings
             );
+
+            logger.LogDebug("Loaded Cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
 
             if (evictAfter)
                 await EvictAsync(cacheKey);
@@ -91,7 +92,7 @@ public class CacheService(
             logger.LogError(exception, "Fail to evict cache Key: {Key}", cacheKey);
 
             if (_cacheConfig.UseJsonFile)
-                PathConst.CACHE_TOWER_PATH.DeleteDirectory();
+                PathConst.CACHE_TOWER_JSON.DeleteDirectory();
         }
     }
 }

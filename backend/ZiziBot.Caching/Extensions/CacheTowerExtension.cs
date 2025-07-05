@@ -16,7 +16,7 @@ public static class CacheTowerExtension
 
     public static IServiceCollection AddCacheTower(this IServiceCollection services)
     {
-        var serviceProvider = services.BuildServiceProvider();
+        using var serviceProvider = services.BuildServiceProvider();
         var cacheConfig = serviceProvider.GetRequiredService<IOptions<CacheConfig>>().Value;
         var gcpConfig = serviceProvider.GetRequiredService<IOptions<GcpConfig>>().Value;
 
@@ -27,16 +27,15 @@ public static class CacheTowerExtension
         };
 
         services.AddCacheStack(builder => {
-                builder
-                    .WithCleanupFrequency(TimeSpan.FromMinutes(10))
-                    .AddMemoryCacheLayer()
-                    .ConfigureFileCacheLayer(cacheConfig)
-                    .ConfigureSqliteCacheLayer(cacheConfig)
-                    .ConfigureMongoDbCacheLayer(cacheConfig)
-                    .ConfigureRedisCacheLayer(cacheConfig)
-                    .ConfigureFirebaseCacheLayer(firebaseConfig: firebaseConfig);
-            }
-        );
+            builder
+                .WithCleanupFrequency(TimeSpan.FromMinutes(10))
+                .AddMemoryCacheLayer()
+                .ConfigureFileCacheLayer(cacheConfig)
+                .ConfigureSqliteCacheLayer(cacheConfig)
+                .ConfigureMongoDbCacheLayer(cacheConfig)
+                .ConfigureRedisCacheLayer(cacheConfig)
+                .ConfigureFirebaseCacheLayer(firebaseConfig: firebaseConfig);
+        });
 
         return services;
     }

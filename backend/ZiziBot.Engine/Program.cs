@@ -17,14 +17,12 @@ builder.Services.AddRestApi();
 builder.Services.AddAllMiddleware();
 builder.Services.AddConsole();
 
-builder.WebHost.ConfigureSentry();
-
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
 app.ConfigureFlurl();
 
-app.PrintAbout();
+await app.PrintAbout();
 await app.UseMongoMigration();
 
 app.UseAuthorization();
@@ -34,6 +32,5 @@ app.ConfigureApi();
 app.UseHangfire();
 
 await app.RunTelegramBot();
-app.UseSentryTracing();
 
 await app.RunAsync();

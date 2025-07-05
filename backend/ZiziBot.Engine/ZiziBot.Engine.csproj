@@ -42,7 +42,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Storage\web-doc\" />
-  </ItemGroup>
 </Project>

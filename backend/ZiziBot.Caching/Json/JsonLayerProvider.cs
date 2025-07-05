@@ -5,6 +5,7 @@ namespace ZiziBot.Caching.Json;
 
 public class JsonLayerProvider : ILocalCacheLayer
 {
+    private static readonly SemaphoreSlim SemaphoreSlim = new(1);
     public required string DirPath { get; set; }
 
     public required ICacheSerializer Serializer { get; set; }
@@ -53,7 +54,16 @@ public class JsonLayerProvider : ILocalCacheLayer
             CacheValue = cacheEntry.Value
         };
 
-        await File.WriteAllTextAsync(path: jsonFile, contents: content.ToJson(true));
+        await SemaphoreSlim.WaitAsync();
+
+        try
+        {
+            await File.WriteAllTextAsync(path: jsonFile, contents: content.ToJson(true));
+        }
+        finally
+        {
+            SemaphoreSlim.Release();
+        }
     }
 
     public ValueTask<bool> IsAvailableAsync(string cacheKey)

@@ -23,7 +23,7 @@ public static class RestApiExtension
 
     public static IServiceCollection AddRestApi(this IServiceCollection services)
     {
-        var serviceProvider = services.BuildServiceProvider();
+        using var serviceProvider = services.BuildServiceProvider();
         var jwtConfig = serviceProvider.GetRequiredService<IOptions<JwtConfig>>().Value;
 
         services.AddSignalR();

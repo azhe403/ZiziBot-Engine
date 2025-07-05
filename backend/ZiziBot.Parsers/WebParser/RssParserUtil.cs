@@ -26,44 +26,65 @@ public static class RssParserUtil
         }
     }
 
-    public static async Task<string> DetectRss(this string rssUrl)
+    public static async Task<string> DetectRss(this string rssUrl, int attempt = 1, bool throwIfError = false)
     {
-        var fixedUrl = rssUrl.TrimEnd("/");
+        try
+        {
+            while (true)
+            {
+                const int maxAttempt = 3;
 
-        var readRss = await rssUrl.ReadRssAsync();
-        if (readRss.Items?.Count > 0)
+                if (attempt > maxAttempt)
+                    throw new Exception("Unable to detect rss");
+
+                var fixedUrl = rssUrl.TrimEnd("/");
+
+                var readRss = await rssUrl.ReadRssAsync();
+                if (!readRss.Items.IsEmpty())
+                    return fixedUrl;
+
+                if ((rssUrl.IsGithubReleaseUrl() || rssUrl.IsGithubCommitsUrl()) && !fixedUrl.EndsWith(".atom"))
+                {
+                    fixedUrl += ".atom";
+                    var read = await fixedUrl.ReadRssAsync();
+                    if (!read.Items.IsEmpty())
+                        return fixedUrl;
+                }
+
+                if (!rssUrl.EndsWith("/feed"))
+                {
+                    fixedUrl = rssUrl + "/feed";
+                    var read = await fixedUrl.ReadRssAsync();
+                    if (!read.Items.IsEmpty())
+                        return fixedUrl;
+                }
+
+                if (!rssUrl.EndsWith("/rss"))
+                {
+                    fixedUrl = rssUrl.AppendPathSegment("rss");
+                    var read = await fixedUrl.ReadRssAsync();
+                    if (!read.Items.IsEmpty())
+                        return fixedUrl;
+                }
+
+                var urlParse = rssUrl.UrlParse();
+                var urlParseScheme = (urlParse.Scheme + "://" + urlParse.Host);
+                if (!urlParseScheme.IsValidUrl())
+                    return rssUrl;
+
+                rssUrl = urlParseScheme;
+                attempt += 1;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
+
+            if (throwIfError)
+                throw;
+
             return rssUrl;
-
-        if ((rssUrl.IsGithubReleaseUrl() || rssUrl.IsGithubCommitsUrl()) && !fixedUrl.EndsWith(".atom"))
-        {
-            fixedUrl += ".atom";
-            var read = await fixedUrl.ReadRssAsync();
-            if (read.Items?.Count > 0)
-                return fixedUrl;
         }
-
-        if (!rssUrl.EndsWith("/feed"))
-        {
-            fixedUrl = rssUrl + "/feed";
-            var read = await fixedUrl.ReadRssAsync();
-            if (read.Items?.Count > 0)
-                return fixedUrl;
-        }
-
-        if (!rssUrl.EndsWith("/rss"))
-        {
-            fixedUrl = rssUrl.AppendPathSegment("rss");
-            var read = await fixedUrl.ReadRssAsync();
-            if (read.Items?.Count > 0)
-                return fixedUrl;
-        }
-
-        var urlParse = rssUrl.UrlParse();
-        var urlParseScheme = (urlParse.Scheme + "://" + urlParse.Host);
-        if (!urlParseScheme.IsValidUrl())
-            return rssUrl;
-
-        throw new Exception("Cannot detect rss url");
     }
 
     public static bool IsGithubReleaseUrl(this string url)

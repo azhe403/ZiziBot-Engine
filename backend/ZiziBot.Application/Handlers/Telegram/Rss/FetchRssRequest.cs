@@ -65,7 +65,8 @@ public class FetchRssHandler(
 
             if (request.RssUrl.IsGithubReleaseUrl())
             {
-                var assets = await request.RssUrl.GetGithubAssetLatest();
+                var allAssets = await request.RssUrl.GetGithubAssets();
+                var assets = allAssets?.FirstOrDefault();
 
                 if (assets?.Assets.NotEmpty() ?? false)
                 {

@@ -22,7 +22,7 @@ public static class ConfigurationExtension
         services.AddDataSource();
         services.AddDataRepository();
 
-        var provider = services.BuildServiceProvider();
+        await using var provider = services.BuildServiceProvider();
 
         var config = provider.GetRequiredService<IConfiguration>();
 
@@ -33,23 +33,6 @@ public static class ConfigurationExtension
         services.Configure<HangfireConfig>(config.GetSection("Hangfire"));
         services.Configure<JwtConfig>(config.GetSection("Jwt"));
         services.Configure<OptiicDevConfig>(config.GetSection("OptiicDev"));
-
-        #region Feature Flags
-        var featureFlagRepository = provider.GetRequiredService<FeatureFlagRepository>();
-        await featureFlagRepository.GetFlags();
-        #endregion
-
-        #region Env
-        var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
-        var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
-
-        if (sentryConfig?.IsEnabled == true)
-        {
-            Env.SentryDsn = sentryConfig.Dsn;
-        }
-
-        await appSettingRepository.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
-        #endregion
 
         return services;
     }
@@ -72,6 +55,27 @@ public static class ConfigurationExtension
         return builder;
     }
 
+    internal static async Task<IServiceCollection> PrefetchRepository(this IServiceCollection app)
+    {
+        await using var provider = app.BuildServiceProvider();
+
+        #region Feature Flags
+        var featureFlagRepository = provider.GetRequiredService<FeatureFlagRepository>();
+        await featureFlagRepository.GetFlags();
+        #endregion
+
+        #region Env
+        var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+        var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
+
+        if (sentryConfig?.IsEnabled == true)
+        {
+            Env.SentryDsn = sentryConfig.Dsn;
+        }
+        #endregion
+
+        return app;
+    }
 
     private static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
     {

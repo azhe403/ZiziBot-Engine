@@ -15,7 +15,7 @@ public static class TelegramExtension
 {
     public static async Task<IServiceCollection> ConfigureTelegramBot(this IServiceCollection services)
     {
-        var provider = services.BuildServiceProvider();
+        await using var provider = services.BuildServiceProvider();
         var config = provider.GetRequiredService<IOptions<EngineConfig>>().Value;
         var dataFacade = provider.GetRequiredService<DataFacade>();
 

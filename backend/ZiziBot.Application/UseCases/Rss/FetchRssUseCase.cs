@@ -10,7 +10,7 @@ using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
-public class FetchRssUseCase(
+public sealed class FetchRssUseCase(
     ILogger<FetchRssUseCase> logger,
     MongoDbContext mongoDbContext,
     AppSettingRepository appSettingRepository,
@@ -108,7 +108,8 @@ public class FetchRssUseCase(
                     rssSetting.Status = EventStatus.InProgress;
                     rssSetting.LastErrorMessage = exceptionMessage;
 
-                    RecurringJob.RemoveIfExists(rssSetting.CronJobId);
+                    var jobId = $"{CronJobKey.Rss_Prefix}:{rssSetting.Id}";
+                    RecurringJob.RemoveIfExists(jobId);
                 });
             }
             else

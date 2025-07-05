@@ -42,14 +42,16 @@ public class RegisterRssJobAllUseCase(
         foreach (var rssSettingEntity in rssSettings)
         {
             var jobId = $"{CronJobKey.Rss_Prefix}:{rssSettingEntity.Id}";
+            var rssUrl = await rssSettingEntity.RssUrl.DetectRss(throwIfError: false);
 
             await registerRssJobUrlUseCase.Handle(new RegisterRssJobUrlRequest() {
                 ChatId = rssSettingEntity.ChatId,
                 ThreadId = rssSettingEntity.ThreadId,
-                Url = rssSettingEntity.RssUrl,
+                Url = rssUrl,
                 JobId = jobId
             });
 
+            rssSettingEntity.RssUrl = rssUrl;
             rssSettingEntity.CronJobId = jobId;
             rssSettingEntity.TransactionId = transactionId;
         }

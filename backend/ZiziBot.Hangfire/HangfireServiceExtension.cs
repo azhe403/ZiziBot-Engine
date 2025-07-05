@@ -16,7 +16,7 @@ public static class HangfireServiceExtension
 {
     public static IServiceCollection ConfigureHangfire(this IServiceCollection services)
     {
-        var serviceProvider = services.BuildServiceProvider();
+        using var serviceProvider = services.BuildServiceProvider();
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
         var hangfireConfig = serviceProvider.GetRequiredService<IOptionsSnapshot<HangfireConfig>>().Value;
 
