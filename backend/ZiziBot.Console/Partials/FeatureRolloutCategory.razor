@@ -1,6 +1,6 @@
 ﻿@using Microsoft.EntityFrameworkCore
-@using ZiziBot.DataSource.MongoEf
-@using ZiziBot.DataSource.MongoEf.Entities
+@using ZiziBot.Database.MongoDb
+@using ZiziBot.Database.MongoDb.Entities
 <h3>FeatureRolloutCategory</h3>
 
 <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced"
@@ -20,11 +20,11 @@
 List<FeatureRolloutCategoryEntity> Data { get; set; }
 
 [Inject]
-public MongoEfContext MongoEfContext { get; set; }
+public MongoDbContext MongoDbContext { get; set; }
 
 protected override async Task OnInitializedAsync()
 {
-Data = await MongoEfContext.FeatureRolloutCategory
+    Data = await MongoDbContext.FeatureRolloutCategory
 .AsNoTracking()
 .ToListAsync();
 }

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Xunit;
-using ZiziBot.Application.Facades;
+using ZiziBot.Database.Service;
 
 namespace ZiziBot.Tests.Pipelines;
 

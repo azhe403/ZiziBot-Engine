@@ -1,6 +1,5 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.Interfaces;
 
 namespace ZiziBot.Application.UseCases.User;
 
@@ -37,7 +36,7 @@ public class CreateSessionOtpUseCase(
     {
         await validator.ValidateAsync(request);
 
-        var userOtp = await dataFacade.MongoEf.UserOtp
+        var userOtp = await dataFacade.MongoDb.UserOtp
             .Where(x => x.Otp == request.Otp)
             .Where(x => x.Status == EventStatus.InProgress)
             .FirstOrDefaultAsync();
@@ -49,7 +48,7 @@ public class CreateSessionOtpUseCase(
 
         userOtp.Status = EventStatus.Complete;
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         return _response.Success("Success", new CreateSessionOtpResponse() {
             AccessToken = token.stringToken,

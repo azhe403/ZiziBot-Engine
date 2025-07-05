@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Xml.Linq;
 using Serilog;
-using ZiziBot.Types.Types;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Cli.Tools;
 

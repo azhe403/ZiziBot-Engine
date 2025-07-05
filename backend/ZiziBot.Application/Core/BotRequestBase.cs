@@ -1,5 +1,6 @@
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Core;
 
@@ -49,9 +50,9 @@ public class BotRequestBase : IRequest<BotResponseBase>
     public IEnumerable<string>? Params => MessageTexts?.Skip(1);
     public string CallbackQueryId => CallbackQuery?.Id ?? string.Empty;
 
-    public ChatId ChatId => ChatJoinRequest?.Chat.Id ?? Message?.Chat.Id ?? default;
-    public int MessageThreadId => Message?.MessageThreadId ?? default;
-    public long ChatIdentifier => ChatId.Identifier ?? default;
+    public ChatId ChatId => ChatJoinRequest?.Chat.Id ?? Message?.Chat.Id ?? 0;
+    public int MessageThreadId => Message?.MessageThreadId ?? 0;
+    public long ChatIdentifier => ChatId.Identifier ?? 0;
     public ChatType ChatType => Message?.Chat.Type ?? default;
     public string ChatTitle => Message?.Chat.Title ?? Message?.From?.FirstName ?? Message?.From?.Username ?? Message?.From?.LastName ?? "Unknown";
 

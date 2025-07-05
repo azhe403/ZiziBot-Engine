@@ -1,6 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using ZiziBot.DataSource.Utils;
+using ZiziBot.Database.Utils;
 
 namespace ZiziBot.Application.Handlers.Web.Note;
 

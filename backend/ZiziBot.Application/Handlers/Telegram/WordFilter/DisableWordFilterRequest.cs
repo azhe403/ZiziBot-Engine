@@ -21,7 +21,7 @@ public class DisableWordFilterHandler(
             return await serviceFacade.TelegramService.SendMessageAsync("Apa Word yang ingin dimatikan?");
         }
 
-        var wordFilter = await dataFacade.MongoEf.WordFilter
+        var wordFilter = await dataFacade.MongoDb.WordFilter
             .Where(x => x.Word == request.Word)
             .Where(x => x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -33,7 +33,7 @@ public class DisableWordFilterHandler(
 
         wordFilter.Status = EventStatus.Inactive;
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
         await dataFacade.WordFilter.GetAllAsync(true);
 
         return await serviceFacade.TelegramService.SendMessageAsync("Word berhasil dimatikan");

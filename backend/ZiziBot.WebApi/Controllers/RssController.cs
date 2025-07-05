@@ -7,14 +7,14 @@ namespace ZiziBot.WebApi.Controllers;
 public class RssController : ApiControllerBase
 {
     [HttpGet()]
-    [AccessFilter(flag: Flag.REST_CHAT_RSS_LIST)]
+    [AccessFilter(flag: Flag.REST_CHAT_RSS_LIST, roleLevel: RoleLevel.User)]
     public async Task<IActionResult> Index(GetListRssRequest request)
     {
         return await SendRequest(request);
     }
 
     [HttpPost]
-    [AccessFilter(flag: Flag.REST_CHAT_RSS_CREATE)]
+    [AccessFilter(flag: Flag.REST_CHAT_RSS_CREATE, roleLevel: RoleLevel.User)]
     public async Task<IActionResult> Save(SaveRssRequest request)
     {
         return await SendRequest(request);

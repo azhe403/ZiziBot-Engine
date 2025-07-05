@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
+﻿namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 
 public class GetUserInfoRequest : ApiRequestBase<GetUserInfoResponse>
 { }
@@ -8,37 +6,35 @@ public class GetUserInfoRequest : ApiRequestBase<GetUserInfoResponse>
 public class GetUserInfoResponse
 {
     public bool IsSessionValid { get; set; }
-    public string UserName { get; set; }
-    public string Name { get; set; }
+    public string? UserName { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
     public long UserId { get; set; }
-    public string PhotoUrl { get; set; }
+    public string? PhotoUrl { get; set; }
+    public List<RoleLevel> Roles { get; set; }
 }
 
 public class GetUserInfoHandler(DataFacade dataFacade) : IApiRequestHandler<GetUserInfoRequest, GetUserInfoResponse>
 {
-    private ApiResponseBase<GetUserInfoResponse> response = new();
-
     public async Task<ApiResponseBase<GetUserInfoResponse>> Handle(GetUserInfoRequest request, CancellationToken cancellationToken)
     {
-        var session = await dataFacade.MongoEf.DashboardSessions
-            .Where(x => x.BearerToken == request.BearerToken)
-            .Where(x => x.Status == EventStatus.Complete)
-            .OrderByDescending(x => x.CreatedDate)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        var response = ApiResponse.Create<GetUserInfoResponse>();
 
-        if (session == null)
-        {
-            return response.Unauthorized("Sesi tidak valid, silakan login kembali", new GetUserInfoResponse() {
-                IsSessionValid = false
-            });
-        }
+        await Task.Delay(1, cancellationToken);
 
-        return response.Success("Get User Info success", new GetUserInfoResponse() {
-            IsSessionValid = true,
-            UserName = session.Username,
-            UserId = session.TelegramUserId,
-            Name = (session.FirstName + " " + session.LastName).Trim(),
-            PhotoUrl = session.PhotoUrl,
-        });
+        if (!request.UserInfo.IsAuthenticated)
+            return response.BadRequest("Session is not valid");
+
+        var getUserInfoResponse = new GetUserInfoResponse() {
+            IsSessionValid = request.UserInfo.IsAuthenticated,
+            UserName = request.UserInfo.UserName,
+            UserId = request.UserInfo.UserId,
+            FirstName = request.UserInfo.UserFirstName,
+            LastName = request.UserInfo.UserLastName,
+            PhotoUrl = request.UserInfo.UserPhotoUrl,
+            Roles = request.UserInfo.UserRoles
+        };
+
+        return response.Success("Get User Info success", getUserInfoResponse);
     }
 }

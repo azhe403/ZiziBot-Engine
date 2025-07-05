@@ -8,7 +8,10 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Application.Handlers.Telegram.Core;
 using ZiziBot.Application.UseCases.Chat;
+using ZiziBot.Common.Dtos;
+using ZiziBot.Common.Types;
 using CreateChatActivityRequest = ZiziBot.Application.UseCases.Chat.CreateChatActivityRequest;
 using File = System.IO.File;
 
@@ -43,7 +46,7 @@ public class TelegramService(
 
     public async Task<bool> IsBotName(string name)
     {
-        var botSettings = await dataFacade.MongoEf.BotSettings
+        var botSettings = await dataFacade.MongoDb.BotSettings
             .FirstOrDefaultAsync(x => x.Token == _request.BotToken);
 
         return botSettings?.Name == name;

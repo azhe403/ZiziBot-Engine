@@ -16,8 +16,8 @@
     <PackageReference Include="BlazorStateManager" Version="1.2.2"/>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.6" />
-    <PackageReference Include="Radzen.Blazor" Version="7.1.0" />
-    <PackageReference Include="ReactiveUI.Blazor" Version="20.3.1"/>
+    <PackageReference Include="Radzen.Blazor" Version="7.1.3"/>
+    <PackageReference Include="ReactiveUI.Blazor" Version="20.4.1"/>
     <PackageReference Include="ReactiveUI.Fody" Version="19.5.41"/>
   </ItemGroup>
 

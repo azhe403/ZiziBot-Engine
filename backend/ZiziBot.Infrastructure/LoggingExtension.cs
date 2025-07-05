@@ -5,11 +5,13 @@ using Flurl.Http;
 using Flurl.Http.Configuration;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.AspNetCore.SignalR.Extensions;
+using ZiziBot.Common.Utils;
 using IHub = Serilog.Sinks.AspNetCore.SignalR.Interfaces.IHub;
 
 namespace ZiziBot.Infrastructure;
@@ -17,8 +19,7 @@ namespace ZiziBot.Infrastructure;
 public static class LoggingExtension
 {
     // ReSharper disable InconsistentNaming
-    private const string TEMPLATE_BASE =
-        $"[{{Level:u3}}] {{MemoryUsage}} {{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
 
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
@@ -28,7 +29,7 @@ public static class LoggingExtension
         hostBuilder.UseSerilog((context, provider, config) => {
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
-                .MinimumLevel.Debug()
+                .MinimumLevel.Verbose()
                 .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
                 .Enrich.WithDemystifiedStackTraces();
 
@@ -50,22 +51,22 @@ public static class LoggingExtension
             var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
             var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
 
-            var logConfig = appSettingRepository.GetRequiredConfigSection<LogConfig>();
+            var logConfig = appSettingRepository.GetRequiredConfigSection<EventLogConfig>();
 
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                .MinimumLevel.Debug()
+                .MinimumLevel.Is(logConfig.LogLevel)
                 .Enrich.WithDemystifiedStackTraces();
 
             if (logConfig.ProcessEnrich)
             {
                 config.Enrich.WithDynamicProperty("MemoryUsage", () => {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
-                    return $"{mem}";
+                    return $" MEM {mem} ";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
                     var threadId = Environment.CurrentManagedThreadId.ToString();
-                    return $"{threadId}";
+                    return $" Thread {threadId}";
                 });
             }
 
@@ -96,35 +97,79 @@ public static class LoggingExtension
         return hostBuilder;
     }
 
+    public static IWebHostBuilder ConfigureSentry(this IWebHostBuilder hostBuilder)
+    {
+        if (Env.SentryDsn.IsNotNullOrWhiteSpace())
+        {
+            hostBuilder.UseSentry((context, options) => {
+                options.Dsn = Env.SentryDsn;
+                options.TracesSampleRate = 1.0;
+                options.ProfilesSampleRate = 1.0;
+                options.Release = VersionUtil.GetVersion();
+                options.AddProfilingIntegration();
+            });
+
+            SentrySdk.Init(options => {
+                options.Dsn = Env.SentryDsn;
+                options.TracesSampleRate = 1.0;
+                options.ProfilesSampleRate = 1.0;
+                options.Release = VersionUtil.GetVersion();
+                options.AddProfilingIntegration();
+            });
+        }
+
+        return hostBuilder;
+    }
+
     public static IServiceCollection AddSerilog(this IServiceCollection services, WebApplicationBuilder applicationBuilder)
     {
         services.AddSerilog((provider, config) => {
-            var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+            using var scope = provider.CreateScope();
+
+            var appSettingRepository = scope.ServiceProvider.GetRequiredService<AppSettingRepository>();
             var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
 
-            var logConfig = appSettingRepository.GetRequiredConfigSection<LogConfig>();
+            var logConfig = appSettingRepository.GetRequiredConfigSection<EventLogConfig>();
 
             config.ReadFrom
                 .Configuration(applicationBuilder.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                .MinimumLevel.Debug()
+                .MinimumLevel.Is(logConfig.LogLevel)
+                .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
+                .Enrich.FromLogContext()
                 .Enrich.WithDemystifiedStackTraces();
 
             if (logConfig.ProcessEnrich)
             {
                 config.Enrich.WithDynamicProperty("MemoryUsage", () => {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
-                    return $"{mem}";
+                    return $" {mem} ";
                 }).Enrich.WithDynamicProperty("ThreadId", () => {
-                    var threadId = Environment.CurrentManagedThreadId.ToString();
-                    return $"{threadId}";
+                    var threadId = Environment.CurrentManagedThreadId.ToString("000000");
+                    return $" {threadId}";
                 });
             }
 
-            config.WriteTo.Async(cfg => cfg
-                .Console(outputTemplate: OUTPUT_TEMPLATE)
-                .WriteTo.SignalRSink<LogHub, IHub>(LogEventLevel.Debug, provider));
+            if (logConfig.WriteToFile)
+            {
+                config.WriteTo.Async(cfg => cfg.File($"{PathConst.LOG}/log-.log",
+                    outputTemplate: OUTPUT_TEMPLATE,
+                    rollingInterval: RollingInterval.Day,
+                    flushToDiskInterval: TimeSpan.FromSeconds(2),
+                    shared: true
+                ));
+            }
+
+            if (logConfig.WriteToSignalR)
+            {
+                config.WriteTo.Async(cfg => cfg.SignalRSink<LogHub, IHub>(logConfig.LogLevel, provider));
+            }
+
+            if (logConfig.WriteToTelegram)
+            {
+                config.WriteTo.Async(cfg => cfg.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
+            }
 
             var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
 
@@ -138,9 +183,6 @@ public static class LoggingExtension
                     });
                 });
             }
-
-            config.WriteTo.Async(configuration =>
-                configuration.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
         });
 
         return services;
@@ -157,14 +199,14 @@ public static class LoggingExtension
                     var request = call.Request;
                     call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
 
-                    Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
+                    Log.Debug("Flurl request {Method}: {Url}", request.Verb, request.Url);
                 });
 
                 builder.AfterCall(flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
 
-                    Log.Information("FlurlHttp: {Method} {Url}: {StatusCode}. Elapsed: {Elapsed}",
+                    Log.Information("Flurl response {Method}: {Url}: {StatusCode}. Elapsed: {Elapsed}",
                         request.Verb,
                         request.Url,
                         response?.StatusCode,

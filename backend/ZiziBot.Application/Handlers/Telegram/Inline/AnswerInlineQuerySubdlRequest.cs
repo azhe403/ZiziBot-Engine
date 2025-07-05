@@ -3,7 +3,8 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
-using ZiziBot.Types.Vendor.Subdl;
+using ZiziBot.Common.Types;
+using ZiziBot.Common.Vendor.Subdl;
 
 namespace ZiziBot.Application.Handlers.Telegram.Inline;
 

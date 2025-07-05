@@ -22,20 +22,20 @@ public class SaveWelcomeMessageHandler(
 
         await serviceFacade.TelegramService.SendMessageAsync("Sedang menyimpan..");
 
-        var welcomeMessage = await dataFacade.MongoEf.WelcomeMessage
+        var welcomeMessage = await dataFacade.MongoDb.WelcomeMessage
             .Where(e => e.ChatId == request.ChatIdentifier)
             .Where(e => e.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
         if (welcomeMessage == null)
         {
-            dataFacade.MongoEf.WelcomeMessage.Add(new() {
+            dataFacade.MongoDb.WelcomeMessage.Add(new() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.User!.Id,
                 Status = EventStatus.Complete
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
             welcomeMessage = await dataFacade.Group.GetWelcomeMessage(request.ChatIdentifier);
         }
@@ -56,7 +56,7 @@ public class SaveWelcomeMessageHandler(
                 throw new ArgumentOutOfRangeException();
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return await serviceFacade.TelegramService.SendMessageAsync($"Berhasil menyimpan. {request.Command}");
     }

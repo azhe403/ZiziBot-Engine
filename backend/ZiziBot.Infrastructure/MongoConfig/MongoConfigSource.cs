@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using ZiziBot.DataSource.MongoEf;
-using ZiziBot.DataSource.MongoEf.Entities;
+using Serilog.Events;
+using ZiziBot.Common.Utils;
+using ZiziBot.Database.MongoDb;
+using ZiziBot.Database.MongoDb.Entities;
 using ZiziBot.TelegramBot.Framework.Models.Enums;
 using ExecutionStrategy = ZiziBot.TelegramBot.Framework.Models.Enums.ExecutionStrategy;
 
@@ -9,7 +11,7 @@ namespace ZiziBot.Infrastructure.MongoConfig;
 
 public class MongoConfigSource(string connectionString) : IConfigurationSource
 {
-    private readonly MongoEfContext _dbContext = new();
+    private readonly MongoDbContext _dbContext = new();
 
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
@@ -49,12 +51,17 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             Issuer = "YOUR_ISSUER",
         };
 
-        var eventLog = new EventLogConfig() {
+        var eventLog = new EventLogConfig {
             ChatId = 12345,
             ThreadId = 34567,
             BackupDB = 0,
             Exception = 0,
             EventLog = 0,
+            LogLevel = LogEventLevel.Debug,
+            ProcessEnrich = false,
+            WriteToFile = true,
+            WriteToSignalR = false,
+            WriteToTelegram = false,
         };
 
         var cache = new CacheConfig() {
@@ -117,12 +124,6 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                 KeyPair = engine.ToDictionary(StringType.PascalCase)
             },
             new() {
-                Root = nameof(ConfigRoot.EventLog),
-                KeyPair = new() {
-                    { "ProcessEnrich", false }
-                }
-            },
-            new() {
                 Root = nameof(ConfigRoot.Jwt),
                 KeyPair = jwt.ToDictionary(StringType.PascalCase)
             },
@@ -151,7 +152,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             },
             new() {
                 Root = nameof(ConfigRoot.Mirror),
-                KeyPair = mirror.ToDictionary(StringType.SnakeCase)
+                KeyPair = mirror.ToDictionary(StringType.PascalCase)
             },
             new() {
                 Root = nameof(ConfigRoot.Pendekin),
