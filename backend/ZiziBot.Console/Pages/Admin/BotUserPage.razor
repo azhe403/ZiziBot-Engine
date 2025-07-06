@@ -1,6 +1,8 @@
 @page "/admin/Bot-users"
 @attribute [Authorize(Roles = "Sudo")]
-@using ZiziBot.DataSource.MongoEf.Entities
+@using ZiziBot.Common.Constants
+@using ZiziBot.Common.Utils
+@using ZiziBot.Database.MongoDb.Entities
 @inherits WebComponentBase<BotUserViewModel>
 
 <TitleControl Value="Bot Users"></TitleControl>

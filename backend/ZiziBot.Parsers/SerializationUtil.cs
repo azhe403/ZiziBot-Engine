@@ -5,6 +5,7 @@ using Jsonize.Serializer;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Parsers;
 
@@ -78,10 +79,18 @@ public static class SerializationUtil
 
     public static async Task<string> GetBodyAsync(this HttpContext? context)
     {
-        if (context == null) return string.Empty;
+        try
+        {
+            if (context == null) return string.Empty;
 
-        using var reader = new StreamReader(context.Request.Body);
+            using var reader = new StreamReader(context.Request.Body);
 
-        return await reader.ReadToEndAsync();
+            return await reader.ReadToEndAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error when reading body");
+            throw;
+        }
     }
 }

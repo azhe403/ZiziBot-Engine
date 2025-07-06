@@ -30,9 +30,9 @@ public class GetListRssHandler(
     {
         ApiResponseBase<List<GetListRssResponse>> response = new();
 
-        var listRss = await dataFacade.MongoEf.RssSetting
+        var listRss = await dataFacade.MongoDb.RssSetting
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
-            .Where(entity => request.ListChatId.Contains(entity.ChatId))
+            .Where(entity => request.UserInfo.ListChatId.Contains(entity.ChatId))
             .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 

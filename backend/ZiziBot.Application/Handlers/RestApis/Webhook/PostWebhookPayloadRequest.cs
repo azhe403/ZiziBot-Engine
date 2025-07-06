@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
@@ -44,11 +45,6 @@ public class PostWebhookPayloadHandler(
             TransactionId = request.HttpContextAccessor?.HttpContext?.TraceIdentifier ?? string.Empty
         };
 
-        if (content == null)
-        {
-            return response.BadRequest("Webhook payload is empty");
-        }
-
         var webhookChat = await dataFacade.ChatSetting.GetWebhookRouteById(request.targetId);
 
         if (webhookChat == null)
@@ -70,7 +66,7 @@ public class PostWebhookPayloadHandler(
         await serviceFacade.MediatorService.EnqueueAsync(new SendWebhookMessageRequest() {
             TargetId = request.targetId,
             Event = webhookHeader.Event,
-            TransactionId = request.TransactionId,
+            TransactionId = request.UserInfo.TransactionId,
             WebhookSource = webhookSource,
             RawHeaders = request.Headers.ToHeaderRawKv(),
             RawBody = content,

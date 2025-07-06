@@ -24,7 +24,7 @@ public class GetMirrorUsersRequestHandler(
 
     public async Task<ApiResponseBase<IEnumerable<GetMirrorUserResponseDto>>> Handle(GetMirrorUsersRequestDto request, CancellationToken cancellationToken)
     {
-        var user = await dataFacade.MongoEf.MirrorUser
+        var user = await dataFacade.MongoDb.MirrorUser
             .Where(mirrorUser => mirrorUser.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 

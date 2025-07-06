@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
-using ZiziBot.DataSource.MongoEf;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Utils;
+using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Tests.Pipelines;
 
-public class CityTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoEfContext mongoEfContext, FathimahApiService fathimahApiService)
+public class CityTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoDbContext mongoDbContext, FathimahApiService fathimahApiService)
 {
     [Theory]
     [InlineData(712)]
@@ -33,7 +35,7 @@ public class CityTest(MediatorService mediatorService, AppSettingRepository appS
             .WhereIf(cityName.IsNotNullOrEmpty(), kota => kota.Lokasi.Contains(cityName, StringComparison.OrdinalIgnoreCase))
             .FirstOrDefault();
 
-        var city = await mongoEfContext.BangHasan_ShalatCity
+        var city = await mongoDbContext.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == chatId)
             .Where(entity => entity.CityId == cityInfo.Id)
             .Where(entity => entity.Status == EventStatus.Complete)
@@ -42,7 +44,7 @@ public class CityTest(MediatorService mediatorService, AppSettingRepository appS
         if (city != null)
         {
             city.Status = (int)EventStatus.Deleted;
-            await mongoEfContext.SaveChangesAsync();
+            await mongoDbContext.SaveChangesAsync();
         }
 
         // Arrange

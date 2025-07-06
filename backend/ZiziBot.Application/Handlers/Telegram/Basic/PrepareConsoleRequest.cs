@@ -1,7 +1,9 @@
 using System.Security.Cryptography;
+using Flurl;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Common.Types;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
@@ -17,15 +19,12 @@ public class PrepareConsoleHandler(
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var sessionId = Guid.NewGuid().ToString();
-        var consoleUrl = EnvUtil.GetEnv(Env.WEB_CONSOLE_URL);
-        var webUrlBase = consoleUrl + "?session_id=";
-        var webUrl = webUrlBase + sessionId;
-
-        if (!EnvUtil.IsEnvExist(Env.WEB_CONSOLE_URL))
-        {
+        var engineConfig = await dataFacade.AppSetting.GetRequiredConfigSectionAsync<EngineConfig>();
+        if (engineConfig.ConsoleUrl.IsNullOrWhiteSpace())
             await serviceFacade.TelegramService.SendMessageText("Maaf fitur ini belum dipersiapkan");
-        }
+
+        var sessionId = Guid.NewGuid().ToString();
+        var webUrl = engineConfig.ConsoleUrl.SetQueryParam("session_id", sessionId).ToString();
 
         var replyMarkup = InlineKeyboardMarkup.Empty();
         var htmlMessage = HtmlMessage.Empty
@@ -36,7 +35,7 @@ public class PrepareConsoleHandler(
         if (request.IsPrivateChat)
         {
             var otp = RandomNumberGenerator.GetInt32(100000, 999999);
-            dataFacade.MongoEf.UserOtp.Add(new UserOtpEntity() {
+            dataFacade.MongoDb.UserOtp.Add(new UserOtpEntity() {
                 UserId = request.UserId,
                 Otp = otp,
                 Status = EventStatus.InProgress,
@@ -45,7 +44,7 @@ public class PrepareConsoleHandler(
                 UpdatedBy = request.UserId
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync();
+            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
         }
 
         if (webUrl.Contains("localhost"))

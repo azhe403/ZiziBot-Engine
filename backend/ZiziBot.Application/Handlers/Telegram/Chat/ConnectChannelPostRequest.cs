@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -34,7 +34,7 @@ public class ConnectChannelPostHandler(
                                                                        "\nPastikan Bot sudah ditambahkan ke Channel tersebut");
         }
 
-        var channelMap = await dataFacade.MongoEf.ChannelMap.AsNoTracking()
+        var channelMap = await dataFacade.MongoDb.ChannelMap.AsNoTracking()
             .Where(entity => entity.ChannelId == request.ChannelId)
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.ThreadId == request.MessageThreadId)
@@ -43,14 +43,14 @@ public class ConnectChannelPostHandler(
 
         if (channelMap == null)
         {
-            dataFacade.MongoEf.ChannelMap.Add(new ChannelMapEntity() {
+            dataFacade.MongoDb.ChannelMap.Add(new ChannelMapEntity() {
                 ChannelId = request.ChannelId,
                 ThreadId = request.MessageThreadId,
                 ChatId = request.ChatIdentifier,
                 Status = EventStatus.Complete
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
         }
 
         await serviceFacade.TelegramService.EditMessageText("Berhasil menautkan Kanal.");

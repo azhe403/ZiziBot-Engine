@@ -1,4 +1,5 @@
 using Telegram.Bot;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 

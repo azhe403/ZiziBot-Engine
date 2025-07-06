@@ -1,4 +1,3 @@
-using AsyncAwaitBestPractices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,7 +10,7 @@ public class TaskRunnerHostedService(IServiceProvider serviceProvider, ILogger<T
     {
         if (EnvUtil.GetEnv("ASPNETCORE_ENVIRONMENT") == "UnitTest")
         {
-            logger.LogWarning("Skip executing startup tasks in unit test environment");
+            logger.LogWarning("Skip triggering startup tasks in unit test environment");
             return;
         }
 
@@ -20,29 +19,27 @@ public class TaskRunnerHostedService(IServiceProvider serviceProvider, ILogger<T
 
         foreach (var service in services)
         {
-            try
-            {
-                logger.LogInformation("Executing task: {Task}", service.GetType());
+            var task = service.GetType();
 
-                if (service.SkipAwait)
+            _ = Task.Run(async () => {
+                try
                 {
-                    service.ExecuteAsync().SafeFireAndForget(exception => logger.LogError(exception, "Error while executing startup task: {Service}", service));
-                }
-                else
-                {
+                    logger.LogInformation("Executing task: {Task}", task);
                     await service.ExecuteAsync();
-                }
 
-                logger.LogInformation("Task executed: {ServiceType}", service.GetType());
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "Error while executing startup task: {ServiceType}", service.GetType());
-            }
+                    logger.LogInformation("Task executed: {Task}", task);
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "An error occured when executing task {Task}", task);
+                }
+            }, stoppingToken);
+
+            logger.LogInformation("Task triggered: {Task}", task);
         }
 
-        await scope.DisposeAsync();
+        await Task.Delay(0, stoppingToken);
 
-        logger.LogInformation("All tasks executed. Count: {Count}", services.Count);
+        logger.LogInformation("All tasks are triggered. Count: {Count}", services.Count);
     }
 }

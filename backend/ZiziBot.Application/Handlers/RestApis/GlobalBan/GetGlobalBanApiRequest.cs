@@ -24,7 +24,7 @@ public class GetGlobalBanApiHandler(
     {
         var response = new ApiResponseBase<List<GetGlobalBanApiResponse>>();
 
-        var globalBanEntities = await dataFacade.MongoEf.GlobalBan.AsNoTracking()
+        var globalBanEntities = await dataFacade.MongoDb.GlobalBan.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 

@@ -5,7 +5,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -30,7 +30,7 @@ public class ForwardChannelPostHandler(
         var messageLink = channel.GetMessageLink().EnsureNotNullOrWhiteSpace();
         var fileUniqueId = channel.GetFileUniqueId();
 
-        var channelMaps = await dataFacade.MongoEf.ChannelMap
+        var channelMaps = await dataFacade.MongoDb.ChannelMap
             .Where(entity => entity.ChannelId == channelId)
             .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
@@ -42,7 +42,7 @@ public class ForwardChannelPostHandler(
         ]);
 
         await channelMaps.ForEachAsync(async channelMap => {
-            var channelPost = await dataFacade.MongoEf.ChannelPost.AsNoTracking()
+            var channelPost = await dataFacade.MongoDb.ChannelPost.AsNoTracking()
                 .Where(x => x.DestinationChatId == channelMap.ChatId)
                 .Where(x => x.DestinationThreadId == channelMap.ThreadId)
                 .Where(x => x.SourceMessageId == channel.MessageId)
@@ -87,7 +87,7 @@ public class ForwardChannelPostHandler(
                         _ => throw new ArgumentOutOfRangeException()
                     };
 
-                    dataFacade.MongoEf.ChannelPost.Add(new ChannelPostEntity() {
+                    dataFacade.MongoDb.ChannelPost.Add(new ChannelPostEntity() {
                         SourceChannelId = channelMap.ChannelId,
                         SourceMessageId = channel.MessageId,
                         DestinationChatId = channelMap.ChatId,
@@ -183,7 +183,7 @@ public class ForwardChannelPostHandler(
             }
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return serviceFacade.TelegramService.Complete();
     }

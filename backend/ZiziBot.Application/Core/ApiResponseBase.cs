@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -11,15 +12,22 @@ public class ApiResponseBase<TResult>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? TransactionId { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public TimeSpan ExecutionTime { get; set; }
 
     public string Message { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public TResult? Result { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ErrorMessage { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public StackTrace? StackTrace { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ApiMetadata? Metadata { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public TResult? Result { get; set; }
 
     public ApiResponseBase<TResult> Success(string message, TResult? result = default)
     {
@@ -53,6 +61,18 @@ public class ApiResponseBase<TResult>
         StatusCode = HttpStatusCode.NotFound;
         Message = message;
         Result = result;
+
+        return this;
+    }
+
+    public ApiResponseBase<TResult> SetMetadata(int totalItem = 0, int pageNumber = 0, int pageSize = 0)
+    {
+        Metadata = new ApiMetadata {
+            PageNumber = pageNumber,
+            TotalItem = totalItem,
+            PageSize = totalItem > pageSize ? pageSize : totalItem,
+            HasNext = totalItem > pageSize
+        };
 
         return this;
     }
