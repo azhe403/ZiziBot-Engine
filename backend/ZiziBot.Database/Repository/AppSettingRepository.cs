@@ -8,9 +8,12 @@ using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Database.Repository;
 
-public class AppSettingRepository(MongoDbContext mongoDbContext, IServiceProvider serviceProvider)
+public class AppSettingRepository(
+    MongoDbContext mongoDbContext,
+    IServiceProvider serviceProvider
+    )
 {
-    private ICacheService cacheService => serviceProvider.GetRequiredService<ICacheService>();
+    private ICacheService CacheService => serviceProvider.GetRequiredService<ICacheService>();
 
     public TelegramSinkConfigDto GetTelegramSinkConfig()
     {
@@ -100,7 +103,7 @@ public class AppSettingRepository(MongoDbContext mongoDbContext, IServiceProvide
 
     public async Task<BotSettingDto> GetBotMain()
     {
-        var cached = await cacheService.GetOrSetAsync(CacheKey.GLOBAL_BOT_MAIN, async () => {
+        var cached = await CacheService.GetOrSetAsync(CacheKey.GLOBAL_BOT_MAIN, async () => {
             var botSetting = await mongoDbContext.BotSettings.AsNoTracking()
                 .Where(entity => entity.Name == "Main")
                 .Where(entity => entity.Status == EventStatus.Complete)

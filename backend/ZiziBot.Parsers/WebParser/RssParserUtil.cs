@@ -30,14 +30,14 @@ public static class RssParserUtil
     {
         try
         {
+            var fixedUrl = rssUrl.TrimEnd("/");
+
             while (true)
             {
                 const int maxAttempt = 3;
 
                 if (attempt > maxAttempt)
                     throw new Exception("Unable to detect rss");
-
-                var fixedUrl = rssUrl.TrimEnd("/");
 
                 var readRss = await rssUrl.ReadRssAsync();
                 if (!readRss.Items.IsEmpty())
@@ -68,11 +68,9 @@ public static class RssParserUtil
                 }
 
                 var urlParse = rssUrl.UrlParse();
-                var urlParseScheme = (urlParse.Scheme + "://" + urlParse.Host);
-                if (!urlParseScheme.IsValidUrl())
-                    return rssUrl;
+                var urlParseScheme = urlParse.Scheme + "://" + urlParse.Host;
 
-                rssUrl = urlParseScheme;
+                fixedUrl = urlParseScheme;
                 attempt += 1;
             }
         }

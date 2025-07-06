@@ -1,8 +1,7 @@
-﻿using CacheTower;
+using CacheTower;
 using MongoDB.Driver;
 using Serilog;
 using ZiziBot.Database.Utils;
-using ObjectId = MongoDB.Bson.ObjectId;
 
 namespace ZiziBot.Database.Caching.MongoDb;
 
@@ -12,47 +11,54 @@ internal class MongoLayerProvider(MongoLayerOptions options) : IDistributedCache
     private MongoClient MongoClient => new MongoClient(options.ConnectionString);
     private IMongoDatabase MongoDatabase => MongoClient.GetDatabase(DbName);
     private IMongoCollection<MongoCacheEntry> Collection => MongoDatabase.GetCollection<MongoCacheEntry>("_cache");
+    private readonly ILogger _log = Log.ForContext<MongoLayerProvider>();
 
     public async ValueTask FlushAsync()
     {
+        _log.Verbose("Flush CacheTower MongoDB layer");
         await Collection.DeleteManyAsync(x => true);
+        _log.Verbose("Flush CacheTower MongoDB layer has done");
     }
 
     public async ValueTask CleanupAsync()
     {
+        _log.Verbose("Cleanup CacheTower MongoDB layer");
         await Collection.DeleteManyAsync(x => x.Expiry < DateTime.UtcNow);
+        _log.Verbose("Cleanup CacheTower MongoDB layer has done");
     }
 
     public async ValueTask EvictAsync(string cacheKey)
     {
+        _log.Verbose("Evict CacheTower MongoDB layer. Key: {CacheKey}", cacheKey);
         await Collection.DeleteOneAsync(x => x.CacheKey == cacheKey);
+        _log.Verbose("Evict CacheTower MongoDB layer has done. Key: {CacheKey}", cacheKey);
     }
 
     public async ValueTask<CacheEntry<T>?> GetAsync<T>(string cacheKey)
     {
+        _log.Verbose("Get CacheTower MongoDB layer. Key: {CacheKey}", cacheKey);
         var cache = await Collection.Find(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
         var cacheEntry = default(CacheEntry<T>);
 
-        if (cache != null)
-            cacheEntry = new(cache.Value.ToObject<T>(), cache.Expiry);
+        cacheEntry = new(cache.Value.ToObject<T>(), cache.Expiry);
+        _log.Verbose("Get CacheTower MongoDB layer. Key: {CacheKey}, Expiry: {Expiry}", cacheKey, cache.Expiry);
 
         return cacheEntry;
     }
 
     public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
     {
-        var existing = await Collection.Find(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
-        var entry = new MongoCacheEntry {
-            Id = existing?.Id ?? ObjectId.GenerateNewId(), // Keep existing ID or generate new one
-            CacheKey = cacheKey,
-            CreatedDate = existing?.CreatedDate ?? DateTime.UtcNow, // Keep original creation date
-            Value = cacheEntry.Value.ToJson(),
-            Expiry = cacheEntry.Expiry
-        };
+        _log.Verbose("Set CacheTower MongoDB layer. Key: {CacheKey}", cacheKey);
+        await Collection.UpdateOneAsync(
+            filter: e => e.CacheKey == cacheKey,
+            update: Builders<MongoCacheEntry>.Update
+                .SetOnInsert(e => e.CreatedDate, DateTime.UtcNow)
+                .Set(x => x.Value, cacheEntry.Value.ToJson())
+                .Set(x => x.Expiry, cacheEntry.Expiry),
+            options: new UpdateOptions { IsUpsert = true }
+        );
 
-        await Collection.ReplaceOneAsync(x => x.CacheKey == cacheKey, entry, new ReplaceOptions() {
-            IsUpsert = true
-        });
+        _log.Verbose("Set CacheTower MongoDB layer. Key: {CacheKey}", cacheKey);
     }
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
@@ -60,7 +66,7 @@ internal class MongoLayerProvider(MongoLayerOptions options) : IDistributedCache
         var documentCount = await Collection.EstimatedDocumentCountAsync();
 
         var isAvailable = documentCount >= 0;
-        Log.Verbose("IsAvailable CacheTower mongo layer. Key: {CacheKey}. Result: {IsAvailable}", cacheKey, isAvailable);
+        _log.Verbose("CacheTower MongoDB layer is available: {IsAvailable}", isAvailable);
 
         return isAvailable;
     }

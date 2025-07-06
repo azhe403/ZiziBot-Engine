@@ -2,17 +2,19 @@ namespace ZiziBot.Common.Constants;
 
 public static class PathConst
 {
-    public const string TEMP_PATH = "Storage/Temp/";
+    private static readonly string Storage = Path.Combine(Environment.CurrentDirectory, "Storage");
+    private static readonly string CacheTower = Path.Combine(Storage, "CacheTower");
+    private static readonly string HangfirePath = Path.Combine(Storage, "Hangfire");
 
-    public const string CACHE_TOWER_JSON = "Storage/CacheTower/Json/";
-    public const string CACHE_TOWER_PATH = "Storage/CacheTower/File/";
-    public const string CACHE_TOWER_SQLITE_PATH = "Storage/CacheTower/Sqlite/Sqlite.db";
+    public static readonly string TEMP_PATH = Path.Combine(Storage, "Temp");
 
-    public const string HANGFIRE_SQLITE_PATH = "Storage/Hangfire/Sqlite/Sqlite.db";
-    public const string HANGFIRE_LITEDB_PATH = "Storage/Hangfire/LiteDb/LiteDb.db";
+    public static readonly string CACHE_TOWER_JSON = Path.Combine(CacheTower, "Json");
+    public static readonly string CACHE_TOWER_SQLITE = Path.Combine(CacheTower, "Sqlite", "Sqlite.db");
 
-    public static readonly string STORAGE = Path.Combine(Environment.CurrentDirectory, "Storage");
-    public static readonly string BACKUP = Path.Combine(STORAGE, "Backup");
-    public static readonly string LOG = Path.Combine(STORAGE, "Log");
-    public static readonly string MONGODB_BACKUP = Path.Combine(BACKUP, "MongoDB/");
+    public static readonly string HANGFIRE_SQLITE_PATH = Path.Combine(HangfirePath, "Sqlite", "Sqlite.db");
+    public static readonly string HANGFIRE_LITEDB_PATH = Path.Combine(HangfirePath, "LiteDb", "LiteDb.db");
+
+    public static readonly string BACKUP = Path.Combine(Storage, "Backup");
+    public static readonly string LOG = Path.Combine(Storage, "Log");
+    public static readonly string MONGODB_BACKUP = Path.Combine(BACKUP, "MongoDB");
 }

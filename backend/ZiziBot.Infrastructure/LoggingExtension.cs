@@ -19,7 +19,7 @@ namespace ZiziBot.Infrastructure;
 public static class LoggingExtension
 {
     // ReSharper disable InconsistentNaming
-    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{SourceContext}} {{Message:lj}}{{NewLine}}{{Exception}}";
 
     private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
@@ -55,7 +55,6 @@ public static class LoggingExtension
 
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
-                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .MinimumLevel.Is(logConfig.LogLevel)
                 .Enrich.WithDemystifiedStackTraces();
 
@@ -134,8 +133,8 @@ public static class LoggingExtension
             config.ReadFrom
                 .Configuration(applicationBuilder.Configuration)
                 .ReadFrom.Services(provider)
-                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .MinimumLevel.Is(logConfig.LogLevel)
+                .MinimumLevel.Override("Hangfire", LogEventLevel.Warning)
                 .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
                 .Enrich.FromLogContext()
                 .Enrich.WithDemystifiedStackTraces();
@@ -168,7 +167,7 @@ public static class LoggingExtension
 
             if (logConfig.WriteToTelegram)
             {
-                config.WriteTo.Async(cfg => cfg.Telegram(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
+                config.WriteTo.Async(cfg => cfg.TelegramBatched(sinkConfig.BotToken, sinkConfig.ChatId, sinkConfig.ThreadId));
             }
 
             var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
@@ -190,6 +189,8 @@ public static class LoggingExtension
 
     public static IApplicationBuilder ConfigureFlurl(this IApplicationBuilder app)
     {
+        var log = Log.ForContext("SourceContext", typeof(LoggingExtension).FullName);
+
         FlurlHttp.Clients.WithDefaults(builder => {
                 builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions() {
                     NumberHandling = JsonNumberHandling.AllowReadingFromString
@@ -199,14 +200,14 @@ public static class LoggingExtension
                     var request = call.Request;
                     call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
 
-                    Log.Debug("Flurl request {Method}: {Url}", request.Verb, request.Url);
+                    log.Debug("Flurl request {Method}: {Url}", request.Verb, request.Url);
                 });
 
                 builder.AfterCall(flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
 
-                    Log.Information("Flurl response {Method}: {Url}: {StatusCode}. Elapsed: {Elapsed}",
+                    log.Information("Flurl response {Method}: {Url}: {StatusCode}. Elapsed: {Elapsed}",
                         request.Verb,
                         request.Url,
                         response?.StatusCode,

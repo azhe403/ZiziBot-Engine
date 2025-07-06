@@ -19,7 +19,7 @@ public sealed class FetchRssUseCase(
     ReadRssUseCase readRssUseCase
 )
 {
-    [DisplayName("{0}:{1} -> {2}")]
+    [DisplayName("RSS {0}:{1} {2}")]
     [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     [SentryMonitorSlug("FetchRssUseCase")]
     [Queue(CronJobKey.Queue_Rss)]
@@ -94,6 +94,7 @@ public sealed class FetchRssUseCase(
         {
             if (exception.IsIgnorable())
             {
+                logger.LogWarning("Error while sending RSS for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", chatId, rssUrl, exception.Message);
                 var findRssSetting = await mongoDbContext.RssSetting
                     .Where(entity => entity.ChatId == chatId)
                     .Where(entity => entity.RssUrl == rssUrl)
@@ -102,14 +103,12 @@ public sealed class FetchRssUseCase(
 
                 var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
 
-                findRssSetting.ForEach(rssSetting => {
-                    logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", rssSetting.ChatId, rssSetting.RssUrl, exceptionMessage);
+                findRssSetting.ForEach(rss => {
+                    rss.Status = EventStatus.InProgress;
+                    rss.LastErrorMessage = exceptionMessage;
 
-                    rssSetting.Status = EventStatus.InProgress;
-                    rssSetting.LastErrorMessage = exceptionMessage;
-
-                    var jobId = $"{CronJobKey.Rss_Prefix}:{rssSetting.Id}";
-                    RecurringJob.RemoveIfExists(jobId);
+                    RecurringJob.RemoveIfExists(rss.CronJobId);
+                    logger.LogWarning("Removed RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", rss.ChatId, rss.RssUrl, exceptionMessage);
                 });
             }
             else

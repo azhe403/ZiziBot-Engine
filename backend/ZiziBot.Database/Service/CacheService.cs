@@ -2,6 +2,7 @@ using CacheTower;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ZiziBot.Common.Interfaces;
+using ZiziBot.Common.Types;
 using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Database.Service;
@@ -78,6 +79,19 @@ public class CacheService(
 
             return data;
         }
+    }
+
+    public Task<T> GetOrSetAsync<T>(Cache<T> cache)
+    {
+        return GetOrSetAsync(cache.CacheKey,
+            cache.Action,
+            cache.DisableCache,
+            cache.EvictBefore,
+            cache.EvictAfter,
+            cache.ExpireAfter,
+            cache.StaleAfter,
+            cache.ThrowIfError
+        );
     }
 
     public async Task EvictAsync(string cacheKey)

@@ -94,4 +94,53 @@ public static class DirUtil
             .WhereIf(predicate != null, predicate)
             .ToList();
     }
+
+    /// <summary>
+    /// Recursively deletes all empty directories under the specified path
+    /// </summary>
+    /// <param name="path">The root directory path to search for empty directories</param>
+    /// <param name="deleteRootIfEmpty">Whether to delete the root directory if it becomes empty</param>
+    /// <returns>List of directories that were deleted</returns>
+    public static List<string> DeleteEmptyDirectories(this string path, bool deleteRootIfEmpty = true)
+    {
+        var deletedDirectories = new List<string>();
+
+        try
+        {
+            // Skip if directory doesn't exist
+            if (!Directory.Exists(path))
+                return deletedDirectories;
+
+            // Recursively process subdirectories
+            foreach (var directory in Directory.GetDirectories(path))
+            {
+                deletedDirectories.AddRange(directory.DeleteEmptyDirectories());
+            }
+
+            // Check if current directory is empty
+            var files = Directory.GetFiles(path);
+            var subDirs = Directory.GetDirectories(path);
+
+            // If directory is empty and either it's not the root or we want to delete the root if empty
+            if (files.Length == 0 && subDirs.Length == 0 && (deleteRootIfEmpty || path != Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar)))
+            {
+                try
+                {
+                    Directory.Delete(path, false);
+                    deletedDirectories.Add(path);
+                    Log.Debug("Deleted empty directory: {Path}", path);
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug(ex, "Failed to delete directory: {Path}", path);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error while deleting empty directories under: {Path}", path);
+        }
+
+        return deletedDirectories;
+    }
 }

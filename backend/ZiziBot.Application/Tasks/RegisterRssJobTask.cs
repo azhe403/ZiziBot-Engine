@@ -10,7 +10,8 @@ public class RegisterRssJobTask(
     RegisterRssJobAllUseCase registerRssJobAllUseCase,
     AppSettingRepository appSettingRepository,
     FeatureFlagRepository featureFlagRepository,
-    MediatorService mediatorService
+    MediatorService mediatorService,
+    JobService jobService
 ) : IStartupTask
 {
     public async Task ExecuteAsync()
@@ -29,14 +30,12 @@ public class RegisterRssJobTask(
                     methodCall: x => x.Handle(new RegisterRssJobAllRequest() {
                         ResetStatus = true
                     }),
-                    queue: CronJobKey.Queue_Rss,
                     cronExpression: TimeUtil.HourInterval(1)
                 );
 
                 RecurringJob.AddOrUpdate<UpdateStatisticUseCase>(
-                    recurringJobId: "update-github-usage",
+                    recurringJobId: CronJobKey.GitHub_Update_Token,
                     methodCall: x => x.Handle(),
-                    queue: CronJobKey.Queue_Rss,
                     cronExpression: TimeUtil.MinuteInterval(3)
                 );
 

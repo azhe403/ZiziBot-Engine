@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ZiziBot.Database.Caching.MongoDb;
 
-internal class MongoCacheEntry
+internal struct MongoCacheEntry
 {
     [BsonId]
     public ObjectId Id { get; set; }

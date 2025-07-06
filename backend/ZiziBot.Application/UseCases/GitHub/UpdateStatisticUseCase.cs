@@ -11,6 +11,7 @@ public class UpdateStatisticUseCase(
 )
 {
     [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    [Queue(CronJobKey.Queue_Data)]
     public async Task Handle()
     {
         logger.LogDebug("Updating GitHub token usage statistic");

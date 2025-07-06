@@ -23,6 +23,7 @@
     <PackageReference Include="Serilog.Enrichers.Dynamic" Version="1.0.9"/>
     <PackageReference Include="Serilog.Sinks.AspNetCore.SignalR" Version="0.4.0"/>
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0"/>
+    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,6 @@
-﻿namespace ZiziBot.Common.Interfaces;
+﻿using ZiziBot.Common.Types;
+
+namespace ZiziBot.Common.Interfaces;
 
 public interface ICacheService
 {
@@ -12,6 +14,8 @@ public interface ICacheService
         string? staleAfter = null,
         bool throwIfError = false
     );
+
+    public Task<T> GetOrSetAsync<T>(Cache<T> cache);
 
     public Task EvictAsync(string cacheKey);
 }

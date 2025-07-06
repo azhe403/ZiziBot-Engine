@@ -175,9 +175,11 @@ public class TelegramService(
         if (SentMessage == null)
             return Complete();
 
-        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest() {
+        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest {
             ActivityType = ChatActivityType.BotSendMessage,
-            SentMessage = SentMessage,
+            ChatId = targetChatId.Identifier.GetValueOrDefault(),
+            ThreadId = threadId,
+            MessageId = SentMessage.MessageId,
             TransactionId = _request.TransactionId
         }));
 
@@ -222,9 +224,10 @@ public class TelegramService(
 
         await Bot.EditMessageText(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
 
-        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest() {
+        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest {
             ActivityType = ChatActivityType.BotEditMessage,
-            SentMessage = SentMessage,
+            ChatId = _request.ChatId.Identifier.GetValueOrDefault(),
+            MessageId = SentMessage.MessageId,
             TransactionId = _request.TransactionId
         }));
 

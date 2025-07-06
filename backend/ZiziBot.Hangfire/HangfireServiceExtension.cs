@@ -22,12 +22,6 @@ public static class HangfireServiceExtension
 
         if (EnvUtil.IsEnabled(Flag.HANGFIRE))
         {
-            var queues = new[] {
-                "default",
-                CronJobKey.Queue_Data,
-                CronJobKey.Queue_Rss,
-                CronJobKey.Queue_ShalatTime
-            };
 
             JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
                 CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
@@ -45,20 +39,22 @@ public static class HangfireServiceExtension
                         .UseStorage(jobStorage)
                         .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
                         .UseMediatR()
-                        .UseSentry();
+                        .UseSentry()
+                        .UseSerilogLogProvider();
                 }
             );
 
             if (EnvUtil.IsEnabled(Flag.HANGFIRE_SEPARATED_SERVER))
             {
                 logger.LogDebug("Hangfire is running in a separated server!");
+                var queues = hangfireConfig.Queues;
 
                 foreach (var queue in queues)
                 {
                     services.AddHangfireServer(
                         optionsAction: (provider, options) => {
-                            options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
-                            options.Queues = [queue];
+                            options.WorkerCount = queue.WorkerCount;
+                            options.Queues = [queue.Name];
                         },
                         storage: jobStorage,
                         additionalProcesses: [
@@ -70,6 +66,7 @@ public static class HangfireServiceExtension
             else
             {
                 logger.LogDebug("Hangfire is running in a single server!");
+                var queues = hangfireConfig.Queues.Select(x => x.Name).ToArray();
 
                 services.AddHangfireServer(
                     optionsAction: (provider, options) => {
@@ -133,7 +130,7 @@ public static class HangfireServiceExtension
         return app;
     }
 
-    private static MongoStorage ToMongoDbStorage(this string connectionString)
+    private static MongoStorage ToMongoDbStorage(this string? connectionString)
     {
         var mongoUrlBuilder = new MongoUrlBuilder(connectionString);
         var settings = MongoClientSettings.FromUrl(mongoUrlBuilder.ToMongoUrl());

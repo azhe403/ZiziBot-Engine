@@ -45,11 +45,6 @@ public class PostWebhookPayloadHandler(
             TransactionId = request.HttpContextAccessor?.HttpContext?.TraceIdentifier ?? string.Empty
         };
 
-        if (content == null)
-        {
-            return response.BadRequest("Webhook payload is empty");
-        }
-
         var webhookChat = await dataFacade.ChatSetting.GetWebhookRouteById(request.targetId);
 
         if (webhookChat == null)

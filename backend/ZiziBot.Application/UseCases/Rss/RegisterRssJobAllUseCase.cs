@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +16,7 @@ public class RegisterRssJobAllUseCase(
     ServiceFacade serviceFacade
 )
 {
+    [Queue(CronJobKey.Queue_Data)]
     public async Task<bool> Handle(RegisterRssJobAllRequest request)
     {
         var transactionId = Guid.NewGuid().ToString();
@@ -39,21 +41,31 @@ public class RegisterRssJobAllUseCase(
 
         logger.LogInformation("Registering RSS Jobs. Count: {Count}", rssSettings.Count);
 
-        foreach (var rssSettingEntity in rssSettings)
+        foreach (var rss in rssSettings)
         {
-            var jobId = $"{CronJobKey.Rss_Prefix}:{rssSettingEntity.Id}";
-            var rssUrl = await rssSettingEntity.RssUrl.DetectRss(throwIfError: false);
+            try
+            {
+                var jobId = $"{CronJobKey.Rss_Prefix}:{rss.Id}";
+                var rssUrl = await rss.RssUrl.DetectRss(throwIfError: true);
 
-            await registerRssJobUrlUseCase.Handle(new RegisterRssJobUrlRequest() {
-                ChatId = rssSettingEntity.ChatId,
-                ThreadId = rssSettingEntity.ThreadId,
-                Url = rssUrl,
-                JobId = jobId
-            });
+                await registerRssJobUrlUseCase.Handle(new RegisterRssJobUrlRequest() {
+                    ChatId = rss.ChatId,
+                    ThreadId = rss.ThreadId,
+                    Url = rssUrl,
+                    JobId = jobId
+                });
 
-            rssSettingEntity.RssUrl = rssUrl;
-            rssSettingEntity.CronJobId = jobId;
-            rssSettingEntity.TransactionId = transactionId;
+                rss.RssUrl = rssUrl;
+                rss.CronJobId = jobId;
+                rss.TransactionId = transactionId;
+            }
+            catch (Exception e)
+            {
+                rss.Status = EventStatus.Inactive;
+                rss.LastErrorMessage = e.Message;
+
+                logger.LogError(e, "Error registering RSS Job. RssUrl: {RssUrl}, ChatId: {ChatId}, ThreadId: {ThreadId}", rss.RssUrl, rss.ChatId, rss.ThreadId);
+            }
         }
 
         await dataFacade.MongoDb.SaveChangesAsync();

@@ -78,8 +78,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             CurrentStorage = CurrentStorage.InMemory,
             DashboardTitle = "Zizi Dev - Hangfire Dashboard",
             MongoDbConnection = "mongo://localhost:21750",
-            WorkerMultiplier = 2,
-            Queues = "default"
+            WorkerMultiplier = 2
         };
 
         var mirror = new MirrorConfig() {
@@ -186,7 +185,8 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
             .SelectMany(s => s.KeyPair, (s, kv) => new {
                 Root = s.Root,
                 Key = $"{s.Root}:{kv.Key}",
-                Value = kv.Value.ToString()
+                Value = kv.Value.ToString(),
+                ValueType = kv.Value.GetType()
             })
             .Where(kv => !appSettingsDictionary.ContainsKey(kv.Key))
             .ToList();

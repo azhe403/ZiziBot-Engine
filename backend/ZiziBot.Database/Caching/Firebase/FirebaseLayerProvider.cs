@@ -9,44 +9,46 @@ namespace ZiziBot.Database.Caching.Firebase;
 
 internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICacheLayer
 {
+    private readonly ILogger _log = Log.ForContext<FirebaseLayerProvider>();
+
     public ValueTask FlushAsync()
     {
-        Log.Verbose("Flush CacheTower firebase layer");
+        _log.Verbose("Flush CacheTower firebase layer");
         GetClient()
             .Child(cacheOptions.RootDir)
             .DeleteAsync();
 
-        Log.Verbose("Flush CacheTower firebase layer has done");
+        _log.Verbose("Flush CacheTower firebase layer has done");
 
         return ValueTask.CompletedTask;
     }
 
     public ValueTask CleanupAsync()
     {
-        Log.Verbose("Clean up CacheTower firebase layer");
+        _log.Verbose("Clean up CacheTower firebase layer");
         GetClient()
             .Child(cacheOptions.RootDir)
             .DeleteAsync();
 
-        Log.Verbose("Cleanup CacheTower firebase layer done");
+        _log.Verbose("Cleanup CacheTower firebase layer done");
 
         return ValueTask.CompletedTask;
     }
 
     public async ValueTask EvictAsync(string cacheKey)
     {
-        Log.Verbose("Evict CacheTower firebase layer. Key: {CacheKey}", cacheKey);
+        _log.Verbose("Evict CacheTower firebase layer. Key: {CacheKey}", cacheKey);
         await GetClient()
             .Child(cacheOptions.RootDir)
             .Child(cacheKey)
             .DeleteAsync();
 
-        Log.Verbose("Evict CacheTower firebase layer. Key: {CacheKey}. Done", cacheKey);
+        _log.Verbose("Evict CacheTower firebase layer. Key: {CacheKey}. Done", cacheKey);
     }
 
     public async ValueTask<CacheEntry<T>?> GetAsync<T>(string cacheKey)
     {
-        Log.Verbose("Get CacheTower firebase layer. Key: {CacheKey}", cacheKey);
+        _log.Verbose("Get CacheTower firebase layer. Key: {CacheKey}", cacheKey);
         var cacheEntry = default(CacheEntry<T>?);
 
         var obj = await GetClient()
@@ -56,7 +58,7 @@ internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICache
 
         if (obj != null)
         {
-            Log.Verbose("Get CacheTower firebase layer. Key: {CacheKey}. Done", cacheKey);
+            _log.Verbose("Get CacheTower firebase layer. Key: {CacheKey}. Done", cacheKey);
             return new CacheEntry<T>(obj.Value, obj.Expiry);
         }
 
@@ -65,7 +67,7 @@ internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICache
 
     public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
     {
-        Log.Verbose("Set CacheTower firebase layer. Key: {CacheKey}", cacheKey);
+        _log.Verbose("Set CacheTower firebase layer. Key: {CacheKey}", cacheKey);
         await GetClient()
             .Child(cacheOptions.RootDir)
             .Child(cacheKey)
@@ -77,19 +79,18 @@ internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICache
                 }
             );
 
-        Log.Verbose("Set CacheTower firebase layer. Key: {CacheKey}. Done", cacheKey);
+        _log.Verbose("Set CacheTower firebase layer. Key: {CacheKey}. Done", cacheKey);
     }
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
     {
-        Log.Verbose("IsAvailable CacheTower firebase layer. Key: {CacheKey}", cacheKey);
         var obj = await GetClient()
             .Child(cacheOptions.RootDir)
             .Child(cacheKey)
             .OnceAsJsonAsync();
 
         var isAvailable = obj.IsNotNullOrWhiteSpace();
-        Log.Verbose("IsAvailable CacheTower firebase layer. Key: {CacheKey}. Result: {IsAvailable}", cacheKey, isAvailable);
+        _log.Verbose("CacheTower Firebase layer is available: {IsAvailable}", isAvailable);
 
         return isAvailable;
     }

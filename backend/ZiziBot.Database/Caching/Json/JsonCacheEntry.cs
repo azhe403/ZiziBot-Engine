@@ -1,6 +1,6 @@
 ﻿namespace ZiziBot.Database.Caching.Json;
 
-public class JsonCacheEntry<TValue>
+public struct JsonCacheEntry<TValue>
 {
     public required string CacheKey { get; set; }
     public DateTime CreatedDate { get; set; }

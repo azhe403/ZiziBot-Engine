@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -11,16 +12,19 @@ public class SendMessageRequest
     public long ChatId { get; set; }
     public int? ThreadId { get; set; }
     public string Text { get; set; }
-    public ReplyParameters? ReplyToMessageId { get; set; }
+    public bool DisableWebPagePreview { get; set; }
+    public int ReplyToMessageId { get; set; }
     public TimeSpan DeleteAfter { get; set; }
 }
 
 public class SendMessageUseCase(
     ILogger<SendMessageUseCase> logger,
     DataFacade dataFacade,
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    CreateChatActivityUseCase createChatActivityUseCase
 )
 {
+    [Queue(CronJobKey.Queue_Telegram)]
     public async Task Handle(SendMessageRequest request)
     {
         logger.LogDebug("Sending a message to chat {ChatId}", request.ChatId);
@@ -30,11 +34,25 @@ public class SendMessageUseCase(
             chatId: request.ChatId,
             text: request.Text,
             messageThreadId: request.ThreadId,
-            replyParameters: request.ReplyToMessageId,
-            parseMode: ParseMode.Html
+            replyParameters: new ReplyParameters() {
+                AllowSendingWithoutReply = true,
+                MessageId = request.ReplyToMessageId
+            },
+            parseMode: ParseMode.Html,
+            linkPreviewOptions: new LinkPreviewOptions() {
+                IsDisabled = request.DisableWebPagePreview
+            }
         );
 
-        logger.LogInformation("Message sent to chat {ChatId}", request.ChatId);
+        logger.LogInformation("Message sent to chat {ChatId}, MessageId: {MessageId}", request.ChatId, sentMessage.MessageId);
+
+        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest {
+            ActivityType = ChatActivityType.BotSendMessage,
+            ChatId = request.ChatId,
+            ThreadId = request.ThreadId,
+            MessageId = sentMessage.MessageId,
+            TransactionId = Guid.NewGuid().ToString()
+        }));
 
         if (request.DeleteAfter.Ticks <= 0)
             return;

@@ -4,6 +4,7 @@ using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Dtos;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Services;
 
@@ -41,10 +42,10 @@ public class AntiSpamService(
 
     private async Task<AntiSpamDto> CheckEssAsync(long userId)
     {
-        var cacheData = await cacheService.GetOrSetAsync(
-            CacheKey.USER_BAN_ESS + userId,
-            staleAfter: DEFAULT_STALE_TIME,
-            action: async () => {
+        var cacheData = await cacheService.GetOrSetAsync(new Cache<AntiSpamDto>() {
+            CacheKey = CacheKey.USER_BAN_ESS + userId,
+            StaleAfter = DEFAULT_STALE_TIME,
+            Action = async () => {
                 var antiSpamDto = new AntiSpamDto();
                 var globalBanEntities = await dataFacade.MongoDb.GlobalBan
                     .Where(entity => entity.UserId == userId && entity.Status == EventStatus.Complete)
@@ -53,18 +54,19 @@ public class AntiSpamService(
                 antiSpamDto.IsBanEss = globalBanEntities.Count != 0;
                 return antiSpamDto;
             }
-        );
+        });
 
         return cacheData;
     }
 
     private async Task<AntiSpamDto> CheckCombotAntiSpamAsync(long userId)
     {
-        var cacheData = await cacheService.GetOrSetAsync(
-            CacheKey.USER_BAN_CAS + userId,
-            staleAfter: DEFAULT_STALE_TIME,
-            action: async () => {
+        var cacheData = await cacheService.GetOrSetAsync(new Cache<AntiSpamDto>() {
+            CacheKey = CacheKey.USER_BAN_CAS + userId,
+            StaleAfter = DEFAULT_STALE_TIME,
+            Action = async () => {
                 var antiSpamDto = new AntiSpamDto();
+
                 try
                 {
                     var url = UrlConst.ANTISPAM_COMBOT_API.SetQueryParam("userId", userId);
@@ -81,24 +83,25 @@ public class AntiSpamService(
 
                 return antiSpamDto;
             }
-        );
+        });
 
         return cacheData;
     }
 
     private async Task<AntiSpamDto> CheckSpamWatchAntiSpamAsync(long userId)
     {
-        var cacheData = await cacheService.GetOrSetAsync(
-            CacheKey.USER_BAN_SW + userId,
-            staleAfter: DEFAULT_STALE_TIME,
-            action: async () => {
-                SpamWatchResult spamwatchResult = new();
+        var cacheData = await cacheService.GetOrSetAsync(new Cache<AntiSpamDto>() {
+            CacheKey = CacheKey.USER_BAN_SW + userId,
+            StaleAfter = DEFAULT_STALE_TIME,
+            Action = async () => {
                 var antiSpamDto = new AntiSpamDto();
 
                 try
                 {
+                    var spamwatchResult = new SpamWatchResult();
                     var url = UrlConst.ANTISPAM_SPAMWATCH_API.AppendPathSegment(userId);
-                    var apiKey = await apiKeyService.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.SpamWatch);
+                    var key = await dataFacade.AppSetting.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.SpamWatch);
+                    var apiKey = key?.ApiKey;
 
                     if (apiKey.IsNotNullOrEmpty())
                         return antiSpamDto;
@@ -120,7 +123,7 @@ public class AntiSpamService(
 
                 return antiSpamDto;
             }
-        );
+        });
 
         return cacheData;
     }

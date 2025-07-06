@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 
@@ -16,6 +17,7 @@ public class DeleteMessageUseCase(
 )
 
 {
+    [Queue(CronJobKey.Queue_Telegram)]
     public async Task Handle(DeleteMessageBotRequest request)
     {
         try
@@ -25,6 +27,12 @@ public class DeleteMessageUseCase(
             await botClient.DeleteMessage(request.ChatId, request.MessageId);
 
             logger.LogInformation("Message {MessageId} deleted from chat {ChatId}", request.MessageId, request.ChatId);
+
+            HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest {
+                ActivityType = ChatActivityType.BotSendMessage,
+                MessageId = request.MessageId,
+                TransactionId = Guid.NewGuid().ToString()
+            }));
         }
         catch (Exception exception)
         {

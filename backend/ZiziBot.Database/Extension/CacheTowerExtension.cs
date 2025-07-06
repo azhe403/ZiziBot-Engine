@@ -116,7 +116,7 @@ public static class CacheTowerExtension
         if (!cacheConfig.UseSqlite)
             return builder;
 
-        var dbPath = PathConst.CACHE_TOWER_SQLITE_PATH.EnsureDirectory();
+        var dbPath = PathConst.CACHE_TOWER_SQLITE.EnsureDirectory();
 
         builder.CacheLayers.Add(new SqliteLayerProvider(dbPath));
 

@@ -40,6 +40,8 @@ public class MirrorApprovalUpdateSourceMigration(IMongoDatabase database) : IPos
         }
     }
 
-    public async Task DownAsync()
-    { }
+    public Task DownAsync()
+    {
+        return Task.CompletedTask;
+    }
 }

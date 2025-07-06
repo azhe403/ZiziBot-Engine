@@ -33,6 +33,8 @@ public class FeatureSeederMigration(MongoDbContext mongoDbContext) : IPreMigrati
         await mongoDbContext.SaveChangesAsync();
     }
 
-    public async Task DownAsync()
-    { }
+    public Task DownAsync()
+    {
+        return Task.CompletedTask;
+    }
 }

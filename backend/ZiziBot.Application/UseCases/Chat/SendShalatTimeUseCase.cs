@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.UseCases.Chat;
@@ -9,6 +10,7 @@ public class SendShalatTimeUseCase(
     SendMessageUseCase sendMessageUseCase
 )
 {
+    [DisplayName("ShalatTIme {0}")]
     public async Task<bool> Handle(long chatId)
     {
         var botMain = await dataFacade.AppSetting.GetBotMain();
