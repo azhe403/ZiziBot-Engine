@@ -1,16 +1,15 @@
 ﻿using Flurl.Http;
 using ZiziBot.Common.Enums;
-using ZiziBot.Common.Interfaces;
 using ZiziBot.Common.Utils;
 using ZiziBot.Common.Vendor.OcrSpace;
 
-namespace ZiziBot.Services;
+namespace ZiziBot.Services.Rest;
 
-public class OcrSpaceService(IApiKeyService apiKeyService)
+public class OcrSpaceRestService(BotRepository botRepository)
 {
     public async Task<string?> ParseImage(string fileName)
     {
-        var apiKey = await apiKeyService.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.OcrSpace);
+        var apiKey = await botRepository.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.OcrSpace);
 
         if (apiKey.IsNullOrEmpty())
         {

@@ -2,7 +2,7 @@
 using Serilog;
 using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Database.Caching.Json;
+namespace ZiziBot.Database.CacheTower.Json;
 
 public class JsonLayerProvider : ILocalCacheLayer
 {

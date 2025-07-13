@@ -11,8 +11,9 @@ public class StartupNotificationTask(IServiceScopeFactory serviceScope) : IStart
     {
         using var service = serviceScope.CreateScope();
         var appSettingRepository = service.ServiceProvider.GetRequiredService<AppSettingRepository>();
+        var botRepository = service.ServiceProvider.GetRequiredService<BotRepository>();
 
-        var config = await appSettingRepository.GetBotMain();
+        var config = await botRepository.GetBotMain();
         var eventConfig = await appSettingRepository.GetRequiredConfigSectionAsync<EventLogConfig>();
         var engineConfig = await appSettingRepository.GetRequiredConfigSectionAsync<EngineConfig>();
 

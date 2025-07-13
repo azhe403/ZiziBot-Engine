@@ -23,4 +23,7 @@ public static class UrlConst
     public const string API_SUBDL_BASE = "https://api.subdl.com";
 
     public const string HANGFIRE_URL_PATH = "/admin/hangfire";
+
+    public const string FATHIMAH_API = "https://api.myquran.com/v2";
+
 }

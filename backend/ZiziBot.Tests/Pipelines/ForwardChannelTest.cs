@@ -2,12 +2,12 @@
 
 namespace ZiziBot.Tests.Pipelines;
 
-public class ForwardChannelTest(MediatorService mediatorService, AppSettingRepository appSettingRepository)
+public class ForwardChannelTest(MediatorService mediatorService, BotRepository botRepository)
 {
     [Fact]
     public async Task SendChannelPostTest()
     {
-        var botMain = await appSettingRepository.GetBotMain();
+        var botMain = await botRepository.GetBotMain();
 
         await mediatorService.Send(new ForwardChannelPostRequest()
         {
@@ -19,7 +19,7 @@ public class ForwardChannelTest(MediatorService mediatorService, AppSettingRepos
     [Fact]
     public async Task SendChannelPostDocumentTest()
     {
-        var botMain = await appSettingRepository.GetBotMain();
+        var botMain = await botRepository.GetBotMain();
 
         await mediatorService.Send(new ForwardChannelPostRequest()
         {

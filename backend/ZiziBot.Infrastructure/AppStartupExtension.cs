@@ -30,6 +30,7 @@ public static class AppStartupExtension
 
         #region Env
         var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+        var botRepository = provider.GetRequiredService<BotRepository>();
         var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
 
         if (sentryConfig?.IsEnabled == true)
@@ -37,8 +38,8 @@ public static class AppStartupExtension
             Env.SentryDsn = sentryConfig.Dsn;
         }
 
-        await appSettingRepository.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
-        await appSettingRepository.GetBotMain();
+        await botRepository.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
+        await botRepository.GetBotMain();
         #endregion
 
         return app;

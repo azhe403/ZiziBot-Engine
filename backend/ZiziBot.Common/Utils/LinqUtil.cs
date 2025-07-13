@@ -7,8 +7,12 @@ public static class LinqUtil
 {
     public static T RandomPick<T>(this IEnumerable<T> source)
     {
-        var random = new Random();
+        var random = Random.Shared;
+
         var src = source.ToList();
+        if (src.Count == 0)
+            throw new InvalidOperationException("Cannot pick a random item from an empty collection.");
+
         var index = random.Next(src.Count);
         var item = src.ElementAt(index);
 
@@ -30,8 +34,7 @@ public static class LinqUtil
         return (T)Convert.ChangeType(value, typeof(T));
     }
 
-    public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, bool condition,
-        Expression<Func<T, bool>> whereClause)
+    public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, bool condition, Expression<Func<T, bool>> whereClause)
     {
         return condition ? query.Where(whereClause) : query;
     }

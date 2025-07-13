@@ -3,16 +3,17 @@ using Xunit;
 using ZiziBot.Common.Enums;
 using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
+using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Tests.Pipelines;
 
-public class CityTest(MediatorService mediatorService, AppSettingRepository appSettingRepository, MongoDbContext mongoDbContext, FathimahApiService fathimahApiService)
+public class CityTest(MediatorService mediatorService, BotRepository botRepository, MongoDbContext mongoDbContext, FathimahRestService fathimahRestService)
 {
     [Theory]
     [InlineData(712)]
     public async Task AddCityTest(int cityId)
     {
-        var botMain = await appSettingRepository.GetBotMain();
+        var botMain = await botRepository.GetBotMain();
 
         // Arrange
         await mediatorService.Send(new AddCityBotRequest() {
@@ -28,8 +29,8 @@ public class CityTest(MediatorService mediatorService, AppSettingRepository appS
     public async Task AddCityByNameTest(string cityName)
     {
         var chatId = SampleMessages.CommonMessage.Chat.Id;
-        var botMain = await appSettingRepository.GetBotMain();
-        var cityInfoAll = await fathimahApiService.GetAllCityAsync();
+        var botMain = await botRepository.GetBotMain();
+        var cityInfoAll = await fathimahRestService.GetAllCityAsync();
 
         var cityInfo = cityInfoAll.Cities
             .WhereIf(cityName.IsNotNullOrEmpty(), kota => kota.Lokasi.Contains(cityName, StringComparison.OrdinalIgnoreCase))
@@ -60,7 +61,7 @@ public class CityTest(MediatorService mediatorService, AppSettingRepository appS
     [InlineData("Cilacap")]
     public async Task AddCityByNameAlreadyAddedTest(string cityName)
     {
-        var botMain = await appSettingRepository.GetBotMain();
+        var botMain = await botRepository.GetBotMain();
 
         // Arrange
         await mediatorService.Send(new AddCityBotRequest() {

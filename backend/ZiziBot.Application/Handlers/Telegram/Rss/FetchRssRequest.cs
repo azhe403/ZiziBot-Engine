@@ -49,7 +49,7 @@ public class FetchRssHandler(
                 return false;
             }
 
-            var botSettings = await dataFacade.AppSetting.GetBotMain();
+            var botSettings = await dataFacade.Bot.GetBotMain();
 
             var botClient = new TelegramBotClient(botSettings.Token);
 

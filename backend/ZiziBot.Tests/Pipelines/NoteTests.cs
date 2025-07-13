@@ -12,7 +12,7 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
     [InlineData(false)]
     public async Task CreateNoteTest(bool refreshNote)
     {
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
 
         var result = await mediatorService.EnqueueAsync(new CreateNoteBotRequest() {
             BotToken = botMain.Token,
@@ -43,7 +43,7 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
 
 
         // Act
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
 
         var response = await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = botMain.Token,
@@ -58,7 +58,7 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
     [InlineData("ini-note-ngab")]
     public async Task DeleteNoteAlreadyDeletedTest(string note)
     {
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
 
         var response = await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = botMain.Token,

@@ -25,11 +25,11 @@ public class AnswerInlineQuerySubdlHandler(
         logger.LogInformation("Find subdl for Query: {query}", request.InlineParam);
         if (request.InlineParam.IsNullOrEmpty())
         {
-            popular = await serviceFacade.SubdlService.FetchPopular();
+            popular = await serviceFacade.SubdlRestService.FetchPopular();
         }
         else
         {
-            popular = await serviceFacade.SubdlService.Search(request.InlineParam);
+            popular = await serviceFacade.SubdlRestService.Search(request.InlineParam);
         }
 
         inlineQueryResults = popular.Results?.Select(x => {

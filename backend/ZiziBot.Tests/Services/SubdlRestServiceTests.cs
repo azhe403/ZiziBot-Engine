@@ -1,14 +1,15 @@
 ﻿using Xunit;
+using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Tests.Services;
 
-public class SubdlServiceTests(SubdlService subdlService)
+public class SubdlRestServiceTests(SubdlRestService subdlRestService)
 {
     [Fact]
     public async Task FetchPopularTest()
     {
         // arrange
-        var result = await subdlService.FetchPopular();
+        var result = await subdlRestService.FetchPopular();
 
         // assert
         result.Results.ShouldNotBeNull().ShouldNotBeEmpty();

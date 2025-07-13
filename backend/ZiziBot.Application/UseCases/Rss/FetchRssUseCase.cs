@@ -13,23 +13,23 @@ namespace ZiziBot.Application.UseCases.Rss;
 public sealed class FetchRssUseCase(
     ILogger<FetchRssUseCase> logger,
     MongoDbContext mongoDbContext,
-    AppSettingRepository appSettingRepository,
+    BotRepository botRepository,
     FeatureFlagRepository featureFlagRepository,
     RssRepository rssRepository,
     ReadRssUseCase readRssUseCase
 )
 {
     [DisplayName("RSS {0}:{1} {2}")]
-    [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    [AutomaticRetry(Attempts = 1, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     [SentryMonitorSlug("FetchRssUseCase")]
     [Queue(CronJobKey.Queue_Rss)]
-    public async Task<bool> Handle(long chatId, int threadId, string rssUrl)
+    public async Task<bool> Handle(long chatId, int? threadId, string rssUrl)
     {
         if (!await featureFlagRepository.IsEnabled(Flag.RSS_BROADCASTER))
             return true;
 
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
-        var botSettings = await appSettingRepository.GetBotMain();
+        var botSettings = await botRepository.GetBotMain();
 
         try
         {
@@ -107,7 +107,7 @@ public sealed class FetchRssUseCase(
                     rss.Status = EventStatus.InProgress;
                     rss.LastErrorMessage = exceptionMessage;
 
-                    RecurringJob.RemoveIfExists(rss.CronJobId);
+                    HangfireUtil.RemoveRecurringJob(rss.CronJobId);
                     logger.LogWarning("Removed RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", rss.ChatId, rss.RssUrl, exceptionMessage);
                 });
             }

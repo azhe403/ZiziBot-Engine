@@ -42,7 +42,7 @@ public class SubmitDonationHandler(
             return _response.BadRequest("Donasi sudah terverifikasi");
         }
 
-        var parsedDonationDto = await serviceFacade.MirrorPaymentService.ParseDonation(request.Body.OrderId);
+        var parsedDonationDto = await serviceFacade.MirrorPaymentRestService.ParseDonation(request.Body.OrderId);
 
         if (!parsedDonationDto.IsValid)
         {

@@ -8,11 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="CloudCraic.Hosting.BackgroundQueue" Version="1.0.7"/>
-    <PackageReference Include="dotenv.net" Version="3.2.1"/>
+    <PackageReference Include="dotenv.net" Version="4.0.0"/>
     <PackageReference Include="HelpMate.Core" Version="2.1.0"/>
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
     <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510"/>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.7"/>
     <PackageReference Include="Scrutor" Version="6.1.0"/>
     <PackageReference Include="Sentry.AspNetCore" Version="5.11.2"/>
     <PackageReference Include="Sentry.Profiling" Version="5.11.2"/>

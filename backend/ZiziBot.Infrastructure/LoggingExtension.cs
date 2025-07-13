@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.AspNetCore.SignalR.Extensions;
@@ -134,7 +135,9 @@ public static class LoggingExtension
                 .Configuration(applicationBuilder.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Is(logConfig.LogLevel)
-                .MinimumLevel.Override("Hangfire", LogEventLevel.Warning)
+                .MinimumLevel.Override("Hangfire", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
                 .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
                 .Enrich.FromLogContext()
                 .Enrich.WithDemystifiedStackTraces();
@@ -189,7 +192,7 @@ public static class LoggingExtension
 
     public static IApplicationBuilder ConfigureFlurl(this IApplicationBuilder app)
     {
-        var log = Log.ForContext("SourceContext", typeof(LoggingExtension).FullName);
+        var log = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(LoggingExtension));
 
         FlurlHttp.Clients.WithDefaults(builder => {
                 builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions() {
@@ -200,14 +203,14 @@ public static class LoggingExtension
                     var request = call.Request;
                     call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
 
-                    log.Debug("Flurl request {Method}: {Url}", request.Verb, request.Url);
+                    log.LogDebug("Flurl request {Method}: {Url}", request.Verb, request.Url);
                 });
 
                 builder.AfterCall(flurlCall => {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
 
-                    log.Information("Flurl response {Method}: {Url}: {StatusCode}. Elapsed: {Elapsed}",
+                    log.LogInformation("Flurl response {Method}: {Url}: {StatusCode}. Elapsed: {Elapsed}",
                         request.Verb,
                         request.Url,
                         response?.StatusCode,

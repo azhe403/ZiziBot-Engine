@@ -20,7 +20,7 @@ internal class AddCityHandler(
         var htmlMessage = HtmlMessage.Empty;
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var cityInfoAll = await serviceFacade.FathimahApiService.GetAllCityAsync();
+        var cityInfoAll = await serviceFacade.FathimahRestService.GetAllCityAsync();
         var cityInfo = cityInfoAll.Cities
             .WhereIf(request.CityId > 0, kota => kota.Id == request.CityId)
             .WhereIf(request.CityName.IsNotNullOrEmpty(), kota => kota.Lokasi.Like(request.CityName))

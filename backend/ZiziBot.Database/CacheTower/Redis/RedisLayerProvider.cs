@@ -2,7 +2,7 @@
 using StackExchange.Redis;
 using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Database.Caching.Redis;
+namespace ZiziBot.Database.CacheTower.Redis;
 
 internal class RedisLayerProvider(
     string connectionString,

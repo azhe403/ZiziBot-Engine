@@ -5,7 +5,7 @@ using Google.Apis.Auth.OAuth2;
 using Serilog;
 using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Database.Caching.Firebase;
+namespace ZiziBot.Database.CacheTower.Firebase;
 
 internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICacheLayer
 {

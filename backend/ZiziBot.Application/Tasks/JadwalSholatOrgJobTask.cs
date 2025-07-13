@@ -1,10 +1,10 @@
 ﻿using Hangfire;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.Tasks;
 
-public class JadwalSholatOrgJobTask(DataFacade dataFacade) : IStartupTask
+public class JadwalSholatOrgJobTask(ILogger<JadwalSholatOrgJobTask> logger, DataFacade dataFacade) : IStartupTask
 {
     public async Task ExecuteAsync()
     {
@@ -23,7 +23,7 @@ public class JadwalSholatOrgJobTask(DataFacade dataFacade) : IStartupTask
 
             if (checkCity > 0)
             {
-                Log.Information("JadwalSholat.org data is already exist, skip seeding data at startup.");
+                logger.LogInformation("JadwalSholat.org data is already exist, skip seeding data at startup.");
                 return;
             }
 

@@ -1,26 +1,27 @@
-﻿using ZiziBot.Common.Interfaces;
-using ZiziBot.Database.MongoDb;
+﻿using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.Repository;
 
 namespace ZiziBot.Database.Service;
 
 public class DataFacade(
-    ICacheService cache,
+    CacheService cache,
     MongoDbContext mongoDb,
     AdditionalRepository additional,
     AppSettingRepository appSetting,
+    BotRepository botRepository,
     FeatureFlagRepository featureFlag,
     ChatSettingRepository chatSetting,
     GroupRepository group,
     RssRepository rss,
     MirrorUserRepository mirrorUser,
     WordFilterRepository wordFilter
-) : IDataFacade
+)
 {
-    public ICacheService Cache => cache;
+    public CacheService Cache => cache;
     public MongoDbContext MongoDb => mongoDb;
     public AdditionalRepository Additional => additional;
     public AppSettingRepository AppSetting => appSetting;
+    public BotRepository Bot => botRepository;
     public FeatureFlagRepository FeatureFlag => featureFlag;
     public ChatSettingRepository ChatSetting => chatSetting;
     public GroupRepository Group => group;

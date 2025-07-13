@@ -19,7 +19,7 @@ public class MongoDbBackupHandler(
 {
     public async Task<bool> Handle(MongoDbBackupRequest request, CancellationToken cancellationToken)
     {
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
 
         var config = await dataFacade.AppSetting.GetConfigSectionAsync<EventLogConfig>();
 

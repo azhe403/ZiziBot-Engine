@@ -7,10 +7,10 @@ using ZiziBot.Common.Dtos;
 using ZiziBot.Common.Enums;
 using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Services;
+namespace ZiziBot.Services.Rest;
 
-public class MirrorPaymentService(
-    ILogger<MirrorPaymentService> logger,
+public class MirrorPaymentRestService(
+    ILogger<MirrorPaymentRestService> logger,
     AppSettingRepository appSettingRepository
 )
 {

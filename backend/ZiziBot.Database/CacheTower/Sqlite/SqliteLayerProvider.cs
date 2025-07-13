@@ -4,7 +4,7 @@ using Serilog;
 using ZiziBot.Database.Sqlite;
 using ZiziBot.Database.Sqlite.Entities;
 
-namespace ZiziBot.Database.Caching.Sqlite;
+namespace ZiziBot.Database.CacheTower.Sqlite;
 
 internal class SqliteLayerProvider : ICacheLayer
 {

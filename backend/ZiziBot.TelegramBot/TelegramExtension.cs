@@ -19,7 +19,7 @@ public static class TelegramExtension
         var config = provider.GetRequiredService<IOptions<EngineConfig>>().Value;
         var dataFacade = provider.GetRequiredService<DataFacade>();
 
-        var listBotData = await dataFacade.AppSetting.ListBots();
+        var listBotData = await dataFacade.Bot.ListBots();
 
         services.AddZiziBotTelegramBot(new BotEngineConfig() {
             EngineMode = config.TelegramEngineMode,

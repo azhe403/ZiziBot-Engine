@@ -6,7 +6,7 @@ namespace ZiziBot.Common.Utils;
 public static class FileUtil
 {
     private static readonly ConcurrentDictionary<string, ReaderWriterLockSlim> FileLocks = new ConcurrentDictionary<string, ReaderWriterLockSlim>();
-    private static readonly TimeSpan LockTimeout = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan LockTimeout = TimeSpan.FromSeconds(60);
     private static readonly Lock LockCleanupLock = new Lock();
     private static DateTime _lastCleanup = DateTime.UtcNow;
 

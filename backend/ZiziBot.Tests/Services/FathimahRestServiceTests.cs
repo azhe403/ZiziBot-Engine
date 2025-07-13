@@ -1,9 +1,10 @@
 using Xunit;
+using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Tests.Services;
 
-public class FathimahApiServiceTests(
-    FathimahApiService fathimahApiService
+public class FathimahRestServiceTests(
+    FathimahRestService fathimahRestService
 )
 {
     public static readonly object[][] ShalatCity = [
@@ -15,7 +16,7 @@ public class FathimahApiServiceTests(
     [Fact]
     public async Task GetListCityTest()
     {
-        var allCity = await fathimahApiService.GetAllCityAsync();
+        var allCity = await fathimahRestService.GetAllCityAsync();
 
         allCity.Status.ShouldBe(true);
         allCity.Cities.ShouldNotBeEmpty();
@@ -24,7 +25,7 @@ public class FathimahApiServiceTests(
     [Theory, MemberData(nameof(ShalatCity))]
     public async Task GetShalatTimeTest(DateTime dateTime, int cityId)
     {
-        var shalatTime = await fathimahApiService.GetShalatTime(dateTime, cityId);
+        var shalatTime = await fathimahRestService.GetShalatTime(dateTime, cityId);
 
         shalatTime.Status.ShouldBe(true);
         shalatTime.Schedule.ShouldNotBeNull()

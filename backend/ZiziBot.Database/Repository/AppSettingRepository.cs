@@ -1,27 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using ZiziBot.Common.Dtos.Entity;
-using ZiziBot.Common.Interfaces;
-using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Database.Repository;
 
 public class AppSettingRepository(
-    MongoDbContext mongoDbContext,
-    IServiceProvider serviceProvider
-    )
+    MongoDbContext mongoDbContext
+)
 {
-    private ICacheService CacheService => serviceProvider.GetRequiredService<ICacheService>();
-
     public TelegramSinkConfigDto GetTelegramSinkConfig()
     {
         var botToken = mongoDbContext.BotSettings.Select(x => new { x.Name, x.Token }).FirstOrDefault(entity => entity.Name == "Main");
 
         var eventLogConfig = GetConfigSection<EventLogConfig>();
 
-        return new TelegramSinkConfigDto() {
+        return new TelegramSinkConfigDto()
+        {
             BotToken = botToken?.Token,
             ChatId = eventLogConfig?.ChatId,
             ThreadId = eventLogConfig?.ThreadId
@@ -99,68 +93,5 @@ public class AppSettingRepository(
         appSettings.Value = value;
 
         await mongoDbContext.SaveChangesAsync();
-    }
-
-    public async Task<BotSettingDto> GetBotMain()
-    {
-        var cached = await CacheService.GetOrSetAsync(CacheKey.GLOBAL_BOT_MAIN, async () => {
-            var botSetting = await mongoDbContext.BotSettings.AsNoTracking()
-                .Where(entity => entity.Name == "Main")
-                .Where(entity => entity.Status == EventStatus.Complete)
-                .Select(x => new BotSettingDto {
-                    Name = x.Name,
-                    Token = x.Token
-                })
-                .FirstOrDefaultAsync();
-
-            ArgumentNullException.ThrowIfNull(botSetting);
-
-            return botSetting;
-        });
-
-        return cached;
-    }
-
-
-    public async Task<List<BotSettingDto>> ListBots()
-    {
-        var listBotData = await mongoDbContext.BotSettings
-            .Where(settings => settings.Status == EventStatus.Complete)
-            .Select(x => new BotSettingDto {
-                Name = x.Name,
-                Token = x.Token
-            })
-            .ToListAsync();
-
-        return listBotData;
-    }
-
-    public async Task<ApiKeyEntity> GetRequiredApiKeyAsync(ApiKeyCategory category, ApiKeyVendor name)
-    {
-        var apiKey = await GetApiKeyAsync(category, name);
-
-        return apiKey ?? throw new InvalidOperationException("Api key not found");
-    }
-
-    public async Task<ApiKeyEntity?> GetApiKeyAsync(ApiKeyCategory category, ApiKeyVendor name)
-    {
-        var query = mongoDbContext.ApiKey.AsNoTracking();
-
-        if (name == ApiKeyVendor.GitHub)
-            query = query.OrderByDescending(x => x.Remaining);
-        else
-            query = query.OrderBy(entity => entity.LastUsedDate);
-
-        query = query.Where(entity => entity.Status == EventStatus.Complete)
-            .Where(entity => entity.Category == category)
-            .Where(entity => entity.Name == name);
-
-        var apiKey = await query.FirstOrDefaultAsync();
-
-        if (Env.GithubToken.IsNullOrWhiteSpace() &&
-            apiKey is { Name: ApiKeyVendor.GitHub, Remaining: > 0 })
-            Env.GithubToken = apiKey.ApiKey;
-
-        return apiKey;
     }
 }

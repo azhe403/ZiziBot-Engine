@@ -1,35 +1,36 @@
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Common.Interfaces;
+using ZiziBot.Common.Types;
 using ZiziBot.Common.Vendor.FathimahApi.v2;
+using ZiziBot.Database.Service;
 
-namespace ZiziBot.Services;
+namespace ZiziBot.Services.Rest;
 
-public class FathimahApiService(
-    ILogger<FathimahApiService> logger,
-    ICacheService cacheService
+public sealed class FathimahRestService(
+    ILogger<FathimahRestService> logger,
+    CacheService cacheService
 )
 {
-    private const string BaseUrl = "https://api.myquran.com/v2";
-
     public async Task<CityResponse> GetAllCityAsync()
     {
         const string path = "sholat/kota/semua";
 
         logger.LogInformation("Get City");
 
-        var apis = await cacheService.GetOrSetAsync(
-            cacheKey: $"vendor/banghasan/{path}",
-            expireAfter: "1d",
-            staleAfter: "1h",
-            evictAfter: true,
-            action: async () => {
-                var apis = await BaseUrl.AppendPathSegment(path).GetJsonAsync<CityResponse>();
+        var apis = await cacheService.GetOrSetAsync(new Cache<CityResponse>(){
+            CacheKey =  $"vendor/bang-hasan/{path}",
+            ExpireAfter =  "1d",
+            StaleAfter = "1h",
+            EvictAfter = true,
+            Action = async () => {
+                var apis = await UrlConst.FATHIMAH_API
+                    .AppendPathSegment(path)
+                    .GetJsonAsync<CityResponse>();
 
                 return apis;
             }
-        );
+        });
 
         return apis;
     }
@@ -55,18 +56,18 @@ public class FathimahApiService(
 
         logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateTime);
 
-        var apis = await cacheService.GetOrSetAsync(
-            cacheKey: $"vendor/banghasan/{path}",
-            expireAfter: "1d",
-            evictBefore: evictBefore,
-            staleAfter: "1h",
-            action: async () => {
-                var apis = await BaseUrl
+        var apis = await cacheService.GetOrSetAsync(new Cache<ShalatTimeResponse>(){
+            CacheKey = $"vendor/bang-hasan/{path}",
+            ExpireAfter = "1d",
+            EvictBefore = evictBefore,
+            StaleAfter = "1h",
+            Action = async () => {
+                var apis = await UrlConst.FATHIMAH_API
                     .AppendPathSegment(path)
                     .GetJsonAsync<ShalatTimeResponse>();
 
                 return apis;
-            }
+            }}
         );
 
         return apis;

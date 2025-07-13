@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace ZiziBot.Database.Caching.MongoDb;
+namespace ZiziBot.Database.CacheTower.MongoDb;
 
 internal struct MongoCacheEntry
 {

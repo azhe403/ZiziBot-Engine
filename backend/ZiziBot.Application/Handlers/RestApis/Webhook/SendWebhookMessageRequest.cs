@@ -29,7 +29,7 @@ public class SendWebhookMessageRequestHandler(
     {
         var stopwatch = Stopwatch.StartNew();
         var webhookChat = await dataFacade.ChatSetting.GetWebhookRouteById(request.TargetId);
-        var botSetting = await dataFacade.AppSetting.GetBotMain();
+        var botSetting = await dataFacade.Bot.GetBotMain();
         var botClient = new TelegramBotClient(botSetting.Token);
 
         Message sentMessage = new();

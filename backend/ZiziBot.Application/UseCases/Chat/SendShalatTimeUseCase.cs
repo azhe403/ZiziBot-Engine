@@ -13,7 +13,7 @@ public class SendShalatTimeUseCase(
     [DisplayName("ShalatTIme {0}")]
     public async Task<bool> Handle(long chatId)
     {
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
 
         const string defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
 
@@ -31,7 +31,7 @@ public class SendShalatTimeUseCase(
         {
             try
             {
-                var currentShalat = await serviceFacade.FathimahApiService.GetCurrentShalatTime(cityEntity.CityId);
+                var currentShalat = await serviceFacade.FathimahRestService.GetCurrentShalatTime(cityEntity.CityId);
 
                 var currentDate = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE);
 

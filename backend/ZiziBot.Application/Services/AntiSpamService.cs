@@ -11,8 +11,7 @@ namespace ZiziBot.Application.Services;
 public class AntiSpamService(
     ILogger<AntiSpamService> logger,
     ICacheService cacheService,
-    DataFacade dataFacade,
-    ApiKeyService apiKeyService
+    DataFacade dataFacade
 )
 {
     private const string DEFAULT_STALE_TIME = "10m";
@@ -100,8 +99,7 @@ public class AntiSpamService(
                 {
                     var spamwatchResult = new SpamWatchResult();
                     var url = UrlConst.ANTISPAM_SPAMWATCH_API.AppendPathSegment(userId);
-                    var key = await dataFacade.AppSetting.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.SpamWatch);
-                    var apiKey = key?.ApiKey;
+                    var apiKey = await dataFacade.Bot.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.SpamWatch);
 
                     if (apiKey.IsNotNullOrEmpty())
                         return antiSpamDto;

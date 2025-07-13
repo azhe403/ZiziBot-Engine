@@ -40,7 +40,7 @@ public class GetShalatTimeHandler(
                 htmlMessage.Code(city.CityId.ToString()).Text(" - ").Text(city.CityName).Br()
                     .TextBr("====================================");
 
-                var shalatTime = await serviceFacade.FathimahApiService.GetShalatTime(city.CityId, true);
+                var shalatTime = await serviceFacade.FathimahRestService.GetShalatTime(city.CityId, true);
                 shalatTime.Schedule?.ShalatDict?.ForEach(shalat => {
                     htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value.ToString()).Br();
                 });

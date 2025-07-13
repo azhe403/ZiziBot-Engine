@@ -4,9 +4,9 @@ using ZiziBot.Common.Interfaces;
 using ZiziBot.Common.Utils;
 using ZiziBot.Common.Vendor.Subdl;
 
-namespace ZiziBot.Services;
+namespace ZiziBot.Services.Rest;
 
-public class SubdlService(ICacheService cacheService)
+public class SubdlRestService(ICacheService cacheService)
 {
     public async Task<Popular> FetchPopular()
     {

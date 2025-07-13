@@ -1,14 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Dtos.Entity;
 using ZiziBot.Common.Interfaces;
+using ZiziBot.Common.Types;
 using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Database.Repository;
 
-public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvider serviceProvider)
+public class FeatureFlagRepository(
+    ILogger<FeatureFlagRepository> logger,
+    MongoDbContext mongoDbContext,
+    IServiceProvider serviceProvider
+)
 {
     private ICacheService cacheService => serviceProvider.GetRequiredService<ICacheService>();
 
@@ -16,7 +21,8 @@ public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvid
     {
         var flags = await mongoDbContext.FeatureFlag.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
-            .Select(x => new FlagDto() {
+            .Select(x => new FlagDto()
+            {
                 Name = x.Name,
                 Value = x.IsEnabled
             })
@@ -32,9 +38,11 @@ public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvid
         if (flagName.IsNullOrWhiteSpace())
             return null;
 
-        var cache = await cacheService.GetOrSetAsync(
-            cacheKey: CacheKey.FEATURE_FLAG + flagName,
-            action: async () => {
+        var cache = await cacheService.GetOrSetAsync(new Cache<FeatureFlagDto?>()
+        {
+            CacheKey = CacheKey.FEATURE_FLAG + flagName,
+            Action = async () =>
+            {
                 var flag = await mongoDbContext.FeatureFlag.AsNoTracking()
                     .Where(x => x.Name == flagName)
                     .Where(x => x.Status == EventStatus.Complete)
@@ -43,7 +51,8 @@ public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvid
                 if (flag == null)
                     return null;
 
-                return new FeatureFlagDto() {
+                return new FeatureFlagDto()
+                {
                     Id = flag.Id.ToString(),
                     Name = flag.Name,
                     IsEnabled = flag.IsEnabled,
@@ -55,7 +64,7 @@ public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvid
                     TransactionId = flag.TransactionId
                 };
             }
-        );
+        });
 
         return cache;
     }
@@ -65,7 +74,7 @@ public class FeatureFlagRepository(MongoDbContext mongoDbContext, IServiceProvid
         var flag = await GetFlag(flagName);
 
         var isEnabled = (bool)flag?.IsEnabled;
-        Log.Verbose("Flag '{flagName}' is enabled: {isEnabled}", flagName, isEnabled);
+        logger.LogTrace("Flag '{FlagName}' value: {isEnabled}", flagName, isEnabled);
 
         return isEnabled;
     }

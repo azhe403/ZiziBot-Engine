@@ -3,7 +3,7 @@ using MongoDB.Driver;
 using Serilog;
 using ZiziBot.Database.Utils;
 
-namespace ZiziBot.Database.Caching.MongoDb;
+namespace ZiziBot.Database.CacheTower.MongoDb;
 
 internal class MongoLayerProvider(MongoLayerOptions options) : IDistributedCacheLayer
 {

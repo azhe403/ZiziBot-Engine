@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using ZiziBot.Application.Facades;
 using ZiziBot.Database.Extension;
+using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Infrastructure;
 
@@ -87,8 +88,8 @@ public static class ServiceExtension
             .As<IStartupTask>()
             .WithScopedLifetime());
 
-        services.Scan(selector => selector.FromAssembliesOf(typeof(ApiKeyService))
-            .AddClasses(filter => filter.InNamespaceOf<ApiKeyService>())
+        services.Scan(selector => selector.FromAssembliesOf(typeof(MirrorPaymentRestService))
+            .AddClasses()
             .AsSelfWithInterfaces()
             .WithScopedLifetime());
 

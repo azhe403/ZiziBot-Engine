@@ -3,11 +3,11 @@ using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using ZiziBot.Common.Utils;
-using ZiziBot.Database.Caching.Firebase;
-using ZiziBot.Database.Caching.Json;
-using ZiziBot.Database.Caching.MongoDb;
-using ZiziBot.Database.Caching.Redis;
-using ZiziBot.Database.Caching.Sqlite;
+using ZiziBot.Database.CacheTower.Firebase;
+using ZiziBot.Database.CacheTower.Json;
+using ZiziBot.Database.CacheTower.MongoDb;
+using ZiziBot.Database.CacheTower.Redis;
+using ZiziBot.Database.CacheTower.Sqlite;
 
 namespace ZiziBot.Database.Extension;
 

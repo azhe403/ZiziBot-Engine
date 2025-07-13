@@ -27,13 +27,12 @@ public class CreateSessionOtpResponse
 public class CreateSessionOtpUseCase(
     DataFacade dataFacade,
     CreateSessionOtpValidator validator,
-    IUserService userService
+    GenerateAccessTokenUseCase generateAccessTokenUseCase
 )
 {
-    private readonly ApiResponseBase<CreateSessionOtpResponse> _response = new();
-
     public async Task<ApiResponseBase<CreateSessionOtpResponse>> Handle(CreateSessionOtpRequest request)
     {
+        var response = ApiResponse.Create<CreateSessionOtpResponse>();
         await validator.ValidateAsync(request);
 
         var userOtp = await dataFacade.MongoDb.UserOtp
@@ -42,17 +41,17 @@ public class CreateSessionOtpUseCase(
             .FirstOrDefaultAsync();
 
         if (userOtp == null)
-            return _response.Unauthorized("Invalid OTP, please try again!");
+            return response.Unauthorized("Invalid OTP, please try again!");
 
-        var token = await userService.GenerateAccessToken(userOtp.UserId);
+        var token = await generateAccessTokenUseCase.Handle(userOtp.UserId);
 
         userOtp.Status = EventStatus.Complete;
 
         await dataFacade.MongoDb.SaveChangesAsync();
 
-        return _response.Success("Success", new CreateSessionOtpResponse() {
-            AccessToken = token.stringToken,
-            AccessExpireIn = token.accessExpireIn,
+        return response.Success("Success", new CreateSessionOtpResponse() {
+            AccessToken = token.AccessToken,
+            AccessExpireIn = token.AccessExpireIn,
         });
     }
 }

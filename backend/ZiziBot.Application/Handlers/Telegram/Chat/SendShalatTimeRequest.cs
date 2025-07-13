@@ -19,7 +19,7 @@ public class SendShalatTimeHandler(
 {
     public async Task<bool> Handle(SendShalatTimeRequest request, CancellationToken cancellationToken)
     {
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
         var botClient = new TelegramBotClient(botMain.Token);
 
         const string defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
@@ -38,7 +38,7 @@ public class SendShalatTimeHandler(
         {
             try
             {
-                var currentShalat = await serviceFacade.FathimahApiService.GetCurrentShalatTime(cityEntity.CityId);
+                var currentShalat = await serviceFacade.FathimahRestService.GetCurrentShalatTime(cityEntity.CityId);
 
                 if (currentShalat?.IsNull() ?? false)
                 {

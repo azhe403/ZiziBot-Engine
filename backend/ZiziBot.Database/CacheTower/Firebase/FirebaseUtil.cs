@@ -1,6 +1,6 @@
 using Firebase.Database.Query;
 
-namespace ZiziBot.Database.Caching.Firebase;
+namespace ZiziBot.Database.CacheTower.Firebase;
 
 internal static class FirebaseUtil
 {

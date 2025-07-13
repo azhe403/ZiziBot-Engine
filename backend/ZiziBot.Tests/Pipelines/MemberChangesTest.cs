@@ -9,7 +9,7 @@ public class MemberChangesTest(MediatorService mediatorService, IConfiguration c
     [Fact]
     public async Task NewChatMembers()
     {
-        var bots = await dataFacade.AppSetting.ListBots();
+        var bots = await dataFacade.Bot.ListBots();
 
         foreach (var botData in bots)
         {

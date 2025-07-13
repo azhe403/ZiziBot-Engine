@@ -1,9 +1,9 @@
 ﻿using Humanizer;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Octokit;
 using ZiziBot.Common.Types;
 using ZiziBot.Database.MongoDb;
+using ZiziBot.Services.Client;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
@@ -37,7 +37,8 @@ public sealed class ReadRssUseCase(
     ICacheService cacheService,
     MongoDbContext mongoDbContext,
     AppSettingRepository appSettingRepository,
-    FeatureFlagRepository featureFlagRepository
+    FeatureFlagRepository featureFlagRepository,
+    GitHubClientService gitHubClientService
 )
 {
     public async Task<ReadRssResponse> Handle(string rssUrl)
@@ -60,7 +61,8 @@ public sealed class ReadRssUseCase(
 
             if (isGithubReleaseUrl)
             {
-                var githubReleases = await rssUrl.GetGithubAssets(Env.GithubToken);
+                // var githubReleases = await rssUrl.GetGithubAssets(Env.GithubToken);
+                var githubReleases = await gitHubClientService.GetReleaseAssets(rssUrl);
                 var item = githubReleases?.Take(3).Select(feedItem => {
                     var messageText = HtmlMessage.Empty
                         .Url(feed.Link, feed.Title.Trim()).Br()

@@ -31,8 +31,15 @@ public static class HangfireUtil
 
     public static void RemoveRecurringJob(string jobId)
     {
-        Log.Debug("Removing Recurring Job: {JobId}", jobId);
-        RecurringJob.RemoveIfExists(jobId);
+        try
+        {
+            Log.Debug("Removing Recurring Job: {JobId}", jobId);
+            RecurringJob.RemoveIfExists(jobId);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, " Error removing recurring job: {JobId}", jobId);
+        }
     }
 
     public static void Enqueue<T>(Expression<Func<T, Task>> methodCall)

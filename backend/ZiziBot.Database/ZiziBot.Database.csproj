@@ -13,8 +13,8 @@
     <PackageReference Include="CacheTower.Serializers.SystemTextJson" Version="0.14.0"/>
     <PackageReference Include="FirebaseDatabase.net" Version="5.0.0"/>
     <PackageReference Include="Google.Apis.Auth" Version="1.70.0"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.6"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.6"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
     <PackageReference Include="MongoDB.EntityFrameworkCore" Version="9.0.0"/>
   </ItemGroup>
 
