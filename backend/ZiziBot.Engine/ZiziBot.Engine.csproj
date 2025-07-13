@@ -22,17 +22,9 @@
     <Exec Condition=" '$(OS)' == 'Windows_NT' "
           Command="taskkill /F /IM ZiziBot.Engine.exe /T 2&gt;nul"
           IgnoreExitCode="true"/>
+
     <Exec Condition=" '$(OS)' == 'Windows_NT' "
           Command="if errorlevel 1 echo No ZiziBot.Engine processes were found"
-          IgnoreExitCode="true"/>
-
-    <!-- Linux/macOS -->
-    <Exec Condition=" '$(OS)' != 'Windows_NT' "
-          Command="fuser -k 7120/tcp 2&gt;/dev/null || echo '✅ Port 7120 is already free'"
-          IgnoreExitCode="true"/>
-
-    <Exec Condition=" '$(OS)' != 'Windows_NT' "
-          Command="pkill -f ZiziBot.Engine 2&gt;/dev/null || echo '✅ No ZiziBot.Engine processes were running'"
           IgnoreExitCode="true"/>
   </Target>
 
