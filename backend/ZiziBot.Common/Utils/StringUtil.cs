@@ -283,7 +283,7 @@ public static class StringUtil
 
         try
         {
-            _ = Regex.Match("", pattern);
+            _ = Regex.Match("dummy-texts", pattern, RegexOptions.None, TimeSpan.FromSeconds(3));
         }
         catch (ArgumentException)
         {
@@ -293,10 +293,11 @@ public static class StringUtil
         return true;
     }
 
-    public static T? Deserialize<T>(this string input)
+    public static T? Deserialize<T>(this string input, JsonNamingPolicy? jsonNamingPolicy = null)
     {
         return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions() {
-            NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals
+            NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
+            PropertyNamingPolicy = jsonNamingPolicy,
         });
     }
 }

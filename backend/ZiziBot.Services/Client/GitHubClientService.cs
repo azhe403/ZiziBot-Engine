@@ -1,9 +1,8 @@
-﻿using GitHub;
-using GitHub.Models;
-using GitHub.Octokit.Client;
-using GitHub.Octokit.Client.Authentication;
+﻿using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Enums;
+using ZiziBot.Common.Utils;
+using ZiziBot.Common.Vendor.GitHub;
 
 namespace ZiziBot.Services.Client;
 
@@ -12,7 +11,7 @@ public class GitHubClientService(
     BotRepository botRepository
 )
 {
-    public async Task<IReadOnlyList<Release>> GetReleaseAssets(string url)
+    public async Task<List<Release>?> GetReleaseAssets(string url)
     {
         logger.LogDebug("Fetching GitHub release assets from URL: {Url}", url);
 
@@ -20,21 +19,20 @@ public class GitHubClientService(
         var owner = uri.Segments[1].TrimEnd('/');
         var repo = uri.Segments[2].TrimEnd('/');
 
-        var client = await GetClient();
-        var releases = await client.Repos[owner][repo].Releases.GetAsync();
+        var client = await WithGithubClient();
+        var jsonString = await client.AppendPathSegment($"/repos/{owner}/{repo}/releases")
+            .SetQueryParam("per_page", "3")
+            .GetStringAsync();
+
+        var releases = jsonString.Deserialize<List<Release>>();
 
         logger.LogInformation("Fetched {Count} release assets from {Owner}/{Repo}", releases.Count, owner, repo);
-
         return releases;
     }
 
-    private async Task<GitHubClient> GetClient()
+    private async Task<IFlurlRequest> WithGithubClient()
     {
         var githubToken = Env.GithubToken ?? await botRepository.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
-
-        var tokenProvider = new TokenProvider(githubToken);
-        var adapter = RequestAdapter.Create(new TokenAuthProvider(tokenProvider));
-        var client = new GitHubClient(adapter);
-        return client;
+        return UrlConst.GITHUB_API.WithOAuthBearerToken(githubToken);
     }
 }

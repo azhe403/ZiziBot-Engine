@@ -83,8 +83,8 @@ public sealed class ReadRssUseCase(
                     return new ReadRssItem {
                         Link = feedItem.HtmlUrl,
                         Title = feedItem.Name,
-                        Author = feedItem.Author?.Login ?? "-",
-                        PublishDate = feedItem.PublishedAt?.UtcDateTime ?? DateTime.UtcNow,
+                        Author = feedItem.Author?.Login ?? "Fulan",
+                        PublishDate = feedItem.PublishedAt ?? DateTime.UtcNow,
                         Content = messageText.ToString(),
                     };
                 });

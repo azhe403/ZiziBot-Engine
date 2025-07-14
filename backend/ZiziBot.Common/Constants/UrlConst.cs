@@ -26,4 +26,5 @@ public static class UrlConst
 
     public const string FATHIMAH_API = "https://api.myquran.com/v2";
 
+    public const string GITHUB_API = "https://api.github.com";
 }
