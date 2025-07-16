@@ -31,11 +31,12 @@ public class SendShalatTimeUseCase(
         {
             try
             {
+                logger.LogDebug("Checking Shalat time for city: '{CityName}'", cityEntity.CityName);
                 var currentShalat = await serviceFacade.FathimahRestService.GetCurrentShalatTime(cityEntity.CityId);
 
                 var currentDate = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE);
 
-                if (currentShalat?.IsNull() ?? false)
+                if (currentShalat.IsNullOrDefault())
                 {
                     logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'", cityEntity.CityName, currentDate.ToString("HH:mm"));
 

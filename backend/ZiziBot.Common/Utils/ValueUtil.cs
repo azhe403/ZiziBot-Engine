@@ -74,9 +74,14 @@ public static class ValueUtil
         return symbols;
     }
 
-    public static bool IsNull<T, TU>(this KeyValuePair<T, TU> pair)
+    public static bool IsNullOrDefault<K, V>(this KeyValuePair<K, V>? pair)
     {
-        return pair.Equals(new KeyValuePair<T, TU>());
+        if (pair == null) return true;
+
+        var (key, value) = pair.Value;
+
+        return EqualityComparer<K>.Default.Equals(key, default) ||
+               EqualityComparer<V>.Default.Equals(value, default);
     }
 
     public static TDestination FromDictionary<TDestination>(this IDictionary<string, string> dictionary) where TDestination : new()

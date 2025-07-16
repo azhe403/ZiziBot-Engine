@@ -39,7 +39,7 @@ public sealed class FathimahRestService(
     {
         var currentTime = DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm");
         var shalatTime = await GetShalatTime(DateTime.Now, cityId);
-        var currentShalat = shalatTime.Schedule?.ShalatDict?.FirstOrDefault(pair => pair.Value == currentTime);
+        var currentShalat = shalatTime.Schedule?.ShalatDict.FirstOrDefault(pair => pair.Value == currentTime);
 
         return currentShalat;
     }
@@ -69,6 +69,8 @@ public sealed class FathimahRestService(
                 return apis;
             }}
         );
+
+        logger.LogInformation("Shalat time for ChatId: {CityId} with Date: {DateStr} is: {ShalatTime}", cityId, dateTime, apis.Schedule?.Daerah);
 
         return apis;
     }

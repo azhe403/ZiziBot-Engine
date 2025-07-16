@@ -40,7 +40,7 @@ public class SendShalatTimeHandler(
             {
                 var currentShalat = await serviceFacade.FathimahRestService.GetCurrentShalatTime(cityEntity.CityId);
 
-                if (currentShalat?.IsNull() ?? false)
+                if (currentShalat.IsNullOrDefault())
                 {
                     logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'",
                         cityEntity.CityName, DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm"));
