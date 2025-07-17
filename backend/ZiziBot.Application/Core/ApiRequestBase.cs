@@ -8,12 +8,12 @@ namespace ZiziBot.Application.Core;
 public class ApiRequestBase<T> : IRequest<ApiResponseBase<T>>
 {
     [FromServices]
-    [BindNever]
+    [SwaggerIgnore]
     public IHttpContextAccessor? HttpContextAccessor { get; set; }
 
     internal IHeaderDictionary Headers => HttpContextAccessor?.HttpContext?.Request.Headers!;
 
-    internal UserInfo UserInfo => HttpContextAccessor?.HttpContext?.Items[ValueConst.USER_INFO] as UserInfo ?? new UserInfo();
+    internal UserInfo UserInfo => HttpContextAccessor?.HttpContext?.Items.TryGetValue(ValueConst.USER_INFO, out var userInfo) == true ? (UserInfo)userInfo : new UserInfo();
 
     internal async Task<string> RequestBody() => await HttpContextAccessor?.HttpContext?.GetBodyAsync()!;
 }
