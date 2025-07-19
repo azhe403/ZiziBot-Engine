@@ -11,7 +11,7 @@ public static class HangfireUtil
         Log.Information("Collecting previous RSS Jobs..");
         var storageConnection = JobStorage.Current.GetConnection();
         var recurringJobs = storageConnection.GetRecurringJobs();
-        var rssJobs = recurringJobs.Where(dto => dto.Id.StartsWith("RssJob", StringComparison.InvariantCultureIgnoreCase)).ToList();
+        var rssJobs = recurringJobs.Where(dto => dto.Id.StartsWith(CronJobKey.Rss_Prefix + ":", StringComparison.InvariantCultureIgnoreCase)).ToList();
         Log.Debug("Found {Count} RSS Jobs", rssJobs.Count);
 
         return rssJobs;
@@ -27,17 +27,40 @@ public static class HangfireUtil
         });
 
         Log.Information("Deleting RSS {Count} Jobs finish..", rssJobs.Count);
-
     }
 
     public static void RemoveRecurringJob(string jobId)
     {
-        Log.Debug("Removing Recurring Job: {JobId}", jobId);
-        RecurringJob.RemoveIfExists(jobId);
+        try
+        {
+            Log.Debug("Removing Recurring Job: {JobId}", jobId);
+            RecurringJob.RemoveIfExists(jobId);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, " Error removing recurring job: {JobId}", jobId);
+        }
     }
 
     public static void Enqueue<T>(Expression<Func<T, Task>> methodCall)
     {
+        if (!EnvUtil.IsEnabled(Flag.HANGFIRE))
+        {
+            var compile = methodCall.Compile();
+            var instance = Activator.CreateInstance<T>();
+            _ = compile.Invoke(instance);
+
+            return;
+        }
+
         BackgroundJob.Enqueue<T>(methodCall);
+    }
+
+    public static void Schedule<T>(Expression<Func<T, Task>> methodCall, TimeSpan delay)
+    {
+        if (!EnvUtil.IsEnabled(Flag.HANGFIRE))
+            return;
+
+        BackgroundJob.Schedule(methodCall, delay);
     }
 }

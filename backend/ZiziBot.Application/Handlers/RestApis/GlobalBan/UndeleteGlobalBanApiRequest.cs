@@ -24,7 +24,7 @@ public class UndeleteGlobalBanApiHandler(
     {
         var response = new ApiResponseBase<bool>();
 
-        var globalBan = await dataFacade.MongoEf.GlobalBan
+        var globalBan = await dataFacade.MongoDb.GlobalBan
             .Where(entity => entity.UserId == request.UserId)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -36,7 +36,7 @@ public class UndeleteGlobalBanApiHandler(
 
         globalBan.Status = EventStatus.Complete;
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Global ban undeleted.", true);
     }

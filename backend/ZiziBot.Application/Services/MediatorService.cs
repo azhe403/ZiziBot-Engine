@@ -42,8 +42,7 @@ public class MediatorService(
         switch (executionStrategy)
         {
             case ExecutionStrategy.Hangfire:
-                var jobId = $"{request.HttpContextAccessor?.HttpContext?.TraceIdentifier}";
-                BackgroundJob.Enqueue<MediatorService>(x => x.Send(jobId, request));
+                BackgroundJob.Enqueue<MediatorService>(x => x.Send(request));
 
                 return new();
 

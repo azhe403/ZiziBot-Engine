@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 
@@ -33,7 +33,7 @@ public class PostGlobalBanApiHandler(
     {
         var response = new ApiResponseBase<bool>();
 
-        var globalBan = await dataFacade.MongoEf.GlobalBan
+        var globalBan = await dataFacade.MongoDb.GlobalBan
             .Where(entity => entity.UserId == request.Model.UserId)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -44,14 +44,14 @@ public class PostGlobalBanApiHandler(
         }
         else
         {
-            dataFacade.MongoEf.GlobalBan.Add(new GlobalBanEntity() {
+            dataFacade.MongoDb.GlobalBan.Add(new GlobalBanEntity() {
                 UserId = request.Model.UserId,
                 Reason = request.Model.Reason,
                 Status = EventStatus.Complete
             });
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Global ban saved.", true);
     }

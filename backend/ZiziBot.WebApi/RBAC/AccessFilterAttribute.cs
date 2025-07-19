@@ -7,16 +7,12 @@ public class AccessFilterAttribute : TypeFilterAttribute
 {
     public AccessFilterAttribute(
         string flag,
-        RoleLevel apiRoleLevel = RoleLevel.User,
-        bool checkHeader = true,
-        bool needAuthenticated = false
+        RoleLevel roleLevel
     ) : base(typeof(AccessFilterAuthorizationFilter))
     {
         Arguments = [
             flag,
-            apiRoleLevel,
-            checkHeader,
-            needAuthenticated
+            roleLevel
         ];
     }
 }

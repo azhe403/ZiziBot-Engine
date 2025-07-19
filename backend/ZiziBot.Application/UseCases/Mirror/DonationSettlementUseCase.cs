@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Flurl;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Common.Dtos;
+using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Application.UseCases.Mirror;
 
@@ -36,7 +38,7 @@ public class DonationSettlementResponse
 public class DonationSettlementUseCase(
     ILogger<DonationSettlementUseCase> logger,
     DonationSettlementValidator validator,
-    MirrorPaymentService mirrorPaymentService,
+    MirrorPaymentRestService mirrorPaymentRestService,
     MirrorUserRepository mirrorUserRepository
 )
 {
@@ -47,11 +49,11 @@ public class DonationSettlementUseCase(
         using var cts = new CancellationTokenSource();
 
         var donationFromDbTask = GetDonationFromDb(request.OrderId);
-        var trakteerApiTask = mirrorPaymentService.GetTrakteerApi(request.OrderId, cts.Token);
-        var trakteerWebTask = mirrorPaymentService.ParseTrakteerWeb(request.OrderId, cts.Token);
+        var trakteerApiTask = mirrorPaymentRestService.GetTrakteerApi(request.OrderId, cts.Token);
+        var trakteerWebTask = mirrorPaymentRestService.ParseTrakteerWeb(request.OrderId, cts.Token);
 
-        var saweriaApiTask = mirrorPaymentService.GetSaweriaApi(request.OrderId, cts.Token);
-        var saweriaWebTask = mirrorPaymentService.ParseSaweriaWeb(request.OrderId, cts.Token);
+        var saweriaApiTask = mirrorPaymentRestService.GetSaweriaApi(request.OrderId, cts.Token);
+        var saweriaWebTask = mirrorPaymentRestService.ParseSaweriaWeb(request.OrderId, cts.Token);
 
         var parsedDonationTask = await Task.WhenAny(donationFromDbTask, trakteerApiTask, trakteerWebTask, saweriaApiTask, saweriaWebTask);
         var parsedDonationDto = await parsedDonationTask;

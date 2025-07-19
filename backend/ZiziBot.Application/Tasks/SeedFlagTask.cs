@@ -8,8 +8,6 @@ public class SeedFlagTask(
     DataFacade dataFacade
 ) : IStartupTask
 {
-    public bool SkipAwait { get; set; }
-
     public async Task ExecuteAsync()
     {
         logger.LogInformation("");
@@ -19,14 +17,14 @@ public class SeedFlagTask(
 
         foreach (var flag in listFlags)
         {
-            var featureFlagEntity = await dataFacade.MongoEf.FeatureFlag
+            var featureFlagEntity = await dataFacade.MongoDb.FeatureFlag
                 .Where(x => x.Name == flag.Name)
                 .Where(x => x.Status == EventStatus.Complete)
                 .FirstOrDefaultAsync();
 
             if (featureFlagEntity == null)
             {
-                dataFacade.MongoEf.FeatureFlag.Add(new() {
+                dataFacade.MongoDb.FeatureFlag.Add(new() {
                     Name = flag.Name,
                     IsEnabled = flag.Value,
                     Status = EventStatus.Complete,
@@ -35,6 +33,6 @@ public class SeedFlagTask(
             }
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
     }
 }

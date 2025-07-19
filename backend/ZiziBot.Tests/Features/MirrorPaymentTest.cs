@@ -1,15 +1,16 @@
 using Xunit;
+using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Tests.Features;
 
-public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentService mirrorPaymentService)
+public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentRestService mirrorPaymentRestService)
 {
     [Theory]
     [InlineData("ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")] // trakteer
     [InlineData("65190576-e653-47d2-b472-9a367a54ed23")] // saweria
     public async Task ParseDonationTest(string url)
     {
-        var donationParsedDto = await mirrorPaymentService.ParseTrakteerWeb(url);
+        var donationParsedDto = await mirrorPaymentRestService.ParseTrakteerWeb(url);
 
         if (donationParsedDto.IsValid)
         {
@@ -24,7 +25,7 @@ public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentSer
     [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     public async Task TrakteerParserTest(string url)
     {
-        var trakteerParsedDto = await mirrorPaymentService.ParseTrakteerWeb(url);
+        var trakteerParsedDto = await mirrorPaymentRestService.ParseTrakteerWeb(url);
 
         if (trakteerParsedDto.IsValid)
         {
@@ -42,7 +43,7 @@ public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentSer
     [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfdX")]
     public async Task TrakteerParserNegativeTest(string url)
     {
-        var requiredNodes = await mirrorPaymentService.ParseTrakteerWeb(url);
+        var requiredNodes = await mirrorPaymentRestService.ParseTrakteerWeb(url);
         requiredNodes.RawText.ShouldBeNullOrEmpty();
     }
 
@@ -51,7 +52,7 @@ public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentSer
     [InlineData("https://trakteer.id/payment-status/ca9c28da-87c0-5d32-9b6f-a220d3d36dfd")]
     public async Task TrakteerApiTest(string url)
     {
-        var trakteerApi = await mirrorPaymentService.GetTrakteerApi(url);
+        var trakteerApi = await mirrorPaymentRestService.GetTrakteerApi(url);
 
         if (trakteerApi.IsValid)
         {
@@ -69,7 +70,7 @@ public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentSer
     [InlineData("https://saweria.co/receipt/65190576-e653-47d2-b472-9a367a54ed23")]
     public async Task SaweriaApiTest(string url)
     {
-        var saweriaApi = await mirrorPaymentService.GetSaweriaApi(url);
+        var saweriaApi = await mirrorPaymentRestService.GetSaweriaApi(url);
 
         if (saweriaApi.IsValid)
         {
@@ -85,7 +86,7 @@ public class MirrorPaymentTest(MediatorService mediatorService, MirrorPaymentSer
     [InlineData("https://saweria.co/receipt/65190576-e653-47d2-b472-9a367a54ed23")]
     public async Task SaweriaParserTest(string url)
     {
-        var donationParsedDto = await mirrorPaymentService.ParseSaweriaWeb(url);
+        var donationParsedDto = await mirrorPaymentRestService.ParseSaweriaWeb(url);
 
         if (donationParsedDto.IsValid)
         {

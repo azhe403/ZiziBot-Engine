@@ -12,7 +12,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ZiziBot.Contracts.Converters.SystemTextJson;
+using ZiziBot.Common.Configs;
+using ZiziBot.Common.Converters.SystemTextJson;
+using ZiziBot.Common.Interfaces;
 
 namespace ZiziBot.WebApi;
 
@@ -22,13 +24,13 @@ public static class RestApiExtension
 
     public static IServiceCollection AddRestApi(this IServiceCollection services)
     {
-        var serviceProvider = services.BuildServiceProvider();
+        using var serviceProvider = services.BuildServiceProvider();
         var jwtConfig = serviceProvider.GetRequiredService<IOptions<JwtConfig>>().Value;
 
         services.AddSignalR();
         services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters()
-            .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>(ServiceLifetime.Transient);
+            .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>();
 
         services
             .Configure<ApiBehaviorOptions>(options => {
@@ -116,6 +118,9 @@ public static class RestApiExtension
 
         services.ConfigureRateLimiter();
 
+        services.AddHttpContextAccessor();
+        services.AddScoped<IHttpContextHelper, HttpContextHelper>();
+
         return services;
     }
 
@@ -138,7 +143,7 @@ public static class RestApiExtension
                 selector.FromAssembliesOf(typeof(GlobalExceptionMiddleware))
                     .AddClasses(filter => filter.InNamespaceOf<GlobalExceptionMiddleware>())
                     .AsSelf()
-                    .WithTransientLifetime();
+                    .WithScopedLifetime();
             }
         );
 

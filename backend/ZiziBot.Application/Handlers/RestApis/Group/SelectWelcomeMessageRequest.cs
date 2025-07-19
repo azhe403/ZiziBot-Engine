@@ -16,6 +16,7 @@ public class SelectWelcomeMessageRequestModel
 }
 
 public class SelectWelcomeMessageHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<SelectWelcomeMessageRequest, object>
 {
@@ -23,10 +24,10 @@ public class SelectWelcomeMessageHandler(
     {
         var response = new ApiResponseBase<object>();
 
-        var listWelcomeMessage = await dataFacade.MongoEf.WelcomeMessage
+        var listWelcomeMessage = await dataFacade.MongoDb.WelcomeMessage
             .Where(entity => entity.ChatId == request.Model.ChatId)
             .Where(entity => entity.Status != EventStatus.Deleted)
-            .Where(entity => request.ListChatId.Contains(entity.ChatId))
+            .Where(entity => httpContextHelper.UserInfo.ListChatId.Contains(entity.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
         if (listWelcomeMessage.Count == 0)
@@ -47,7 +48,7 @@ public class SelectWelcomeMessageHandler(
 
         selectedWelcome.Status = EventStatus.Complete;
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Welcome Message activated successfully.", true);
     }

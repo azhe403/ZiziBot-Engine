@@ -2,7 +2,7 @@ using MediatR.Pipeline;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -26,13 +26,13 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse>(
 
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var listChatAdmin = await dataFacade.MongoEf.ChatAdmin.Where(entity => entity.ChatId == request.ChatIdentifier)
+        var listChatAdmin = await dataFacade.MongoDb.ChatAdmin.Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(x => x.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken);
 
-        dataFacade.MongoEf.ChatAdmin.RemoveRange(listChatAdmin);
+        dataFacade.MongoDb.ChatAdmin.RemoveRange(listChatAdmin);
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         var chatAdministrators = await serviceFacade.TelegramService.GetChatAdministrator();
         logger.LogDebug("Admin count in ChatId: {ChatId} found {ChatAdministrators} item(s)", request.ChatId, chatAdministrators.Count);
@@ -44,8 +44,8 @@ public class EnsureChatAdminRequestHandler<TRequest, TResponse>(
             Status = EventStatus.Complete
         }).ToList();
 
-        dataFacade.MongoEf.ChatAdmin.AddRange(chatAdminEntities);
+        dataFacade.MongoDb.ChatAdmin.AddRange(chatAdminEntities);
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
     }
 }

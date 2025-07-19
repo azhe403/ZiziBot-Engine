@@ -1,6 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Pendekin;
 
@@ -33,6 +33,7 @@ public class CreatePendekinResponse
 }
 
 public class CreatePendekinHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<CreatePendekinRequest, CreatePendekinResponse>
 {
@@ -41,7 +42,7 @@ public class CreatePendekinHandler(
         var response = ApiResponse.Create<CreatePendekinResponse>();
         var shortPath = request.Body.ShortPath.IsNullOrWhiteSpace() ? StringUtil.GetNanoId() : request.Body.ShortPath;
 
-        var pendekinMap = await dataFacade.MongoEf.PendekinMap.FirstOrDefaultAsync(x => x.ShortPath == shortPath);
+        var pendekinMap = await dataFacade.MongoDb.PendekinMap.FirstOrDefaultAsync(x => x.ShortPath == shortPath);
 
         if (pendekinMap != null)
             return response.BadRequest("Pendekin Path is already exist");
@@ -51,16 +52,16 @@ public class CreatePendekinHandler(
         if (pendekinConfig == null)
             return response.BadRequest("Pendekin not yet prepared");
 
-        dataFacade.MongoEf.PendekinMap.Add(new PendekinMapEntity() {
+        dataFacade.MongoDb.PendekinMap.Add(new PendekinMapEntity() {
             OriginalUrl = request.Body.OriginalUrl,
             ShortPath = shortPath,
             Status = EventStatus.Complete,
-            CreatedBy = request.SessionUserId,
-            UpdatedBy = request.SessionUserId,
-            TransactionId = request.TransactionId
+            CreatedBy = httpContextHelper.UserInfo.UserId,
+            UpdatedBy = httpContextHelper.UserInfo.UserId,
+            TransactionId = httpContextHelper.UserInfo.TransactionId
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return response.Success("Create Pendekin successfully", new CreatePendekinResponse() {
             OriginalUrl = request.Body.OriginalUrl,

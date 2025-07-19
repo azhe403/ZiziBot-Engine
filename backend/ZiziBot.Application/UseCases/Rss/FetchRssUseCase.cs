@@ -2,42 +2,55 @@ using System.ComponentModel;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Sentry.Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
-public class FetchRssUseCase(
+public sealed class FetchRssUseCase(
     ILogger<FetchRssUseCase> logger,
-    DataFacade dataFacade,
-    ServiceFacade serviceFacade,
+    MongoDbContext mongoDbContext,
+    BotRepository botRepository,
+    FeatureFlagRepository featureFlagRepository,
+    RssRepository rssRepository,
     ReadRssUseCase readRssUseCase
 )
 {
-    [DisplayName("{0}:{1} -> {2}")]
-    [MaximumConcurrentExecutions(10)]
-    [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-    public async Task<bool> Handle(long chatId, int threadId, string rssUrl)
+    [DisplayName("RSS {0}:{1} {2}")]
+    [AutomaticRetry(Attempts = 1, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    [SentryMonitorSlug("FetchRssUseCase")]
+    [Queue(CronJobKey.Queue_Rss)]
+    public async Task<bool> Handle(long chatId, int? threadId, string rssUrl)
     {
+        if (!await featureFlagRepository.IsEnabled(Flag.RSS_BROADCASTER))
+            return true;
+
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
-        var botSettings = await dataFacade.AppSetting.GetBotMain();
+        var botSettings = await botRepository.GetBotMain();
 
         try
         {
+            var botClient = new TelegramBotClient(botSettings.Token);
             var feed = await readRssUseCase.Handle(rssUrl);
+
+            if (feed.Items.IsEmpty())
+            {
+                logger.LogWarning("No RSS article found for ChatId: {ChatId}. Url: {Url}", chatId, rssUrl);
+                return true;
+            }
 
             foreach (var latestArticle in feed.Items.Take(3))
             {
-                var latestHistory = await dataFacade.Rss.GetLastRssArticle(chatId, threadId, latestArticle.Link);
+                var latestHistory = await rssRepository.GetLastRssArticle(chatId, threadId, latestArticle.Link);
 
                 if (latestHistory != null)
                 {
                     logger.LogDebug("Article for ChatId: {ChatId} is already sent: {Url}", chatId, latestHistory.Url);
                     continue;
                 }
-
-                var botClient = new TelegramBotClient(botSettings.Token);
 
                 try
                 {
@@ -63,7 +76,7 @@ public class FetchRssUseCase(
                     }
                 }
 
-                dataFacade.MongoEf.RssHistory.Add(new RssHistoryEntity {
+                mongoDbContext.RssHistory.Add(new RssHistoryEntity {
                     ChatId = chatId,
                     ThreadId = threadId,
                     RssUrl = rssUrl,
@@ -71,7 +84,9 @@ public class FetchRssUseCase(
                     Url = latestArticle.Link,
                     Author = latestArticle.Author,
                     PublishDate = latestArticle.PublishDate,
-                    Status = EventStatus.Complete
+                    Status = EventStatus.Complete,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
                 });
             }
         }
@@ -79,7 +94,8 @@ public class FetchRssUseCase(
         {
             if (exception.IsIgnorable())
             {
-                var findRssSetting = await dataFacade.MongoEf.RssSetting
+                logger.LogWarning("Error while sending RSS for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", chatId, rssUrl, exception.Message);
+                var findRssSetting = await mongoDbContext.RssSetting
                     .Where(entity => entity.ChatId == chatId)
                     .Where(entity => entity.RssUrl == rssUrl)
                     .Where(entity => entity.Status == EventStatus.Complete)
@@ -87,13 +103,12 @@ public class FetchRssUseCase(
 
                 var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
 
-                findRssSetting.ForEach(rssSetting => {
-                    logger.LogWarning("Removing RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", rssSetting.ChatId, rssSetting.RssUrl, exceptionMessage);
+                findRssSetting.ForEach(rss => {
+                    rss.Status = EventStatus.InProgress;
+                    rss.LastErrorMessage = exceptionMessage;
 
-                    rssSetting.Status = EventStatus.InProgress;
-                    rssSetting.LastErrorMessage = exceptionMessage;
-
-                    RecurringJob.RemoveIfExists(rssSetting.CronJobId);
+                    HangfireUtil.RemoveRecurringJob(rss.CronJobId);
+                    logger.LogWarning("Removed RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", rss.ChatId, rss.RssUrl, exceptionMessage);
                 });
             }
             else
@@ -102,7 +117,7 @@ public class FetchRssUseCase(
             }
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await mongoDbContext.SaveChangesAsync();
 
         return true;
     }

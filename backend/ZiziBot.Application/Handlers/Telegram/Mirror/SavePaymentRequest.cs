@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Common.Types;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 
@@ -46,7 +47,7 @@ public class SavePaymentRequestHandler(
                 return await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
             }
 
-            var mirrorApproval = await dataFacade.MongoEf.MirrorApproval
+            var mirrorApproval = await dataFacade.MongoDb.MirrorApproval
                 .Where(entity => entity.TransactionId == transactionId)
                 .Where(entity => entity.Status == EventStatus.Complete)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -57,7 +58,7 @@ public class SavePaymentRequestHandler(
             }
 
             await serviceFacade.TelegramService.SendMessageText("Sedang menambahkan pengguna...");
-            dataFacade.MongoEf.MirrorApproval.Add(new MirrorApprovalEntity() {
+            dataFacade.MongoDb.MirrorApproval.Add(new MirrorApprovalEntity() {
                 UserId = request.UserId,
                 RawText = request.ReplyToMessage.Text,
                 OrderId = messageId,
@@ -85,7 +86,7 @@ public class SavePaymentRequestHandler(
             userId = forwardMessage.Id;
         }
 
-        var mirrorUser = await dataFacade.MongoEf.MirrorUser
+        var mirrorUser = await dataFacade.MongoDb.MirrorUser
             .Where(entity => entity.UserId == userId)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -97,7 +98,7 @@ public class SavePaymentRequestHandler(
             logger.LogInformation("Creating Mirror subscription for user {UserId} with Expire date: {Date}", userId,
                 expireDate);
 
-            dataFacade.MongoEf.MirrorUser.Add(new MirrorUserEntity() {
+            dataFacade.MongoDb.MirrorUser.Add(new MirrorUserEntity() {
                 UserId = userId,
                 ExpireDate = expireDate,
                 Status = EventStatus.Complete,
@@ -120,7 +121,7 @@ public class SavePaymentRequestHandler(
             mirrorUser.TransactionId = transactionId;
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         htmlMessage.Bold("Langganan Mirror").Br()
             .Bold("ID Pengguna: ").Code(userId.ToString()).Br()

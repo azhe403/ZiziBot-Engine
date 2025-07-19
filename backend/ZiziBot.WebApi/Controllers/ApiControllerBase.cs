@@ -9,7 +9,7 @@ namespace ZiziBot.WebApi.Controllers;
 public class ApiControllerBase : ControllerBase
 {
     protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();
-    protected MediatorService MediatorService => HttpContext.RequestServices.GetRequiredService<MediatorService>();
+    private MediatorService MediatorService => HttpContext.RequestServices.GetRequiredService<MediatorService>();
 
     protected async Task<IActionResult> SendRequest<T>(ApiRequestBase<T> request, ExecutionStrategy executionStrategy = ExecutionStrategy.Instant)
     {

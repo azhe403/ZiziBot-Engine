@@ -4,6 +4,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
+[Obsolete("Please use from UseCase")]
 public class SendShalatTimeRequest : IRequest<bool>
 {
     public long ChatId { get; set; }
@@ -18,7 +19,7 @@ public class SendShalatTimeHandler(
 {
     public async Task<bool> Handle(SendShalatTimeRequest request, CancellationToken cancellationToken)
     {
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
         var botClient = new TelegramBotClient(botMain.Token);
 
         const string defaultMessage = "Telah masuk waktu <b>{Shalat}</b> untuk wilayah <b>{City}</b> dan sekitarnya.";
@@ -37,9 +38,9 @@ public class SendShalatTimeHandler(
         {
             try
             {
-                var currentShalat = await serviceFacade.FathimahApiService.GetCurrentShalatTime(cityEntity.CityId);
+                var currentShalat = await serviceFacade.FathimahRestService.GetCurrentShalatTime(cityEntity.CityId);
 
-                if (currentShalat?.IsNull() ?? false)
+                if (currentShalat.IsNullOrDefault())
                 {
                     logger.LogDebug("No match Shalat time for city: '{CityName}' at '{CurrentTime}'",
                         cityEntity.CityName, DateTime.UtcNow.AddHours(Env.DEFAULT_TIMEZONE).ToString("HH:mm"));

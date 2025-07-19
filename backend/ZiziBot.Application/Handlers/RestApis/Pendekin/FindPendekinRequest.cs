@@ -26,7 +26,7 @@ public class ListPendekinHandler(
         if (pendekinConfig == null)
             return response.BadRequest("Pendekin not yet prepared");
 
-        var listPendekin = await dataFacade.MongoEf.PendekinMap.AsNoTracking()
+        var listPendekin = await dataFacade.MongoDb.PendekinMap.AsNoTracking()
             .Select(x => new ListPendekinResponse() {
                 PendekinId = x.Id.ToString(),
                 ShortPath = x.ShortPath,

@@ -1,3 +1,5 @@
+using ZiziBot.Common.Types;
+
 namespace ZiziBot.Application.Handlers.Telegram.Text;
 
 public class OcrBotRequest : BotRequestBase
@@ -17,7 +19,7 @@ public class OcrRequestHandler(
         {
             var localFile = await serviceFacade.TelegramService.DownloadFileAsync("ocr/");
             // var ocrResult = await _optiicDevService.ScanImageAsync(localFile);
-            var result = await serviceFacade.OcrSpaceService.ParseImage(localFile);
+            var result = await serviceFacade.OcrSpaceRestService.ParseImage(localFile);
 
             if (result.IsNullOrEmpty())
             {

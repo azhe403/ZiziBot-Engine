@@ -1,25 +1,27 @@
 ﻿using Hangfire;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Application.Handlers.Telegram.Rss;
+using ZiziBot.Application.UseCases.Rss;
 
 namespace ZiziBot.Application.Services;
 
 public class JobService(ILogger<JobService> logger)
 {
-    public async Task<bool> Register(long chatId, int threadId, string rssUrl, string jobId)
+    public async Task<bool> Register(long chatId, int threadId, string rssUrl, string jobId, bool triggerNow = false)
     {
         logger.LogDebug("Registering RSS Job. ChatId: {ChatId}, ThreadId: {ThreadId} RssUrl: {RssUrl}", chatId, threadId, rssUrl);
 
         RecurringJob.RemoveIfExists(jobId);
-        RecurringJob.AddOrUpdate<MediatorService>(
+        RecurringJob.AddOrUpdate<FetchRssUseCase>(
             recurringJobId: jobId,
-            methodCall: mediatorService => mediatorService.Send(new FetchRssRequest() {
-                ChatId = chatId,
-                ThreadId = threadId,
-                RssUrl = rssUrl
-            }),
-            queue: CronJobKey.Queue_Rss,
-            cronExpression: TimeUtil.MinuteInterval(3));
+            methodCall: x => x.Handle(chatId,
+                threadId,
+                rssUrl
+            ),
+            cronExpression: TimeUtil.MinuteInterval(3)
+        );
+
+        if (triggerNow)
+            RecurringJob.TriggerJob(jobId);
 
         await Task.Delay(1);
 

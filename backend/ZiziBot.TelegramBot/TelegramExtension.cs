@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
-using ZiziBot.Application.Facades;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Common.Configs;
+using ZiziBot.Common.Constants;
+using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Database.Service;
 using ZiziBot.TelegramBot.Framework.Extensions;
 using ZiziBot.TelegramBot.Framework.Models.Configs;
 
@@ -11,13 +13,13 @@ namespace ZiziBot.TelegramBot;
 
 public static class TelegramExtension
 {
-    public async static Task<IServiceCollection> ConfigureTelegramBot(this IServiceCollection services)
+    public static async Task<IServiceCollection> ConfigureTelegramBot(this IServiceCollection services)
     {
-        var provider = services.BuildServiceProvider();
+        await using var provider = services.BuildServiceProvider();
         var config = provider.GetRequiredService<IOptions<EngineConfig>>().Value;
         var dataFacade = provider.GetRequiredService<DataFacade>();
 
-        var listBotData = await dataFacade.AppSetting.ListBots();
+        var listBotData = await dataFacade.Bot.ListBots();
 
         services.AddZiziBotTelegramBot(new BotEngineConfig() {
             EngineMode = config.TelegramEngineMode,
@@ -41,13 +43,13 @@ public static class TelegramExtension
 
         if (listBotOptions.Count == 0)
         {
-            dataFacade.MongoEf.BotSettings.Add(new BotSettingsEntity() {
+            dataFacade.MongoDb.BotSettings.Add(new BotSettingsEntity() {
                 Name = "Main",
                 Token = "BOT_TOKEN_HERE",
                 Status = EventStatus.InProgress
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync();
+            await dataFacade.MongoDb.SaveChangesAsync();
 
             throw new ApplicationException("No bot data found. Please ensure config for 'BotSettings'");
         }

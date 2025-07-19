@@ -1,6 +1,7 @@
 using Xunit;
 using ZiziBot.Application.Core;
-using ZiziBot.Application.Facades;
+using ZiziBot.Common.Enums;
+using ZiziBot.Database.Service;
 
 namespace ZiziBot.Tests.Pipelines;
 
@@ -11,7 +12,7 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
     [InlineData(false)]
     public async Task CreateNoteTest(bool refreshNote)
     {
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
 
         var result = await mediatorService.EnqueueAsync(new CreateNoteBotRequest() {
             BotToken = botMain.Token,
@@ -32,17 +33,17 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
     public async Task DeleteNoteTest(string note)
     {
         // Arrange
-        dataFacade.MongoEf.Note.Add(new() {
+        dataFacade.MongoDb.Note.Add(new() {
             ChatId = SampleMessages.CommonMessage.Chat.Id,
             Query = note,
             Status = EventStatus.Complete
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
 
         // Act
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
 
         var response = await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = botMain.Token,
@@ -57,7 +58,7 @@ public class NoteTests(MediatorService mediatorService, DataFacade dataFacade)
     [InlineData("ini-note-ngab")]
     public async Task DeleteNoteAlreadyDeletedTest(string note)
     {
-        var botMain = await dataFacade.AppSetting.GetBotMain();
+        var botMain = await dataFacade.Bot.GetBotMain();
 
         var response = await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
             BotToken = botMain.Token,
