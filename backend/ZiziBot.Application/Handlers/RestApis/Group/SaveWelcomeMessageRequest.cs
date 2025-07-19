@@ -32,6 +32,7 @@ public class SaveWelcomeMessageRequestModel
 }
 
 public class SaveWelcomeMessageHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<SaveWelcomeMessageRequest, object>
 {
@@ -42,7 +43,7 @@ public class SaveWelcomeMessageHandler(
     {
         var response = new ApiResponseBase<object>();
 
-        if (!request.UserInfo.AdminChatId.Contains(request.Model.ChatId))
+        if (!httpContextHelper.UserInfo.AdminChatId.Contains(request.Model.ChatId))
         {
             return response.BadRequest("You don't have access to this Group");
         }
@@ -62,7 +63,7 @@ public class SaveWelcomeMessageHandler(
                 Media = request.Model.Media,
                 DataType = request.Model.DataType,
                 Status = welcomeMessage == null ? EventStatus.Complete : EventStatus.Inactive,
-                TransactionId = request.UserInfo.TransactionId
+                TransactionId = httpContextHelper.UserInfo.TransactionId
             });
         }
         else
@@ -71,7 +72,7 @@ public class SaveWelcomeMessageHandler(
             findWelcome.RawButton = request.Model.RawButton;
             findWelcome.Media = request.Model.Media;
             findWelcome.DataType = request.Model.DataType;
-            findWelcome.TransactionId = request.UserInfo.TransactionId;
+            findWelcome.TransactionId = httpContextHelper.UserInfo.TransactionId;
             findWelcome.Status = EventStatus.InProgress;
         }
 

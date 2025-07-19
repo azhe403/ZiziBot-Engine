@@ -27,6 +27,7 @@ public class DeleteWelcomeMessageRequestModel
 }
 
 public class DeleteWelcomeMessageHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<DeleteWelcomeMessageRequest, object>
 {
@@ -34,7 +35,7 @@ public class DeleteWelcomeMessageHandler(
     {
         var response = new ApiResponseBase<object>();
 
-        if (!request.UserInfo.AdminChatId.Contains(request.Model.ChatId))
+        if (!httpContextHelper.UserInfo.AdminChatId.Contains(request.Model.ChatId))
         {
             return response.BadRequest("You don't have access to this Group");
         }
@@ -51,8 +52,8 @@ public class DeleteWelcomeMessageHandler(
         }
 
         findWelcome.Status = EventStatus.Deleted;
-        findWelcome.UserId = request.UserInfo.UserId;
-        findWelcome.TransactionId = request.UserInfo.TransactionId;
+        findWelcome.UserId = httpContextHelper.UserInfo.UserId;
+        findWelcome.TransactionId = httpContextHelper.UserInfo.TransactionId;
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 

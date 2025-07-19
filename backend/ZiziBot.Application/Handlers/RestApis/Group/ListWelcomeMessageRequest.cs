@@ -24,6 +24,7 @@ public class WelcomeMessageResponse
 }
 
 public class ListWelcomeMessageHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<ListWelcomeMessageRequest, List<WelcomeMessageResponse>>
 {
@@ -34,7 +35,7 @@ public class ListWelcomeMessageHandler(
         var query = await dataFacade.MongoDb.WelcomeMessage.AsNoTracking()
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
             .Where(entity => entity.Status != (int)EventStatus.Deleted)
-            .Where(entity => request.UserInfo.ListChatId.Contains(entity.ChatId))
+            .Where(entity => httpContextHelper.UserInfo.ListChatId.Contains(entity.ChatId))
             .ToListAsync(cancellationToken: cancellationToken);
 
         var data = query.Select(entity => new WelcomeMessageResponse {

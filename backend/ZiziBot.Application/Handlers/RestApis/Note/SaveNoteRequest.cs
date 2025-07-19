@@ -1,5 +1,4 @@
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using ZiziBot.Database.MongoDb.Entities;
@@ -35,7 +34,7 @@ public class SaveNoteValidator : AbstractValidator<SaveNoteRequest>
 }
 
 public class CreateNoteHandler(
-    IHttpContextAccessor httpContextAccessor,
+    IHttpContextHelper httpContextHelper,
     ServiceFacade serviceFacade,
     DataFacade dataFacade
 ) : IApiRequestHandler<SaveNoteRequest, bool>
@@ -44,7 +43,7 @@ public class CreateNoteHandler(
     {
         ApiResponseBase<bool> response = new();
 
-        if (!request.UserInfo.ListChatId.Contains(request.Model.ChatId))
+        if (!httpContextHelper.UserInfo.ListChatId.Contains(request.Model.ChatId))
         {
             return response.BadRequest("You don't have permission to create note for this Chat");
         }
@@ -58,8 +57,8 @@ public class CreateNoteHandler(
             RawButton = request.Model.RawButton,
             DataType = request.Model.DataType,
             Status = EventStatus.Complete,
-            UserId = httpContextAccessor.GetUserId(),
-            TransactionId = httpContextAccessor.GetTransactionId()
+            UserId = httpContextHelper.UserInfo.UserId,
+            TransactionId = httpContextHelper.TransactionId
         });
 
         return response.Success(save.Message, true);

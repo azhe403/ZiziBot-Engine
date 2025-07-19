@@ -23,6 +23,7 @@ public class GetListRssResponse
 }
 
 public class GetListRssHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<GetListRssRequest, List<GetListRssResponse>>
 {
@@ -32,7 +33,7 @@ public class GetListRssHandler(
 
         var listRss = await dataFacade.MongoDb.RssSetting
             .WhereIf(request.ChatId != 0, entity => entity.ChatId == request.ChatId)
-            .Where(entity => request.UserInfo.ListChatId.Contains(entity.ChatId))
+            .Where(entity => httpContextHelper.UserInfo.ListChatId.Contains(entity.ChatId))
             .Where(entity => entity.Status == EventStatus.Complete)
             .ToListAsync(cancellationToken: cancellationToken);
 

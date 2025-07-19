@@ -22,6 +22,7 @@ public class SubmitDonationValidation : AbstractValidator<SubmitDonationRequest>
 }
 
 public class SubmitDonationHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade,
     ServiceFacade serviceFacade
 ) : IApiRequestHandler<SubmitDonationRequest, bool>
@@ -50,7 +51,7 @@ public class SubmitDonationHandler(
         }
 
         dataFacade.MongoDb.MirrorApproval.Add(new() {
-            UserId = request.UserInfo.UserId,
+            UserId = httpContextHelper.UserInfo.UserId,
             DonationSource = parsedDonationDto.Source,
             DonationSourceName = parsedDonationDto.Source.ToString(),
             PaymentUrl = parsedDonationDto.PaymentUrl,
@@ -63,14 +64,14 @@ public class SubmitDonationHandler(
             PaymentMethod = parsedDonationDto.PaymentMethod,
             OrderId = parsedDonationDto.OrderId,
             Status = EventStatus.Complete,
-            TransactionId = request.UserInfo.TransactionId
+            TransactionId = httpContextHelper.UserInfo.TransactionId
         });
 
         var cendolCount = parsedDonationDto.CendolCount;
 
 
         var mirrorUser = await dataFacade.MongoDb.MirrorUser.Where(x =>
-                x.UserId == request.UserInfo.UserId &&
+                x.UserId == httpContextHelper.UserInfo.UserId &&
                 x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync();
 
@@ -80,10 +81,10 @@ public class SubmitDonationHandler(
         if (mirrorUser == null)
         {
             dataFacade.MongoDb.MirrorUser.Add(new() {
-                UserId = request.UserInfo.UserId,
+                UserId = httpContextHelper.UserInfo.UserId,
                 ExpireDate = expireDate,
                 Status = EventStatus.Complete,
-                TransactionId = request.UserInfo.TransactionId
+                TransactionId = httpContextHelper.UserInfo.TransactionId
             });
         }
 
@@ -95,7 +96,7 @@ public class SubmitDonationHandler(
 
             mirrorUser.ExpireDate = expireDate;
             mirrorUser.Status = EventStatus.Complete;
-            mirrorUser.TransactionId = request.UserInfo.TransactionId;
+            mirrorUser.TransactionId = httpContextHelper.UserInfo.TransactionId;
         }
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);

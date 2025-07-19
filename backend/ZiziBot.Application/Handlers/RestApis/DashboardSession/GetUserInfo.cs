@@ -14,7 +14,10 @@ public class GetUserInfoResponse
     public List<RoleLevel> Roles { get; set; }
 }
 
-public class GetUserInfoHandler(DataFacade dataFacade) : IApiRequestHandler<GetUserInfoRequest, GetUserInfoResponse>
+public class GetUserInfoHandler(
+    DataFacade dataFacade,
+    IHttpContextHelper httpContextHelper
+) : IApiRequestHandler<GetUserInfoRequest, GetUserInfoResponse>
 {
     public async Task<ApiResponseBase<GetUserInfoResponse>> Handle(GetUserInfoRequest request, CancellationToken cancellationToken)
     {
@@ -22,17 +25,19 @@ public class GetUserInfoHandler(DataFacade dataFacade) : IApiRequestHandler<GetU
 
         await Task.Delay(1, cancellationToken);
 
-        if (!request.UserInfo.IsAuthenticated)
+        var userInfo = httpContextHelper.UserInfo;
+
+        if (!userInfo.IsAuthenticated)
             return response.BadRequest("Session is not valid");
 
         var getUserInfoResponse = new GetUserInfoResponse() {
-            IsSessionValid = request.UserInfo.IsAuthenticated,
-            UserName = request.UserInfo.UserName,
-            UserId = request.UserInfo.UserId,
-            FirstName = request.UserInfo.UserFirstName,
-            LastName = request.UserInfo.UserLastName,
-            PhotoUrl = request.UserInfo.UserPhotoUrl,
-            Roles = request.UserInfo.UserRoles
+            IsSessionValid = userInfo.IsAuthenticated,
+            UserName = userInfo.UserName,
+            UserId = userInfo.UserId,
+            FirstName = userInfo.UserFirstName,
+            LastName = userInfo.UserLastName,
+            PhotoUrl = userInfo.UserPhotoUrl,
+            Roles = userInfo.UserRoles
         };
 
         return response.Success("Get User Info success", getUserInfoResponse);

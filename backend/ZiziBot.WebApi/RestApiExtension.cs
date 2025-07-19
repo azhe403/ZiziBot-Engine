@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ZiziBot.Common.Configs;
 using ZiziBot.Common.Converters.SystemTextJson;
+using ZiziBot.Common.Interfaces;
 
 namespace ZiziBot.WebApi;
 
@@ -116,6 +117,9 @@ public static class RestApiExtension
         );
 
         services.ConfigureRateLimiter();
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<IHttpContextHelper, HttpContextHelper>();
 
         return services;
     }

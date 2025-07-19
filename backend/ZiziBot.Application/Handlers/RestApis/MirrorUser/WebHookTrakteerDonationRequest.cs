@@ -50,7 +50,10 @@ public class WebHookTrakteerDonationRequestValidator : AbstractValidator<WebHook
 public class WebHookTrakteerDonationResponse
 { }
 
-public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequestHandler<WebHookTrakteerDonationRequest, WebHookTrakteerDonationResponse>
+public class WebHookTrakteerDonationHandler(
+    IHttpContextHelper httpContextHelper,
+    DataFacade dataFacade
+) : IApiRequestHandler<WebHookTrakteerDonationRequest, WebHookTrakteerDonationResponse>
 {
     private readonly ApiResponseBase<WebHookTrakteerDonationResponse> response = new();
 
@@ -58,7 +61,7 @@ public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequest
     {
         var mirrorConfig = await dataFacade.AppSetting.GetRequiredConfigSectionAsync<MirrorConfig>();
 
-        if (!request.Headers.TryGetValue("X-Webhook-Token", out var headerToken))
+        if (!httpContextHelper.HeaderDict.TryGetValue("X-Webhook-Token", out var headerToken))
         {
             return response.Unauthorized("Token tidak valid");
         }
@@ -80,7 +83,7 @@ public class WebHookTrakteerDonationHandler(DataFacade dataFacade) : IApiRequest
 
         dataFacade.MongoDb.MirrorDonation.Add(new MirrorDonationEntity {
             Status = EventStatus.Complete,
-            TransactionId = request.UserInfo.TransactionId,
+            TransactionId = httpContextHelper.UserInfo.TransactionId,
             OrderId = request.Body.TransactionId,
             OrderDate = request.Body.CreatedAt,
             Type = request.Body.Type,

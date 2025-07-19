@@ -1,14 +1,9 @@
-using Hangfire.LiteDB;
-using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using Newtonsoft.Json;
 using Sentry.Hangfire;
-using Serilog;
-using ZiziBot.Common.Exceptions;
 
 namespace ZiziBot.Hangfire;
 
@@ -25,8 +20,8 @@ public static class HangfireServiceExtension
 
             JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
                 CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
-                CurrentStorage.Sqlite => new SQLiteStorage(PathConst.HANGFIRE_SQLITE_PATH.EnsureDirectory()),
-                CurrentStorage.LiteDb => new LiteDbStorage(PathConst.HANGFIRE_LITEDB_PATH.EnsureDirectory()),
+                CurrentStorage.Sqlite => StorageUtil.ToSqliteStorage(),
+                CurrentStorage.LiteDb => StorageUtil.ToLiteDbStorage(),
                 _ => new InMemoryStorage(new InMemoryStorageOptions())
             };
 
@@ -128,50 +123,6 @@ public static class HangfireServiceExtension
         }
 
         return app;
-    }
-
-    private static MongoStorage ToMongoDbStorage(this string? connectionString)
-    {
-        var mongoUrlBuilder = new MongoUrlBuilder(connectionString);
-        var settings = MongoClientSettings.FromUrl(mongoUrlBuilder.ToMongoUrl());
-
-        settings.ServerApi = new ServerApi(ServerApiVersion.V1);
-        var mongoClient = new MongoClient(settings);
-
-        var databaseName = mongoUrlBuilder.DatabaseName;
-
-        mongoClient.GetDatabase(databaseName);
-
-        try
-        {
-            var mongoStorage = new MongoStorage(
-                mongoClient: mongoClient,
-                databaseName: databaseName,
-                storageOptions: new MongoStorageOptions() {
-                    MigrationOptions = new MongoMigrationOptions {
-                        MigrationStrategy = new MigrateMongoMigrationStrategy(),
-                        BackupStrategy = new CollectionMongoBackupStrategy()
-                    },
-                    CheckConnection = false,
-                    CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.Poll
-                }
-            );
-
-            return mongoStorage;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Fail to create Hangfire MongoDB Storage. Try to reset the database.");
-
-            mongoClient.GetDatabase(databaseName)
-                .ListCollectionNames()
-                .ToList()
-                .Where(x => x.StartsWith("hangfire", StringComparison.OrdinalIgnoreCase))
-                .ToList()
-                .ForEach(x => mongoClient.GetDatabase(databaseName).DropCollection(x));
-
-            throw new AppException("Fail to create Hangfire MongoDB Storage. Please restart Engine");
-        }
     }
 
     private static IGlobalConfiguration UseMediatR(this IGlobalConfiguration configuration)

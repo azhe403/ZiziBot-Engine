@@ -27,6 +27,7 @@ public class SaveRssValidation : AbstractValidator<SaveRssRequest>
 }
 
 public class SaveRssHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<SaveRssRequest, bool>
 {
@@ -34,7 +35,7 @@ public class SaveRssHandler(
     {
         ApiResponseBase<bool> response = new();
 
-        if (!request.UserInfo.ListChatId.Contains(request.Body.ChatId))
+        if (!httpContextHelper.UserInfo.ListChatId.Contains(request.Body.ChatId))
         {
             return response.BadRequest($"Kamu tidak mempunyai akses ke ChatId: {request.Body.ChatId}");
         }

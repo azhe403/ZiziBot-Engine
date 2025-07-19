@@ -7,6 +7,7 @@ public class GetListGroupRequest : ApiRequestBase<List<ChatInfoDto>?>
 { }
 
 public class GetListGroupHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<GetListGroupRequest, List<ChatInfoDto>?>
 {
@@ -16,7 +17,7 @@ public class GetListGroupHandler(
 
         #region Check Dashboard Session
         var dashboardSession = await dataFacade.MongoDb.DashboardSessions
-            .Where(entity => entity.BearerToken == request.UserInfo.BearerToken)
+            .Where(entity => entity.BearerToken == httpContextHelper.UserInfo.BearerToken)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -46,7 +47,7 @@ public class GetListGroupHandler(
 
         List<ChatInfoDto> listPermission = new();
         listPermission.Add(new ChatInfoDto() {
-            ChatId = request.UserInfo.UserId,
+            ChatId = httpContextHelper.UserInfo.UserId,
             ChatTitle = "Saya"
         });
 

@@ -27,4 +27,11 @@ public class PendekinController : ApiControllerBase
     {
         return await SendRequest(request);
     }
+
+    [HttpDelete("{ShortPath}")]
+    [AccessFilter(flag: Flag.REST_PRODUCTIVITY_PENDEKIN_DELETE, roleLevel: RoleLevel.User)]
+    public async Task<IActionResult> DeletePendekin(DeletePendekinRequest request)
+    {
+        return await SendRequest(request);
+    }
 }

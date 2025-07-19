@@ -17,10 +17,10 @@ public static class RssParserUtil
         }
         catch (Exception e)
         {
-            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
-
             if (throwIfError)
                 throw;
+
+            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
 
             return new Feed();
         }
@@ -37,7 +37,7 @@ public static class RssParserUtil
                 const int maxAttempt = 3;
 
                 if (attempt > maxAttempt)
-                    throw new Exception("Unable to detect rss");
+                    throw new Exception($"Unable to detect rss Url: {rssUrl}");
 
                 var readRss = await rssUrl.ReadRssAsync();
                 if (!readRss.Items.IsEmpty())
@@ -76,7 +76,7 @@ public static class RssParserUtil
         }
         catch (Exception e)
         {
-            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
+            Log.Error(e, "Unable detect RSS from: {RssUrl}", rssUrl);
 
             if (throwIfError)
                 throw;

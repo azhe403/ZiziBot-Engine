@@ -158,6 +158,9 @@ public static class Flag
     public const string REST_PRODUCTIVITY_PENDEKIN_GET = "REST_PRODUCTIVITY_PENDEKIN_GET";
 
     [DefaultValue(true)]
+    public const string REST_PRODUCTIVITY_PENDEKIN_DELETE = "REST_PRODUCTIVITY_PENDEKIN_DELETE";
+
+    [DefaultValue(true)]
     public const string REST_PRODUCTIVITY_WEBHOOK = "REST_PRODUCTIVITY_WEBHOOK";
 
     [DefaultValue(true)]
@@ -165,6 +168,7 @@ public static class Flag
 
     [DefaultValue(true)]
     public const string REST_APP_SETTING_GET_LIST = "REST_APP_SETTING_GET_LIST";
+
     #endregion
     #endregion
 }

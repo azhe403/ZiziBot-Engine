@@ -4,6 +4,7 @@ namespace ZiziBot.Common.Interfaces;
 
 public interface ICacheService
 {
+    [Obsolete("Use GetOrSetAsync with Cache<T> instead")]
     public Task<T> GetOrSetAsync<T>(
         string cacheKey,
         Func<Task<T>> action,

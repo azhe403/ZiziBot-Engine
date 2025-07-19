@@ -40,6 +40,7 @@ public class VerifyUserResponse
 }
 
 public class VerifyUserHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<VerifyUserRequest, VerifyUserResponse>
 {
@@ -61,7 +62,7 @@ public class VerifyUserHandler(
             UserId = mirrorUser.UserId,
             ActivityTypeId = request.Body.ActivityType,
             Url = request.Body.Url,
-            TransactionId = request.UserInfo.TransactionId
+            TransactionId = httpContextHelper.UserInfo.TransactionId
         });
 
         return Response.Success("Mirror User verified successfully", new() {

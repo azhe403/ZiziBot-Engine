@@ -33,6 +33,7 @@ public class CreatePendekinResponse
 }
 
 public class CreatePendekinHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<CreatePendekinRequest, CreatePendekinResponse>
 {
@@ -55,9 +56,9 @@ public class CreatePendekinHandler(
             OriginalUrl = request.Body.OriginalUrl,
             ShortPath = shortPath,
             Status = EventStatus.Complete,
-            CreatedBy = request.UserInfo.UserId,
-            UpdatedBy = request.UserInfo.UserId,
-            TransactionId = request.UserInfo.TransactionId
+            CreatedBy = httpContextHelper.UserInfo.UserId,
+            UpdatedBy = httpContextHelper.UserInfo.UserId,
+            TransactionId = httpContextHelper.UserInfo.TransactionId
         });
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);

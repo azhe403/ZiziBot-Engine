@@ -25,6 +25,7 @@ public class UserFeature
 
 public class CheckDashboardBearerSessionRequestHandler(
     ILogger<CheckDashboardSessionRequestHandler> logger,
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 )
     : IApiRequestHandler<CheckDashboardBearerSessionRequestDto, CheckDashboardBearerSessionResponseDto>
@@ -36,7 +37,7 @@ public class CheckDashboardBearerSessionRequestHandler(
         #region Check Dashboard Session
         var dashboardSession = await dataFacade.MongoDb.DashboardSessions
             .Where(entity =>
-                entity.BearerToken == request.UserInfo.BearerToken &&
+                entity.BearerToken == httpContextHelper.UserInfo.BearerToken &&
                 entity.Status == EventStatus.Complete
             )
             .FirstOrDefaultAsync(cancellationToken);

@@ -18,6 +18,7 @@ public class CacheService(
     private string _expireAfter = "24h";
     private string _staleAfter = "15s";
 
+    [Obsolete("Use GetOrSetAsync with Cache<T> instead")]
     public async Task<T> GetOrSetAsync<T>(
         string cacheKey,
         Func<Task<T>> action,
