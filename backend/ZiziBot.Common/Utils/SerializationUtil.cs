@@ -4,10 +4,11 @@ using Jsonize.Parser;
 using Jsonize.Serializer;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Serilog;
 using YamlDotNet.Serialization;
-using ZiziBot.Common.Utils;
+using ZiziBot.Common.Constants;
 
-namespace ZiziBot.Parsers;
+namespace ZiziBot.Common.Utils;
 
 public static class SerializationUtil
 {

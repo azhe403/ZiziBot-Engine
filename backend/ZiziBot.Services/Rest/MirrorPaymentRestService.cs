@@ -5,7 +5,6 @@ using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Dtos;
 using ZiziBot.Common.Enums;
-using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Services.Rest;
 

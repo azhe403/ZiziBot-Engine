@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace ZiziBot.Parsers;
+namespace ZiziBot.Common.Utils;
 
 public static class XmlUtil
 {

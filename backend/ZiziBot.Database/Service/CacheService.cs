@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ZiziBot.Common.Interfaces;
 using ZiziBot.Common.Types;
-using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Database.Service;
 

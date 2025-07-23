@@ -1,6 +1,6 @@
 ﻿using Markdig;
 
-namespace ZiziBot.Parsers;
+namespace ZiziBot.Common.Utils;
 
 public static class MarkdownUtil
 {

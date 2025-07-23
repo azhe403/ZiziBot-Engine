@@ -2,7 +2,6 @@ using dotenv.net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ZiziBot.Common.Exceptions;
-using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Infrastructure;
 
@@ -66,7 +65,7 @@ public static class ConfigurationExtension
 
         #region Env
         var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
-        var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
+        var sentryConfig = await appSettingRepository.GetConfigSectionAsync<SentryConfig>();
 
         if (sentryConfig?.IsEnabled == true)
         {

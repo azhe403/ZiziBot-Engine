@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 
-namespace ZiziBot.Parsers.JsonConverter;
+namespace ZiziBot.Common.Converters.Newtonsoft;
 
-public class UnixEpochTimeToDateTimeConverter : Newtonsoft.Json.JsonConverter
+public class UnixEpochTimeToDateTimeConverter : JsonConverter
 {
     public override bool CanWrite => false;
 

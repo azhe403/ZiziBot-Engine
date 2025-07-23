@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Parsers\ZiziBot.Parsers.csproj"/>
   </ItemGroup>
 
 

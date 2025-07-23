@@ -1,6 +1,5 @@
 ﻿using CacheTower;
 using Serilog;
-using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Database.CacheTower.Json;
 

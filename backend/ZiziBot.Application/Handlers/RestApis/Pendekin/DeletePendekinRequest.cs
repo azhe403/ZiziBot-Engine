@@ -31,7 +31,7 @@ public class DeletePendekinHandler(
     {
         var response = ApiResponse.Create<DeletePendekinResponse>();
 
-        var pendekinMap = await dataFacade.MongoDb.PendekinMap.AsNoTracking()
+        var pendekinMap = await dataFacade.MongoDb.PendekinMap
             .WhereIf(request.ShortPath.IsObjectId(), x => x.Id == request.ShortPath.ToObjectId())
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 

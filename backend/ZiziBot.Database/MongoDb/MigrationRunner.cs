@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb.Interfaces;
 
 namespace ZiziBot.Database.MongoDb;

@@ -2,12 +2,17 @@ using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Io.Network;
 using CloudflareSolverRe;
+using ZiziBot.Common.Constants;
 
-namespace ZiziBot.Parsers.WebParser;
+namespace ZiziBot.Common.WebParser;
 
 public static class AnglesharpUtil
 {
-    public static async Task<IDocument?> OpenUrl(this string url, ClearanceHandler? clearanceHandler = null, CancellationToken cancellationToken = default)
+    public static async Task<IDocument?> OpenUrl(
+        this string url,
+        ClearanceHandler? clearanceHandler = null,
+        CancellationToken cancellationToken = default
+    )
     {
         var httpClient = new HttpClient();
         if (clearanceHandler != null)

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.MongoDb.Interfaces;
 

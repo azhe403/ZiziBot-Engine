@@ -1,5 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.Web;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Console.Extensions;
 

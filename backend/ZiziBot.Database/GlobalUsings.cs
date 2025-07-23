@@ -5,4 +5,4 @@ global using ZiziBot.Common.Configs;
 global using ZiziBot.Common.Constants;
 global using ZiziBot.Common.Dtos;
 global using ZiziBot.Common.Enums;
-global using ZiziBot.Parsers;
+global using ZiziBot.Common.Utils;

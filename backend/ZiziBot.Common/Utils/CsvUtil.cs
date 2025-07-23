@@ -1,6 +1,6 @@
 ﻿using CSVFile;
 
-namespace ZiziBot.Parsers;
+namespace ZiziBot.Common.Utils;
 
 public static class CsvUtil
 {

@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace ZiziBot.Parsers;
+namespace ZiziBot.Common.Utils;
 
 public static class VersionUtil
 {

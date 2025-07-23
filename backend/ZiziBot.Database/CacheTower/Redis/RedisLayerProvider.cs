@@ -1,6 +1,5 @@
 ﻿using CacheTower;
 using StackExchange.Redis;
-using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Database.CacheTower.Redis;
 

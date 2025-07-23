@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Dtos.Entity;
 using ZiziBot.Common.Types;
-using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.Service;
 

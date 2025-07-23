@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.MongoDb.Entities;
 

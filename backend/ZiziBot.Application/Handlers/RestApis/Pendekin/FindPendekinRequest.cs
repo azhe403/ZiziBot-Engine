@@ -16,6 +16,7 @@ public class ListPendekinResponse
 }
 
 public class ListPendekinHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<ListPendekinRequest, List<ListPendekinResponse>>
 {
@@ -27,6 +28,8 @@ public class ListPendekinHandler(
             return response.BadRequest("Pendekin not yet prepared");
 
         var listPendekin = await dataFacade.MongoDb.PendekinMap.AsNoTracking()
+            .Where(x => x.Status == EventStatus.Complete)
+            .Where(x => x.CreatedBy == httpContextHelper.UserInfo.UserId)
             .Select(x => new ListPendekinResponse() {
                 PendekinId = x.Id.ToString(),
                 ShortPath = x.ShortPath,

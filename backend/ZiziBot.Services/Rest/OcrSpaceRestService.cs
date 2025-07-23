@@ -1,6 +1,5 @@
 ﻿using Flurl.Http;
 using ZiziBot.Common.Enums;
-using ZiziBot.Common.Utils;
 using ZiziBot.Common.Vendor.OcrSpace;
 
 namespace ZiziBot.Services.Rest;

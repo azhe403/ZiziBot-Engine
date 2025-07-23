@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using ZiziBot.Attributes;
-using ZiziBot.Common.Utils;
 
 namespace ZiziBot.WebApi.Providers;
 

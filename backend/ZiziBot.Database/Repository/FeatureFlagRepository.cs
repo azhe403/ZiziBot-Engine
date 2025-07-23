@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Dtos.Entity;
 using ZiziBot.Common.Interfaces;
 using ZiziBot.Common.Types;
-using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
 
 namespace ZiziBot.Database.Repository;
@@ -73,7 +72,7 @@ public class FeatureFlagRepository(
     {
         var flag = await GetFlag(flagName);
 
-        var isEnabled = (bool)flag?.IsEnabled;
+        var isEnabled = flag?.IsEnabled == true;
         logger.LogTrace("Flag '{FlagName}' value: {isEnabled}", flagName, isEnabled);
 
         return isEnabled;

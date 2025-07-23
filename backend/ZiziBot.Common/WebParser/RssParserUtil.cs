@@ -1,10 +1,12 @@
 using CodeHollow.FeedReader;
 using Flurl;
 using Octokit;
+using Serilog;
+using ZiziBot.Common.Constants;
 using ZiziBot.Common.Utils;
 using Feed = CodeHollow.FeedReader.Feed;
 
-namespace ZiziBot.Parsers.WebParser;
+namespace ZiziBot.Common.WebParser;
 
 public static class RssParserUtil
 {

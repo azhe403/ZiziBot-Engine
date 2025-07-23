@@ -2,7 +2,6 @@ using CacheTower;
 using CacheTower.Serializers.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using ZiziBot.Common.Utils;
 using ZiziBot.Database.CacheTower.Firebase;
 using ZiziBot.Database.CacheTower.Json;
 using ZiziBot.Database.CacheTower.MongoDb;

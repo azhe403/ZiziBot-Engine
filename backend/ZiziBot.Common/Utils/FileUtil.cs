@@ -81,7 +81,7 @@ public static class FileUtil
             }
 
             // Write to a temporary file first
-            var tempFile = Path.GetTempFileName();
+            var tempFile = Path.GetRandomFileName();
 
             try
             {
@@ -171,7 +171,7 @@ public static class FileUtil
             }
 
             // Write to a temporary file first
-            var tempFile = Path.GetTempFileName();
+            var tempFile = Path.GetRandomFileName();
 
             try
             {

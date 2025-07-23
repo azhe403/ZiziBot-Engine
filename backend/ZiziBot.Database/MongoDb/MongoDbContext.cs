@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using MongoDB.EntityFrameworkCore;
 using Serilog;
-using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Database.MongoDb;

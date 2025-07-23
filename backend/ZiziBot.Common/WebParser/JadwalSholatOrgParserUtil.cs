@@ -2,7 +2,7 @@
 using ZiziBot.Common.Utils;
 using ZiziBot.Common.Vendor.JadwalSholatOrg;
 
-namespace ZiziBot.Parsers.WebParser;
+namespace ZiziBot.Common.WebParser;
 
 public static class JadwalSholatOrgParserUtil
 {

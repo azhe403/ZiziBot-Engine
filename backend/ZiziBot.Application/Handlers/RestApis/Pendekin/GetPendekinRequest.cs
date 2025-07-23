@@ -29,6 +29,7 @@ public class GetPendekinResponse
 }
 
 public class GetPendekinHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<GetPendekinRequest, GetPendekinResponse>
 {

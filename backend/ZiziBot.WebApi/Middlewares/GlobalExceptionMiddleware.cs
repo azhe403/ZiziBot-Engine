@@ -1,7 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Common.Utils;
 
 namespace ZiziBot.WebApi.Middlewares;
 

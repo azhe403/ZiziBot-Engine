@@ -1,7 +1,8 @@
+using Serilog;
 using Telegram.Bot.Types.ReplyMarkups;
 using ZiziBot.Common.Types;
 
-namespace ZiziBot.Parsers;
+namespace ZiziBot.Common.Utils;
 
 public static class ReplyMarkupUtil
 {
