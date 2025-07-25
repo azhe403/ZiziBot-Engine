@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
@@ -19,14 +19,14 @@ public class PostMirrorUserRequestHandler(
 
     public async Task<ApiResponseBase<bool>> Handle(PostMirrorUserRequestDto request, CancellationToken cancellationToken)
     {
-        var mirrorUser = await dataFacade.MongoEf.MirrorUser
+        var mirrorUser = await dataFacade.MongoDb.MirrorUser
             .Where(entity => entity.UserId == request.UserId)
             .Where(entity => entity.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (mirrorUser == null)
         {
-            dataFacade.MongoEf.MirrorUser.Add(new MirrorUserEntity() {
+            dataFacade.MongoDb.MirrorUser.Add(new MirrorUserEntity() {
                 UserId = request.UserId,
                 ExpireDate = DateTime.UtcNow.AddDays(request.AddDays),
                 Status = EventStatus.Complete
@@ -37,7 +37,7 @@ public class PostMirrorUserRequestHandler(
             mirrorUser.ExpireDate = mirrorUser.ExpireDate.AddMonths(request.MonthDuration);
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return _response.Success("Mirror User saved", true);
     }

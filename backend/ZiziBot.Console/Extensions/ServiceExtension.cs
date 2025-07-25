@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using ZiziBot.Contracts.Constants;
+using ZiziBot.Common.Constants;
+using ZiziBot.Common.Utils;
 
 namespace ZiziBot.Console.Extensions;
 
@@ -10,14 +11,17 @@ public static class ServiceExtension
 {
     public static IServiceCollection AddConsole(this IServiceCollection services)
     {
-        services.AddRazorPages();
-        services.AddServerSideBlazor();
-        services.AddBlazoredLocalStorage();
-        services.AddAuthorizationCore();
-        services.AddRadzenComponents();
-        services.AddReactiveViewModels();
+        if (EnvUtil.IsEnabled(Flag.CONSOLE_BLAZOR))
+        {
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
+            services.AddBlazoredLocalStorage();
+            services.AddAuthorizationCore();
+            services.AddRadzenComponents();
+            services.AddReactiveViewModels();
 
-        services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+        }
 
         return services;
     }

@@ -42,7 +42,7 @@ public class CheckAfkSessionBehavior<TRequest, TResponse>(
             userName = request.ReplyToMessage.From.GetFullMention();
         }
 
-        var afkEntity = await dataFacade.MongoEf.Afk
+        var afkEntity = await dataFacade.MongoDb.Afk
             .FirstOrDefaultAsync(entity =>
                     entity.UserId == userId &&
                     entity.Status == EventStatus.Complete,
@@ -62,6 +62,6 @@ public class CheckAfkSessionBehavior<TRequest, TResponse>(
         }
 
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
     }
 }

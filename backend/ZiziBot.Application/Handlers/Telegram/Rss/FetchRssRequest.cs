@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
@@ -48,7 +49,7 @@ public class FetchRssHandler(
                 return false;
             }
 
-            var botSettings = await dataFacade.AppSetting.GetBotMain();
+            var botSettings = await dataFacade.Bot.GetBotMain();
 
             var botClient = new TelegramBotClient(botSettings.Token);
 
@@ -59,12 +60,13 @@ public class FetchRssHandler(
                 .Url(latestArticle.Link, latestArticle.Title.Trim()).Br();
 
             if (!request.RssUrl.IsGithubCommitsUrl() &&
-                await dataFacade.FeatureFlag.GetFlagValue(Flag.RSS_INCLUDE_CONTENT))
+                await dataFacade.FeatureFlag.IsEnabled(Flag.RSS_INCLUDE_CONTENT))
                 messageText.Text(htmlContent.Truncate(2000));
 
             if (request.RssUrl.IsGithubReleaseUrl())
             {
-                var assets = await request.RssUrl.GetGithubAssetLatest();
+                var allAssets = await request.RssUrl.GetGithubAssets();
+                var assets = allAssets?.FirstOrDefault();
 
                 if (assets?.Assets.NotEmpty() ?? false)
                 {
@@ -105,7 +107,7 @@ public class FetchRssHandler(
                 }
             }
 
-            dataFacade.MongoEf.RssHistory.Add(new() {
+            dataFacade.MongoDb.RssHistory.Add(new() {
                 ChatId = request.ChatId,
                 ThreadId = request.ThreadId,
                 RssUrl = request.RssUrl,
@@ -120,7 +122,7 @@ public class FetchRssHandler(
         {
             if (exception.IsIgnorable())
             {
-                var findRssSetting = await dataFacade.MongoEf.RssSetting
+                var findRssSetting = await dataFacade.MongoDb.RssSetting
                     .Where(entity => entity.ChatId == request.ChatId)
                     .Where(entity => entity.RssUrl == request.RssUrl)
                     .Where(entity => entity.Status == EventStatus.Complete)
@@ -143,7 +145,7 @@ public class FetchRssHandler(
             }
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return true;
     }

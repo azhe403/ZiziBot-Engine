@@ -8,7 +8,7 @@ namespace ZiziBot.WebApi.Controllers;
 public class ApiKeyController(GetListApiKeyUseCase getListApiKeyUseCase) : ApiControllerBase
 {
     [HttpGet]
-    [AccessFilter(flag: Flag.REST_API_KEY_GET, apiRoleLevel: RoleLevel.Sudo, needAuthenticated: true)]
+    [AccessFilter(flag: Flag.REST_API_KEY_GET, roleLevel: RoleLevel.Sudo)]
     public async Task<IActionResult> Index(GetListApiKeyRequest request)
     {
         return await SendRequest(() => getListApiKeyUseCase.Handle(request));

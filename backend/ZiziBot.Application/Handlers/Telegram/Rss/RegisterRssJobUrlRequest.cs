@@ -25,7 +25,6 @@ public class RegisterRssJobUrlHandler(
         RecurringJob.AddOrUpdate<FetchRssUseCase>(
             request.JobId,
             methodCall: x => x.Handle(request.ChatId, request.ThreadId, request.Url),
-            queue: CronJobKey.Queue_Rss,
             cronExpression: TimeUtil.MinuteInterval(3)
         );
 

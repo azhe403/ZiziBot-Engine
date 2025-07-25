@@ -1,15 +1,17 @@
 ﻿using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Telegram.Bot.Types;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.UseCases.Chat;
 
 public class CreateChatActivityRequest
 {
     public ChatActivityType ActivityType { get; set; }
-    public Message SentMessage { get; set; }
+    public long ChatId { get; set; }
+    public int? ThreadId { get; set; }
+    public int? MessageId { get; set; }
+    public long? UserId { get; set; }
     public string TransactionId { get; set; }
 }
 
@@ -18,30 +20,30 @@ public class CreateChatActivityUseCase(
     ServiceFacade serviceFacade
 )
 {
-    [MaximumConcurrentExecutions(3)]
+    [Queue(CronJobKey.Queue_Telegram)]
     public async Task<bool> Handle(CreateChatActivityRequest request)
     {
-        dataFacade.MongoEf.ChatActivity.Add(new ChatActivityEntity {
+        dataFacade.MongoDb.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = request.ActivityType,
             ActivityTypeName = request.ActivityType.ToString(),
-            ChatId = request.SentMessage.Chat.Id,
-            UserId = request.SentMessage.From?.Id,
+            ChatId = request.ChatId,
+            UserId = request.UserId,
             Status = EventStatus.Complete,
             TransactionId = request.TransactionId,
-            MessageId = request.SentMessage.MessageId
+            MessageId = request.MessageId
         });
 
-        var oldActivity = await dataFacade.MongoEf.ChatActivity
+        var oldActivity = await dataFacade.MongoDb.ChatActivity
             .Where(x => x.CreatedDate <= DateTime.UtcNow.AddMonths(-2))
             .ToListAsync();
 
         if (oldActivity.Count != 0)
         {
             Log.Information("Delete Chat Activity Count: {Count} in 2 months", oldActivity.Count);
-            dataFacade.MongoEf.ChatActivity.RemoveRange(oldActivity);
+            dataFacade.MongoDb.ChatActivity.RemoveRange(oldActivity);
         }
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         return true;
     }

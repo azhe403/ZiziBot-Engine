@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -19,7 +20,7 @@ public class GetShalatTimeHandler(
         logger.LogInformation("Get Shalat Time list for ChatId: {ChatId}", request.ChatId);
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var cityList = await dataFacade.MongoEf.BangHasan_ShalatCity
+        var cityList = await dataFacade.MongoDb.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == EventStatus.Complete)
             .OrderBy(entity => entity.CityName)
@@ -39,7 +40,7 @@ public class GetShalatTimeHandler(
                 htmlMessage.Code(city.CityId.ToString()).Text(" - ").Text(city.CityName).Br()
                     .TextBr("====================================");
 
-                var shalatTime = await serviceFacade.FathimahApiService.GetShalatTime(city.CityId, true);
+                var shalatTime = await serviceFacade.FathimahRestService.GetShalatTime(city.CityId, true);
                 shalatTime.Schedule?.ShalatDict?.ForEach(shalat => {
                     htmlMessage.Bold(shalat.Key).Text(" : ").Text(shalat.Value.ToString()).Br();
                 });

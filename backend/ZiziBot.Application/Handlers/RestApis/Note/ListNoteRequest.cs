@@ -1,3 +1,5 @@
+using ZiziBot.Common.Dtos;
+
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 
 public class ListNoteRequest : ApiRequestBase<List<NoteDto>>
@@ -6,6 +8,7 @@ public class ListNoteRequest : ApiRequestBase<List<NoteDto>>
 }
 
 public class ListNoteHandler(
+    IHttpContextHelper httpContextHelper,
     DataFacade dataFacade
 ) : IApiRequestHandler<ListNoteRequest, List<NoteDto>>
 {
@@ -13,7 +16,7 @@ public class ListNoteHandler(
     {
         var response = new ApiResponseBase<List<NoteDto>>();
 
-        if (!request.ListChatId.Contains(request.ChatId))
+        if (!httpContextHelper.UserInfo.ListChatId.Contains(request.ChatId))
         {
             return response.BadRequest("ChatId is not in your list");
         }

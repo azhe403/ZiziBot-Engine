@@ -1,10 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
-using ZiziBot.Application.Facades;
+using ZiziBot.Application.UseCases.Rss;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Utils;
+using ZiziBot.Database.Service;
 
 namespace ZiziBot.Tests.Pipelines;
 
-public class RssTests(MediatorService mediatorService, DataFacade dataFacade)
+public class RssTests(
+    MediatorService mediatorService,
+    DataFacade dataFacade,
+    FetchRssUseCase fetchRssUseCase
+)
 {
     [Theory]
     [InlineData("https://devblogs.microsoft.com/dotnet/feed/")]
@@ -12,7 +19,7 @@ public class RssTests(MediatorService mediatorService, DataFacade dataFacade)
     [InlineData("https://github.com/revanced-apks/build-apps/releases.atom")]
     public async Task FetchTest(string url)
     {
-        var historyEntity = await dataFacade.MongoEf.RssHistory
+        var historyEntity = await dataFacade.MongoDb.RssHistory
             .Where(entity => entity.RssUrl == url)
             .ToListAsync();
 
@@ -20,12 +27,48 @@ public class RssTests(MediatorService mediatorService, DataFacade dataFacade)
             x.Status = (int)EventStatus.Deleted;
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync();
+        await dataFacade.MongoDb.SaveChangesAsync();
+
+        await fetchRssUseCase.Handle(
+            chatId: 0,
+            threadId: 0,
+            rssUrl: url
+        );
+    }
 
 
-        await mediatorService.Send(new FetchRssRequest() {
-            ChatId = -1001710313973,
-            RssUrl = url
-        });
+    [Fact]
+    public async Task FetchFromDbTest()
+    {
+        var listRss = await dataFacade.MongoDb.RssSetting
+            .OrderByDescending(x => x.UpdatedDate)
+            .ToListAsync();
+
+        var ran = listRss
+            .GroupBy(x => x.ChatId)
+            .Select(x => x.RandomPick())
+            .DistinctBy(x => x.RssUrl);
+
+        foreach (var rss in ran)
+        {
+            var historyEntity = await dataFacade.MongoDb.RssHistory
+                .Where(entity => entity.RssUrl == rss.RssUrl)
+                .ToListAsync();
+
+            historyEntity.ForEach(x =>
+            {
+                x.Status = (int)EventStatus.Deleted;
+            });
+
+            await dataFacade.MongoDb.SaveChangesAsync();
+
+            var result = await fetchRssUseCase.Handle(
+                chatId: rss.ChatId,
+                threadId: rss.ThreadId,
+                rssUrl: rss.RssUrl
+            );
+
+            result.ShouldBeTrue();
+        }
     }
 }

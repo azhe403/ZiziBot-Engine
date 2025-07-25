@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -20,7 +21,7 @@ public class GetCityListHandler(
 
         logger.LogDebug("Getting city list from chat {ChatId}", request.ChatId);
 
-        var cityList = await dataFacade.MongoEf.BangHasan_ShalatCity
+        var cityList = await dataFacade.MongoDb.BangHasan_ShalatCity
             .Where(entity => entity.ChatId == request.ChatIdentifier)
             .Where(entity => entity.Status == EventStatus.Complete)
             .OrderBy(entity => entity.CityName)

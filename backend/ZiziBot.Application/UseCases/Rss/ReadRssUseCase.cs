@@ -1,19 +1,20 @@
 ﻿using Humanizer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Octokit;
+using ZiziBot.Common.Types;
+using ZiziBot.Database.MongoDb;
+using ZiziBot.Services.Client;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
-public class ReadRssResponse
+public struct ReadRssResponse
 {
     public string Link { get; set; }
     public string Title { get; set; }
     public List<ReadRssItem> Items { get; set; }
 }
 
-public class ReadRssItem
+public struct ReadRssItem
 {
     public string Link { get; set; }
     public string Title { get; set; }
@@ -31,16 +32,26 @@ public class Assets
     public int Size { get; set; }
 }
 
-public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade serviceFacade, DataFacade dataFacade)
+public sealed class ReadRssUseCase(
+    ILogger<ReadRssUseCase> logger,
+    ICacheService cacheService,
+    MongoDbContext mongoDbContext,
+    AppSettingRepository appSettingRepository,
+    FeatureFlagRepository featureFlagRepository,
+    GitHubClientService gitHubClientService
+)
 {
     public async Task<ReadRssResponse> Handle(string rssUrl)
     {
         logger.LogInformation("Reading RSS: {Url}", rssUrl);
 
         var isGithubReleaseUrl = rssUrl.IsGithubReleaseUrl();
-        var includeRssContent = await dataFacade.FeatureFlag.GetFlagValue(Flag.RSS_INCLUDE_CONTENT);
+        var isGithubCommitsUrl = rssUrl.IsGithubCommitsUrl();
+        var includeRssContent = await featureFlagRepository.IsEnabled(Flag.RSS_INCLUDE_CONTENT);
 
-        var feed = await serviceFacade.CacheService.GetOrSetAsync("rss/" + rssUrl, async () => {
+        var cacheKey = rssUrl.ForCacheKey();
+
+        var feed = await cacheService.GetOrSetAsync(CacheKey.RSS + cacheKey, async () => {
             var feed = await rssUrl.ReadRssAsync(throwIfError: true);
 
             var readRssResponse = new ReadRssResponse() {
@@ -48,31 +59,16 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
                 Title = feed.Title,
             };
 
-            var isGithubCommitsUrl = rssUrl.IsGithubCommitsUrl();
+            if (isGithubReleaseUrl)
+            {
+                // var githubReleases = await rssUrl.GetGithubAssets(Env.GithubToken);
+                var githubReleases = await gitHubClientService.GetReleaseAssets(rssUrl);
+                var item = githubReleases?.Take(3).Select(feedItem => {
+                    var messageText = HtmlMessage.Empty
+                        .Url(feed.Link, feed.Title.Trim()).Br()
+                        .Url(feedItem.HtmlUrl, feedItem.Name.Trim()).Br();
 
-            var readRssItems = feed.Items.Skip(5).Select(async feedItem => {
-                var htmlContent = await feedItem.Content.HtmlForTelegram();
-
-                var messageText = HtmlMessage.Empty
-                    .Url(feed.Link, feed.Title.Trim()).Br()
-                    .Url(feedItem.Link, feedItem.Title.Trim()).Br();
-
-                if (!isGithubCommitsUrl && includeRssContent)
-                    messageText.Text(htmlContent.Truncate(2000));
-
-                if (isGithubReleaseUrl)
-                {
-                    var apiKey = await dataFacade.MongoEf.ApiKey
-                        .OrderBy(x => x.LastUsedDate)
-                        .Where(x => x.Name == ApiKeyVendor.GitHub)
-                        .Where(x => x.Status == EventStatus.Complete)
-                        .FirstOrDefaultAsync();
-
-                    var githubApiKey = apiKey?.ApiKey;
-
-                    var assets = await rssUrl.GetGithubAssetLatest(githubApiKey);
-
-                    var releaseAssets = assets?.Assets;
+                    var releaseAssets = feedItem.Assets;
 
                     if (releaseAssets?.NotEmpty() ?? false)
                     {
@@ -83,28 +79,49 @@ public class ReadRssUseCase(ILogger<ReadRssUseCase> logger, ServiceFacade servic
                             messageText.Url(asset.BrowserDownloadUrl, asset.Name).Br();
                         });
                     }
-                }
 
-                var truncatedMessageText = messageText.ToString();
+                    return new ReadRssItem {
+                        Link = feedItem.HtmlUrl,
+                        Title = feedItem.Name,
+                        Author = feedItem.Author?.Login ?? "Fulan",
+                        PublishDate = feedItem.PublishedAt ?? DateTime.UtcNow,
+                        Content = messageText.ToString(),
+                    };
+                });
 
-                await dataFacade.SaveChangesAsync();
+                readRssResponse.Items = item?.ToList() ?? [];
+            }
+            else
+            {
+                var readRssItems = feed.Items.Take(3).Select(async feedItem => {
+                    var htmlContent = await feedItem.Content.HtmlForTelegram();
 
-                return new ReadRssItem {
-                    Link = feedItem.Link,
-                    Title = feedItem.Title,
-                    Author = feedItem.Author,
-                    PublishDate = feedItem.PublishingDate ?? DateTime.UtcNow,
-                    Content = truncatedMessageText,
-                    Description = feedItem.Description
-                };
-            }).ToList();
+                    var messageText = HtmlMessage.Empty
+                        .Url(feed.Link, feed.Title.Trim()).Br()
+                        .Url(feedItem.Link, feedItem.Title.Trim()).Br();
 
-            var rssItems = await Task.WhenAll(readRssItems);
+                    if (!isGithubCommitsUrl && includeRssContent)
+                        messageText.Text(htmlContent.Truncate(2000));
 
-            readRssResponse.Items = rssItems.ToList();
+                    var truncatedMessageText = messageText.ToString();
+
+                    return new ReadRssItem {
+                        Link = feedItem.Link,
+                        Title = feedItem.Title,
+                        Author = feedItem.Author,
+                        PublishDate = feedItem.PublishingDate ?? DateTime.UtcNow,
+                        Content = truncatedMessageText,
+                        Description = feedItem.Description
+                    };
+                }).ToList();
+
+                var rssItems = await Task.WhenAll(readRssItems);
+
+                readRssResponse.Items = rssItems.ToList();
+            }
 
             return readRssResponse;
-        });
+        }, throwIfError: true);
 
         return feed;
     }

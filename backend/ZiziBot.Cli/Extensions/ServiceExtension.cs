@@ -10,7 +10,7 @@ public static class ServiceExtension
             selector.FromAssembliesOf(typeof(ProjectTool))
                 .AddClasses(filter => filter.InNamespaceOf<ProjectTool>())
                 .AsSelf()
-                .WithTransientLifetime();
+                .WithScopedLifetime();
         });
 
         return services;

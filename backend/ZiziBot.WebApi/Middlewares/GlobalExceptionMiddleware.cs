@@ -21,6 +21,8 @@ public class GlobalExceptionMiddleware(ILogger<GlobalExceptionMiddleware> logger
                 StatusCode = HttpStatusCode.InternalServerError,
                 TransactionId = context.GetTransactionId(),
                 Message = "Internal Server Error. Please contact administrator.",
+                ErrorMessage = !EnvUtil.IsProduction() ? exception.StackTrace : null,
+                StackTrace = !EnvUtil.IsProduction() ? exception.ToStackTrace() : null
             });
         }
     }

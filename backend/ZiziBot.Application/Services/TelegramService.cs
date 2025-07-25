@@ -8,7 +8,10 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Application.Handlers.Telegram.Core;
 using ZiziBot.Application.UseCases.Chat;
+using ZiziBot.Common.Dtos;
+using ZiziBot.Common.Types;
 using CreateChatActivityRequest = ZiziBot.Application.UseCases.Chat.CreateChatActivityRequest;
 using File = System.IO.File;
 
@@ -43,7 +46,7 @@ public class TelegramService(
 
     public async Task<bool> IsBotName(string name)
     {
-        var botSettings = await dataFacade.MongoEf.BotSettings
+        var botSettings = await dataFacade.MongoDb.BotSettings
             .FirstOrDefaultAsync(x => x.Token == _request.BotToken);
 
         return botSettings?.Name == name;
@@ -172,9 +175,11 @@ public class TelegramService(
         if (SentMessage == null)
             return Complete();
 
-        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest() {
+        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest {
             ActivityType = ChatActivityType.BotSendMessage,
-            SentMessage = SentMessage,
+            ChatId = targetChatId.Identifier.GetValueOrDefault(),
+            ThreadId = threadId,
+            MessageId = SentMessage.MessageId,
             TransactionId = _request.TransactionId
         }));
 
@@ -219,9 +224,10 @@ public class TelegramService(
 
         await Bot.EditMessageText(_request.ChatId, SentMessage.MessageId, text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
 
-        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest() {
+        HangfireUtil.Enqueue<CreateChatActivityUseCase>(x => x.Handle(new CreateChatActivityRequest {
             ActivityType = ChatActivityType.BotEditMessage,
-            SentMessage = SentMessage,
+            ChatId = _request.ChatId.Identifier.GetValueOrDefault(),
+            MessageId = SentMessage.MessageId,
             TransactionId = _request.TransactionId
         }));
 

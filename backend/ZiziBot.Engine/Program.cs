@@ -1,4 +1,5 @@
 using Serilog;
+using ZiziBot.Database.Extension;
 using ZiziBot.TelegramBot;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,8 +22,7 @@ var app = builder.Build();
 app.UseSerilogRequestLogging();
 app.ConfigureFlurl();
 
-app.PrintAbout();
-await app.LoadFeatureFlag();
+await app.PrintAbout();
 await app.UseMongoMigration();
 
 app.UseAuthorization();

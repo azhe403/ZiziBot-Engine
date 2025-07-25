@@ -1,5 +1,6 @@
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 

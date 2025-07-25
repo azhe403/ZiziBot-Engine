@@ -9,7 +9,6 @@ end_of_line = lf
 
 # ReSharper properties
 resharper_csharp_empty_block_style = multiline
-resharper_html_pi_attribute_style = first_attribute_on_single_line
 resharper_object_creation_when_type_not_evident = explicitly_typed
 resharper_wrap_before_primary_constructor_declaration_rpar = true
 resharper_csharp_wrap_after_declaration_lpar = true
@@ -22,7 +21,6 @@ csharp_style_namespace_declarations = file_scoped:suggestion
 
 [*.cs]
 indent_size = 4
-csharp_new_line_before_open_brace = accessors, control_blocks, events, indexers, local_functions, methods, properties, types
 
 [*.ts]
 indent_size = 2

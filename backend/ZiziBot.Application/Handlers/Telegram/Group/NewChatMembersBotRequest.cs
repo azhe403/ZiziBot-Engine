@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types;
+using ZiziBot.Common.Dtos;
+using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.Telegram.Group;
 
@@ -57,7 +59,7 @@ public class NewChatMembersHandler(
         var messageTemplate = "Hai {AllNewMember}\n" +
                               "Selamat datang di Kontrakan {ChatTitle}";
 
-        var welcomeMessage = await dataFacade.MongoEf.WelcomeMessage.AsNoTracking()
+        var welcomeMessage = await dataFacade.MongoDb.WelcomeMessage.AsNoTracking()
             .Where(x => x.ChatId == request.ChatIdentifier)
             .Where(x => x.Status == EventStatus.Complete)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
@@ -21,19 +21,19 @@ public class GetSettingPanelRequestHandler(
     {
         serviceFacade.TelegramService.SetupResponse(request);
 
-        var chat = await dataFacade.MongoEf.ChatSetting
+        var chat = await dataFacade.MongoDb.ChatSetting
             .Where(x => x.Status == EventStatus.Complete)
             .Where(x => x.ChatId == request.ChatIdentifier)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (chat == null)
         {
-            dataFacade.MongoEf.ChatSetting.Add(new ChatSettingEntity {
+            dataFacade.MongoDb.ChatSetting.Add(new ChatSettingEntity {
                 ChatId = request.ChatIdentifier,
                 Status = EventStatus.Complete,
             });
 
-            await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
         }
 
         return await serviceFacade.TelegramService.SendMessageText("Sedang memuat tombol..");

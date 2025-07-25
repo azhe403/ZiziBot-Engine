@@ -1,3 +1,5 @@
+using ZiziBot.Common.Types;
+
 namespace ZiziBot.Application.Handlers.Telegram.Note;
 
 public class GetNoteBotRequestModel : BotRequestBase

@@ -1,6 +1,8 @@
 ﻿using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Common.Types;
+using ZiziBot.Common.Vendor.TonjooStudio;
 
 namespace ZiziBot.Application.Services;
 

@@ -10,13 +10,14 @@ public class UpdateStatisticUseCase(
     DataFacade dataFacade
 )
 {
-    [MaximumConcurrentExecutions(3)]
     [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    [Queue(CronJobKey.Queue_Data)]
     public async Task Handle()
     {
         logger.LogDebug("Updating GitHub token usage statistic");
 
-        var githubApiKey = await dataFacade.MongoEf.ApiKey
+        var githubApiKey = await dataFacade.MongoDb.ApiKey
+            .OrderByDescending(x => x.Remaining)
             .Where(x => x.Name == ApiKeyVendor.GitHub)
             .Where(x => x.Status != EventStatus.Inactive)
             .ToListAsync();
@@ -38,6 +39,9 @@ public class UpdateStatisticUseCase(
             apiKey.LimitUnit = "Hourly";
             apiKey.ResetUsageDate = limit.Rate.Reset.UtcDateTime;
         }
+
+        logger.LogDebug("Updating next GitHub api key");
+        Env.GithubToken = githubApiKey.FirstOrDefault()?.ApiKey;
 
         await dataFacade.SaveChangesAsync();
     }

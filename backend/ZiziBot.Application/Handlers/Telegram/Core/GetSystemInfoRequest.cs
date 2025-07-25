@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using Humanizer;
+using ZiziBot.Common.Types;
 using Environment = System.Environment;
 
 namespace ZiziBot.Application.Handlers.Telegram.Core;

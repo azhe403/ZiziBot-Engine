@@ -1,3 +1,6 @@
+using ZiziBot.Common.Dtos;
+using ZiziBot.Common.Types;
+
 namespace ZiziBot.Application.Handlers.Telegram.Ban;
 
 public class AddBanBotRequest : BotRequestBase

@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using ZiziBot.Application.UseCases.Mirror;
+using ZiziBot.Common.Enums;
 
 namespace ZiziBot.Tests.UseCase;
 

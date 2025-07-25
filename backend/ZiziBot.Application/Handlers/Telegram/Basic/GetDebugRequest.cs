@@ -1,3 +1,5 @@
+using ZiziBot.Common.Types;
+
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
 public class GetDebugBotRequest : BotRequestBase

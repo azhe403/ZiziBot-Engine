@@ -1,31 +1,30 @@
 ﻿using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using ZiziBot.Application.UseCases.Chat;
 
 namespace ZiziBot.Application.Tasks;
 
 public class RegisterShalatTimeTask(DataFacade dataFacade) : IStartupTask
 {
-    public bool SkipAwait { get; set; }
-
     public async Task ExecuteAsync()
     {
-        var cities = await dataFacade.MongoEf.BangHasan_ShalatCity
-            .Where(entity => entity.Status == EventStatus.Complete)
-            .Select(entity => entity.ChatId)
-            .Distinct()
-            .ToListAsync();
-
-        foreach (var city in cities)
+        if (EnvUtil.IsEnabled(Flag.HANGFIRE))
         {
-            RecurringJob.AddOrUpdate<MediatorService>(
-                $"ShalatTime:{city}",
-                methodCall: mediatorService =>
-                    mediatorService.Send(new SendShalatTimeRequest() {
-                        ChatId = city
-                    }),
-                cronExpression: TimeUtil.MinuteInterval(1),
-                queue: CronJobKey.Queue_ShalatTime
-            );
+            var cities = await dataFacade.MongoDb.BangHasan_ShalatCity.AsNoTracking()
+                .Where(entity => entity.Status == EventStatus.Complete)
+                .Select(entity => entity.ChatId)
+                .Distinct()
+                .ToListAsync();
+
+            foreach (var chatId in cities)
+            {
+                RecurringJob.AddOrUpdate<SendShalatTimeUseCase>(
+                    recurringJobId: $"ShalatTime:{chatId}",
+                    methodCall: x => x.Handle(chatId),
+                    cronExpression: TimeUtil.MinuteInterval(1),
+                    queue: CronJobKey.Queue_ShalatTime
+                );
+            }
         }
     }
 }

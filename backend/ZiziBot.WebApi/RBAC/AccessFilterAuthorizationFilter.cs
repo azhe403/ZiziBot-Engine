@@ -1,96 +1,90 @@
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Application.Facades;
+using ZiziBot.Common.Dtos;
+using ZiziBot.Database;
 
 namespace ZiziBot.WebApi.RBAC;
 
 public class AccessFilterAuthorizationFilter(
     string flag,
     RoleLevel roleLevel,
-    bool checkHeader,
-    bool needAuthenticated,
     ILogger<AccessFilterAuthorizationFilter> logger,
-    GroupRepository groupRepository,
     DataFacade dataFacade
 ) : IAsyncAuthorizationFilter
 {
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
+        var userInfo = new UserInfo();
+        var userRoles = new List<RoleLevel>();
+        var transactionId = context.HttpContext.GetTransactionId();
+
         var response = new ApiResponseBase<object> {
-            TransactionId = context.HttpContext.GetTransactionId()
+            TransactionId = transactionId
         };
 
-        var userId = context.HttpContext.Request.Headers.GetUserId();
-        var bearerToken = context.HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
-        var items = context.HttpContext.Items;
+        logger.LogDebug("Access '{Flag}' role level minimum: {Role}", flag, roleLevel);
 
-        if (needAuthenticated)
+        if (roleLevel == RoleLevel.None) // allow anonymous
+            return;
+
+        var bearerToken = context.HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "").Trim();
+
+        if (!string.IsNullOrWhiteSpace(bearerToken))
         {
-            if (string.IsNullOrWhiteSpace(bearerToken))
-            {
-                context.Result = new UnauthorizedObjectResult(new ApiResponseBase<object>() {
-                    Message = "Access token not valid"
-                });
-
-                return;
-            }
-
-            var session = await dataFacade.MongoEf.DashboardSessions
+            #region Check Dashboard Session
+            var dashboardSession = await dataFacade.MongoDb.DashboardSessions
                 .Where(x => x.BearerToken == bearerToken)
                 .Where(x => x.Status == EventStatus.Complete)
                 .OrderByDescending(x => x.CreatedDate)
                 .FirstOrDefaultAsync();
 
-            if (session == null)
+            if (dashboardSession == null)
             {
-                context.Result = new UnauthorizedObjectResult(new ApiResponseBase<object>() {
-                    Message = "Session invalid, please login to continue"
-                });
-
+                response.Unauthorized("Access token is not valid");
+                context.Result = new UnauthorizedObjectResult(response);
                 return;
             }
+
+            userInfo.IsAuthenticated = true;
+            userInfo.BearerToken = bearerToken;
+            userInfo.TransactionId = transactionId;
+            userInfo.UserId = dashboardSession.TelegramUserId;
+            userInfo.UserName = dashboardSession.Username;
+            userInfo.UserPhotoUrl = dashboardSession.PhotoUrl;
+            userInfo.UserFirstName = dashboardSession.FirstName;
+            userInfo.UserLastName = dashboardSession.LastName;
+
+            userRoles.Add(RoleLevel.User);
+
+            dashboardSession.ExpireDate = DateTime.UtcNow.AddDays(7);
+            dashboardSession.TransactionId = transactionId;
+            #endregion
+
+            #region Add User Role
+            var checkSudo = await dataFacade.MongoDb.Sudoers.AsNoTracking()
+                .Where(x => x.Status == EventStatus.Complete)
+                .Where(x => x.UserId == dashboardSession.TelegramUserId)
+                .FirstOrDefaultAsync();
+
+            if (checkSudo != null)
+            {
+                userRoles.Add(RoleLevel.Sudo);
+            }
+
+            userInfo.UserRoles = userRoles;
+
+            await dataFacade.SaveChangesAsync();
+            #endregion
         }
 
-        var roles = items[RequestKey.UserRole]?.ToString();
-
-        switch (roleLevel)
+        if (!userRoles.Contains(roleLevel))
         {
-            case RoleLevel.ChatAdminOrPrivate:
-                if (!await CheckListChatId(userId))
-                {
-                    response.StatusCode = HttpStatusCode.Forbidden;
-                    response.Message = "You are not authorized to access this resource.";
-                }
-
-                break;
-            case RoleLevel.User:
-                break;
-            case RoleLevel.ChatAdmin:
-                break;
-            case RoleLevel.Sudo:
-                if (roles != nameof(RoleLevel.Sudo))
-                {
-                    response.StatusCode = HttpStatusCode.Forbidden;
-                    response.Message = "You are not authorized to access this resource.";
-                }
-
-                break;
+            response.Unauthorized("You are not authorized to access this resource");
+            context.Result = new UnauthorizedObjectResult(response);
         }
 
-        if (response.StatusCode == 0) return;
-
-        context.Result = new JsonResult(response) {
-            StatusCode = (int?)response.StatusCode
-        };
-    }
-
-    private async Task<bool> CheckListChatId(long userId)
-    {
-        var chatAdmin = await dataFacade.Group.GetChatAdminByUserId(userId);
-
-        return chatAdmin.Any();
+        context.HttpContext.Items.TryAdd(ValueConst.USER_INFO, userInfo);
     }
 }

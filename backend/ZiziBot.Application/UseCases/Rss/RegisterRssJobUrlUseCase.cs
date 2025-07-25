@@ -18,7 +18,7 @@ public class RegisterRssJobUrlUseCase(
 {
     public async Task<bool> Handle(RegisterRssJobUrlRequest request)
     {
-        logger.LogDebug("Registering RSS Job. ChatId: {ChatId}, ThreadId: {ThreadId} RssUrl: {RssUrl}", request.ChatId, request.ThreadId, request.Url);
+        logger.LogDebug("Registering RSS Job. ChatId: {ChatId}, ThreadId: {ThreadId}, RssUrl: {RssUrl}", request.ChatId, request.ThreadId, request.Url);
 
         RecurringJob.RemoveIfExists(request.JobId);
         RecurringJob.AddOrUpdate<FetchRssUseCase>(

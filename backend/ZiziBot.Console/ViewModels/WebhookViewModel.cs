@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ZiziBot.Application.Facades;
-using ZiziBot.Contracts.Enums;
-using ZiziBot.DataSource.MongoEf.Entities;
-using ZiziBot.Types.Types;
+using ZiziBot.Common.Enums;
+using ZiziBot.Common.Types;
+using ZiziBot.Database;
+using ZiziBot.Database.MongoDb.Entities;
 using Unit = System.Reactive.Unit;
 
 namespace ZiziBot.Console.ViewModels;
@@ -30,11 +30,11 @@ public class WebhookViewModel : ReactiveObject
         _listWebhookChat = LoadDataCommand.ToProperty(this, x => x.ListWebhookChat, scheduler: RxApp.MainThreadScheduler);
     }
 
-    async Task<List<WebhookChatEntity>> LoadData()
+    private async Task<List<WebhookChatEntity>> LoadData()
     {
         Loading.CurrentStep = 1;
 
-        var data = await _dataFacade.MongoEf.WebhookChat
+        var data = await _dataFacade.MongoDb.WebhookChat
             .Where(x => x.Status == EventStatus.Complete)
             .ToListAsync();
 

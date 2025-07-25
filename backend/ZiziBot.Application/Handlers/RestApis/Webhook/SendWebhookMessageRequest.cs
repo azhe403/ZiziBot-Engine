@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
@@ -29,7 +29,7 @@ public class SendWebhookMessageRequestHandler(
     {
         var stopwatch = Stopwatch.StartNew();
         var webhookChat = await dataFacade.ChatSetting.GetWebhookRouteById(request.TargetId);
-        var botSetting = await dataFacade.AppSetting.GetBotMain();
+        var botSetting = await dataFacade.Bot.GetBotMain();
         var botClient = new TelegramBotClient(botSetting.Token);
 
         Message sentMessage = new();
@@ -87,7 +87,7 @@ public class SendWebhookMessageRequestHandler(
             }
         }
 
-        dataFacade.MongoEf.WebhookHistory.Add(new WebhookHistoryEntity {
+        dataFacade.MongoDb.WebhookHistory.Add(new WebhookHistoryEntity {
             RouteId = webhookChat.RouteId,
             TransactionId = request.TransactionId,
             CreatedDate = default,
@@ -103,11 +103,11 @@ public class SendWebhookMessageRequestHandler(
             Status = EventStatus.Complete
         });
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         var chatActivity = lastMessageId == 0 ? ChatActivityType.BotSendWebHook : ChatActivityType.BotEditWebHook;
 
-        dataFacade.MongoEf.ChatActivity.Add(new ChatActivityEntity {
+        dataFacade.MongoDb.ChatActivity.Add(new ChatActivityEntity {
             ActivityType = chatActivity,
             ActivityTypeName = chatActivity.ToString(),
             ChatId = webhookChat.ChatId,
@@ -119,7 +119,7 @@ public class SendWebhookMessageRequestHandler(
 
         stopwatch.Stop();
 
-        await dataFacade.MongoEf.SaveChangesAsync(cancellationToken);
+        await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return 1;
     }

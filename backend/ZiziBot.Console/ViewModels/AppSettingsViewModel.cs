@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ZiziBot.Application.Facades;
-using ZiziBot.Contracts.Enums;
-using ZiziBot.DataSource.MongoEf.Entities;
+using ZiziBot.Common.Enums;
+using ZiziBot.Database;
+using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Console.ViewModels;
 
@@ -14,15 +14,15 @@ public class AppSettingsViewModel(DataFacade dataFacade) : ReactiveObject, IActi
 
     public async Task LoadData()
     {
-        AppSettings = await dataFacade.MongoEf.AppSettings.AsNoTracking()
+        AppSettings = await dataFacade.MongoDb.AppSettings.AsNoTracking()
             .Where(w => w.Status == EventStatus.Complete)
             .OrderBy(o => o.Field).ToListAsync();
     }
 
     public async Task Update(AppSettingsEntity appSettingsEntity)
     {
-        dataFacade.MongoEf.AppSettings.Update(appSettingsEntity);
-        await dataFacade.MongoEf.SaveChangesAsync();
+        dataFacade.MongoDb.AppSettings.Update(appSettingsEntity);
+        await dataFacade.MongoDb.SaveChangesAsync();
 
         await LoadData();
     }

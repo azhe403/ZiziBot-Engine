@@ -1,6 +1,7 @@
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ZiziBot.Common.Dtos;
 
 namespace ZiziBot.Application.Services;
 

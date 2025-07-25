@@ -1,6 +1,7 @@
 using dotenv.net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ZiziBot.Common.Exceptions;
 
 namespace ZiziBot.Infrastructure;
 
@@ -15,12 +16,12 @@ public static class ConfigurationExtension
         return builder.LoadLocalSettings();
     }
 
-    public async static Task<IServiceCollection> ConfigureSettings(this IServiceCollection services)
+    public static async Task<IServiceCollection> ConfigureSettings(this IServiceCollection services)
     {
         services.AddDataSource();
         services.AddDataRepository();
 
-        var provider = services.BuildServiceProvider();
+        await using var provider = services.BuildServiceProvider();
 
         var config = provider.GetRequiredService<IConfiguration>();
 
@@ -53,6 +54,27 @@ public static class ConfigurationExtension
         return builder;
     }
 
+    internal static async Task<IServiceCollection> PrefetchRepository(this IServiceCollection app)
+    {
+        await using var provider = app.BuildServiceProvider();
+
+        #region Feature Flags
+        var featureFlagRepository = provider.GetRequiredService<FeatureFlagRepository>();
+        await featureFlagRepository.GetFlags();
+        #endregion
+
+        #region Env
+        var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
+        var sentryConfig = await appSettingRepository.GetConfigSectionAsync<SentryConfig>();
+
+        if (sentryConfig?.IsEnabled == true)
+        {
+            Env.SentryDsn = sentryConfig.Dsn;
+        }
+        #endregion
+
+        return app;
+    }
 
     private static IConfigurationBuilder AddMongoConfigurationSource(this IConfigurationBuilder builder)
     {
