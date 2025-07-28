@@ -47,7 +47,7 @@ public static class RssParserUtil
 
                 if ((rssUrl.IsGithubReleaseUrl() || rssUrl.IsGithubCommitsUrl()) && !fixedUrl.EndsWith(".atom"))
                 {
-                    fixedUrl += ".atom";
+                    fixedUrl = rssUrl.AppendPathSegment(".atom");
                     var read = await fixedUrl.ReadRssAsync();
                     if (!read.Items.IsEmpty())
                         return fixedUrl;
@@ -55,7 +55,7 @@ public static class RssParserUtil
 
                 if (!rssUrl.EndsWith("/feed"))
                 {
-                    fixedUrl = rssUrl + "/feed";
+                    fixedUrl = rssUrl.AppendPathSegment("feed");
                     var read = await fixedUrl.ReadRssAsync();
                     if (!read.Items.IsEmpty())
                         return fixedUrl;
