@@ -1,8 +1,5 @@
-using System.ComponentModel;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Sentry.Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.Database.MongoDb;
@@ -19,10 +16,6 @@ public sealed class FetchRssUseCase(
     ReadRssUseCase readRssUseCase
 )
 {
-    [DisplayName("RSS {0}:{1} {2}")]
-    [AutomaticRetry(Attempts = 1, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-    [SentryMonitorSlug("FetchRssUseCase")]
-    [Queue(CronJobKey.Queue_Rss)]
     public async Task<bool> Handle(long chatId, int? threadId, string rssUrl)
     {
         if (!await featureFlagRepository.IsEnabled(Flag.RSS_BROADCASTER))

@@ -29,14 +29,14 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.8" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
     <ProjectReference Include="..\ZiziBot.Console\ZiziBot.Console.csproj"/>
     <ProjectReference Include="..\ZiziBot.Database\ZiziBot.Database.csproj"/>
     <ProjectReference Include="..\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Hangfire\ZiziBot.Hangfire.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Scheduler\ZiziBot.Scheduler.csproj"/>
     <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
     <ProjectReference Include="..\ZiziBot.TelegramBot\ZiziBot.TelegramBot.csproj"/>
     <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj"/>

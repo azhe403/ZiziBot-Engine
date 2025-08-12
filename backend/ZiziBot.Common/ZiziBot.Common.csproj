@@ -21,6 +21,7 @@
     <PackageReference Include="Flurl" Version="4.0.0"/>
     <PackageReference Include="Flurl.Http" Version="4.0.2"/>
     <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
     <PackageReference Include="Jsonize" Version="3.2.0"/>
     <PackageReference Include="Jsonize.Parser" Version="3.2.1"/>
     <PackageReference Include="Jsonize.Serializer" Version="3.2.1"/>
@@ -33,7 +34,7 @@
     <PackageReference Include="Serilog" Version="4.3.0"/>
     <PackageReference Include="TimeSpanParserUtil" Version="1.2.0"/>
     <PackageReference Include="YamlDotNet" Version="16.3.0"/>
-    <PackageReference Include="ZLinq" Version="1.5.1"/>
+    <PackageReference Include="ZLinq" Version="1.5.2" />
   </ItemGroup>
 
 </Project>

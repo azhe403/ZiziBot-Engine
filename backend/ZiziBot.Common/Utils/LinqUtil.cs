@@ -66,4 +66,23 @@ public static class LinqUtil
     {
         return !source.IsEmpty();
     }
+
+    public static async Task ParallelForEachAsync<T>(this IEnumerable<T> source, int maxDegreeOfParallelism, Func<T, Task> body)
+    {
+        var options = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = maxDegreeOfParallelism
+        };
+
+        await Parallel.ForEachAsync(
+            source,
+            options,
+            async (item, _) => await body(item)
+        );
+    }
+
+    public static async Task ParallelForEachAsync<T>(this IEnumerable<T> source, Func<T, Task> body)
+    {
+        await source.ParallelForEachAsync(Environment.ProcessorCount, body);
+    }
 }

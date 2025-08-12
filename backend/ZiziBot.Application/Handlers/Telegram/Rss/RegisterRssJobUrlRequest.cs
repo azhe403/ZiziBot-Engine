@@ -1,6 +1,6 @@
 ﻿using Hangfire;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Application.UseCases.Rss;
+using ZiziBot.Application.Scheduler;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
@@ -22,9 +22,9 @@ public class RegisterRssJobUrlHandler(
         logger.LogDebug("Registering RSS Job. ChatId: {ChatId}, ThreadId: {ThreadId} RssUrl: {RssUrl}", request.ChatId, request.ThreadId, request.Url);
 
         RecurringJob.RemoveIfExists(request.JobId);
-        RecurringJob.AddOrUpdate<FetchRssUseCase>(
+        RecurringJob.AddOrUpdate<RssScheduler>(
             request.JobId,
-            methodCall: x => x.Handle(request.ChatId, request.ThreadId, request.Url),
+            methodCall: x => x.RssBroadcast(request.ChatId, request.ThreadId, request.Url),
             cronExpression: TimeUtil.MinuteInterval(3)
         );
 

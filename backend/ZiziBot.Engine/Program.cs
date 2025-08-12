@@ -12,7 +12,7 @@ await builder.Services.ConfigureServices();
 await builder.Services.ConfigureTelegramBot();
 
 builder.Services.AddSerilog(builder);
-builder.Services.ConfigureHangfire();
+builder.Services.ConfigureScheduler();
 builder.Services.AddRestApi();
 builder.Services.AddAllMiddleware();
 builder.Services.AddConsole();
@@ -29,7 +29,7 @@ app.UseAuthorization();
 
 app.ConfigureConsole();
 app.ConfigureApi();
-app.UseHangfire();
+app.UseScheduler();
 
 await app.RunTelegramBot();
 
