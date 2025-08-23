@@ -1,16 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
+using ZiziBot.Application.UseCases.Rss;
 
 namespace ZiziBot.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RssController : ApiControllerBase
+public class RssController(GetRssHistoryUseCase getRssHistoryUseCase) : ApiControllerBase
 {
     [HttpGet()]
     [AccessFilter(flag: Flag.REST_CHAT_RSS_LIST, roleLevel: RoleLevel.User)]
     public async Task<IActionResult> Index(GetListRssRequest request)
     {
         return await SendRequest(request);
+    }
+
+    [HttpGet("history")]
+    [AccessFilter(flag: Flag.REST_CHAT_RSS_LIST_HISTORY, roleLevel: RoleLevel.User)]
+    public async Task<IActionResult> GetHistory(GetRssHistoryRequest request)
+    {
+        return await SendRequest(() => getRssHistoryUseCase.Handle(request));
     }
 
     [HttpPost]
