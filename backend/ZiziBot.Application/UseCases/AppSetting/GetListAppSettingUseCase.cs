@@ -43,6 +43,6 @@ public class GetListAppSettingUseCase(AppSettingRepository appSettingRepository,
             }).ToListAsync();
 
         return response.Success("Get List App Setting Success", appSettingsEntities)
-            .SetMetadata(appSettingsEntities.Count);
+            .SetMetadata(totalItem: appSettingsEntities.Count);
     }
 }

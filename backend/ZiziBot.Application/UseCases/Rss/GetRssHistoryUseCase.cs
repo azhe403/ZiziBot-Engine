@@ -10,6 +10,9 @@ public class GetRssHistoryRequest
     public int? ThreadId { get; set; }
     public string? RssUrl { get; set; }
     public HistoryType? HistoryType { get; set; }
+    public int? Page { get; set; }
+    public int? PageSize { get; set; }
+    internal bool IsPaginationRequested => Page.HasValue && PageSize.HasValue;
 }
 
 public class GetRssHistoryValidator : AbstractValidator<GetRssHistoryRequest>
@@ -40,15 +43,26 @@ public class GetRssHistoryUseCase(MongoDbContext mongoDbContext)
     {
         var response = ApiResponse.Create<List<GetRssHistoryResponse>>();
 
-        var query = await mongoDbContext.RssHistory.AsNoTracking()
+        // Default values for pagination if not provided
+        var effectivePage = request.Page ?? 1;
+        var effectivePageSize = request.PageSize ?? -1;
+
+        var query = mongoDbContext.RssHistory.AsNoTracking()
             .Where(x => x.ChatId == request.ChatId)
             .WhereIf(request.ThreadId.HasValue, e => e.ThreadId == request.ThreadId)
             .WhereIf(!string.IsNullOrWhiteSpace(request.RssUrl), e => e.RssUrl == request.RssUrl)
-            .WhereIf(request.HistoryType.HasValue, e => e.HistoryType == request.HistoryType)
-            .OrderByDescending(x => x.CreatedDate)
-            .ToListAsync();
+            .WhereIf(request.HistoryType.HasValue, e => e.HistoryType == request.HistoryType);
 
-        var data = query.Select(e => new GetRssHistoryResponse
+        var totalItems = await query.CountAsync();
+
+        if (request.IsPaginationRequested)
+        {
+            query = query.Skip((effectivePage - 1) * effectivePageSize).Take(effectivePageSize);
+        }
+
+        var listData = await query.OrderByDescending(x => x.CreatedDate).ToListAsync();
+
+        var data = listData.Select(e => new GetRssHistoryResponse
         {
             ChatId = e.ChatId,
             ThreadId = e.ThreadId,
@@ -62,6 +76,6 @@ public class GetRssHistoryUseCase(MongoDbContext mongoDbContext)
             HistoryType = e.HistoryType ?? HistoryType.Unknown
         }).ToList();
 
-        return response.Success("OK", data);
+        return response.Success("OK", data).SetMetadata(pageSize: effectivePageSize, totalItem: totalItems, pageNumber: effectivePage, actualPageSize: listData.Count);
     }
 }
