@@ -17,7 +17,6 @@ public class CacheService(
     private string _expireAfter = "24h";
     private string _staleAfter = "15s";
 
-    [Obsolete("Use GetOrSetAsync with Cache<T> instead")]
     public async Task<T> GetOrSetAsync<T>(
         string cacheKey,
         Func<Task<T>> action,
@@ -81,16 +80,54 @@ public class CacheService(
         }
     }
 
-    public Task<T> GetOrSetAsync<T>(Cache<T> cache)
+    public Task<T> GetOrSetAsync<T>(CacheParam<T> cacheParam)
     {
-        return GetOrSetAsync(cache.CacheKey,
-            cache.Action,
-            cache.DisableCache,
-            cache.EvictBefore,
-            cache.EvictAfter,
-            cache.ExpireAfter,
-            cache.StaleAfter,
-            cache.ThrowIfError
+        return GetOrSetAsync(cacheParam.CacheKey,
+            cacheParam.Action,
+            cacheParam.DisableCache,
+            cacheParam.EvictBefore,
+            cacheParam.EvictAfter,
+            cacheParam.ExpireAfter,
+            cacheParam.StaleAfter,
+            cacheParam.ThrowIfError
+        );
+    }
+
+    public async Task<T?> GetOrSetAsyncV2<T>(
+        string cacheKey,
+        Func<Task<CacheReturn<T>>> action,
+        bool disableCache = false,
+        bool evictBefore = false,
+        bool evictAfter = false,
+        string? expireAfter = null,
+        string? staleAfter = null,
+        bool throwIfError = false
+    )
+    {
+        var cache=  await GetOrSetAsync(cacheKey: cacheKey,
+            action: action,
+            disableCache: disableCache,
+            evictBefore: evictBefore,
+            evictAfter: evictAfter,
+            expireAfter: expireAfter,
+            staleAfter: staleAfter,
+            throwIfError: throwIfError);
+
+        return cache.Data;
+    }
+
+
+    public Task<TData?> GetOrSetAsyncV2<TData>(CacheV2Param<TData> cacheParam)
+    {
+        return GetOrSetAsyncV2(
+            cacheKey: cacheParam.CacheKey,
+            action: cacheParam.Action,
+            disableCache: cacheParam.DisableCache,
+            evictBefore: cacheParam.EvictBefore,
+            evictAfter: cacheParam.EvictAfter,
+            expireAfter: cacheParam.ExpireAfter,
+            staleAfter: cacheParam.StaleAfter,
+            throwIfError: cacheParam.ThrowIfError
         );
     }
 
