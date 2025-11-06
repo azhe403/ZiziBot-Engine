@@ -15,4 +15,5 @@ public class ApiKeyEntity : EntityBase
     public string? LimitUnit { get; set; }
     public DateTime? ResetUsageDate { get; set; }
     public string? Note { get; set; }
+    public string? Owner { get; set; }
 }
