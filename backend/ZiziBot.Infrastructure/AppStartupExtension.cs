@@ -13,22 +13,25 @@ public static class AppStartupExtension
         logger.LogInformation("ZiziBot 5");
         logger.LogInformation("Version: {Version}", VersionUtil.GetVersionNumber());
 
-        await app.PrefetchRepository();
+        // await app.PrefetchRepository();
 
         return app;
     }
 
     private static async Task<IApplicationBuilder> PrefetchRepository(this IApplicationBuilder app)
     {
-        using var scope = app.ApplicationServices.CreateScope();
+        var scope = app.ApplicationServices.CreateScope();
         var provider = scope.ServiceProvider;
 
         #region Feature Flags
+
         var featureFlagRepository = provider.GetRequiredService<FeatureFlagRepository>();
         await featureFlagRepository.GetFlags();
+
         #endregion
 
         #region Env
+
         var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
         var botRepository = provider.GetRequiredService<BotRepository>();
         var sentryConfig = appSettingRepository.GetConfigSection<SentryConfig>();
@@ -40,6 +43,7 @@ public static class AppStartupExtension
 
         await botRepository.GetApiKeyAsync(ApiKeyCategory.Internal, ApiKeyVendor.GitHub);
         await botRepository.GetBotMain();
+
         #endregion
 
         return app;

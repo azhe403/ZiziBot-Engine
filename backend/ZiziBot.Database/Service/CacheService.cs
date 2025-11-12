@@ -1,6 +1,7 @@
 using CacheTower;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ZiggyCreatures.Caching.Fusion;
 using ZiziBot.Common.Interfaces;
 using ZiziBot.Common.Types;
 
@@ -9,7 +10,8 @@ namespace ZiziBot.Database.Service;
 public class CacheService(
     ILogger<CacheService> logger,
     IOptions<CacheConfig> cacheConfig,
-    ICacheStack cacheStack
+    ICacheStack cacheStack,
+    IFusionCache fusionCache
 )
     : ICacheService
 {
@@ -50,7 +52,8 @@ public class CacheService(
 
             var cache = await cacheStack.GetOrSetAsync<T>(
                 cacheKey: cacheKey.Trim(),
-                valueFactory: async (_) => {
+                valueFactory: async (_) =>
+                {
                     logger.LogDebug("Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
 
                     return await action();
@@ -104,7 +107,13 @@ public class CacheService(
         bool throwIfError = false
     )
     {
-        var cache=  await GetOrSetAsync(cacheKey: cacheKey,
+        if (_cacheConfig.CacheEngine == CacheEngine.FusionCache)
+        {
+            var fusion = await FusionGetAsync(cacheKey, async (x) => await action());
+            return fusion.Data;
+        }
+
+        var cache = await GetOrSetAsync(cacheKey: cacheKey,
             action: action,
             disableCache: disableCache,
             evictBefore: evictBefore,
@@ -145,5 +154,20 @@ public class CacheService(
             if (_cacheConfig.UseJsonFile)
                 PathConst.CACHE_TOWER_JSON.DeleteDirectory();
         }
+    }
+
+    private async ValueTask<TValue> FusionGetAsync<TValue>(
+        string key,
+        Func<CancellationToken, Task<TValue>> factory
+    )
+    {
+        var cached = await fusionCache.GetOrSetAsync<TValue>(key: key, factory: async (ctx, ct) =>
+        {
+            logger.LogDebug("Loading Fusion cache with key: {Key}", key);
+
+            return await factory(ct);
+        });
+
+        return cached;
     }
 }

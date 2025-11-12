@@ -12,11 +12,14 @@
     <PackageReference Include="CacheTower.Providers.Redis" Version="0.14.0"/>
     <PackageReference Include="CacheTower.Serializers.SystemTextJson" Version="0.14.0"/>
     <PackageReference Include="FirebaseDatabase.net" Version="5.0.0"/>
-    <PackageReference Include="Google.Apis.Auth" Version="1.70.0"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
-    <PackageReference Include="MongoDB.EntityFrameworkCore" Version="9.0.0"/>
-    <PackageReference Include="TickerQ.EntityFrameworkCore" Version="2.4.4" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.72.0"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.10"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10"/>
+    <PackageReference Include="MongoDB.EntityFrameworkCore" Version="9.0.3"/>
+    <PackageReference Include="NeoSmart.Caching.Sqlite" Version="9.0.1"/>
+    <PackageReference Include="TickerQ.EntityFrameworkCore" Version="2.5.3"/>
+    <PackageReference Include="ZiggyCreatures.FusionCache" Version="2.4.0"/>
+    <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.NewtonsoftJson" Version="2.4.0"/>
   </ItemGroup>
 
   <ItemGroup>
