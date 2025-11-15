@@ -271,7 +271,7 @@ public static class StringUtil
         if (!pattern.IsValidRegex())
             return isMatch;
 
-        if (Regex.IsMatch(source, pattern))
+        if (Regex.IsMatch(source, pattern, RegexOptions.NonBacktracking, matchTimeout: TimeSpan.FromMilliseconds(100)))
             isMatch = true;
 
         return isMatch;
@@ -279,11 +279,12 @@ public static class StringUtil
 
     public static bool IsValidRegex(this string pattern)
     {
-        if (string.IsNullOrWhiteSpace(pattern)) return false;
+        if (string.IsNullOrWhiteSpace(pattern))
+            return false;
 
         try
         {
-            _ = Regex.Match("dummy-texts", pattern);
+            _ = Regex.Match("dummy-texts", pattern, RegexOptions.NonBacktracking, matchTimeout: TimeSpan.FromMilliseconds(100));
         }
         catch (ArgumentException)
         {
