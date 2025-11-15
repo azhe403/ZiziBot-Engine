@@ -16,5 +16,6 @@ public class MirrorDonationEntity : EntityBase
     public int Quantity { get; set; }
     public int Price { get; set; }
     public int NetAmount { get; set; }
+    public long ClaimerUserId { get; set; }
     public DonationSource Source { get; set; }
 }

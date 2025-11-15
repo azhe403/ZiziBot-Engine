@@ -18,7 +18,7 @@ public sealed class FathimahRestService(
 
         logger.LogInformation("Get City");
 
-        var apis = await cacheService.GetOrSetAsync(new Cache<CityResponse>(){
+        var apis = await cacheService.GetOrSetAsync(new CacheParam<CityResponse>(){
             CacheKey =  $"vendor/bang-hasan/{path}",
             ExpireAfter =  "1d",
             StaleAfter = "1h",
@@ -56,7 +56,7 @@ public sealed class FathimahRestService(
 
         logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateTime);
 
-        var apis = await cacheService.GetOrSetAsync(new Cache<ShalatTimeResponse>(){
+        var apis = await cacheService.GetOrSetAsync(new CacheParam<ShalatTimeResponse>(){
             CacheKey = $"vendor/bang-hasan/{path}",
             ExpireAfter = "1d",
             EvictBefore = evictBefore,

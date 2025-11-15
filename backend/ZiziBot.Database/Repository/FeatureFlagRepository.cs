@@ -37,7 +37,7 @@ public class FeatureFlagRepository(
         if (flagName.IsNullOrWhiteSpace())
             return null;
 
-        var cache = await cacheService.GetOrSetAsync(new Cache<FeatureFlagDto?>()
+        var cache = await cacheService.GetOrSetAsync(new CacheParam<FeatureFlagDto?>()
         {
             CacheKey = CacheKey.FEATURE_FLAG + flagName,
             Action = async () =>

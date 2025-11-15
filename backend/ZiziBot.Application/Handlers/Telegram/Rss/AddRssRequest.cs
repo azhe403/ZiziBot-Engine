@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Serilog;
-using ZiziBot.Database.MongoDb.Entities;
+﻿using Microsoft.Extensions.Logging;
+using ZiziBot.Application.UseCases.Rss;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
@@ -9,8 +8,10 @@ public class AddRssRequest : BotRequestBase
 }
 
 public class AddRssHandler(
+    ILogger<AddRssHandler> logger,
     DataFacade dataFacade,
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    AddRssUseCase addRssUseCase
 )
     : IBotRequestHandler<AddRssRequest>
 {
@@ -24,45 +25,26 @@ public class AddRssHandler(
         if (request.Param.IsNullOrEmpty())
             return await serviceFacade.TelegramService.SendMessageAsync("Masukkan RSS URL yang ingin ditambahkan");
 
+        await serviceFacade.TelegramService.SendMessageAsync("🔍 Sedang memeriksa RSS..");
+
         try
         {
-            var rssUrl = await request.Param.DetectRss();
-            await serviceFacade.TelegramService.SendMessageAsync("Sedang memverifikasi URL..");
+            await serviceFacade.TelegramService.SendMessageAsync("🔌 Mengatur RSS..");
 
-            var rssSetting = await dataFacade.MongoDb.RssSetting
-                .Where(entity => entity.RssUrl == rssUrl)
-                .Where(entity => entity.ChatId == request.ChatIdentifier)
-                .Where(entity => entity.ThreadId == request.MessageThreadId)
-                .Where(entity => entity.Status == EventStatus.Complete)
-                .FirstOrDefaultAsync(cancellationToken: cancellationToken);
-
-            if (rssSetting != null)
-                return await serviceFacade.TelegramService.SendMessageAsync("RSS Sudah disimpan");
-
-            var uniqueId = await StringUtil.GenerateRssKeyAsync();
-
-            var create = dataFacade.MongoDb.RssSetting.Add(new RssSettingEntity {
+            var rssUrl = await addRssUseCase.Handle(new AddRssParam()
+            {
                 ChatId = request.ChatIdentifier,
-                RssUrl = rssUrl,
-                ThreadId = request.MessageThreadId,
                 UserId = request.UserId,
-                CronJobId = uniqueId,
-                Status = EventStatus.Complete
+                ThreadId = request.MessageThreadId,
+                Url = request.Param
             });
 
-            await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
-
-            await serviceFacade.TelegramService.SendMessageAsync("Membuat Cron Job..");
-
-            await serviceFacade.JobService.Register(request.ChatIdentifier, request.MessageThreadId, rssUrl, uniqueId, true);
-
-            return await serviceFacade.TelegramService.SendMessageAsync("RSS Berhasil disimpan" +
-                                                                        "\nURL: " +
-                                                                        rssUrl);
+            return await serviceFacade.TelegramService.SendMessageAsync("🔖 RSS Feed" +
+                                                                        "\nURL: " + rssUrl);
         }
         catch (Exception e)
         {
-            Log.Error(e, "Failed when adding RSS Url: {Url} to ChatId: {ChatId}", request.Param, request.ChatIdentifier);
+            logger.LogError(e, "Failed when adding RSS Url: {Url} to ChatId: {ChatId}", request.Param, request.ChatIdentifier);
             return await serviceFacade.TelegramService.SendMessageAsync("Terjadi sesuatu ketika menambahkan RSS");
         }
     }

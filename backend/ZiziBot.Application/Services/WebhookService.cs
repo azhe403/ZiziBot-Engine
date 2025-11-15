@@ -45,7 +45,8 @@ public class WebhookService
                 htmlMessage.Text("🚀 Push ").Url(pushEvent.Compare, $"{commitsStr}").Bold($" to ").Url(treeUrl, $"{branchName}")
                     .Br().Br();
 
-                commits.ForEach(commit => {
+                commits.ForEach(commit =>
+                {
                     htmlMessage.Url(commit.Url.ToString(), commit.Id[..7])
                         .Text(": ")
                         .TextBr($"{commit.Message} by {commit.Author.Name}");
@@ -127,8 +128,8 @@ public class WebhookService
 
                 htmlMessage
                     .Bold("Name: ").TextBr(checkSuite.App.Name)
-                    .Bold("Status: ").TextBr(checkSuite.Status.StringValue)
-                    .Bold("Conclusion: ").TextBr(checkSuite.Conclusion.StringValue);
+                    .Bold("Status: ").TextBr(checkSuite.Status?.StringValue)
+                    .Bold("Conclusion: ").TextBr(checkSuite.Conclusion?.StringValue);
                 break;
 
             case WebhookEventType.CheckRun:
@@ -140,7 +141,7 @@ public class WebhookService
                     .Bold("Status: ").TextBr(checkRun.Status.StringValue);
 
                 if (checkRun.Conclusion != null)
-                    htmlMessage.Bold("Conclusion: ").TextBr(checkRun.Conclusion.StringValue);
+                    htmlMessage.Bold("Conclusion: ").TextBr(checkRun.Conclusion?.StringValue);
                 break;
 
             case WebhookEventType.DependabotAlert:
@@ -203,7 +204,8 @@ public class WebhookService
                     .Text(":").Url(treeUrl, $"{branchName}")
                     .Br().Br();
 
-                commits.ForEach(commit => {
+                commits.ForEach(commit =>
+                {
                     htmlMessage.Url(commit.Url.ToString(), commit.Id[..7])
                         .Text(": ")
                         .TextBr($"{commit.Message.Trim()} by {commit.Author.Name}");

@@ -22,6 +22,7 @@ public static class ServiceExtension
     {
         services.AddAllService();
         await services.ConfigureSettings();
+        services.ConfigureFusionCache();
         services.AddCacheTower();
         services.AddMongoMigration();
         await services.PrefetchRepository();

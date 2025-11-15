@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Hangfire.Storage;
 using Serilog;
 
-namespace ZiziBot.Hangfire;
+namespace ZiziBot.Scheduler.Hangfire;
 
 public static class HangfireUtil
 {

@@ -263,10 +263,7 @@ paket-files/
 __pycache__/
 *.pyc
 
-**/Storage/AppSettings
-**/Storage/Temp*
-**/Storage/Cache*
-**/Storage/Hangfire*
+**/Storage/
 **/cert
 
 .env
