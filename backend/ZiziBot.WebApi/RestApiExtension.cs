@@ -33,28 +33,31 @@ public static class RestApiExtension
             .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>();
 
         services
-            .Configure<ApiBehaviorOptions>(options => {
-                options.SuppressInferBindingSourcesForParameters = true;
-            })
-            .AddControllers(options => {
+            .Configure<ApiBehaviorOptions>(options => { options.SuppressInferBindingSourcesForParameters = true; })
+            .AddControllers(options =>
+                {
                     options.Conventions.Add(new ControllerHidingConvention());
                     options.Conventions.Add(new ActionHidingConvention());
                     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
                 }
             )
-            .AddJsonOptions(options => {
+            .AddJsonOptions(options =>
+            {
                 options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             })
-            .ConfigureApiBehaviorOptions(options => {
-                options.InvalidModelStateResponseFactory = context => {
+            .ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
                     var transactionId = context.HttpContext.GetTransactionId();
 
                     var errorDetails = context.ModelState
                         .Where(entry => entry.Value?.ValidationState == ModelValidationState.Invalid)
                         .Where(x => x.Key != "request")
-                        .Select(key => new {
+                        .Select(key => new
+                        {
                             Id = key.Key,
                             Field = key.Key.Split('.').LastOrDefault(),
                             Message = key.Value?.Errors.Select(e => e.ErrorMessage)
@@ -62,11 +65,13 @@ public static class RestApiExtension
 
                     var errors = errorDetails.SelectMany(x => x.Message ?? []).ToList();
 
-                    return new BadRequestObjectResult(new ApiResponseBase<object>() {
+                    return new BadRequestObjectResult(new ApiResponseBase<object>()
+                    {
                         StatusCode = HttpStatusCode.BadRequest,
                         TransactionId = transactionId,
                         Message = errors.Aggregate((a, b) => $"{a}\n{b}"),
-                        Result = new {
+                        Result = new
+                        {
                             Error = errors.Aggregate((a, b) => $"{a}\n{b}"),
                             Errors = errors,
                             ErrorDetails = errorDetails,
@@ -76,12 +81,15 @@ public static class RestApiExtension
             });
 
         services.AddAuthorization()
-            .AddAuthentication(options => {
+            .AddAuthentication(options =>
+            {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(o => {
-                o.TokenValidationParameters = new TokenValidationParameters {
+            }).AddJwtBearer(o =>
+            {
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
                     ValidIssuer = jwtConfig.Issuer,
                     ValidAudience = jwtConfig.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key)),
@@ -91,14 +99,17 @@ public static class RestApiExtension
                     ValidateIssuerSigningKey = true
                 };
 
-                o.Events = new JwtBearerEvents {
-                    OnChallenge = async context => {
+                o.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
                         context.HandleResponse();
 
                         context.Response.StatusCode = 401;
                         context.Response.ContentType = "application/json";
                         await context.Response.WriteAsJsonAsync(
-                            new ApiResponseBase<bool>() {
+                            new ApiResponseBase<bool>()
+                            {
                                 StatusCode = HttpStatusCode.Unauthorized,
                                 Message = "Please ensure you have a valid token"
                             }
@@ -110,7 +121,8 @@ public static class RestApiExtension
         services.AddCorsConfiguration();
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(options => {
+        services.AddSwaggerGen(options =>
+            {
                 options.DocumentFilter<HidePathDocumentFilter>();
                 options.SchemaFilter<SwaggerIgnoreFilter>();
             }
@@ -126,7 +138,8 @@ public static class RestApiExtension
 
     private static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
     {
-        services.AddCors(options => {
+        services.AddCors(options =>
+        {
             options.AddPolicy(ALLOW_ANY_ORIGIN_POLICY, builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
@@ -138,8 +151,8 @@ public static class RestApiExtension
 
     public static IServiceCollection AddAllMiddleware(this IServiceCollection services)
     {
-        services.Scan(
-            selector => {
+        services.Scan(selector =>
+            {
                 selector.FromAssembliesOf(typeof(GlobalExceptionMiddleware))
                     .AddClasses(filter => filter.InNamespaceOf<GlobalExceptionMiddleware>())
                     .AsSelf()
@@ -155,6 +168,7 @@ public static class RestApiExtension
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseMiddleware<RequestBodyGuardMiddleware>();
         app.UseMiddleware<InjectRequestMiddleware>();
+
         app.MapHub<LogHub>("/api/logging");
 
         app.UseStaticFiles();
@@ -168,9 +182,7 @@ public static class RestApiExtension
         app.ConfigureRateLimiter();
 
         app.UseSwagger();
-        app.UseSwaggerUI(options => {
-            options.DefaultModelsExpandDepth(-1);
-        });
+        app.UseSwaggerUI(options => { options.DefaultModelsExpandDepth(-1); });
 
         return app;
     }

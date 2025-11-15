@@ -14,22 +14,16 @@
     <Message Importance="high" Text="🔪 Killing process on port 7120 before $(MSBuildProjectName)..."/>
 
     <!-- Windows -->
-    <Exec Condition=" '$(OS)' == 'Windows_NT' "
-          Command="for /f &quot;tokens=5&quot; %%a in ('netstat -ano ^| findstr :7120 2^>nul') do taskkill /F /PID %%a 2&gt;nul &amp; if errorlevel 1 echo No process found on port 7120"
-          IgnoreExitCode="true"/>
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="for /f &quot;tokens=5&quot; %%a in ('netstat -ano ^| findstr :7120 2^&gt;nul') do taskkill /F /PID %%a 2&gt;nul &amp; if errorlevel 1 echo No process found on port 7120" IgnoreExitCode="true"/>
 
     <Message Importance="high" Text="🔪 Killing any running ZiziBot.Engine processes..."/>
-    <Exec Condition=" '$(OS)' == 'Windows_NT' "
-          Command="taskkill /F /IM ZiziBot.Engine.exe /T 2&gt;nul"
-          IgnoreExitCode="true"/>
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="taskkill /F /IM ZiziBot.Engine.exe /T 2&gt;nul" IgnoreExitCode="true"/>
 
-    <Exec Condition=" '$(OS)' == 'Windows_NT' "
-          Command="if errorlevel 1 echo No ZiziBot.Engine processes were found"
-          IgnoreExitCode="true"/>
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="if errorlevel 1 echo No ZiziBot.Engine processes were found" IgnoreExitCode="true"/>
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.10"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
@@ -46,4 +40,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties storage_4cachetower_4json_4rss_4android-giveawayoftheday-com_4feed_1json__JsonSchema=""/>
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

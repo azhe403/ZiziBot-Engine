@@ -11,9 +11,9 @@
     <PackageReference Include="FirebaseDatabase.net" Version="5.0.0"/>
     <PackageReference Include="Flurl.Http" Version="4.0.2"/>
     <PackageReference Include="GitHub.Octokit.SDK" Version="0.0.31"/>
-    <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.13.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.1" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.72.0"/>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0"/>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0"/>
   </ItemGroup>
 
   <ItemGroup>

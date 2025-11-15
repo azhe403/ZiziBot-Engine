@@ -22,7 +22,7 @@ public class StartupNotificationTask(IServiceScopeFactory serviceScope) : IStart
         var message = HtmlMessage.Empty
             .Bold("Startup Notification").Br()
             .Bold("Date: ").Code(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss zz")).Br()
-            .Bold("ExecutionStrategy: ").Code(engineConfig.ExecutionStrategy.ToString()).Br()
+            .Bold("ExecutionStrategy: ").Code(engineConfig.ExecutionMode.ToString()).Br()
             .Bold("EngineMode: ").Code(engineConfig.TelegramEngineMode.ToString()).Br()
             .Text("#task #startup");
 

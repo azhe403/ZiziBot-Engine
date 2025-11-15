@@ -66,6 +66,8 @@ public class MongoDbContext() : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        base.OnConfiguring(optionsBuilder);
+
         var conn = MongoUrl.Create(_connectionString);
 
         optionsBuilder.UseMongoDB(_connectionString, conn.DatabaseName);

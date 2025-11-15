@@ -36,7 +36,6 @@ public class ProjectTool
             case "DependsOnCondition":
                 if (File.Exists(buildProps))
                 {
-                    Log.Information("Updating {BuildProps}...", buildProps);
                     SetVersion(projectVersion, buildProps);
                 }
                 else
@@ -46,12 +45,9 @@ public class ProjectTool
 
                 break;
             case "RootOnly":
-                Log.Information("Updating {BuildProps}...", buildProps);
                 SetVersion(projectVersion, buildProps);
                 break;
             case "RootAndAllProjects":
-                Log.Information("Updating {BuildProps}...", buildProps);
-
                 SetVersion(projectVersion, buildProps);
                 RunRecursive(baseDirectory: baseDirectory, version: projectVersion);
                 break;
@@ -179,6 +175,8 @@ public class ProjectTool
     {
         if (version == null) throw new ArgumentNullException(nameof(version));
         if (csprojFile == null) throw new ArgumentNullException(nameof(csprojFile));
+
+        Log.Information("Updating {CsprojFile} to Version {Version}", csprojFile, version);
 
         var versionElement = UseVersionPrefix ? "VersionPrefix" : "Version";
 

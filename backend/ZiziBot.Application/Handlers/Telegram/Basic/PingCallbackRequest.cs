@@ -4,7 +4,8 @@ using ZiziBot.Common.Types;
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 
 public class PingCallbackBotRequestModel : BotRequestBase
-{ }
+{
+}
 
 public class PingCallbackRequestHandler(
     ServiceFacade serviceFacade,
@@ -26,7 +27,7 @@ public class PingCallbackRequestHandler(
         var messageCallback = string.Empty;
         var htmlMessage = HtmlMessage.Empty;
 
-        messageCallback += $"\nExecutionStrategy: {config?.ExecutionStrategy}";
+        messageCallback += $"\nExecutionStrategy: {config?.ExecutionMode}";
 
         if (!webhookInfo.Url.IsNullOrEmpty())
         {
