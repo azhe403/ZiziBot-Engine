@@ -15,7 +15,7 @@ public class BotRepository(
 {
     public async Task<BotSettingDto> GetBotMain()
     {
-        var cached = await cacheService.GetOrSetAsync(new Cache<BotSettingDto>()
+        var cached = await cacheService.GetOrSetAsync(new CacheParam<BotSettingDto>()
         {
             CacheKey = CacheKey.GLOBAL_BOT_MAIN,
             Action = async () =>
@@ -64,23 +64,24 @@ public class BotRepository(
 
     public async Task<string> GetApiKeyAsync(ApiKeyCategory category, ApiKeyVendor name)
     {
-        var query = mongoDbContext.ApiKey.AsNoTracking();
+        var cache = await cacheService.GetOrSetAsync($"api-key/{category}/{name}", async () =>
+        {
+            var query = mongoDbContext.ApiKey.AsNoTracking();
 
-        if (name == ApiKeyVendor.GitHub)
-            query = query.OrderByDescending(x => x.Remaining);
-        else
-            query = query.OrderBy(entity => entity.LastUsedDate);
+            if (name == ApiKeyVendor.GitHub)
+                query = query.OrderByDescending(x => x.Remaining);
+            else
+                query = query.OrderBy(entity => entity.LastUsedDate);
 
-        query = query.Where(entity => entity.Status == EventStatus.Complete)
-            .Where(entity => entity.Category == category)
-            .Where(entity => entity.Name == name);
+            query = query.Where(entity => entity.Status == EventStatus.Complete)
+                .Where(entity => entity.Category == category)
+                .Where(entity => entity.Name == name);
 
-        var apiKey = await query.FirstOrDefaultAsync();
+            var apiKey = await query.FirstOrDefaultAsync();
 
-        if (Env.GithubToken.IsNullOrWhiteSpace() &&
-            apiKey is { Name: ApiKeyVendor.GitHub, Remaining: > 0 })
-            Env.GithubToken = apiKey.ApiKey;
+            return apiKey?.ApiKey ?? string.Empty;
+        });
 
-        return apiKey?.ApiKey ?? string.Empty;
+        return cache;
     }
 }

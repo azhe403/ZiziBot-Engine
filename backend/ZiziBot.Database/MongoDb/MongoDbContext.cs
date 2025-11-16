@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using MongoDB.EntityFrameworkCore;
 using Serilog;
+using TickerQ.EntityFrameworkCore.Configurations;
 using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Database.MongoDb;
@@ -65,6 +66,8 @@ public class MongoDbContext() : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        base.OnConfiguring(optionsBuilder);
+
         var conn = MongoUrl.Create(_connectionString);
 
         optionsBuilder.UseMongoDB(_connectionString, conn.DatabaseName);
@@ -74,6 +77,15 @@ public class MongoDbContext() : DbContext
             optionsBuilder.EnableSensitiveDataLogging()
                           .EnableDetailedErrors();
         }
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfiguration(new TimeTickerConfigurations());
+        modelBuilder.ApplyConfiguration(new CronTickerConfigurations());
+        modelBuilder.ApplyConfiguration(new CronTickerOccurrenceConfigurations());
+
+        base.OnModelCreating(modelBuilder);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -86,6 +86,9 @@ public static class Flag
     public const string REST_CHAT_RSS_LIST = "REST_CHAT_RSS_LIST";
 
     [DefaultValue(true)]
+    public const string REST_CHAT_RSS_LIST_HISTORY = "REST_CHAT_RSS_LIST_HISTORY";
+
+    [DefaultValue(true)]
     public const string REST_CHAT_RSS_CREATE = "REST_CHAT_RSS_CREATE";
 
     [DefaultValue(true)]

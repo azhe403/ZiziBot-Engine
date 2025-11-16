@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Application.Scheduler;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
@@ -21,9 +22,9 @@ public class RegisterRssJobUrlUseCase(
         logger.LogDebug("Registering RSS Job. ChatId: {ChatId}, ThreadId: {ThreadId}, RssUrl: {RssUrl}", request.ChatId, request.ThreadId, request.Url);
 
         RecurringJob.RemoveIfExists(request.JobId);
-        RecurringJob.AddOrUpdate<FetchRssUseCase>(
+        RecurringJob.AddOrUpdate<RssScheduler>(
             request.JobId,
-            methodCall: x => x.Handle(request.ChatId, request.ThreadId ?? 0, request.Url),
+            methodCall: x => x.RssBroadcast(request.ChatId, request.ThreadId ?? 0, request.Url),
             queue: CronJobKey.Queue_Rss,
             cronExpression: TimeUtil.MinuteInterval(3)
         );

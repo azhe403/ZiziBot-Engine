@@ -21,11 +21,13 @@ public static class TelegramExtension
 
         var listBotData = await dataFacade.Bot.ListBots();
 
-        services.AddZiziBotTelegramBot(new BotEngineConfig() {
+        services.AddZiziBotTelegramBot(new BotEngineConfig()
+        {
             EngineMode = config.TelegramEngineMode,
             WebhookUrl = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL),
-            ExecutionStrategy = config.ExecutionStrategy,
-            Bot = listBotData.Select(x => new BotTokenConfig() {
+            ExecutionMode = config.ExecutionMode,
+            Bot = listBotData.Select(x => new BotTokenConfig()
+            {
                 Name = x.Name,
                 Token = x.Token
             }).ToList()
@@ -43,7 +45,8 @@ public static class TelegramExtension
 
         if (listBotOptions.Count == 0)
         {
-            dataFacade.MongoDb.BotSettings.Add(new BotSettingsEntity() {
+            dataFacade.MongoDb.BotSettings.Add(new BotSettingsEntity()
+            {
                 Name = "Main",
                 Token = "BOT_TOKEN_HERE",
                 Status = EventStatus.InProgress

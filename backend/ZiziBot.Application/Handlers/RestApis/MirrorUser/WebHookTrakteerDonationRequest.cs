@@ -60,15 +60,19 @@ public class WebHookTrakteerDonationHandler(
     public async Task<ApiResponseBase<WebHookTrakteerDonationResponse>> Handle(WebHookTrakteerDonationRequest request, CancellationToken cancellationToken)
     {
         var mirrorConfig = await dataFacade.AppSetting.GetRequiredConfigSectionAsync<MirrorConfig>();
+        var webHookToken = mirrorConfig.TrakteerWebHookToken;
 
-        if (!httpContextHelper.HeaderDict.TryGetValue("X-Webhook-Token", out var headerToken))
+        if (webHookToken.IsNotNullOrWhiteSpace())
         {
-            return response.Unauthorized("Token tidak valid");
-        }
+            if (!httpContextHelper.HeaderDict.TryGetValue("X-Webhook-Token", out var headerToken))
+            {
+                return response.Unauthorized("Token harus diisi pada header X-Webhook-Token");
+            }
 
-        if (headerToken != mirrorConfig.TrakteerWebHookToken)
-        {
-            return response.Unauthorized("Token tidak valid, silakan atur Token di Setting");
+            if (headerToken != webHookToken)
+            {
+                return response.Unauthorized("Token tidak valid, silakan atur Token di Setting");
+            }
         }
 
         var mirrorDonation = await dataFacade.MongoDb.MirrorDonation

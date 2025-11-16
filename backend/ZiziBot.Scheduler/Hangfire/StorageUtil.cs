@@ -4,7 +4,7 @@ using MongoDB.Driver;
 using Serilog;
 using ZiziBot.Common.Exceptions;
 
-namespace ZiziBot.Hangfire
+namespace ZiziBot.Scheduler.Hangfire
 {
     public static class StorageUtil
     {

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Database.MongoDb;
 
-namespace ZiziBot.Hangfire;
+namespace ZiziBot.Scheduler.Hangfire;
 
 public class HangfireAuthorizationFilter(
     ILogger<HangfireAuthorizationFilter> logger,

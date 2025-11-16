@@ -65,13 +65,34 @@ public class ApiResponseBase<TResult>
         return this;
     }
 
-    public ApiResponseBase<TResult> SetMetadata(int totalItem = 0, int pageNumber = 0, int pageSize = 0)
+    public ApiResponseBase<TResult> SetMetadata(
+        int pageSize = 0,
+        int totalItem = 0,
+        int pageNumber = 0,
+        int actualPageSize = 0
+    )
     {
-        Metadata = new ApiMetadata {
+        int totalPage;
+
+        if (pageSize <= 0 || pageNumber <= 0)
+        {
+            pageNumber = 1;
+            pageSize = 1;
+            totalPage = 1;
+        }
+        else
+        {
+            totalPage = totalItem / pageSize + 1;
+        }
+
+
+        Metadata = new ApiMetadata
+        {
             PageNumber = pageNumber,
             TotalItem = totalItem,
-            PageSize = totalItem > pageSize ? pageSize : totalItem,
-            HasNext = totalItem > pageSize
+            TotalPage = totalPage,
+            PageSize = actualPageSize,
+            HasNext = pageNumber < totalPage
         };
 
         return this;
@@ -83,6 +104,7 @@ public class ApiMetadata
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public int TotalItem { get; set; }
+    public int TotalPage { get; set; }
     public bool HasNext { get; set; }
 }
 
