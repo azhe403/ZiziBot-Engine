@@ -21,7 +21,9 @@ public class RegisterRssJobAllUseCase(
 
         if (request.ResetStatus)
         {
-            var rssSettingsAll = await dataFacade.MongoDb.RssSetting.ToListAsync();
+            var rssSettingsAll = await dataFacade.MongoDb.RssSetting
+                .Where(x => x.Status != EventStatus.Deleted)
+                .ToListAsync();
 
             rssSettingsAll.ForEach(entity =>
             {
@@ -64,7 +66,8 @@ public class RegisterRssJobAllUseCase(
                 rss.Status = EventStatus.Inactive;
                 rss.LastErrorMessage = e.Message;
 
-                logger.LogError(e, "Error registering RSS Job. RssUrl: {RssUrl}, ChatId: {ChatId}, ThreadId: {ThreadId}", rss.RssUrl, rss.ChatId, rss.ThreadId);
+                logger.LogError("Error registering RSS Job. RssUrl: {RssUrl}, ChatId: {ChatId}, ThreadId: {ThreadId}. Message: {Message}",
+                    rss.RssUrl, rss.ChatId, rss.ThreadId, e.Message);
             }
         });
 

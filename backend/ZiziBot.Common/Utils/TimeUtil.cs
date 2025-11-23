@@ -1,6 +1,5 @@
 using System.Globalization;
 using Humanizer;
-using Humanizer.Localisation;
 using TimeSpanParserUtil;
 
 namespace ZiziBot.Common.Utils;
@@ -44,7 +43,8 @@ public static class TimeUtil
         var greet = "dini hari";
         var hour = DateTime.Now.Hour;
 
-        greet = hour switch {
+        greet = hour switch
+        {
             <= 3 => "dini hari",
             <= 10 => "pagi",
             <= 14 => "siang",
@@ -66,6 +66,7 @@ public static class TimeUtil
     }
 
     #region Cron
+
     /// <summary>
     /// Returns cron expression that fires every &lt;<paramref name="interval"></paramref>&gt; minutes.
     /// </summary>
@@ -89,5 +90,6 @@ public static class TimeUtil
     /// </summary>
     /// <param name="interval">The number of months to wait between every activation.</param>
     public static string MonthInterval(int interval) => $"0 0 1 */{interval} *";
+
     #endregion Cron
 }

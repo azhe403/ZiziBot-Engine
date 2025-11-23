@@ -22,7 +22,7 @@ public static class RssParserUtil
             if (throwIfError)
                 throw;
 
-            Log.Error(e, "Error reading rss: {RssUrl}", rssUrl);
+            Log.Error("Error reading rss: {RssUrl}. Message: {Message}", rssUrl, e.Message);
 
             return new Feed();
         }
@@ -78,7 +78,7 @@ public static class RssParserUtil
         }
         catch (Exception e)
         {
-            Log.Error(e, "Unable detect RSS from: {RssUrl}", rssUrl);
+            Log.Error("Unable detect RSS from: {RssUrl}. Message: {Message}", rssUrl, e.Message);
 
             if (throwIfError)
                 throw;
