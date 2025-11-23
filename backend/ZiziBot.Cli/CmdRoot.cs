@@ -1,10 +1,10 @@
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.NamingConventionBinder;
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SerilogTimings;
 
 namespace ZiziBot.Cli;
 
@@ -33,7 +33,9 @@ public static class CmdRoot
         var toolName = options.ToolName;
         logger.LogInformation("Tool Options: {@Options}", options);
 
-        var op = Operation.Begin("Running tool Name: {ToolName}", toolName);
+        var sw = Stopwatch.StartNew();
+
+        logger.LogInformation("Running tool Name: {ToolName}", toolName);
 
         switch (toolName)
         {
@@ -46,6 +48,7 @@ public static class CmdRoot
                 break;
         }
 
-        op.Complete();
+        logger.LogInformation("Finish execution tool: {ToolName} in {Elapses}", toolName, sw.Elapsed);
+        sw.Stop();
     }
 }
