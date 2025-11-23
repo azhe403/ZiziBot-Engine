@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json.Serialization;
-using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using ZiziBot.Attributes;
 
@@ -8,7 +8,7 @@ namespace ZiziBot.WebApi.Providers;
 
 public class SwaggerIgnoreFilter : ISchemaFilter
 {
-    public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
         if (schema.Properties.Count == 0)
         {

@@ -26,19 +26,22 @@ public static class LoggingExtension
 
     public static IHostBuilder ConfigureSerilogLite(this IHostBuilder hostBuilder)
     {
-        hostBuilder.UseSerilog((context, provider, config) => {
+        hostBuilder.UseSerilog((context, provider, config) =>
+        {
             config.ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(provider)
                 .MinimumLevel.Verbose()
                 .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
                 .Enrich.WithDemystifiedStackTraces();
 
-            config.Enrich.WithDynamicProperty("MemoryUsage", () => {
+            config.Enrich.WithDynamicProperty("MemoryUsage", () =>
+            {
                 var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
-                return $"{mem}";
-            }).Enrich.WithDynamicProperty("ThreadId", () => {
+                return $" {mem}";
+            }).Enrich.WithDynamicProperty("ThreadId", () =>
+            {
                 var threadId = Environment.CurrentManagedThreadId.ToString();
-                return $"{threadId}";
+                return $" {threadId}";
             });
         });
 
@@ -47,7 +50,8 @@ public static class LoggingExtension
 
     public static IHostBuilder ConfigureSerilog(this IHostBuilder hostBuilder, bool fullMode = false)
     {
-        hostBuilder.UseSerilog((context, provider, config) => {
+        hostBuilder.UseSerilog((context, provider, config) =>
+        {
             var appSettingRepository = provider.GetRequiredService<AppSettingRepository>();
             var sinkConfig = appSettingRepository.GetTelegramSinkConfig();
 
@@ -60,10 +64,12 @@ public static class LoggingExtension
 
             if (logConfig.ProcessEnrich)
             {
-                config.Enrich.WithDynamicProperty("MemoryUsage", () => {
+                config.Enrich.WithDynamicProperty("MemoryUsage", () =>
+                {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
                     return $" MEM {mem} ";
-                }).Enrich.WithDynamicProperty("ThreadId", () => {
+                }).Enrich.WithDynamicProperty("ThreadId", () =>
+                {
                     var threadId = Environment.CurrentManagedThreadId.ToString();
                     return $" Thread {threadId}";
                 });
@@ -80,8 +86,10 @@ public static class LoggingExtension
 
             if (sentryConfig?.IsEnabled ?? false)
             {
-                config.WriteTo.Async(cfg => {
-                    cfg.Sentry(options => {
+                config.WriteTo.Async(cfg =>
+                {
+                    cfg.Sentry(options =>
+                    {
                         options.Dsn = sentryConfig.Dsn;
                         options.StackTraceMode = StackTraceMode.Enhanced;
                         options.Release = VersionUtil.GetVersion();
@@ -100,7 +108,8 @@ public static class LoggingExtension
     {
         if (Env.SentryDsn.IsNotNullOrWhiteSpace())
         {
-            hostBuilder.UseSentry((context, options) => {
+            hostBuilder.UseSentry((context, options) =>
+            {
                 options.Dsn = Env.SentryDsn;
                 options.TracesSampleRate = 1.0;
                 options.ProfilesSampleRate = 1.0;
@@ -108,7 +117,8 @@ public static class LoggingExtension
                 options.AddProfilingIntegration();
             });
 
-            SentrySdk.Init(options => {
+            SentrySdk.Init(options =>
+            {
                 options.Dsn = Env.SentryDsn;
                 options.TracesSampleRate = 1.0;
                 options.ProfilesSampleRate = 1.0;
@@ -122,7 +132,8 @@ public static class LoggingExtension
 
     public static IServiceCollection AddSerilog(this IServiceCollection services, WebApplicationBuilder applicationBuilder)
     {
-        services.AddSerilog((provider, config) => {
+        services.AddSerilog((provider, config) =>
+        {
             using var scope = provider.CreateScope();
 
             var appSettingRepository = scope.ServiceProvider.GetRequiredService<AppSettingRepository>();
@@ -143,10 +154,12 @@ public static class LoggingExtension
 
             if (logConfig.ProcessEnrich)
             {
-                config.Enrich.WithDynamicProperty("MemoryUsage", () => {
+                config.Enrich.WithDynamicProperty("MemoryUsage", () =>
+                {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
                     return $" {mem} ";
-                }).Enrich.WithDynamicProperty("ThreadId", () => {
+                }).Enrich.WithDynamicProperty("ThreadId", () =>
+                {
                     var threadId = Environment.CurrentManagedThreadId.ToString("000000");
                     return $" {threadId}";
                 });
@@ -176,8 +189,10 @@ public static class LoggingExtension
 
             if (sentryConfig?.IsEnabled ?? false)
             {
-                config.WriteTo.Async(cfg => {
-                    cfg.Sentry(options => {
+                config.WriteTo.Async(cfg =>
+                {
+                    cfg.Sentry(options =>
+                    {
                         options.Dsn = sentryConfig.Dsn;
                         options.StackTraceMode = StackTraceMode.Enhanced;
                         options.Release = VersionUtil.GetVersion();
@@ -193,19 +208,23 @@ public static class LoggingExtension
     {
         var log = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(LoggingExtension));
 
-        FlurlHttp.Clients.WithDefaults(builder => {
-                builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions() {
+        FlurlHttp.Clients.WithDefaults(builder =>
+            {
+                builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions()
+                {
                     NumberHandling = JsonNumberHandling.AllowReadingFromString
                 });
 
-                builder.BeforeCall(call => {
+                builder.BeforeCall(call =>
+                {
                     var request = call.Request;
                     call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
 
                     log.LogDebug("Flurl request {Method}: {Url}", request.Verb, request.Url);
                 });
 
-                builder.AfterCall(flurlCall => {
+                builder.AfterCall(flurlCall =>
+                {
                     var request = flurlCall.Request;
                     var response = flurlCall.Response;
 
