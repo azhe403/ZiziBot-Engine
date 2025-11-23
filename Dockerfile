@@ -1,14 +1,14 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-ARG DOTNET_TAG=9.0-alpine
+ARG DOTNET_TAG=10.0-alpine
 
-FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_TAG} AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache icu-data-full icu-libs
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_TAG} AS build
+FROM mcr.microsoft.com/dotnet/sdk:latest AS build
 WORKDIR /build
 COPY . .
 RUN git submodule update --init --recursive
