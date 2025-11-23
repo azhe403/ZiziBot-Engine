@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Xml.Linq;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Types;
 
 namespace ZiziBot.Cli.Tools;
@@ -10,7 +10,7 @@ namespace ZiziBot.Cli.Tools;
  * Copyright (c) ThymineC
  */
 
-public class ProjectTool
+public class ProjectTool(ILogger<ProjectTool> logger)
 {
     internal const int ExitSuccess = 0;
     internal const int ExitFailure = 1;
@@ -36,7 +36,6 @@ public class ProjectTool
             case "DependsOnCondition":
                 if (File.Exists(buildProps))
                 {
-                    Log.Information("Updating {BuildProps}...", buildProps);
                     SetVersion(projectVersion, buildProps);
                 }
                 else
@@ -46,12 +45,9 @@ public class ProjectTool
 
                 break;
             case "RootOnly":
-                Log.Information("Updating {BuildProps}...", buildProps);
                 SetVersion(projectVersion, buildProps);
                 break;
             case "RootAndAllProjects":
-                Log.Information("Updating {BuildProps}...", buildProps);
-
                 SetVersion(projectVersion, buildProps);
                 RunRecursive(baseDirectory: baseDirectory, version: projectVersion);
                 break;
@@ -63,11 +59,11 @@ public class ProjectTool
         }
 
         // var envVersionNumber = Environment.GetEnvironmentVariable("VERSION_NUMBER");
-        Log.Information("Project version updated to {ProjectVersion}", projectVersion);
-        // Log.Information("Environment variable VERSION_NUMBER set to {EnvVersionNumber}", envVersionNumber);
+        logger.LogInformation("Project version updated to {ProjectVersion}", projectVersion);
+        // logger.LogInformation("Environment variable VERSION_NUMBER set to {EnvVersionNumber}", envVersionNumber);
     }
 
-    private static int RunRecursive(
+    private int RunRecursive(
         string baseDirectory,
         string version
     )
@@ -91,7 +87,7 @@ public class ProjectTool
         return ExitSuccess;
     }
 
-    private static string[] GetCsprojFiles(
+    private string[] GetCsprojFiles(
         string baseDirectory,
         bool recursive
     )
@@ -103,7 +99,7 @@ public class ProjectTool
                 searchOption: recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly
             ).ToArray();
 
-        Log.Information("Found {Count} project files", projectFiles.Length);
+        logger.LogInformation("Found {Count} project files", projectFiles.Length);
 
         return projectFiles;
     }
@@ -172,13 +168,15 @@ public class ProjectTool
         return true;
     }
 
-    private static void SetVersion(
+    private void SetVersion(
         string version,
         string csprojFile
     )
     {
         if (version == null) throw new ArgumentNullException(nameof(version));
         if (csprojFile == null) throw new ArgumentNullException(nameof(csprojFile));
+
+        logger.LogInformation("Updating {CsprojFile} to Version {Version}", csprojFile, version);
 
         var versionElement = UseVersionPrefix ? "VersionPrefix" : "Version";
 
@@ -204,16 +202,16 @@ public class ProjectTool
         Console.WriteLine($"Set version to {version} in {file}");
     }
 
-    private static void PrintSuccessString(
+    private void PrintSuccessString(
         string version,
         params string[] files
     )
     {
-        Log.Information("Set version to {Version} in:", version);
+        logger.LogInformation("Set version to {Version} in:", version);
 
         foreach (var file in files)
         {
-            Log.Information("==> {File}", file);
+            logger.LogInformation("==> {File}", file);
         }
     }
 }

@@ -5,11 +5,11 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Sentry.Hangfire;
 
-namespace ZiziBot.Hangfire;
+namespace ZiziBot.Scheduler.Hangfire;
 
 public static class HangfireServiceExtension
 {
-    public static IServiceCollection ConfigureHangfire(this IServiceCollection services)
+    internal static IServiceCollection ConfigureHangfire(this IServiceCollection services)
     {
         using var serviceProvider = services.BuildServiceProvider();
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
@@ -85,7 +85,7 @@ public static class HangfireServiceExtension
         return services;
     }
 
-    public static IApplicationBuilder UseHangfire(this IApplicationBuilder app)
+    internal static IApplicationBuilder UseHangfire(this IApplicationBuilder app)
     {
         var serviceProvider = app.ApplicationServices;
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");

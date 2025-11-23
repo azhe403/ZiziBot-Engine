@@ -1,4 +1,3 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -16,16 +15,18 @@ public class RegisterRssJobAllUseCase(
     ServiceFacade serviceFacade
 )
 {
-    [Queue(CronJobKey.Queue_Data)]
     public async Task<bool> Handle(RegisterRssJobAllRequest request)
     {
         var transactionId = Guid.NewGuid().ToString();
 
         if (request.ResetStatus)
         {
-            var rssSettingsAll = await dataFacade.MongoDb.RssSetting.ToListAsync();
+            var rssSettingsAll = await dataFacade.MongoDb.RssSetting
+                .Where(x => x.Status != EventStatus.Deleted)
+                .ToListAsync();
 
-            rssSettingsAll.ForEach(entity => {
+            rssSettingsAll.ForEach(entity =>
+            {
                 entity.LastErrorMessage = string.Empty;
                 entity.Status = EventStatus.Complete;
             });
@@ -41,14 +42,15 @@ public class RegisterRssJobAllUseCase(
 
         logger.LogInformation("Registering RSS Jobs. Count: {Count}", rssSettings.Count);
 
-        foreach (var rss in rssSettings)
+        await rssSettings.ParallelForEachAsync(async rss =>
         {
             try
             {
                 var jobId = $"{CronJobKey.Rss_Prefix}:{rss.Id}";
                 var rssUrl = await rss.RssUrl.DetectRss(throwIfError: true);
 
-                await registerRssJobUrlUseCase.Handle(new RegisterRssJobUrlRequest() {
+                await registerRssJobUrlUseCase.Handle(new RegisterRssJobUrlRequest()
+                {
                     ChatId = rss.ChatId,
                     ThreadId = rss.ThreadId,
                     Url = rssUrl,
@@ -64,9 +66,10 @@ public class RegisterRssJobAllUseCase(
                 rss.Status = EventStatus.Inactive;
                 rss.LastErrorMessage = e.Message;
 
-                logger.LogError(e, "Error registering RSS Job. RssUrl: {RssUrl}, ChatId: {ChatId}, ThreadId: {ThreadId}", rss.RssUrl, rss.ChatId, rss.ThreadId);
+                logger.LogError("Error registering RSS Job. RssUrl: {RssUrl}, ChatId: {ChatId}, ThreadId: {ThreadId}. Message: {Message}",
+                    rss.RssUrl, rss.ChatId, rss.ThreadId, e.Message);
             }
-        }
+        });
 
         await dataFacade.MongoDb.SaveChangesAsync();
 

@@ -135,7 +135,7 @@ public static class StringUtil
             var qParam = urlParse.QueryParams.Select((x) => $"{x.Name}={x.Value}").StrJoin("/");
             var prefixed = Url.Combine(urlParse.RemoveQuery(), qParam.IsNotNullOrWhiteSpace() ? Sha256Hash(qParam) : "");
 
-            if(input != prefixed)
+            if (input != prefixed)
                 Log.Debug("Convert cache key from {Before} => {After}", input, prefixed);
 
             input = prefixed;
@@ -210,12 +210,12 @@ public static class StringUtil
 
     public static string RegexReplace(this string input, string pattern, string replacement)
     {
-        return Regex.Replace(input, pattern, replacement);
+        return Regex.Replace(input, pattern, replacement, RegexOptions.NonBacktracking, matchTimeout: TimeSpan.FromMilliseconds(100));
     }
 
     public static string RegexReplaceEval(this string input, string pattern, string replacement)
     {
-        return Regex.Replace(input, pattern, Eval);
+        return Regex.Replace(input, pattern, Eval, RegexOptions.NonBacktracking, matchTimeout: TimeSpan.FromMilliseconds(100));
 
         string Eval(Match m)
         {
@@ -225,7 +225,7 @@ public static class StringUtil
 
     public static string RegexMatch(this string input, string pattern)
     {
-        return Regex.Match(input, pattern).Value;
+        return Regex.Match(input, pattern, RegexOptions.NonBacktracking, matchTimeout: TimeSpan.FromMilliseconds(100)).Value;
     }
 
     public static string RegexMatchIf(this string input, string pattern, bool condition)
@@ -271,7 +271,7 @@ public static class StringUtil
         if (!pattern.IsValidRegex())
             return isMatch;
 
-        if (Regex.IsMatch(source, pattern))
+        if (Regex.IsMatch(source, pattern, RegexOptions.NonBacktracking, matchTimeout: TimeSpan.FromMilliseconds(100)))
             isMatch = true;
 
         return isMatch;
@@ -279,11 +279,12 @@ public static class StringUtil
 
     public static bool IsValidRegex(this string pattern)
     {
-        if (string.IsNullOrWhiteSpace(pattern)) return false;
+        if (string.IsNullOrWhiteSpace(pattern))
+            return false;
 
         try
         {
-            _ = Regex.Match("dummy-texts", pattern, RegexOptions.None, TimeSpan.FromSeconds(3));
+            _ = Regex.Match("dummy-texts", pattern, RegexOptions.NonBacktracking, matchTimeout: TimeSpan.FromMilliseconds(100));
         }
         catch (ArgumentException)
         {
@@ -295,7 +296,8 @@ public static class StringUtil
 
     public static T? Deserialize<T>(this string input, JsonNamingPolicy? jsonNamingPolicy = null)
     {
-        return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions() {
+        return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions()
+        {
             NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
             PropertyNamingPolicy = jsonNamingPolicy,
         });

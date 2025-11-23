@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using ZiziBot.Common.Enums;
 
 namespace ZiziBot.Common.Configs;
 
@@ -14,4 +15,5 @@ public class CacheConfig
     public string? RedisConnection { get; set; }
     public string? FirebaseProjectUrl { get; set; }
     public string? FirebaseServiceAccountJson { get; set; }
+    public CacheEngine CacheEngine { get; set; }
 }

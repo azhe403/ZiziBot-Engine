@@ -1,5 +1,6 @@
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Application.Scheduler;
 using ZiziBot.Application.UseCases.GitHub;
 using ZiziBot.Application.UseCases.Rss;
 
@@ -10,8 +11,7 @@ public class RegisterRssJobTask(
     RegisterRssJobAllUseCase registerRssJobAllUseCase,
     AppSettingRepository appSettingRepository,
     FeatureFlagRepository featureFlagRepository,
-    MediatorService mediatorService,
-    JobService jobService
+    SchedulerService schedulerService
 ) : IStartupTask
 {
     public async Task ExecuteAsync()
@@ -21,19 +21,19 @@ public class RegisterRssJobTask(
             if (EnvUtil.IsEnabled(Flag.RSS_BROADCASTER))
             {
                 logger.LogInformation("Registering RSS Jobs");
-                await registerRssJobAllUseCase.Handle(new RegisterRssJobAllRequest() {
+
+                await registerRssJobAllUseCase.Handle(new RegisterRssJobAllRequest()
+                {
                     ResetStatus = await featureFlagRepository.IsEnabled(Flag.RSS_RESET_AT_STARTUP)
                 });
 
-                RecurringJob.AddOrUpdate<RegisterRssJobAllUseCase>(
+                schedulerService.Recurring<RssScheduler>(
                     recurringJobId: CronJobKey.Rss_Reset,
-                    methodCall: x => x.Handle(new RegisterRssJobAllRequest() {
-                        ResetStatus = true
-                    }),
+                    methodCall: x => x.RssRefresh(),
                     cronExpression: TimeUtil.HourInterval(1)
                 );
 
-                RecurringJob.AddOrUpdate<UpdateStatisticUseCase>(
+                schedulerService.Recurring<UpdateStatisticUseCase>(
                     recurringJobId: CronJobKey.GitHub_Update_Token,
                     methodCall: x => x.Handle(),
                     cronExpression: TimeUtil.MinuteInterval(3)

@@ -1,8 +1,5 @@
-using System.ComponentModel;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Sentry.Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.Database.MongoDb;
@@ -19,16 +16,13 @@ public sealed class FetchRssUseCase(
     ReadRssUseCase readRssUseCase
 )
 {
-    [DisplayName("RSS {0}:{1} {2}")]
-    [AutomaticRetry(Attempts = 1, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
-    [SentryMonitorSlug("FetchRssUseCase")]
-    [Queue(CronJobKey.Queue_Rss)]
     public async Task<bool> Handle(long chatId, int? threadId, string rssUrl)
     {
         if (!await featureFlagRepository.IsEnabled(Flag.RSS_BROADCASTER))
             return true;
 
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
+        var trxId = Guid.CreateVersion7().ToString();
         var botSettings = await botRepository.GetBotMain();
 
         try
@@ -86,12 +80,16 @@ public sealed class FetchRssUseCase(
                     PublishDate = latestArticle.PublishDate,
                     Status = EventStatus.Complete,
                     CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow
+                    UpdatedDate = DateTime.UtcNow,
+                    HistoryType = HistoryType.Success,
+                    HistoryTypeName = nameof(HistoryType.Success),
+                    TransactionId = trxId
                 });
             }
         }
         catch (Exception exception)
         {
+            var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
             if (exception.IsIgnorable())
             {
                 logger.LogWarning("Error while sending RSS for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", chatId, rssUrl, exception.Message);
@@ -101,11 +99,11 @@ public sealed class FetchRssUseCase(
                     .Where(entity => entity.Status == EventStatus.Complete)
                     .ToListAsync();
 
-                var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
 
                 findRssSetting.ForEach(rss => {
                     rss.Status = EventStatus.InProgress;
                     rss.LastErrorMessage = exceptionMessage;
+                    rss.TransactionId = trxId;
 
                     HangfireUtil.RemoveRecurringJob(rss.CronJobId);
                     logger.LogWarning("Removed RSS CronJob for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", rss.ChatId, rss.RssUrl, exceptionMessage);
@@ -115,6 +113,21 @@ public sealed class FetchRssUseCase(
             {
                 logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", chatId, rssUrl);
             }
+
+            mongoDbContext.RssHistory.Add(new RssHistoryEntity
+            {
+                ChatId = chatId,
+                ThreadId = threadId,
+                RssUrl = rssUrl,
+                Status = EventStatus.Complete,
+                CreatedDate = DateTime.UtcNow,
+                UpdatedDate = DateTime.UtcNow,
+                Exception = exception.GetType().Name,
+                ErrorMessage = exceptionMessage,
+                HistoryType = HistoryType.Error,
+                HistoryTypeName = nameof(HistoryType.Error),
+                TransactionId = trxId
+            });
         }
 
         await mongoDbContext.SaveChangesAsync();

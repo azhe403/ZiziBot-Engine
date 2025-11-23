@@ -14,6 +14,7 @@ public class SwaggerIgnoreFilter : ISchemaFilter
         {
             return;
         }
+
         var properties = context.Type.GetProperties();
         var excludedList = properties
             .Where(m => m.GetCustomAttribute<SwaggerIgnoreAttribute>() is not null)

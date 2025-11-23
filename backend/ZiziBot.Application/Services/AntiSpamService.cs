@@ -41,7 +41,7 @@ public class AntiSpamService(
 
     private async Task<AntiSpamDto> CheckEssAsync(long userId)
     {
-        var cacheData = await cacheService.GetOrSetAsync(new Cache<AntiSpamDto>() {
+        var cacheData = await cacheService.GetOrSetAsync(new CacheParam<AntiSpamDto>() {
             CacheKey = CacheKey.USER_BAN_ESS + userId,
             StaleAfter = DEFAULT_STALE_TIME,
             Action = async () => {
@@ -51,6 +51,7 @@ public class AntiSpamService(
                     .ToListAsync();
 
                 antiSpamDto.IsBanEss = globalBanEntities.Count != 0;
+
                 return antiSpamDto;
             }
         });
@@ -60,7 +61,7 @@ public class AntiSpamService(
 
     private async Task<AntiSpamDto> CheckCombotAntiSpamAsync(long userId)
     {
-        var cacheData = await cacheService.GetOrSetAsync(new Cache<AntiSpamDto>() {
+        var cacheData = await cacheService.GetOrSetAsync(new CacheParam<AntiSpamDto>() {
             CacheKey = CacheKey.USER_BAN_CAS + userId,
             StaleAfter = DEFAULT_STALE_TIME,
             Action = async () => {
@@ -89,7 +90,7 @@ public class AntiSpamService(
 
     private async Task<AntiSpamDto> CheckSpamWatchAntiSpamAsync(long userId)
     {
-        var cacheData = await cacheService.GetOrSetAsync(new Cache<AntiSpamDto>() {
+        var cacheData = await cacheService.GetOrSetAsync(new CacheParam<AntiSpamDto>() {
             CacheKey = CacheKey.USER_BAN_SW + userId,
             StaleAfter = DEFAULT_STALE_TIME,
             Action = async () => {

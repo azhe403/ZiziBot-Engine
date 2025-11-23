@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Hangfire.Storage;
 using Serilog;
 
-namespace ZiziBot.Hangfire;
+namespace ZiziBot.Scheduler.Hangfire;
 
 public static class HangfireUtil
 {
@@ -21,7 +21,8 @@ public static class HangfireUtil
     {
         var rssJobs = GetRssJobs();
 
-        rssJobs.ForEach(job => {
+        rssJobs.ForEach(job =>
+        {
             Log.Debug("Deleting RSS Job: {Id}", job.Id);
             RecurringJob.RemoveIfExists(job.Id);
         });
@@ -38,7 +39,7 @@ public static class HangfireUtil
         }
         catch (Exception e)
         {
-            Log.Error(e, " Error removing recurring job: {JobId}", jobId);
+            Log.Error("Error removing recurring job: {JobId}. Message: {Message}", jobId, e.Message);
         }
     }
 

@@ -1,9 +1,11 @@
 using Xunit;
+using ZiziBot.Common.Dtos;
+using ZiziBot.Common.Types;
 using ZiziBot.Database.Service;
 
 namespace ZiziBot.Tests.Features;
 
-public class CacheTowerTests(CacheService cacheService)
+public class CacheServiceTests(CacheService cacheService)
 {
     [Fact]
     public async Task WriteToCache()
@@ -16,5 +18,21 @@ public class CacheTowerTests(CacheService cacheService)
         var guidData = Guid.NewGuid();
         var cacheGuid = await cacheService.GetOrSetAsync(cacheKey: "test-guid", action: () => Task.FromResult(guidData));
         guidData.ShouldBeEquivalentTo(cacheGuid);
+    }
+
+    [Fact]
+    public async Task GetSetV2()
+    {
+        await cacheService.GetOrSetAsyncV2(
+            cacheKey: "a",
+            action: async () =>
+            {
+                await Task.Delay(0);
+                return new CacheReturn<AntiSpamDto>()
+                {
+                    Data = new AntiSpamDto()
+                };
+            }
+        );
     }
 }
