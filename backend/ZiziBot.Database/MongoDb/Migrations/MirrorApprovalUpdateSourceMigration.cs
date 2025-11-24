@@ -1,43 +1,38 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ZiziBot.Database.MongoDb.Interfaces;
 
 namespace ZiziBot.Database.MongoDb.Migrations;
 
-public class MirrorApprovalUpdateSourceMigration(IMongoDatabase database) : IPostMigration
+public class MirrorApprovalUpdateSourceMigration(ILogger<MirrorApprovalUpdateSourceMigration> logger, MongoDbContext mongoDbContext) : IPostMigration
 {
     public async Task UpAsync()
     {
-        var collection = database.GetCollection<BsonDocument>("MirrorApproval");
-        var filter = Builders<BsonDocument>.Filter.Empty;
-        var listMirrorApproval = await collection.Find(filter).ToListAsync();
-        var update = Builders<BsonDocument>.Update.Set("UpdatedDate", DateTime.UtcNow);
+        var approvals = await mongoDbContext.MirrorApproval
+            .Where(x => x.DonationSource == null || x.DonationSource == DonationSource.Unknown)
+            .Where(x => !string.IsNullOrWhiteSpace(x.PaymentUrl))
+            .ToListAsync();
 
-        foreach (var approval in listMirrorApproval)
+        foreach (var approval in approvals)
         {
+            logger.LogDebug("Updating donation source for payment {PaymentUrl}", approval.PaymentUrl);
+
             var source = DonationSource.Unknown;
-            if (approval["PaymentUrl"] != BsonNull.Value)
-            {
-                var paymentUrl = approval["PaymentUrl"].AsString;
 
-                if (paymentUrl.Contains("trakteer"))
-                {
-                    source = DonationSource.Trakteer;
-                }
-                else if (paymentUrl.Contains("saweria"))
-                {
-                    source = DonationSource.Saweria;
-                }
-
-                update.Set("UpdatedDate", DateTime.UtcNow).Set("Source", source);
-                await collection.UpdateOneAsync(Builders<BsonDocument>.Filter.Eq("_id", approval["_id"]), update);
-            }
-            else if (approval["PaymentUrl"] == BsonNull.Value)
+            if (approval.PaymentUrl?.Contains("trakteer") == true)
             {
-                update.Set("PaymentUrl", "https://p.azhe.my.id").Set("Source", DonationSource.Unknown);
-                await collection.UpdateOneAsync(Builders<BsonDocument>.Filter.Eq("_id", approval["_id"]), update);
+                source = DonationSource.Trakteer;
             }
+            else if (approval.PaymentUrl?.Contains("saweria") == true)
+            {
+                source = DonationSource.Saweria;
+            }
+
+            approval.DonationSource = source;
+            approval.DonationSourceName = source.ToString();
         }
+
+        await mongoDbContext.SaveChangesAsync();
     }
 
     public Task DownAsync()

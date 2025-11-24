@@ -75,7 +75,7 @@ public class MongoDbContext() : DbContext
         if (EnvUtil.IsDevelopment() || EnvUtil.IsStaging())
         {
             optionsBuilder.EnableSensitiveDataLogging()
-                          .EnableDetailedErrors();
+                .EnableDetailedErrors();
         }
     }
 
@@ -129,12 +129,6 @@ public class MongoDbContext() : DbContext
         var entries = ChangeTracker.Entries<EntityBase>()
             .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
             .ToList();
-
-        if (entries.Any(x => x.Entity.UpdatedDate != default))
-        {
-            Log.Debug("Timestamp already set. Skipping auto-timestamp");
-            return;
-        }
 
         foreach (var entityEntry in entries)
         {
