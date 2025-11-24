@@ -6,7 +6,8 @@ using ZiziBot.Database.MongoDb.Entities;
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
 public class CreateWebhookBotRequest : BotRequestBase
-{ }
+{
+}
 
 public class CreateWebhookHandler(
     ILogger<CreateWebhookHandler> logger,
@@ -30,7 +31,9 @@ public class CreateWebhookHandler(
         var webhookApi = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL) + "/api/webhook/";
         var webhookUrl = webhookApi + routeId;
         var htmlMessage = HtmlMessage.Empty
-            .Bold("Webhook").Br();
+            .Bold("🔌 Webhook").Br();
+
+        var isDebug = request.Param.Contains("debug");
 
         if (webhookChat == null)
         {
@@ -44,9 +47,16 @@ public class CreateWebhookHandler(
         else
         {
             webhookUrl = webhookApi + webhookChat.RouteId;
+            webhookChat.IsDebug = isDebug;
         }
 
-        htmlMessage.Code(webhookUrl);
+        htmlMessage.Code(webhookUrl).Br();
+
+        if (isDebug)
+        {
+            htmlMessage.Bold("Debug Mode: ").CodeBr(isDebug.ToString());
+        }
+
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 
         return await serviceFacade.TelegramService.EditMessageText(htmlMessage.ToString());
