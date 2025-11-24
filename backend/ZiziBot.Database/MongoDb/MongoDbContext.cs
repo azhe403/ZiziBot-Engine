@@ -12,6 +12,8 @@ public class MongoDbContext() : DbContext
 {
     private readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
+    public DbSet<DbMigrationEntity> DbMigration { get; set; }
+
     public DbSet<SudoerEntity> Sudoers { get; set; }
     public DbSet<AppSettingsEntity> AppSettings { get; set; }
     public DbSet<ApiKeyEntity> ApiKey { get; set; }
