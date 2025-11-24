@@ -64,6 +64,7 @@ public class SendWebhookMessageRequestHandler(
         catch (Exception exception)
         {
             logger.LogWarning(exception, "Trying to send GitHub Webhook without thread to ChatId: {ChatId}", webhookChat.ChatId);
+
             if (exception.Message.Contains("thread not found"))
             {
                 sentMessage = await botClient.SendMessage(
@@ -90,12 +91,11 @@ public class SendWebhookMessageRequestHandler(
         dataFacade.MongoDb.WebhookHistory.Add(new WebhookHistoryEntity {
             RouteId = webhookChat.RouteId,
             TransactionId = request.TransactionId,
-            CreatedDate = default,
-            UpdatedDate = default,
             ChatId = webhookChat.ChatId,
             MessageId = sentMessage.MessageId,
-            MessageThreadId = 0,
-            WebhookSource = WebhookSource.GitHub,
+            MessageThreadId = webhookChat.MessageThreadId,
+            WebhookSource = request.WebhookSource,
+            WebhookSourceName = request.WebhookSource.ToString(),
             Elapsed = stopwatch.Elapsed,
             Payload = request.IsDebug ? request.RawBody : string.Empty,
             Header = request.IsDebug ? request.RawHeaders : null,
@@ -111,7 +111,7 @@ public class SendWebhookMessageRequestHandler(
             ActivityType = chatActivity,
             ActivityTypeName = chatActivity.ToString(),
             ChatId = webhookChat.ChatId,
-            UserId = sentMessage.From.Id,
+            UserId = sentMessage.From?.Id,
             Status = EventStatus.Complete,
             TransactionId = request.TransactionId,
             MessageId = sentMessage.MessageId

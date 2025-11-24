@@ -63,20 +63,21 @@ public class PostWebhookPayloadHandler(
             _ => null
         };
 
-        if (webhookResponse == null)
-        {
-            return response.BadRequest("Unsupported webhook source. UserAgent: " + request.UserAgent);
-        }
-
         await serviceFacade.MediatorService.EnqueueAsync(new SendWebhookMessageRequest() {
             TargetId = request.targetId,
-            Event = webhookHeader.Event,
+            Event = webhookHeader?.Event ?? string.Empty,
             TransactionId = httpContextHelper.TransactionId,
             WebhookSource = webhookSource,
             RawHeaders = httpContextHelper.HeaderDict.ToHeaderRawKv(),
             RawBody = content,
-            FormattedHtml = webhookResponse.FormattedHtml
+            FormattedHtml = webhookResponse?.FormattedHtml ?? string.Empty,
+            IsDebug = webhookChat.IsDebug == true
         }, ExecutionStrategy.Hangfire);
+
+        if (webhookResponse == null)
+        {
+            return response.BadRequest("Unsupported webhook source. UserAgent: " + request.UserAgent);
+        }
 
         return response.Success("Webhook payload processed", new PostWebhookPayloadResponseDto() {
             Duration = stopwatch.Elapsed
