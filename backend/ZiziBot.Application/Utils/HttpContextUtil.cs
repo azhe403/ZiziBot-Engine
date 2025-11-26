@@ -31,9 +31,10 @@ public static class HttpContextUtil
 
     public static WebhookSource GetWebHookSource(this string userAgent)
     {
-        var source = userAgent switch {
-            _ when userAgent.Contains("GitHub", StringComparison.InvariantCultureIgnoreCase) => WebhookSource.GitHub,
-            _ when userAgent.Contains("GitLab", StringComparison.InvariantCultureIgnoreCase) => WebhookSource.GitLab,
+        var source = userAgent.ToLower() switch {
+            _ when userAgent.Like("GitHub") => WebhookSource.GitHub,
+            _ when userAgent.Like("GitLab") => WebhookSource.GitLab,
+            _ when userAgent.Like("SonarQube") => WebhookSource.SonarQube,
             _ => WebhookSource.Unknown
         };
 

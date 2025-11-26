@@ -4,5 +4,7 @@ public enum WebhookSource
 {
     Unknown,
     GitHub,
-    GitLab
+    GitLab,
+    SonarQube,
+    Flagsmith
 }

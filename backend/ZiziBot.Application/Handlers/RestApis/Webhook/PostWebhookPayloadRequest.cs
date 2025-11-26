@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Application.UseCases.WebHook;
 using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
@@ -30,7 +31,8 @@ public class PostWebhookPayloadHandler(
     ILogger<PostWebhookPayloadHandler> logger,
     IHttpContextHelper httpContextHelper,
     DataFacade dataFacade,
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    ParseSonarQubePayloadUseCase parseSonarQubePayloadUseCase
 ) : IApiRequestHandler<PostWebhookPayloadRequest, PostWebhookPayloadResponseDto>
 {
     public async Task<ApiResponseBase<PostWebhookPayloadResponseDto>> Handle(
@@ -60,6 +62,10 @@ public class PostWebhookPayloadHandler(
         var webhookResponse = webhookSource switch {
             WebhookSource.GitHub => await serviceFacade.WebhookService.ParseGitHub(webhookHeader, content),
             WebhookSource.GitLab => await serviceFacade.WebhookService.ParseGitLab(webhookHeader, content),
+            WebhookSource.SonarQube => await parseSonarQubePayloadUseCase.Handle(new ParseSonarQubePayloadRequest() {
+                WebhookHeader = webhookHeader,
+                Json = content
+            }),
             _ => null
         };
 
