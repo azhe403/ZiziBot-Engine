@@ -31,6 +31,18 @@ public class SendWebhookMessageRequestHandler(
         var webhookChat = await dataFacade.ChatSetting.GetWebhookRouteById(request.TargetId);
         var botSetting = await dataFacade.Bot.GetBotMain();
         var botClient = new TelegramBotClient(botSetting.Token);
+        var messageText = request.FormattedHtml;
+
+        if (webhookChat == null)
+        {
+            return false;
+        }
+
+        if (webhookChat.IsDebug == true)
+        {
+            messageText = "[DEBUG MODE]" +
+                          "\n\n" + messageText;
+        }
 
         Message sentMessage = new();
 
@@ -43,7 +55,7 @@ public class SendWebhookMessageRequestHandler(
                 sentMessage = await botClient.EditMessageText(
                     chatId: webhookChat.ChatId,
                     messageId: lastMessageId,
-                    text: request.FormattedHtml,
+                    text: messageText,
                     parseMode: ParseMode.Html,
                     linkPreviewOptions: true,
                     cancellationToken: cancellationToken
@@ -53,7 +65,7 @@ public class SendWebhookMessageRequestHandler(
             {
                 sentMessage = await botClient.SendMessage(
                     chatId: webhookChat.ChatId,
-                    text: request.FormattedHtml,
+                    text: messageText,
                     messageThreadId: webhookChat.MessageThreadId,
                     parseMode: ParseMode.Html,
                     linkPreviewOptions: true,
@@ -69,7 +81,7 @@ public class SendWebhookMessageRequestHandler(
             {
                 sentMessage = await botClient.SendMessage(
                     chatId: webhookChat.ChatId,
-                    text: request.FormattedHtml,
+                    text: messageText,
                     parseMode: ParseMode.Html,
                     linkPreviewOptions: true,
                     cancellationToken: cancellationToken
