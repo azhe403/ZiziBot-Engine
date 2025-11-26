@@ -68,6 +68,7 @@ public class PostWebhookPayloadHandler(
             Event = webhookHeader?.Event ?? string.Empty,
             TransactionId = httpContextHelper.TransactionId,
             WebhookSource = webhookSource,
+            WebhookHeader = webhookHeader,
             RawHeaders = httpContextHelper.HeaderDict.ToHeaderRawKv(),
             RawBody = content,
             FormattedHtml = webhookResponse?.FormattedHtml ?? string.Empty,

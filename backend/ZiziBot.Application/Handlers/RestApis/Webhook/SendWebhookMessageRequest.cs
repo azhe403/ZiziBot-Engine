@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using ZiziBot.Common.Types;
 using ZiziBot.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
@@ -13,6 +14,7 @@ public class SendWebhookMessageRequest : IRequest<object>
     public string Event { get; set; }
     public string TransactionId { get; set; }
     public WebhookSource WebhookSource { get; set; }
+    public WebhookHeader? WebhookHeader { get; set; }
     public string RawBody { get; set; }
     public string FormattedHtml { get; set; }
     public bool IsDebug { get; set; }
@@ -75,10 +77,9 @@ public class SendWebhookMessageRequestHandler(
         }
         catch (Exception exception)
         {
-            logger.LogWarning(exception, "Trying to send GitHub Webhook without thread to ChatId: {ChatId}", webhookChat.ChatId);
-
             if (exception.Message.Contains("thread not found"))
             {
+                logger.LogWarning("Error send message to ChatId: {ChatId}. Trying to send GitHub Webhook without thread. Error: {Error}", webhookChat.ChatId, exception.Message);
                 sentMessage = await botClient.SendMessage(
                     chatId: webhookChat.ChatId,
                     text: messageText,
@@ -95,7 +96,8 @@ public class SendWebhookMessageRequestHandler(
                 }
                 else
                 {
-                    logger.LogError(exception, "Fail when sending webhook Message to ChatId: {ChatId}, ThreadId: {ThreadId}", webhookChat.ChatId, webhookChat.MessageThreadId);
+                    logger.LogError("Fail when sending webhook Message to ChatId: {ChatId}, ThreadId: {ThreadId}. Error: {Error}",
+                        webhookChat.ChatId, webhookChat.MessageThreadId, exception.Message);
                 }
             }
         }
@@ -108,11 +110,13 @@ public class SendWebhookMessageRequestHandler(
             MessageThreadId = webhookChat.MessageThreadId,
             WebhookSource = request.WebhookSource,
             WebhookSourceName = request.WebhookSource.ToString(),
+            UserAgent = request.WebhookHeader?.UserAgent,
             Elapsed = stopwatch.Elapsed,
             Payload = request.IsDebug ? request.RawBody : string.Empty,
             Header = request.IsDebug ? request.RawHeaders : null,
             EventName = request.Event,
-            Status = EventStatus.Complete
+            Status = EventStatus.Complete,
+            IsDebug = webhookChat.IsDebug
         });
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
@@ -125,7 +129,7 @@ public class SendWebhookMessageRequestHandler(
             ChatId = webhookChat.ChatId,
             UserId = sentMessage.From?.Id,
             Status = EventStatus.Complete,
-            TransactionId = request.TransactionId,
+            // TransactionId = request.TransactionId,
             MessageId = sentMessage.MessageId
         });
 

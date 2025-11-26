@@ -10,9 +10,11 @@ public class WebhookHistoryEntity : EntityBase
     public int MessageId { get; set; }
     public int? MessageThreadId { get; set; }
     public WebhookSource WebhookSource { get; set; }
+    public string? UserAgent { get; set; }
     public string? WebhookSourceName { get; set; }
     public string? Header { get; set; }
     public required string EventName { get; set; }
     public string? Payload { get; set; }
     public TimeSpan Elapsed { get; set; }
+    public bool? IsDebug { get; set; }
 }
