@@ -36,7 +36,13 @@ internal class RedisLayerProvider(
         await TryConnect();
 
         _log.Verbose("Preparing flush CacheTower redis layer");
-        var redisEndpoints = Connection.GetEndPoints();
+        var redisEndpoints = Connection?.GetEndPoints();
+
+        if (redisEndpoints == null ||
+            Connection == null)
+        {
+            return;
+        }
 
         foreach (var endpoint in redisEndpoints)
         {
@@ -72,7 +78,7 @@ internal class RedisLayerProvider(
     {
         await TryConnect();
 
-        return await new ValueTask<bool>(Connection.IsConnected);
+        return await new ValueTask<bool>(Connection is { IsConnected: true });
     }
 
     public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)

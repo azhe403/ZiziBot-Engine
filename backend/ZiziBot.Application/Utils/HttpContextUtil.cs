@@ -1,10 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
+using Serilog;
 
 namespace ZiziBot.Application.Utils;
 
 public static class HttpContextUtil
 {
+    private static readonly ILogger Logger = Log.ForContext(typeof(HttpContextUtil));
+
     public static string GetTransactionId(this IHttpContextAccessor? contextAccessor)
     {
         var transactionId = contextAccessor?.HttpContext?.Request.Headers[RequestKey.TransactionId].ToString();
@@ -37,6 +40,8 @@ public static class HttpContextUtil
             _ when userAgent.Like("SonarQube") => WebhookSource.SonarQube,
             _ => WebhookSource.Unknown
         };
+
+        Logger.Verbose("GetWebHookSource. UserAgent: {UserAgent}, Source: {Source}", userAgent, source);
 
         return source;
     }

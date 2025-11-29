@@ -206,12 +206,11 @@ public static class LoggingExtension
 
     public static IApplicationBuilder ConfigureFlurl(this IApplicationBuilder app)
     {
-        var log = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(LoggingExtension));
+        var log = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(LoggingExtension));
 
         FlurlHttp.Clients.WithDefaults(builder =>
             {
-                builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions()
-                {
+                builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions() {
                     NumberHandling = JsonNumberHandling.AllowReadingFromString
                 });
 

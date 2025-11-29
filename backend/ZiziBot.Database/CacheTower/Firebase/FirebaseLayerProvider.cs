@@ -24,7 +24,7 @@ internal class FirebaseLayerProvider(FirebaseCacheOptions cacheOptions) : ICache
 
     public ValueTask CleanupAsync()
     {
-        _log.Verbose("Clean up CacheTower firebase layer");
+        _log.Verbose("Cleanup CacheTower firebase layer");
         GetClient()
             .Child(cacheOptions.RootDir)
             .DeleteAsync();
