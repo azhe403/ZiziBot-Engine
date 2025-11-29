@@ -11,8 +11,8 @@ internal class RedisLayerProvider(
     : IDistributedCacheLayer
 {
     private string ConnectionString { get; set; } = connectionString;
-    private ConnectionMultiplexer Connection { get; set; }
-    private IDatabaseAsync Database { get; set; }
+    private ConnectionMultiplexer? Connection { get; set; }
+    private IDatabaseAsync Database => Connection?.GetDatabase(options.DatabaseIndex) ?? throw new NullReferenceException("Redis database not set because connection fail");
     private static string PrefixRoot => ValueConst.UniqueKey;
     private readonly ILogger _log = Log.ForContext<RedisLayerProvider>();
 
@@ -24,7 +24,7 @@ internal class RedisLayerProvider(
 
     public async ValueTask EvictAsync(string cacheKey)
     {
-        await Connect();
+        await TryConnect();
 
         _log.Verbose("Preparing evict CacheTower redis layer. Key: {CacheKey}", cacheKey);
         await Database.KeyDeleteAsync(CacheKey(cacheKey));
@@ -33,7 +33,7 @@ internal class RedisLayerProvider(
 
     public async ValueTask FlushAsync()
     {
-        await Connect();
+        await TryConnect();
 
         _log.Verbose("Preparing flush CacheTower redis layer");
         var redisEndpoints = Connection.GetEndPoints();
@@ -53,7 +53,7 @@ internal class RedisLayerProvider(
 
     public async ValueTask<CacheEntry<T>?> GetAsync<T>(string cacheKey)
     {
-        await Connect();
+        await TryConnect();
 
         _log.Verbose("Preparing get CacheTower redis layer. Key: {CacheKey}", cacheKey);
 
@@ -70,14 +70,14 @@ internal class RedisLayerProvider(
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
     {
-        await Connect();
+        await TryConnect();
 
         return await new ValueTask<bool>(Connection.IsConnected);
     }
 
     public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
     {
-        await Connect();
+        await TryConnect();
 
         var expiryOffset = cacheEntry.Expiry - DateTime.UtcNow;
 
@@ -96,11 +96,18 @@ internal class RedisLayerProvider(
         _log.Verbose("Set CacheTower redis layer. Key: {CacheKey}, Expiry: {Expiry}, Result: {Result}", cacheKey, expiryOffset, result);
     }
 
-    private async Task Connect()
+    private async Task TryConnect()
     {
         _log.Verbose("Connecting to CacheTower redis layer");
+
+        if (Connection?.IsConnected == true)
+        {
+            _log.Verbose("Connected to CacheTower redis layer, previous connection, {ClientName}", Connection.ClientName);
+            return;
+        }
+
         Connection = await ConnectionMultiplexer.ConnectAsync(ConnectionString);
-        Database = Connection.GetDatabase(options.DatabaseIndex);
+
         _log.Verbose("Connected to CacheTower redis layer");
     }
 
