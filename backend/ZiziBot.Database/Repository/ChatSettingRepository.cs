@@ -17,14 +17,16 @@ public class ChatSettingRepository(
 {
     public async Task<ChatRestrictionDto> GetChatRestriction(long chatId)
     {
-        var cache = await cacheService.GetOrSetAsync($"{CacheKey.CHAT_RESTRICTION}{chatId}", async () => {
+        var cache = await cacheService.GetOrSetAsync($"{CacheKey.CHAT_RESTRICTION}{chatId}", async () =>
+        {
             var chatRestriction = await mongoDbContext.ChatRestriction.AsNoTracking()
                 .Where(entity => entity.Status == EventStatus.Complete)
                 .Where(entity => entity.ChatId == chatId)
                 .Select(chatRestriction => new ChatRestrictionDto() {
                     ChatId = chatRestriction.ChatId,
                     UserId = chatRestriction.UserId,
-                    Status = (int)chatRestriction.Status, TransactionId = chatRestriction.TransactionId,
+                    Status = (int)chatRestriction.Status,
+                    TransactionId = chatRestriction.TransactionId,
                     CreatedDate = chatRestriction.CreatedDate,
                     UpdatedDate = chatRestriction.UpdatedDate
                 })
@@ -89,6 +91,7 @@ public class ChatSettingRepository(
     public async Task<List<ChatInfoDto>?> GetChatByBearerToken(string bearerToken)
     {
         #region Check Dashboard Session
+
         var dashboardSession = await mongoDbContext.DashboardSessions
             .Where(entity => entity.BearerToken == bearerToken)
             .Where(entity => entity.Status == EventStatus.Complete)
@@ -100,6 +103,7 @@ public class ChatSettingRepository(
         }
 
         var userId = dashboardSession.TelegramUserId;
+
         #endregion
 
         var chatAdmin = await mongoDbContext.ChatAdmin
@@ -198,7 +202,8 @@ public class ChatSettingRepository(
         var cache = await cacheService.GetOrSetAsync(
             CacheKey.CHAT_NOTES + chatId,
             evictBefore: evictBefore,
-            action: async () => {
+            action: async () =>
+            {
                 var noteEntities = await mongoDbContext.Note
                     .Where(entity => entity.ChatId == chatId)
                     .Where(entity => entity.Status == EventStatus.Complete)
@@ -322,7 +327,7 @@ public class ChatSettingRepository(
     public async Task<int> LastWebhookMessageBetterEdit(long chatId, WebhookSource webhookSource, string eventName)
     {
         if (eventName.Like("push"))
-            return default;
+            return 0;
 
         var lastWebhookHistory = await mongoDbContext.WebhookHistory.AsNoTracking()
             .Where(x => x.ChatId == chatId)
@@ -330,34 +335,33 @@ public class ChatSettingRepository(
             .Where(x => x.EventName == eventName)
             .Where(x => x.Status == EventStatus.Complete)
             .OrderByDescending(o => o.CreatedDate)
-            .Select(x => new {
-                x.ChatId,
-                x.EventName,
-                x.RouteId,
-                x.MessageId,
-                x.MessageThreadId,
-                x.WebhookSource
-            })
             .FirstOrDefaultAsync();
 
         if (lastWebhookHistory == null)
-            return default;
+        {
+            logger.LogInformation("Last Webhook History not found in Chat: {ChatId} from {Source} event {Event}", chatId, webhookSource, eventName);
+            return 0;
+        }
 
         var lastChatActivity = await mongoDbContext.ChatActivity.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
             .Where(x => x.ChatId == chatId)
             .OrderByDescending(o => o.CreatedDate)
-            .Select(x => new {
-                x.ChatId,
-                x.MessageId
-            })
             .FirstOrDefaultAsync();
 
         if (lastChatActivity == null)
-            return default;
+        {
+            logger.LogDebug("Last chat activity in Chat: {ChatId} from {Source} event {Event}", chatId, webhookSource, eventName);
+            return 0;
+        }
 
-        if (lastChatActivity.MessageId != lastWebhookHistory.MessageId)
-            return default;
+        // if (lastChatActivity.MessageId != lastWebhookHistory.MessageId)
+        // {
+        //     logger.LogDebug("Chat and Webhook activity not match in Chat: {ChatId} from {Source} event {Event}. {Chat} vs {Webhook}",
+        //         chatId, webhookSource, eventName, lastChatActivity.MessageId, lastWebhookHistory.MessageId);
+        //
+        //     return 0;
+        // }
 
         logger.LogDebug("Last Webhook Message for Better Edit: {MessageId}", lastWebhookHistory.MessageId);
 
@@ -464,7 +468,8 @@ public class ChatSettingRepository(
     {
         var cache = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.GLOBAL_SUDO,
-            action: async () => {
+            action: async () =>
+            {
                 return await mongoDbContext.Sudoers.AsNoTracking()
                     .Where(x => x.Status == EventStatus.Complete)
                     .Select(x => new SudoDto {

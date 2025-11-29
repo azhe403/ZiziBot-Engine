@@ -94,9 +94,11 @@ internal class SqliteLayerProvider : ICacheLayer
 
     public async ValueTask<bool> IsAvailableAsync(string cacheKey)
     {
-        var obj = await Db.SqliteCache.AsNoTracking().ToListAsync();
+        var obj = await Db.SqliteCache.AsNoTracking()
+            .Where(x => x.CacheKey == cacheKey)
+            .FirstOrDefaultAsync();
 
-        var isAvailable = obj.Count >= 0;
+        var isAvailable = obj != null;
         _log.Verbose("CacheTower SQLite layer is available: {IsAvailable}", isAvailable);
 
         return isAvailable;

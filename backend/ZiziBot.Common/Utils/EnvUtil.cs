@@ -8,6 +8,8 @@ namespace ZiziBot.Common.Utils;
 public static class EnvUtil
 {
     public static List<FlagDto>? Current { get; set; }
+    private static readonly ILogger Logger = Log.ForContext(typeof(EnvUtil));
+
 
     public static string GetEnv(string key, string? defaultValue = null, bool throwIsMissing = false)
     {
@@ -56,12 +58,12 @@ public static class EnvUtil
         {
             var defaultFlag = Flag.GetFields().FirstOrDefault(x => x.Name == flagName);
             var flagValue = defaultFlag?.Value ?? false;
-            Log.Verbose("Flag {FlagName} not found. Using default value: {DefaultFlagValue}", flagName, flagValue);
+            Logger.Verbose("Flag {FlagName} not found. Using default value: {DefaultFlagValue}", flagName, flagValue);
 
             return flagValue;
         }
 
-        Log.Verbose("Flag {FlagName} is {FlagValue}", flag.Name, flag.Value);
+        Logger.Verbose("Flag {FlagName} is {FlagValue}", flag.Name, flag.Value);
         return flag.Value;
     }
 }

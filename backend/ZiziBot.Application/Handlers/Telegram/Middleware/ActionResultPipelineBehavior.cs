@@ -15,12 +15,12 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
     {
         if (request.Source != ResponseSource.Bot ||
             request.PipelineResult.Actions.IsEmpty())
-            return await next();
+            return await next(cancellationToken);
 
+        //todo. auto detect based on user activity
         if (ValueConst.SAFE_IDS.Contains(request.UserId))
         {
-            //todo. auto detect based on user activity
-            return await next();
+            return await next(cancellationToken);
         }
 
         var actions = request.PipelineResult.Actions;
@@ -33,7 +33,7 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
         {
             htmlMessage.Text(" telah diperingatkan karena: ").Br();
             if (!request.PipelineResult.IsMessagePassed)
-                htmlMessage.Text(" - mengirim pesan yang mengandung teks yang dilarang");
+                htmlMessage.Text(" - mengirim pesan yang mengandung teks yang dilarang").Br();
 
             if (!request.PipelineResult.HasUsername)
                 htmlMessage.Text(" - belum menetapkan Username").Br();
@@ -45,18 +45,21 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
             var muteDuration = MemberMuteDuration.Select(0);
 
             if (actions.Count != 0)
-                htmlMessage.Br().Br().BoldBr("Aksi: ");
+                htmlMessage.Br().Br();
+
+            var actionResults = HtmlMessage.Empty;
 
             if (actions.Contains(PipelineResultAction.Delete))
             {
                 try
                 {
                     await serviceFacade.TelegramService.DeleteMessageAsync();
-                    htmlMessage.TextBr(" - pesan dihapus");
+                    actionResults.TextBr(" - pesan dihapus");
                 }
                 catch (Exception e)
                 {
-                    logger.LogWarning("Unable to delete message: {MessageId} in ChatId: {ChatId}", request.MessageId, request.ChatId);
+                    logger.LogWarning("Unable to delete message: {MessageId} in ChatId: {ChatId}. Message: {Message}",
+                        request.MessageId, request.ChatId, e.Message);
                 }
             }
 
@@ -65,11 +68,11 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
                 try
                 {
                     await serviceFacade.TelegramService.MuteMemberAsync(request.UserId, muteDuration);
-                    htmlMessage.TextBr($" - pengguna disenyapkan selama {muteDuration.ForHuman()}");
+                    actionResults.TextBr($" - pengguna disenyapkan selama {muteDuration.ForHuman()}");
                 }
                 catch (Exception e)
                 {
-                    logger.LogWarning("Unable to mute user: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
+                    logger.LogWarning("Unable to mute user: {UserId} in ChatId: {ChatId}. Message: {Message}", request.UserId, request.ChatId, e.Message);
                 }
             }
 
@@ -82,14 +85,19 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
                 }
                 catch (Exception e)
                 {
-                    logger.LogWarning("Unable to kick user: {UserId} in ChatId: {ChatId}", request.UserId, request.ChatId);
+                    logger.LogWarning("Unable to kick user: {UserId} in ChatId: {ChatId}. Message: {Message}", request.UserId, request.ChatId, e.Message);
                 }
             }
 
-            if(actions.Contains(PipelineResultAction.Warn))
+            if (!actionResults.IsEmpty)
+            {
+                htmlMessage.BoldBr("Aksi: ").Append(actionResults);
+            }
+
+            if (actions.Contains(PipelineResultAction.Warn))
                 await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
 
-            return await next();
+            return await next(cancellationToken);
         }
         catch (Exception exception)
         {

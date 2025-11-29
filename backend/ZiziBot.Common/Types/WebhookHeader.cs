@@ -13,6 +13,7 @@ public class WebhookHeader
     public string? HookId { get; init; }
     public string? HookInstallationTargetId { get; init; }
     public string? HookInstallationTargetType { get; init; }
+    public StringValues SonarQubeProject { get; set; }
 
     public static WebhookHeader? Parse(IDictionary<string, StringValues> headers)
     {
@@ -20,14 +21,15 @@ public class WebhookHeader
             return null;
 
         var webhookHeader = new WebhookHeader {
-            Host = headers.FirstOrDefault(kv => kv.Key.Like("host")).Value,
-            UserAgent = headers.FirstOrDefault(kv => kv.Key.Like("user-agent")).Value,
-            ContentType = headers.FirstOrDefault(kv => kv.Key.Like("content-type")).Value,
-            Delivery = headers.FirstOrDefault(kv => kv.Key.Like("delivery")).Value,
-            Event = headers.FirstOrDefault(kv => kv.Key.Like("event")).Value,
-            HookId = headers.FirstOrDefault(kv => kv.Key.Like("hook-id")).Value,
-            HookInstallationTargetId = headers.FirstOrDefault(kv => kv.Key.Like("hook-installation-target-id")).Value,
-            HookInstallationTargetType = headers.FirstOrDefault(kv => kv.Key.Like("hook-installation-target-type")).Value
+            Host = headers.FirstOrDefault(kv => kv.Key.Like("host")).Value.ToString(),
+            UserAgent = headers.FirstOrDefault(kv => kv.Key.Like("user-agent")).Value.ToString(),
+            ContentType = headers.FirstOrDefault(kv => kv.Key.Like("content-type")).Value.ToString(),
+            Delivery = headers.FirstOrDefault(kv => kv.Key.Like("delivery")).Value.ToString(),
+            Event = headers.FirstOrDefault(kv => kv.Key.Like("event")).Value.ToString(),
+            HookId = headers.FirstOrDefault(kv => kv.Key.Like("hook-id")).Value.ToString(),
+            HookInstallationTargetId = headers.FirstOrDefault(kv => kv.Key.Like("hook-installation-target-id")).Value.ToString(),
+            HookInstallationTargetType = headers.FirstOrDefault(kv => kv.Key.Like("hook-installation-target-type")).Value.ToString(),
+            SonarQubeProject = headers.FirstOrDefault(kv => kv.Key.Like("SonarQube-Project")).Value.ToString()
         };
 
         return webhookHeader;

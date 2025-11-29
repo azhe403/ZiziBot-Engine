@@ -12,6 +12,8 @@ public class MongoDbContext() : DbContext
 {
     private readonly string _connectionString = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING, throwIsMissing: true);
 
+    public DbSet<DbMigrationEntity> DbMigration { get; set; }
+
     public DbSet<SudoerEntity> Sudoers { get; set; }
     public DbSet<AppSettingsEntity> AppSettings { get; set; }
     public DbSet<ApiKeyEntity> ApiKey { get; set; }
@@ -75,7 +77,7 @@ public class MongoDbContext() : DbContext
         if (EnvUtil.IsDevelopment() || EnvUtil.IsStaging())
         {
             optionsBuilder.EnableSensitiveDataLogging()
-                          .EnableDetailedErrors();
+                .EnableDetailedErrors();
         }
     }
 
@@ -129,12 +131,6 @@ public class MongoDbContext() : DbContext
         var entries = ChangeTracker.Entries<EntityBase>()
             .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
             .ToList();
-
-        if (entries.Any(x => x.Entity.UpdatedDate != default))
-        {
-            Log.Debug("Timestamp already set. Skipping auto-timestamp");
-            return;
-        }
 
         foreach (var entityEntry in entries)
         {

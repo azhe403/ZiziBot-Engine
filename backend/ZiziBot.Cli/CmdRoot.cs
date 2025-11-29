@@ -12,8 +12,7 @@ public static class CmdRoot
 {
     public static CommandLineBuilder CreateCommandLineBuilder()
     {
-        var root = new RootCommand("help -h")
-        {
+        var root = new RootCommand("help -h") {
             new Option<string>("--toolName", "Tool name"),
             new Option<string>("--mode", "Mode"),
         };
@@ -26,7 +25,7 @@ public static class CmdRoot
     {
         var serviceProvider = host.Services;
         var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger(typeof(Program));
+        var logger = loggerFactory.CreateLogger(typeof(CmdRoot));
 
         logger.LogInformation("Welcome to Zizi Tools CLI");
 
