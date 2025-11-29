@@ -29,10 +29,7 @@ public class AddRssHandler(
 
         try
         {
-            await serviceFacade.TelegramService.SendMessageAsync("🔌 Mengatur RSS..");
-
-            var rssUrl = await addRssUseCase.Handle(new AddRssParam()
-            {
+            var rssUrl = await addRssUseCase.Handle(new AddRssParam() {
                 ChatId = request.ChatIdentifier,
                 UserId = request.UserId,
                 ThreadId = request.MessageThreadId,
