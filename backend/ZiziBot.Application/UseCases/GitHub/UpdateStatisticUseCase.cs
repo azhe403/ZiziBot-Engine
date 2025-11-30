@@ -11,7 +11,7 @@ public class UpdateStatisticUseCase(
     DataFacade dataFacade
 )
 {
-    [AutomaticRetry(Attempts = 2, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 2)]
     [Queue(CronJobKey.Queue_Data)]
     public async Task Handle()
     {
