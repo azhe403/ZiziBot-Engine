@@ -25,6 +25,7 @@ public class MirrorPaymentRestService(
 
         logger.LogDebug("Continue to Saweria for OrderId: {OrderId}", orderId);
         parsedDonationDto = await ParseSaweriaWeb(orderId);
+
         if (parsedDonationDto.IsValid)
         {
             return parsedDonationDto;
@@ -107,6 +108,7 @@ public class MirrorPaymentRestService(
         var parsedDonationDto = new ParsedDonationDto();
         Log.Information("Parsing saweria url: {Url}", url);
         var document = await url.OpenUrl(cancellationToken: cancellationToken);
+
         if (document == null)
         {
             Log.Error("Cannot load url: {Url}", url);
@@ -142,9 +144,11 @@ public class MirrorPaymentRestService(
 
     public async Task<ParsedDonationDto> GetTrakteerApi(string url, CancellationToken cancellationToken = default)
     {
-        if (!url.StartsWith("https://trakteer.id/payment-status"))
+        var trakteerPrefix = "https://trakteer.id/payment-status";
+
+        if (!url.StartsWith(trakteerPrefix))
         {
-            url = Url.Combine("https://trakteer.id/payment-status", url);
+            url = Url.Combine(trakteerPrefix, url);
         }
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -172,9 +176,11 @@ public class MirrorPaymentRestService(
 
     public async Task<ParsedDonationDto> GetSaweriaApi(string url, CancellationToken cancellationToken = default)
     {
-        if (!url.StartsWith("https://saweria.co/receipt"))
+        var saweriaPrefix = "https://saweria.co/receipt";
+
+        if (!url.StartsWith(saweriaPrefix))
         {
-            url = Url.Combine("https://saweria.co/receipt", url);
+            url = Url.Combine(saweriaPrefix, url);
         }
 
         var data = await GetSaweriaApi().SetQueryParam("oid", url, true).GetJsonAsync<SaweriaParsedDto>(cancellationToken: cancellationToken);
