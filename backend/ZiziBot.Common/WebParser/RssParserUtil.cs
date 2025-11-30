@@ -78,7 +78,7 @@ public static class RssParserUtil
         }
         catch (Exception e)
         {
-            Log.Error("Unable detect RSS from: {RssUrl}. Message: {Message}", rssUrl, e.Message);
+            Log.Warning("Unable detect RSS from: {RssUrl}. Message: {Message}", rssUrl, e.Message);
 
             if (throwIfError)
                 throw;
