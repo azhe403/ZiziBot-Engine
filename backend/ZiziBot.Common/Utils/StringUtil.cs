@@ -58,7 +58,7 @@ public static class StringUtil
     public static async Task<string> GenerateRssKeyAsync()
     {
         var uniqueId = await GetNanoIdAsync(prefix: $"{CronJobKey.Rss_Prefix}:", size: 7);
-        return uniqueId;
+        return uniqueId.ToUpper();
     }
 
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
@@ -296,8 +296,7 @@ public static class StringUtil
 
     public static T? Deserialize<T>(this string input, JsonNamingPolicy? jsonNamingPolicy = null)
     {
-        return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions()
-        {
+        return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions() {
             NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
             PropertyNamingPolicy = jsonNamingPolicy,
         });

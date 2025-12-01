@@ -10,6 +10,8 @@ namespace ZiziBot.Common.WebParser;
 
 public static class RssParserUtil
 {
+    private static readonly ILogger Logger = LoggerUtil.CreateLogger(typeof(RssParserUtil));
+
     public static async Task<Feed> ReadRssAsync(this string rssUrl, bool throwIfError = false)
     {
         try
@@ -22,7 +24,7 @@ public static class RssParserUtil
             if (throwIfError)
                 throw;
 
-            Log.Error("Error reading rss: {RssUrl}. Message: {Message}", rssUrl, e.Message);
+            Logger.Error(e, "Error reading rss: {RssUrl}. Message: {Message}", rssUrl, e.Message);
 
             return new Feed();
         }
@@ -78,7 +80,7 @@ public static class RssParserUtil
         }
         catch (Exception e)
         {
-            Log.Warning("Unable detect RSS from: {RssUrl}. Message: {Message}", rssUrl, e.Message);
+            Logger.Warning(e, "Unable detect RSS from: {RssUrl}. Message: {Message}", rssUrl, e.Message);
 
             if (throwIfError)
                 throw;
@@ -107,7 +109,7 @@ public static class RssParserUtil
         if (!url.IsGithubReleaseUrl())
             return null;
 
-        Log.Debug("Collecting GitHub assets latest for URL: {Url}", url);
+        Logger.Debug("Collecting GitHub assets latest for URL: {Url}", url);
         var client = new GitHubClient(new ProductHeaderValue("ZiziBot"));
 
         if (!string.IsNullOrWhiteSpace(token))
@@ -116,10 +118,10 @@ public static class RssParserUtil
         var repoGroup = url.Split("/")[3];
         var repoName = url.Split("/")[4];
 
-        Log.Debug("Getting GitHub release assets latest for URL: {Url}", url);
+        Logger.Debug("Getting GitHub release assets latest for URL: {Url}", url);
         var release = await client.Repository.Release.GetLatest(repoGroup, repoName);
 
-        Log.Debug("Got Assets for URl: {Url} {Count} item(s)", url, release.Assets.Count);
+        Logger.Debug("Got Assets for URl: {Url} {Count} item(s)", url, release.Assets.Count);
         return release;
     }
 
@@ -128,7 +130,7 @@ public static class RssParserUtil
         if (!url.IsGithubReleaseUrl())
             return null;
 
-        Log.Debug("Collecting GitHub assets for URL: {Url}", url);
+        Logger.Debug("Collecting GitHub assets for URL: {Url}", url);
         var client = new GitHubClient(new ProductHeaderValue("ZiziBot"));
 
         if (!string.IsNullOrWhiteSpace(token))
@@ -137,10 +139,10 @@ public static class RssParserUtil
         var repoGroup = url.Split("/")[3];
         var repoName = url.Split("/")[4];
 
-        Log.Debug("Getting GitHub release assets for URL: {Url}", url);
+        Logger.Debug("Getting GitHub release assets for URL: {Url}", url);
         var release = await client.Repository.Release.GetAll(repoGroup, repoName);
 
-        Log.Debug("Got Assets for URl: {Url} {Count} item(s)", url, release.Count);
+        Logger.Debug("Got Assets for URl: {Url} {Count} item(s)", url, release.Count);
         return release;
     }
 }
