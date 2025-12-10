@@ -1,7 +1,8 @@
 using System.ComponentModel;
-using CloudCraic.Hosting.BackgroundQueue;
+using DalSoft.Hosting.BackgroundQueue;
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Common.Exceptions;
 
 namespace ZiziBot.Application.Services;
 
@@ -12,6 +13,7 @@ public class MediatorService(
 )
 {
     #region Execution
+
     public async Task<BotResponseBase> EnqueueAsync(BotRequestBase request)
     {
         BotResponseBase botResponse = new();
@@ -31,7 +33,7 @@ public class MediatorService(
             case ExecutionStrategy.Instant:
                 return await mediator.Send(request);
             default:
-                throw new ArgumentOutOfRangeException(nameof(request.ExecutionStrategy), request.ExecutionStrategy, "Unknown execution strategy");
+                throw new AppException("Unknown execution strategy");
         }
 
         return botResponse.Complete();
@@ -80,9 +82,11 @@ public class MediatorService(
 
         return botResponse.Complete();
     }
+
     #endregion
 
     #region Bridge
+
     [DisplayName("{0}")]
     [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
     public async Task<TResponse?> Send<TResponse>(IRequest<TResponse> request)
@@ -96,5 +100,6 @@ public class MediatorService(
     {
         return await mediator.Send(request);
     }
+
     #endregion
 }

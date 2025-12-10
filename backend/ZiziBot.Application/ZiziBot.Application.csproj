@@ -10,8 +10,8 @@
   <ItemGroup>
     <PackageReference Include="AsyncAwaitBestPractices" Version="10.0.0"/>
     <PackageReference Include="CacheTower" Version="0.14.0"/>
-    <PackageReference Include="CloudCraic.Hosting.BackgroundQueue" Version="1.0.7"/>
     <PackageReference Include="Cortex.Mediator" Version="2.1.0"/>
+    <PackageReference Include="DalSoft.Hosting.BackgroundQueue" Version="2.0.1"/>
     <PackageReference Include="FirebaseDatabase.net" Version="5.0.0"/>
     <PackageReference Include="MediatR" Version="12.5.0"/>
     <PackageReference Include="morelinq" Version="4.4.0" />
