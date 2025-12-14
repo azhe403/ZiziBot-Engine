@@ -31,7 +31,6 @@
     <ProjectReference Include="..\ZiziBot.Common\ZiziBot.Common.csproj"/>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
     <ProjectReference Include="..\ZiziBot.Database\ZiziBot.Database.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Services\ZiziBot.Services.csproj"/>
   </ItemGroup>
 
 </Project>

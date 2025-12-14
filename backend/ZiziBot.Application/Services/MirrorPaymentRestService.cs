@@ -3,10 +3,10 @@ using AngleSharp.Html.Dom;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using ZiziBot.Common.Dtos;
-using ZiziBot.Common.Enums;
 
-namespace ZiziBot.Services.Rest;
+namespace ZiziBot.Application.Services;
 
 public class MirrorPaymentRestService(
     ILogger<MirrorPaymentRestService> logger,
@@ -42,7 +42,8 @@ public class MirrorPaymentRestService(
         url = url.GetTrakteerUrl();
         var parsedDonationDto = new ParsedDonationDto();
         Log.Information("Parsing trakteer url: {Url}", url);
-        var document = await url.OpenUrl(new() {
+        var document = await url.OpenUrl(new()
+        {
             ClearanceDelay = 3000
         }, cancellationToken: cancellationToken);
 
@@ -157,7 +158,8 @@ public class MirrorPaymentRestService(
         data.IsValid = data.OrderId != null;
         data.PaymentUrl = url;
 
-        var parsedDonation = new ParsedDonationDto {
+        var parsedDonation = new ParsedDonationDto
+        {
             Method = ParseMethod.TrakteerApi,
             IsValid = data.IsValid,
             Source = DonationSource.Trakteer,
@@ -189,7 +191,8 @@ public class MirrorPaymentRestService(
         data.CendolCount = data.Total / 5000;
         data.PaymentUrl = url;
 
-        var parsedDonation = new ParsedDonationDto {
+        var parsedDonation = new ParsedDonationDto
+        {
             Method = ParseMethod.SaweriaApi,
             IsValid = data.IsValid,
             Source = DonationSource.Saweria,

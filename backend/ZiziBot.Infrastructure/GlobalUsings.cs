@@ -22,4 +22,3 @@ global using ZiziBot.Database.Repository;
 global using ZiziBot.Database.Utils;
 global using ZiziBot.Infrastructure.LoggerSink;
 global using ZiziBot.Infrastructure.MongoConfig;
-global using ZiziBot.Services;

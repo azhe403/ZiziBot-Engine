@@ -25,7 +25,6 @@
     <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>
     <ProjectReference Include="..\ZiziBot.Database\ZiziBot.Database.csproj"/>
     <ProjectReference Include="..\ZiziBot.Scheduler\ZiziBot.Scheduler.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Services\ZiziBot.Services.csproj"/>
   </ItemGroup>
 
 </Project>

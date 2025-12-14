@@ -3,11 +3,15 @@ using Xunit;
 using ZiziBot.Common.Enums;
 using ZiziBot.Common.Utils;
 using ZiziBot.Database.MongoDb;
-using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Tests.Pipelines;
 
-public class CityTest(MediatorService mediatorService, BotRepository botRepository, MongoDbContext mongoDbContext, FathimahRestService fathimahRestService)
+public class CityTest(
+    MediatorService mediatorService,
+    BotRepository botRepository,
+    MongoDbContext mongoDbContext,
+    FathimahRestService fathimahRestService
+)
 {
     [Theory]
     [InlineData(712)]
@@ -16,12 +20,16 @@ public class CityTest(MediatorService mediatorService, BotRepository botReposito
         var botMain = await botRepository.GetBotMain();
 
         // Arrange
-        await mediatorService.Send(new AddCityBotRequest() {
+        var botResponseBase = await mediatorService.Send(new AddCityBotRequest()
+        {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             ReplyMessage = true,
             CityId = cityId
         });
+
+
+        botResponseBase.ShouldNotBeNull();
     }
 
     [Theory]
@@ -49,12 +57,15 @@ public class CityTest(MediatorService mediatorService, BotRepository botReposito
         }
 
         // Arrange
-        await mediatorService.Send(new AddCityBotRequest() {
+        var botResponse = await mediatorService.Send(new AddCityBotRequest()
+        {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             ReplyMessage = true,
             CityName = cityName
         });
+
+        botResponse.ShouldNotBeNull();
     }
 
     [Theory]
@@ -64,20 +75,26 @@ public class CityTest(MediatorService mediatorService, BotRepository botReposito
         var botMain = await botRepository.GetBotMain();
 
         // Arrange
-        await mediatorService.Send(new AddCityBotRequest() {
+        var botResponse = await mediatorService.Send(new AddCityBotRequest()
+        {
             BotToken = botMain.Token,
             Message = SampleMessages.CommonMessage,
             ReplyMessage = true,
             CityName = cityName
         });
+
+        botResponse.ShouldNotBeNull();
     }
 
     [Theory]
     [InlineData(-1001404591750)]
     public async Task ShalatTimeTest(long chatId)
     {
-        await mediatorService.Send(new SendShalatTimeRequest() {
+        var response = await mediatorService.Send(new SendShalatTimeRequest()
+        {
             ChatId = chatId
         });
+
+        response.ShouldBeTrue();
     }
 }

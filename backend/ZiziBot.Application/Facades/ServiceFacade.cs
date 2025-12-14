@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Application.Facades;
 
