@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.Database.MongoDb;
 using ZiziBot.Database.MongoDb.Entities;
@@ -22,6 +23,7 @@ public sealed class FetchRssUseCase(
             return true;
 
         logger.LogInformation("Processing RSS Url: {Url}", rssUrl);
+        var sentMessage = new Message();
         var trxId = Guid.CreateVersion7().ToString();
         var botSettings = await botRepository.GetBotMain();
 
@@ -48,7 +50,7 @@ public sealed class FetchRssUseCase(
 
                 try
                 {
-                    await botClient.SendMessage(
+                    sentMessage = await botClient.SendMessage(
                         chatId: chatId,
                         messageThreadId: threadId,
                         text: latestArticle.Content,
@@ -61,7 +63,7 @@ public sealed class FetchRssUseCase(
                     if (exception.Message.Contains("thread not found"))
                     {
                         logger.LogWarning(exception, "Trying send RSS without thread to ChatId: {ChatId}", chatId);
-                        await botClient.SendMessage(
+                        sentMessage = await botClient.SendMessage(
                             chatId: chatId,
                             text: latestArticle.Content,
                             parseMode: ParseMode.Html,
@@ -86,10 +88,22 @@ public sealed class FetchRssUseCase(
                     TransactionId = trxId
                 });
             }
+
+            var rssSetting = await mongoDbContext.RssSetting
+                .Where(x => x.ChatId == chatId)
+                .WhereIf(threadId > 0, x => x.ThreadId == threadId)
+                .Where(x => x.RssUrl == rssUrl)
+                .FirstOrDefaultAsync();
+
+            if (rssSetting != null && sentMessage.MessageId > 0)
+            {
+                rssSetting.LastSuccessDate = DateTime.UtcNow;
+            }
         }
         catch (Exception exception)
         {
             var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
+
             if (exception.IsIgnorable())
             {
                 logger.LogWarning("Error while sending RSS for ChatId: {ChatId}, Url: {Url}. Reason: {Message}", chatId, rssUrl, exception.Message);
@@ -100,7 +114,8 @@ public sealed class FetchRssUseCase(
                     .ToListAsync();
 
 
-                findRssSetting.ForEach(rss => {
+                findRssSetting.ForEach(rss =>
+                {
                     rss.Status = EventStatus.InProgress;
                     rss.LastErrorMessage = exceptionMessage;
                     rss.TransactionId = trxId;
@@ -114,8 +129,7 @@ public sealed class FetchRssUseCase(
                 logger.LogError(exception, "Error while sending RSS article to Chat: {ChatId}. Url: {Url}", chatId, rssUrl);
             }
 
-            mongoDbContext.RssHistory.Add(new RssHistoryEntity
-            {
+            mongoDbContext.RssHistory.Add(new RssHistoryEntity {
                 ChatId = chatId,
                 ThreadId = threadId,
                 RssUrl = rssUrl,

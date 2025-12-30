@@ -3,9 +3,8 @@ using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Types;
 using ZiziBot.Common.Vendor.FathimahApi.v2;
-using ZiziBot.Database.Service;
 
-namespace ZiziBot.Services.Rest;
+namespace ZiziBot.Application.Services;
 
 public sealed class FathimahRestService(
     ILogger<FathimahRestService> logger,
@@ -18,12 +17,14 @@ public sealed class FathimahRestService(
 
         logger.LogInformation("Get City");
 
-        var apis = await cacheService.GetOrSetAsync(new CacheParam<CityResponse>(){
-            CacheKey =  $"vendor/bang-hasan/{path}",
-            ExpireAfter =  "1d",
+        var apis = await cacheService.GetOrSetAsync(new CacheParam<CityResponse>()
+        {
+            CacheKey = $"vendor/bang-hasan/{path}",
+            ExpireAfter = "1d",
             StaleAfter = "1h",
             EvictAfter = true,
-            Action = async () => {
+            Action = async () =>
+            {
                 var apis = await UrlConst.FATHIMAH_API
                     .AppendPathSegment(path)
                     .GetJsonAsync<CityResponse>();
@@ -56,18 +57,21 @@ public sealed class FathimahRestService(
 
         logger.LogInformation("Get Shalat time for ChatId: {CityId} with Date: {DateStr}", cityId, dateTime);
 
-        var apis = await cacheService.GetOrSetAsync(new CacheParam<ShalatTimeResponse>(){
-            CacheKey = $"vendor/bang-hasan/{path}",
-            ExpireAfter = "1d",
-            EvictBefore = evictBefore,
-            StaleAfter = "1h",
-            Action = async () => {
-                var apis = await UrlConst.FATHIMAH_API
-                    .AppendPathSegment(path)
-                    .GetJsonAsync<ShalatTimeResponse>();
+        var apis = await cacheService.GetOrSetAsync(new CacheParam<ShalatTimeResponse>()
+            {
+                CacheKey = $"vendor/bang-hasan/{path}",
+                ExpireAfter = "1d",
+                EvictBefore = evictBefore,
+                StaleAfter = "1h",
+                Action = async () =>
+                {
+                    var apis = await UrlConst.FATHIMAH_API
+                        .AppendPathSegment(path)
+                        .GetJsonAsync<ShalatTimeResponse>();
 
-                return apis;
-            }}
+                    return apis;
+                }
+            }
         );
 
         logger.LogInformation("Shalat time for ChatId: {CityId} with Date: {DateStr} is: {ShalatTime}", cityId, dateTime, apis.Schedule?.Daerah);

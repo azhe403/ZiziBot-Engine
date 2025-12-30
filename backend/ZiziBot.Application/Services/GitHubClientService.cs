@@ -1,9 +1,8 @@
 ﻿using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Common.Enums;
 using ZiziBot.Common.Vendor.GitHub;
 
-namespace ZiziBot.Services.Client;
+namespace ZiziBot.Application.Services;
 
 public class GitHubClientService(
     ILogger<GitHubClientService> logger,

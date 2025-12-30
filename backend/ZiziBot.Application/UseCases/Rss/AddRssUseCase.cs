@@ -36,10 +36,10 @@ public class AddRssUseCase(
         if (rssSetting == null)
         {
             logger.LogDebug("Adding RSS: {Rss}", rssUrl);
-            var create = dataFacade.MongoDb.RssSetting.Add(new RssSettingEntity
-            {
+            var create = dataFacade.MongoDb.RssSetting.Add(new RssSettingEntity {
                 ChatId = request.ChatId,
                 RssUrl = rssUrl,
+                OriginalRssUrl = rssUrl,
                 ThreadId = request.ThreadId,
                 UserId = request.UserId,
                 CronJobId = uniqueId,
@@ -50,7 +50,7 @@ public class AddRssUseCase(
         if (rssSetting != null)
         {
             rssSetting.CronJobId = uniqueId;
-            rssSetting.OriginalUrl = rssUrl;
+            rssSetting.OriginalRssUrl = rssUrl;
         }
 
         await serviceFacade.JobService.Register(request.ChatId, request.ThreadId, rssUrl, uniqueId, true);

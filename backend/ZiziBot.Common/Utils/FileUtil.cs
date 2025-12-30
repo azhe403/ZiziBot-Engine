@@ -1,139 +1,118 @@
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace ZiziBot.Common.Utils;
 
 public static class FileUtil
 {
-    private static readonly ConcurrentDictionary<string, ReaderWriterLockSlim> FileLocks = new ConcurrentDictionary<string, ReaderWriterLockSlim>();
-    private static readonly TimeSpan LockTimeout = TimeSpan.FromSeconds(60);
-    private static readonly Lock LockCleanupLock = new Lock();
-    private static DateTime _lastCleanup = DateTime.UtcNow;
+    private static readonly ConcurrentDictionary<string, ReaderWriterLockSlim> FileLocks = new();
+    private static readonly TimeSpan LockTimeout = TimeSpan.FromSeconds(30);
+    private static readonly object CleanupLock = new();
+    private static long _lastCleanupTicks = DateTime.UtcNow.Ticks;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string NormalizePath(string path) => Path.GetFullPath(path);
 
     private static ReaderWriterLockSlim GetFileLock(string filePath)
     {
-        CleanupOldLocks();
-        // Use LockRecursionPolicy.SupportsRecursion to allow recursive lock acquires on the same thread
-        return FileLocks.GetOrAdd(filePath, _ => new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion));
+        var normalizedPath = NormalizePath(filePath);
+        CleanupOldLocksIfNeeded();
+        return FileLocks.GetOrAdd(normalizedPath, static _ => new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion));
     }
 
-    private static void CleanupOldLocks()
+    private static void CleanupOldLocksIfNeeded()
     {
-        // Only cleanup every minute to avoid excessive locking
-        if (DateTime.UtcNow - _lastCleanup < TimeSpan.FromMinutes(1))
+        var currentTicks = DateTime.UtcNow.Ticks;
+        var lastCleanup = Interlocked.Read(ref _lastCleanupTicks);
+
+        if (currentTicks - lastCleanup < TimeSpan.FromMinutes(5).Ticks)
             return;
 
-        lock (LockCleanupLock)
+        if (!Monitor.TryEnter(CleanupLock))
+            return;
+
+        try
         {
-            if (DateTime.UtcNow - _lastCleanup < TimeSpan.FromMinutes(1))
+            lastCleanup = Interlocked.Read(ref _lastCleanupTicks);
+            if (currentTicks - lastCleanup < TimeSpan.FromMinutes(5).Ticks)
                 return;
 
-            var keysToRemove = FileLocks
-                .Where(pair => !pair.Value.IsReadLockHeld && !pair.Value.IsWriteLockHeld && !pair.Value.IsUpgradeableReadLockHeld)
-                .Select(pair => pair.Key)
-                .ToList();
+            var locksToRemove = new List<string>();
 
-            foreach (var key in keysToRemove)
+            foreach (var (key, lockSlim) in FileLocks)
+            {
+                if (!lockSlim.IsReadLockHeld && !lockSlim.IsWriteLockHeld && !lockSlim.IsUpgradeableReadLockHeld)
+                    locksToRemove.Add(key);
+            }
+
+            foreach (var key in locksToRemove)
             {
                 if (FileLocks.TryRemove(key, out var lockToDispose))
                 {
-                    try
-                    {
-                        lockToDispose.Dispose();
-                    }
-                    catch
-                    {
-                        /* Ignore disposal errors */
-                    }
+                    lockToDispose.Dispose();
                 }
             }
 
-            _lastCleanup = DateTime.UtcNow;
+            Interlocked.Exchange(ref _lastCleanupTicks, currentTicks);
+        }
+        finally
+        {
+            Monitor.Exit(CleanupLock);
         }
     }
 
     public static async Task WriteAllTextThreadSafeAsync(this string path, string contents, Encoding? encoding = null, CancellationToken cancellationToken = default)
     {
         encoding ??= Encoding.UTF8;
-
-        var fileLock = GetFileLock(path);
-        bool upgradeableLockAcquired = false;
-        bool writeLockAcquired = false;
+        var normalizedPath = NormalizePath(path);
+        var fileLock = GetFileLock(normalizedPath);
+        var writeLockAcquired = false;
 
         try
         {
-            // First, acquire an upgradeable read lock
-            upgradeableLockAcquired = fileLock.TryEnterUpgradeableReadLock(LockTimeout);
-            if (!upgradeableLockAcquired)
-                throw new TimeoutException($"Failed to acquire upgradeable read lock for file: {path}");
-
-            // Then upgrade to a write lock if needed
             writeLockAcquired = fileLock.TryEnterWriteLock(LockTimeout);
             if (!writeLockAcquired)
-                throw new TimeoutException($"Failed to acquire write lock for file: {path}");
+                throw new TimeoutException($"Failed to acquire write lock for file: {normalizedPath}");
 
-            // Ensure directory exists
-            var directory = Path.GetDirectoryName(path);
-
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
+            var directory = Path.GetDirectoryName(normalizedPath);
+            if (!string.IsNullOrEmpty(directory))
                 Directory.CreateDirectory(directory);
-            }
 
-            // Write to a temporary file first
-            var tempFile = Path.GetRandomFileName();
+            var tempFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
             try
             {
                 await File.WriteAllTextAsync(tempFile, contents, encoding, cancellationToken);
-
-                // Then replace the original file
-                File.Move(tempFile, path, overwrite: true);
+                File.Move(tempFile, normalizedPath, overwrite: true);
             }
             finally
             {
-                try
-                {
+                if (File.Exists(tempFile))
                     File.Delete(tempFile);
-                }
-                catch
-                {
-                    /* Ignore cleanup errors */
-                }
             }
         }
         finally
         {
-            // Release write lock if acquired
             if (writeLockAcquired && fileLock.IsWriteLockHeld)
                 fileLock.ExitWriteLock();
-
-            // Release upgradeable read lock if acquired
-            if (upgradeableLockAcquired && fileLock.IsUpgradeableReadLockHeld)
-                fileLock.ExitUpgradeableReadLock();
         }
     }
 
     public static async Task<string> ReadAllTextThreadSafeAsync(this string path, Encoding? encoding = null, CancellationToken cancellationToken = default)
     {
         encoding ??= Encoding.UTF8;
-
-        var fileLock = GetFileLock(path);
-        bool lockAcquired = false;
+        var normalizedPath = NormalizePath(path);
+        var fileLock = GetFileLock(normalizedPath);
+        var lockAcquired = false;
 
         try
         {
             lockAcquired = fileLock.TryEnterReadLock(LockTimeout);
             if (!lockAcquired)
-                throw new TimeoutException($"Failed to acquire read lock for file: {path}");
+                throw new TimeoutException($"Failed to acquire read lock for file: {normalizedPath}");
 
-            return await File.ReadAllTextAsync(path, encoding, cancellationToken);
-        }
-        catch (Exception) when (lockAcquired)
-        {
-            // If we get an exception after acquiring the lock, release it before rethrowing
-            fileLock.ExitReadLock();
-            throw;
+            return await File.ReadAllTextAsync(normalizedPath, encoding, cancellationToken);
         }
         finally
         {
@@ -145,85 +124,54 @@ public static class FileUtil
     public static void WriteAllTextThreadSafe(this string path, string contents, Encoding? encoding = null)
     {
         encoding ??= Encoding.UTF8;
-
-        var fileLock = GetFileLock(path);
-        bool upgradeableLockAcquired = false;
-        bool writeLockAcquired = false;
+        var normalizedPath = NormalizePath(path);
+        var fileLock = GetFileLock(normalizedPath);
+        var writeLockAcquired = false;
 
         try
         {
-            // First, acquire an upgradeable read lock
-            upgradeableLockAcquired = fileLock.TryEnterUpgradeableReadLock(LockTimeout);
-            if (!upgradeableLockAcquired)
-                throw new TimeoutException($"Failed to acquire upgradeable read lock for file: {path}");
-
-            // Then upgrade to a write lock if needed
             writeLockAcquired = fileLock.TryEnterWriteLock(LockTimeout);
             if (!writeLockAcquired)
-                throw new TimeoutException($"Failed to acquire write lock for file: {path}");
+                throw new TimeoutException($"Failed to acquire write lock for file: {normalizedPath}");
 
-            // Ensure directory exists
-            var directory = Path.GetDirectoryName(path);
-
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
+            var directory = Path.GetDirectoryName(normalizedPath);
+            if (!string.IsNullOrEmpty(directory))
                 Directory.CreateDirectory(directory);
-            }
 
-            // Write to a temporary file first
-            var tempFile = Path.GetRandomFileName();
+            var tempFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
             try
             {
                 File.WriteAllText(tempFile, contents, encoding);
-
-                // Then replace the original file
-                File.Move(tempFile, path, overwrite: true);
+                File.Move(tempFile, normalizedPath, overwrite: true);
             }
             finally
             {
-                try
-                {
+                if (File.Exists(tempFile))
                     File.Delete(tempFile);
-                }
-                catch
-                {
-                    /* Ignore cleanup errors */
-                }
             }
         }
         finally
         {
-            // Release write lock if acquired
             if (writeLockAcquired && fileLock.IsWriteLockHeld)
                 fileLock.ExitWriteLock();
-
-            // Release upgradeable read lock if acquired
-            if (upgradeableLockAcquired && fileLock.IsUpgradeableReadLockHeld)
-                fileLock.ExitUpgradeableReadLock();
         }
     }
 
     public static string ReadAllTextThreadSafe(this string path, Encoding? encoding = null)
     {
         encoding ??= Encoding.UTF8;
-
-        var fileLock = GetFileLock(path);
-        bool lockAcquired = false;
+        var normalizedPath = NormalizePath(path);
+        var fileLock = GetFileLock(normalizedPath);
+        var lockAcquired = false;
 
         try
         {
             lockAcquired = fileLock.TryEnterReadLock(LockTimeout);
             if (!lockAcquired)
-                throw new TimeoutException($"Failed to acquire read lock for file: {path}");
+                throw new TimeoutException($"Failed to acquire read lock for file: {normalizedPath}");
 
-            return File.ReadAllText(path, encoding);
-        }
-        catch (Exception) when (lockAcquired)
-        {
-            // If we get an exception after acquiring the lock, release it before rethrowing
-            fileLock.ExitReadLock();
-            throw;
+            return File.ReadAllText(normalizedPath, encoding);
         }
         finally
         {
@@ -234,38 +182,26 @@ public static class FileUtil
 
     public static void DeleteThreadSafe(this string path, bool throwOnError = false)
     {
-        var fileLock = GetFileLock(path);
-        bool upgradeableLockAcquired = false;
-        bool writeLockAcquired = false;
+        var normalizedPath = NormalizePath(path);
+        var fileLock = GetFileLock(normalizedPath);
+        var writeLockAcquired = false;
 
         try
         {
-            if (!File.Exists(path))
+            if (!File.Exists(normalizedPath))
                 return;
 
-            // First, acquire an upgradeable read lock
-            upgradeableLockAcquired = fileLock.TryEnterUpgradeableReadLock(LockTimeout);
-
-            if (!upgradeableLockAcquired)
-            {
-                if (throwOnError)
-                    throw new TimeoutException($"Failed to acquire upgradeable read lock for file: {path}");
-
-                return;
-            }
-
-            // Then upgrade to a write lock
             writeLockAcquired = fileLock.TryEnterWriteLock(LockTimeout);
 
             if (!writeLockAcquired)
             {
                 if (throwOnError)
-                    throw new TimeoutException($"Failed to acquire write lock for file: {path}");
+                    throw new TimeoutException($"Failed to acquire write lock for file: {normalizedPath}");
 
                 return;
             }
 
-            File.Delete(path);
+            File.Delete(normalizedPath);
         }
         catch when (!throwOnError)
         {
@@ -273,50 +209,33 @@ public static class FileUtil
         }
         finally
         {
-            // Release write lock if acquired
             if (writeLockAcquired && fileLock.IsWriteLockHeld)
                 fileLock.ExitWriteLock();
-
-            // Release upgradeable read lock if acquired
-            if (upgradeableLockAcquired && fileLock.IsUpgradeableReadLockHeld)
-                fileLock.ExitUpgradeableReadLock();
         }
     }
 
     public static async Task DeleteThreadSafeAsync(this string path, bool throwOnError = false, CancellationToken cancellationToken = default)
     {
-        var fileLock = GetFileLock(path);
-        bool upgradeableLockAcquired = false;
-        bool writeLockAcquired = false;
+        var normalizedPath = NormalizePath(path);
+        var fileLock = GetFileLock(normalizedPath);
+        var writeLockAcquired = false;
 
         try
         {
-            if (!File.Exists(path))
+            if (!File.Exists(normalizedPath))
                 return;
 
-            // First, acquire an upgradeable read lock
-            upgradeableLockAcquired = fileLock.TryEnterUpgradeableReadLock(LockTimeout);
-
-            if (!upgradeableLockAcquired)
-            {
-                if (throwOnError)
-                    throw new TimeoutException($"Failed to acquire upgradeable read lock for file: {path}");
-
-                return;
-            }
-
-            // Then upgrade to a write lock
             writeLockAcquired = fileLock.TryEnterWriteLock(LockTimeout);
 
             if (!writeLockAcquired)
             {
                 if (throwOnError)
-                    throw new TimeoutException($"Failed to acquire write lock for file: {path}");
+                    throw new TimeoutException($"Failed to acquire write lock for file: {normalizedPath}");
 
                 return;
             }
 
-            await Task.Run(() => File.Delete(path), cancellationToken);
+            await Task.Run(() => File.Delete(normalizedPath), cancellationToken);
         }
         catch when (!throwOnError)
         {
@@ -324,13 +243,8 @@ public static class FileUtil
         }
         finally
         {
-            // Release write lock if acquired
             if (writeLockAcquired && fileLock.IsWriteLockHeld)
                 fileLock.ExitWriteLock();
-
-            // Release upgradeable read lock if acquired
-            if (upgradeableLockAcquired && fileLock.IsUpgradeableReadLockHeld)
-                fileLock.ExitUpgradeableReadLock();
         }
     }
 }
