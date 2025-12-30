@@ -12,7 +12,8 @@ namespace ZiziBot.Database.Extension;
 
 public static class CacheTowerExtension
 {
-    private static ICacheSerializer CurrentSerializer => new SystemTextJsonCacheSerializer(new() {
+    private static ICacheSerializer CurrentSerializer => new SystemTextJsonCacheSerializer(new()
+    {
         WriteIndented = true
     });
 
@@ -22,13 +23,15 @@ public static class CacheTowerExtension
         var cacheConfig = serviceProvider.GetRequiredService<IOptions<CacheConfig>>().Value;
         var gcpConfig = serviceProvider.GetRequiredService<IOptions<GcpConfig>>().Value;
 
-        var firebaseConfig = new FirebaseCacheOptions() {
+        var firebaseConfig = new FirebaseCacheOptions()
+        {
             ProjectUrl = gcpConfig.FirebaseProjectUrl,
             ServiceAccountJson = gcpConfig.FirebaseServiceAccountJson,
             RootDir = cacheConfig.PrefixRoot
         };
 
-        services.AddCacheStack(builder => {
+        services.AddCacheStack(builder =>
+        {
             builder
                 .WithCleanupFrequency(TimeSpan.FromMinutes(10))
                 .AddMemoryCacheLayer()
@@ -36,7 +39,7 @@ public static class CacheTowerExtension
                 .ConfigureSqliteCacheLayer(cacheConfig)
                 .ConfigureMongoDbCacheLayer(cacheConfig)
                 .ConfigureRedisCacheLayer(cacheConfig)
-                .ConfigureFirebaseCacheLayer(firebaseConfig: firebaseConfig);
+                .ConfigureFirebaseCacheLayer(cacheConfig: cacheConfig, firebaseConfig: firebaseConfig);
         });
 
         return services;
@@ -67,7 +70,8 @@ public static class CacheTowerExtension
             return builder;
 
         builder.CacheLayers.Add(
-            new JsonLayerProvider() {
+            new JsonLayerProvider()
+            {
                 DirPath = PathConst.CACHE_TOWER_JSON.EnsureDirectory(),
                 Serializer = CurrentSerializer
             });
@@ -92,7 +96,8 @@ public static class CacheTowerExtension
         }
         else if (cacheConfig != null)
         {
-            firebaseOptions = new FirebaseCacheOptions {
+            firebaseOptions = new FirebaseCacheOptions
+            {
                 ProjectUrl = cacheConfig.FirebaseProjectUrl,
                 ServiceAccountJson = cacheConfig.FirebaseServiceAccountJson
             };
@@ -132,7 +137,8 @@ public static class CacheTowerExtension
 
         var dbPath = EnvUtil.GetEnv(Env.MONGODB_CONNECTION_STRING);
 
-        builder.CacheLayers.Add(new MongoLayerProvider(new() {
+        builder.CacheLayers.Add(new MongoLayerProvider(new()
+        {
             ConnectionString = dbPath,
             Serializer = CurrentSerializer
         }));
