@@ -23,7 +23,7 @@ internal class MongoLayerProvider(MongoLayerOptions options) : IDistributedCache
     public async ValueTask CleanupAsync()
     {
         _log.Verbose("Cleanup CacheTower MongoDB layer");
-        await Collection.DeleteManyAsync(x => x.Expiry < DateTime.UtcNow);
+        await Collection.DeleteManyAsync(x => x.ExpiryDate < DateTime.UtcNow);
         _log.Verbose("Cleanup CacheTower MongoDB layer has done");
     }
 
@@ -40,8 +40,8 @@ internal class MongoLayerProvider(MongoLayerOptions options) : IDistributedCache
         var cache = await Collection.Find(x => x.CacheKey == cacheKey).FirstOrDefaultAsync();
         var cacheEntry = default(CacheEntry<T>);
 
-        cacheEntry = new(cache.Value.ToObject<T>(), cache.Expiry);
-        _log.Verbose("Get CacheTower MongoDB layer. Key: {CacheKey}, Expiry: {Expiry}", cacheKey, cache.Expiry);
+        cacheEntry = new(cache.Value.ToObject<T>(), cache.ExpiryDate);
+        _log.Verbose("Get CacheTower MongoDB layer. Key: {CacheKey}, Expiry: {Expiry}", cacheKey, cache.ExpiryDate);
 
         return cacheEntry;
     }
@@ -54,8 +54,10 @@ internal class MongoLayerProvider(MongoLayerOptions options) : IDistributedCache
             update: Builders<MongoCacheEntry>.Update
                 .SetOnInsert(e => e.CreatedDate, DateTime.UtcNow)
                 .Set(x => x.Value, cacheEntry.Value.ToJson())
-                .Set(x => x.Expiry, cacheEntry.Expiry),
-            options: new UpdateOptions { IsUpsert = true }
+                .Set(x => x.ExpiryDate, cacheEntry.Expiry),
+            options: new UpdateOptions {
+                IsUpsert = true
+            }
         );
 
         _log.Verbose("Set CacheTower MongoDB layer. Key: {CacheKey}", cacheKey);

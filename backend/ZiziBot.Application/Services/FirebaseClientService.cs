@@ -5,7 +5,7 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Options;
 using ZiziBot.Common.Exceptions;
 
-namespace ZiziBot.Services.Client;
+namespace ZiziBot.Application.Services;
 
 public class FirebaseClientService(IOptions<GcpConfig> options)
 {

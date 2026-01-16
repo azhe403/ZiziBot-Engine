@@ -1,9 +1,8 @@
 ﻿using Flurl;
 using Flurl.Http;
-using ZiziBot.Common.Interfaces;
 using ZiziBot.Common.Vendor.Subdl;
 
-namespace ZiziBot.Services.Rest;
+namespace ZiziBot.Application.Services;
 
 public class SubdlRestService(ICacheService cacheService)
 {
@@ -12,7 +11,8 @@ public class SubdlRestService(ICacheService cacheService)
         var url = UrlConst.API_SUBDL_BASE.AppendPathSegment("popular");
         var cache = await cacheService.GetOrSetAsync(
             cacheKey: $"vendor/{url.ToString().ForCacheKey()}",
-            action: async () => {
+            action: async () =>
+            {
                 var response = await url.GetJsonAsync<Popular>();
 
                 return response;
@@ -29,7 +29,8 @@ public class SubdlRestService(ICacheService cacheService)
 
         var cache = await cacheService.GetOrSetAsync(
             cacheKey: $"vendor/{url.ToString().ForCacheKey()}",
-            action: async () => {
+            action: async () =>
+            {
                 var response = await url.GetJsonAsync<Popular>();
 
                 return response;
