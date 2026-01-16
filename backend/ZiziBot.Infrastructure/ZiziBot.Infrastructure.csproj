@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CloudCraic.Hosting.BackgroundQueue" Version="1.0.7"/>
     <PackageReference Include="dotenv.net" Version="4.0.0"/>
     <PackageReference Include="HelpMate.Core" Version="2.1.0"/>
     <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510"/>
