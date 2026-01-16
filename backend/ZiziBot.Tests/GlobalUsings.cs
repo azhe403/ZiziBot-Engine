@@ -13,6 +13,5 @@ global using ZiziBot.Application.Services;
 global using ZiziBot.Common.WebParser;
 global using ZiziBot.Database.Repository;
 global using ZiziBot.Infrastructure;
-global using ZiziBot.Services;
 global using ZiziBot.Tests.SampleData;
 global using ZiziBot.Tests.SampleData;
