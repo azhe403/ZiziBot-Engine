@@ -48,7 +48,8 @@ public class WordFilterRepository(
         var cache = await cacheService.GetOrSetAsync(
             cacheKey: CacheKey.CHAT_BADWORD,
             evictAfter: evictAfter,
-            action: async () => {
+            action: async () =>
+            {
                 var data = await mongoDbContext.WordFilter
                     .Where(x => x.Status == EventStatus.Complete)
                     .Select(entity => new WordFilterDto() {
@@ -58,7 +59,7 @@ public class WordFilterRepository(
                         Word = entity.Word,
                         Action = entity.Action,
                         IsGlobal = entity.IsGlobal,
-                        IsRegex = entity.IsRegex,
+                        IsRegex = entity.IsRegex == true,
                         CreatedDate = entity.CreatedDate,
                         UpdatedDate = entity.UpdatedDate
                     })

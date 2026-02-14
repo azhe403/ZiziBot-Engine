@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CloudCraic.Hosting.BackgroundQueue.DependencyInjection;
+using DalSoft.Hosting.BackgroundQueue.DependencyInjection;
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using ZiziBot.Application.Facades;
 using ZiziBot.Database.Extension;
-using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Infrastructure;
 
@@ -27,7 +26,7 @@ public static class ServiceExtension
         services.AddMongoMigration();
         await services.PrefetchRepository();
         services.AddMediator();
-        services.AddBackgroundQueue();
+        services.ConfigureBackgroundQueue();
         services.ConfigureFlurl();
 
         return services;
@@ -36,19 +35,23 @@ public static class ServiceExtension
     private static IServiceCollection ConfigureFlurl(this IServiceCollection services)
     {
         services.AddSingleton<IFlurlClientCache>(sp => new FlurlClientCache()
-            .WithDefaults(builder => {
-                    builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions() {
+            .WithDefaults(builder =>
+                {
+                    builder.Settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions()
+                    {
                         NumberHandling = JsonNumberHandling.AllowReadingFromString
                     });
 
-                    builder.BeforeCall(call => {
+                    builder.BeforeCall(call =>
+                    {
                         var request = call.Request;
                         call.Request.Headers.Add("User-Agent", Env.COMMON_UA);
 
                         Log.Information("FlurlHttp: {Method} {Url}", request.Verb, request.Url);
                     });
 
-                    builder.AfterCall(flurlCall => {
+                    builder.AfterCall(flurlCall =>
+                    {
                         var request = flurlCall.Request;
                         var response = flurlCall.Response;
 
@@ -90,7 +93,7 @@ public static class ServiceExtension
             .WithScopedLifetime());
 
         services.Scan(selector => selector.FromAssembliesOf(typeof(MirrorPaymentRestService))
-            .AddClasses()
+            .AddClasses(filter => filter.InNamespaceOf<MirrorPaymentRestService>())
             .AsSelfWithInterfaces()
             .WithScopedLifetime());
 
@@ -99,9 +102,9 @@ public static class ServiceExtension
         return services;
     }
 
-    private static IServiceCollection AddBackgroundQueue(this IServiceCollection services)
+    private static IServiceCollection ConfigureBackgroundQueue(this IServiceCollection services)
     {
-        services.AddBackgroundQueue(maxConcurrentCount: 3, millisecondsToWaitBeforePickingUpTask: 1000, onException: exception => { });
+        services.AddBackgroundQueue(exception => Log.Error("Error when run background job {0}", exception.Message));
 
         return services;
     }

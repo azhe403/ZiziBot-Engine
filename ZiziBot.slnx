@@ -9,7 +9,6 @@
   </Folder>
   <Folder Name="/04. Usecase/">
     <Project Path="backend/ZiziBot.Application/ZiziBot.Application.csproj"/>
-    <Project Path="backend/ZiziBot.Services/ZiziBot.Services.csproj"/>
   </Folder>
   <Folder Name="/05. Features/">
     <Project Path="backend/ZiziBot.Scheduler/ZiziBot.Scheduler.csproj"/>

@@ -20,7 +20,8 @@ public class RegisterRssJobAllHandler(
         {
             var rssSettingsAll = await dataFacade.MongoDb.RssSetting.ToListAsync(cancellationToken: cancellationToken);
 
-            rssSettingsAll.ForEach(entity => {
+            rssSettingsAll.ForEach(entity =>
+            {
                 entity.LastErrorMessage = string.Empty;
                 entity.Status = EventStatus.Complete;
             });
@@ -38,7 +39,7 @@ public class RegisterRssJobAllHandler(
 
         foreach (var rssSettingEntity in rssSettings)
         {
-            var jobId = $"{CronJobKey.Rss_Prefix}:{rssSettingEntity.Id}";
+            var jobId = await StringUtil.GenerateRssKeyAsync();
 
             await serviceFacade.Mediator.Send(new RegisterRssJobUrlRequest {
                 ChatId = rssSettingEntity.ChatId,

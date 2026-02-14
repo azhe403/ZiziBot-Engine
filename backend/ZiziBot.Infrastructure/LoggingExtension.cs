@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Enrichers.CallerInfo;
 using Serilog.Events;
 using Serilog.Sinks.AspNetCore.SignalR.Extensions;
 using IHub = Serilog.Sinks.AspNetCore.SignalR.Interfaces.IHub;
@@ -19,9 +20,10 @@ namespace ZiziBot.Infrastructure;
 public static class LoggingExtension
 {
     // ReSharper disable InconsistentNaming
-    private const string TEMPLATE_BASE = $"[{{Level:u3}}]{{MemoryUsage}}{{ThreadId}} {{SourceContext}} {{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_BASE = $"{{Message:lj}}{{NewLine}}{{Exception}}";
+    private const string TEMPLATE_ENRICH = "{MemoryUsage} {ThreadId} {SourceContext} {Method} {SourceFile} {LineNumber}:{ColumnNumber}";
 
-    private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} {TEMPLATE_BASE}";
+    private const string OUTPUT_TEMPLATE = $"{{Timestamp:HH:mm:ss.fff}} [{{Level:u3}}] {TEMPLATE_ENRICH} {TEMPLATE_BASE}";
     // ReSharper restore InconsistentNaming
 
     public static IHostBuilder ConfigureSerilogLite(this IHostBuilder hostBuilder)
@@ -150,6 +152,7 @@ public static class LoggingExtension
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
                 .WriteTo.Console(outputTemplate: OUTPUT_TEMPLATE)
                 .Enrich.FromLogContext()
+                .Enrich.WithCallerInfo(includeFileInfo: true, assemblyPrefix: "ZiziBot", filePathDepth: 1)
                 .Enrich.WithDemystifiedStackTraces();
 
             if (logConfig.ProcessEnrich)
@@ -157,11 +160,11 @@ public static class LoggingExtension
                 config.Enrich.WithDynamicProperty("MemoryUsage", () =>
                 {
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64.Bytes().ToString("0.00");
-                    return $" {mem} ";
+                    return $"{mem}";
                 }).Enrich.WithDynamicProperty("ThreadId", () =>
                 {
                     var threadId = Environment.CurrentManagedThreadId.ToString("000000");
-                    return $" {threadId}";
+                    return $"{threadId}";
                 });
             }
 

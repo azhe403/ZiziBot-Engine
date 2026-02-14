@@ -1,8 +1,7 @@
 ﻿using Flurl.Http;
-using ZiziBot.Common.Enums;
 using ZiziBot.Common.Vendor.OcrSpace;
 
-namespace ZiziBot.Services.Rest;
+namespace ZiziBot.Application.Services;
 
 public class OcrSpaceRestService(BotRepository botRepository)
 {
@@ -15,7 +14,8 @@ public class OcrSpaceRestService(BotRepository botRepository)
             return "OCR belum dipersiapkan";
         }
 
-        var response = await UrlConst.OCR_SPACE_URL_API.PostMultipartAsync(content => {
+        var response = await UrlConst.OCR_SPACE_URL_API.PostMultipartAsync(content =>
+        {
             content.AddFile("file", fileName);
             content.Headers.Add("apikey", apiKey);
         });

@@ -2,7 +2,6 @@
 using Flurl;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Dtos;
-using ZiziBot.Services.Rest;
 
 namespace ZiziBot.Application.UseCases.Mirror;
 
@@ -61,7 +60,8 @@ public class DonationSettlementUseCase(
         logger.LogDebug("OrderId: {OrderId} from Source: {Source} is Valid: {IsValid}", request.OrderId, parsedDonationDto.Source, parsedDonationDto.IsValid);
         await cts.CancelAsync();
 
-        var donationSettlement = new DonationSettlementResponse() {
+        var donationSettlement = new DonationSettlementResponse()
+        {
             Method = parsedDonationDto.Method,
             IsValid = parsedDonationDto.IsValid,
             Source = parsedDonationDto.Source,

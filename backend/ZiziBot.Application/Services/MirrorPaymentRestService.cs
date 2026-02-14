@@ -3,10 +3,10 @@ using AngleSharp.Html.Dom;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using ZiziBot.Common.Dtos;
-using ZiziBot.Common.Enums;
 
-namespace ZiziBot.Services.Rest;
+namespace ZiziBot.Application.Services;
 
 public class MirrorPaymentRestService(
     ILogger<MirrorPaymentRestService> logger,
@@ -25,6 +25,7 @@ public class MirrorPaymentRestService(
 
         logger.LogDebug("Continue to Saweria for OrderId: {OrderId}", orderId);
         parsedDonationDto = await ParseSaweriaWeb(orderId);
+
         if (parsedDonationDto.IsValid)
         {
             return parsedDonationDto;
@@ -41,7 +42,8 @@ public class MirrorPaymentRestService(
         url = url.GetTrakteerUrl();
         var parsedDonationDto = new ParsedDonationDto();
         Log.Information("Parsing trakteer url: {Url}", url);
-        var document = await url.OpenUrl(new() {
+        var document = await url.OpenUrl(new()
+        {
             ClearanceDelay = 3000
         }, cancellationToken: cancellationToken);
 
@@ -107,6 +109,7 @@ public class MirrorPaymentRestService(
         var parsedDonationDto = new ParsedDonationDto();
         Log.Information("Parsing saweria url: {Url}", url);
         var document = await url.OpenUrl(cancellationToken: cancellationToken);
+
         if (document == null)
         {
             Log.Error("Cannot load url: {Url}", url);
@@ -142,9 +145,11 @@ public class MirrorPaymentRestService(
 
     public async Task<ParsedDonationDto> GetTrakteerApi(string url, CancellationToken cancellationToken = default)
     {
-        if (!url.StartsWith("https://trakteer.id/payment-status"))
+        var trakteerPrefix = "https://trakteer.id/payment-status";
+
+        if (!url.StartsWith(trakteerPrefix))
         {
-            url = Url.Combine("https://trakteer.id/payment-status", url);
+            url = Url.Combine(trakteerPrefix, url);
         }
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -153,7 +158,8 @@ public class MirrorPaymentRestService(
         data.IsValid = data.OrderId != null;
         data.PaymentUrl = url;
 
-        var parsedDonation = new ParsedDonationDto {
+        var parsedDonation = new ParsedDonationDto
+        {
             Method = ParseMethod.TrakteerApi,
             IsValid = data.IsValid,
             Source = DonationSource.Trakteer,
@@ -172,9 +178,11 @@ public class MirrorPaymentRestService(
 
     public async Task<ParsedDonationDto> GetSaweriaApi(string url, CancellationToken cancellationToken = default)
     {
-        if (!url.StartsWith("https://saweria.co/receipt"))
+        var saweriaPrefix = "https://saweria.co/receipt";
+
+        if (!url.StartsWith(saweriaPrefix))
         {
-            url = Url.Combine("https://saweria.co/receipt", url);
+            url = Url.Combine(saweriaPrefix, url);
         }
 
         var data = await GetSaweriaApi().SetQueryParam("oid", url, true).GetJsonAsync<SaweriaParsedDto>(cancellationToken: cancellationToken);
@@ -183,7 +191,8 @@ public class MirrorPaymentRestService(
         data.CendolCount = data.Total / 5000;
         data.PaymentUrl = url;
 
-        var parsedDonation = new ParsedDonationDto {
+        var parsedDonation = new ParsedDonationDto
+        {
             Method = ParseMethod.SaweriaApi,
             IsValid = data.IsValid,
             Source = DonationSource.Saweria,
