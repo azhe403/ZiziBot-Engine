@@ -1,6 +1,7 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 ARG DOTNET_TAG=10.0-alpine
+ARG APP_VERSION=1.0.0.0
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 WORKDIR /app
@@ -18,7 +19,8 @@ WORKDIR "/build/backend/ZiziBot.Engine"
 RUN dotnet build "ZiziBot.Engine.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "ZiziBot.Engine.csproj" -c Release -o /app/publish /p:UseAppHost=false
+ARG APP_VERSION
+RUN dotnet publish "ZiziBot.Engine.csproj" -c Release -o /app/publish /p:UseAppHost=false /p:Version=$APP_VERSION
 
 FROM base AS final
 WORKDIR /app
