@@ -45,8 +45,8 @@ jobs:
           # Build: Days since 2000-01-01
           # Revision: Seconds since midnight divided by 2
 
-          MAJOR=1
-          MINOR=0
+          MAJOR=$(date -u +"%y")
+          MINOR=$(date -u +"%-m")
           START_DATE="2000-01-01"
           CURRENT_DATE=$(date -u +"%Y-%m-%d")
 
@@ -60,6 +60,12 @@ jobs:
           VERSION_STRING="$MAJOR.$MINOR.$BUILD.$REVISION"
           echo "VERSION=$VERSION_STRING" >> $GITHUB_OUTPUT
           echo "Calculated version: $VERSION_STRING"
+
+      - name: Patch Directory.Build.props
+        run: |
+          VERSION=${{ steps.versioning.outputs.VERSION }}
+          sed -i "s|<Version>.*</Version>|<Version>$VERSION</Version>|" Directory.Build.props
+          echo "Patched Directory.Build.props with version $VERSION"
 
       - name: Build and push image
         uses: docker/build-push-action@v4
