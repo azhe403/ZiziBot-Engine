@@ -78,6 +78,7 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.versioning.outputs.VERSION }}
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:main-${{ steps.versioning.outputs.VERSION }}
           build-args: |
             APP_VERSION=${{ steps.versioning.outputs.VERSION }}
           cache-from: type=gha
