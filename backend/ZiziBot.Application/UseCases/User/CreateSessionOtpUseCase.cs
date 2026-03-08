@@ -45,11 +45,13 @@ public class CreateSessionOtpUseCase(
 
         var token = await generateAccessTokenUseCase.Handle(userOtp.UserId);
 
-        userOtp.Status = EventStatus.Complete;
+        if (userOtp.IsPermanent == false)
+            userOtp.Status = EventStatus.Complete;
 
         await dataFacade.MongoDb.SaveChangesAsync();
 
-        return response.Success("Success", new CreateSessionOtpResponse() {
+        return response.Success("Success", new CreateSessionOtpResponse()
+        {
             AccessToken = token.AccessToken,
             AccessExpireIn = token.AccessExpireIn,
         });
