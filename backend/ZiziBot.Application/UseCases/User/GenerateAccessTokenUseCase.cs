@@ -32,7 +32,7 @@ public class GenerateAccessTokenUseCase(
 
         mongoDbContext.DashboardSessions.Add(new DashboardSessionEntity
         {
-            Status = EventStatus.Deleted,
+            Status = EventStatus.Complete,
             TransactionId = userOtp.TransactionId,
             CreatedBy = userId,
             UpdatedBy = userId,
