@@ -43,7 +43,7 @@ public class CreateSessionOtpUseCase(
         if (userOtp == null)
             return response.Unauthorized("Invalid OTP, please try again!");
 
-        var token = await generateAccessTokenUseCase.Handle(userOtp.UserId);
+        var token = await generateAccessTokenUseCase.Handle(userOtp);
 
         if (userOtp.IsPermanent == false)
             userOtp.Status = EventStatus.Complete;
