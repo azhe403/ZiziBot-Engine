@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
 using Ardalis.GuardClauses;
 using Humanizer;
 using ZiziBot.Common.Enums;
@@ -59,7 +60,8 @@ public static class ValueUtil
             {
                 var value = property.GetValue(values, null) ?? string.Empty;
                 var propertyName = property.Name;
-                propertyName = stringType switch {
+                propertyName = stringType switch
+                {
                     StringType.Original => propertyName,
                     StringType.SnakeCase => propertyName.Underscore().ToLower(),
                     StringType.PascalCase => propertyName.Pascalize(),
@@ -104,5 +106,11 @@ public static class ValueUtil
     public static T EnsureNotNull<T>([NotNull] [ValidatedNotNull] this T? obj) where T : class
     {
         return Guard.Against.Null(obj);
+    }
+
+    public static int GenerateOtp()
+    {
+        var otp = RandomNumberGenerator.GetInt32(100000, 999999);
+        return otp;
     }
 }

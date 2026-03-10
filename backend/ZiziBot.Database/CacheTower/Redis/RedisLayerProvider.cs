@@ -15,6 +15,7 @@ internal class RedisLayerProvider(
     private IDatabaseAsync Database => Connection?.GetDatabase(options.DatabaseIndex) ?? throw new NullReferenceException("Redis database not set because connection fail");
     private static string PrefixRoot => ValueConst.UniqueKey;
     private readonly ILogger _log = Log.ForContext<RedisLayerProvider>();
+    private bool IsAvailable { get; set; }
 
     public ValueTask CleanupAsync()
     {
@@ -78,7 +79,7 @@ internal class RedisLayerProvider(
     {
         await TryConnect();
 
-        return await new ValueTask<bool>(Connection is { IsConnected: true });
+        return IsAvailable;
     }
 
     public async ValueTask SetAsync<T>(string cacheKey, CacheEntry<T> cacheEntry)
@@ -104,17 +105,27 @@ internal class RedisLayerProvider(
 
     private async Task TryConnect()
     {
-        _log.Verbose("Connecting to CacheTower redis layer");
-
-        if (Connection?.IsConnected == true)
+        try
         {
-            _log.Verbose("Connected to CacheTower redis layer, previous connection, {ClientName}", Connection.ClientName);
-            return;
+            _log.Verbose("Connecting to CacheTower redis layer");
+
+            if (Connection?.IsConnected == true)
+            {
+                IsAvailable = true;
+                _log.Verbose("Connected to CacheTower redis layer, previous connection, {ClientName}", Connection.ClientName);
+                return;
+            }
+
+            Connection = await ConnectionMultiplexer.ConnectAsync(ConnectionString);
+            IsAvailable = true;
+
+            _log.Verbose("Connected to CacheTower redis layer");
         }
-
-        Connection = await ConnectionMultiplexer.ConnectAsync(ConnectionString);
-
-        _log.Verbose("Connected to CacheTower redis layer");
+        catch (Exception e)
+        {
+            _log.Error("CacheTower redis layer failed connecting to redis. Message: {Message}", e.Message);
+            IsAvailable = false;
+        }
     }
 
     private string CacheKey(string cacheKey)
