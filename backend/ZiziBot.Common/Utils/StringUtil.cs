@@ -296,9 +296,15 @@ public static class StringUtil
 
     public static T? Deserialize<T>(this string input, JsonNamingPolicy? jsonNamingPolicy = null)
     {
-        return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions() {
+        return JsonSerializer.Deserialize<T>(input, new JsonSerializerOptions()
+        {
             NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
             PropertyNamingPolicy = jsonNamingPolicy,
         });
+    }
+
+    public static string[] SplitWithTrimming(this string input, string separator)
+    {
+        return input.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 }

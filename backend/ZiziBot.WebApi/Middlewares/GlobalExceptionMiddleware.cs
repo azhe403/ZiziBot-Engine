@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -16,13 +17,15 @@ public class GlobalExceptionMiddleware(ILogger<GlobalExceptionMiddleware> logger
         {
             logger.LogError(exception, "Unhandled API Exception");
 
+            var errorMessages = exception.ToStringDemystified().SplitWithTrimming(Environment.NewLine);
+
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>() {
+            await context.Response.WriteAsJsonAsync(new ApiResponseBase<object>()
+            {
                 StatusCode = HttpStatusCode.InternalServerError,
                 TransactionId = context.GetTransactionId(),
-                Message = "Internal Server Error. Please contact administrator.",
-                ErrorMessage = !EnvUtil.IsProduction() ? exception.StackTrace : null,
-                StackTrace = !EnvUtil.IsProduction() ? exception.ToStackTrace() : null
+                Message = !EnvUtil.IsProduction() ? exception.Message : "Internal Server Error. Please contact administrator.",
+                ErrorMessages = !EnvUtil.IsProduction() ? errorMessages : null
             });
         }
     }

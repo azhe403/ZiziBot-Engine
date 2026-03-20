@@ -41,6 +41,7 @@ public class GenerateAccessTokenUseCase(
             LastName = botUser?.LastName,
             Username = botUser?.Username,
             PhotoUrl = botUser?.ProfilePhotoId,
+            SessionId = userOtp.TransactionId,
             BearerToken = accessToken,
             ExpireDate = tokenExpiration
         });
