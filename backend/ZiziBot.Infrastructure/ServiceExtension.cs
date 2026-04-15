@@ -98,6 +98,7 @@ public static class ServiceExtension
             .WithScopedLifetime());
 
         services.AddScoped<ServiceFacade>();
+        services.AddSingleton<IServiceScopedUtil, ServiceScopedUtil>();
 
         return services;
     }
