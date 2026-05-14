@@ -10,16 +10,18 @@ public class MirrorController(
 ) : BotCommandController
 {
     [Command("mp")]
-    public async Task SaveMirrorPayment(CommandData data)
+    public async Task SaveMirrorPayment(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new SavePaymentBotRequestModel() {
-            BotToken = data.BotToken,
+        await mediatorService.EnqueueAsync(new SavePaymentBotRequestModel()
+        {
+            BotToken = context.BotToken,
             ReplyMessage = true,
-            Message = data.Message,
-            Payload = data.CommandParam.GetCommandParamAt<string>(0),
-            ForUserId = data.CommandParam.GetCommandParamAt<long>(1),
+            Message = context.Message,
+            Payload = context.CommandParam.GetCommandParamAt<string>(0),
+            ForUserId = context.CommandParam.GetCommandParamAt<long>(1),
             MinimumRole = RoleLevel.Sudo,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -27,15 +29,17 @@ public class MirrorController(
     }
 
     [Command("sp")]
-    public async Task SubmitMirrorPayment(CommandData data)
+    public async Task SubmitMirrorPayment(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new SubmitPaymentBotRequest() {
-            BotToken = data.BotToken,
+        await mediatorService.EnqueueAsync(new SubmitPaymentBotRequest()
+        {
+            BotToken = context.BotToken,
             ReplyMessage = true,
-            Message = data.Message,
-            Payload = data.CommandParam.GetCommandParamAt<string>(0),
-            ForUserId = data.CommandParam.GetCommandParamAt<long>(1),
-            CleanupTargets = new[] {
+            Message = context.Message,
+            Payload = context.CommandParam.GetCommandParamAt<string>(0),
+            ForUserId = context.CommandParam.GetCommandParamAt<long>(1),
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

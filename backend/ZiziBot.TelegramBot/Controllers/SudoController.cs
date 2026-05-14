@@ -10,15 +10,16 @@ public class SudoController(
 ) : BotCommandController
 {
     [Command("addsudo")]
-    public async Task AddSudo(CommandData data)
+    public async Task AddSudo(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new AddSudoBotRequestModel() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new AddSudoBotRequestModel()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CustomUserId = data.Message.Text.GetCommandParamAt<long>(1),
+            CustomUserId = context.MessageText.GetCommandParamAt<long>(1),
             DeleteAfter = TimeSpan.FromMinutes(1),
-            ReplyToMessageId = data.Message.MessageId,
+            ReplyToMessageId = context.Message.MessageId,
         });
     }
 }

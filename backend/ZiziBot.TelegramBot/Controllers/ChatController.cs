@@ -11,15 +11,17 @@ public class ChatController(
 ) : BotCommandController
 {
     [Command("fch")]
-    public async Task AddForwardChannelSource(CommandData data)
+    public async Task AddForwardChannelSource(CommandContext context)
     {
-        await mediatorServiceService.EnqueueAsync(new ConnectChannelPostRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorServiceService.EnqueueAsync(new ConnectChannelPostRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            ChannelId = data.CommandParam.GetCommandParamAt<long>(0),
+            ChannelId = context.CommandParam.GetCommandParamAt<long>(0),
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -27,14 +29,16 @@ public class ChatController(
     }
 
     [Command("pin")]
-    public async Task PinMessage(CommandData data)
+    public async Task PinMessage(CommandContext context)
     {
-        await mediatorServiceService.EnqueueAsync(new PinMessageRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorServiceService.EnqueueAsync(new PinMessageRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -42,27 +46,31 @@ public class ChatController(
     }
 
     [UpdateCommand(UpdateType.ChatJoinRequest)]
-    public async Task JoinRequest(CommandData data)
+    public async Task JoinRequest(CommandContext context)
     {
-        await mediatorServiceService.EnqueueAsync(new ChatJoinBotRequest() {
-            BotToken = data.BotToken,
-            Update = data.Update,
+        await mediatorServiceService.EnqueueAsync(new ChatJoinBotRequest()
+        {
+            BotToken = context.BotToken,
+            Update = context.Update,
             DeleteAfter = TimeSpan.FromMinutes(10),
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot
             }
         });
     }
 
     [TypedCommand(MessageType.NewChatMembers)]
-    public async Task NewChatMembers(CommandData data)
+    public async Task NewChatMembers(CommandContext context)
     {
-        await mediatorServiceService.EnqueueAsync(new NewChatMembersBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
-            NewUser = data.Message.NewChatMembers!,
+        await mediatorServiceService.EnqueueAsync(new NewChatMembersBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
+            NewUser = context.Message.NewChatMembers!,
             DeleteAfter = TimeSpan.FromMinutes(10),
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot
             }
         });
@@ -70,11 +78,12 @@ public class ChatController(
 
     [UpdateCommand(UpdateType.ChannelPost)]
     [UpdateCommand(UpdateType.EditedChannelPost)]
-    public async Task ChannelPost(CommandData data)
+    public async Task ChannelPost(CommandContext context)
     {
-        await mediatorServiceService.EnqueueAsync(new ForwardChannelPostRequest() {
-            BotToken = data.BotToken,
-            Update = data.Update
+        await mediatorServiceService.EnqueueAsync(new ForwardChannelPostRequest()
+        {
+            BotToken = context.BotToken,
+            Update = context.Update
         });
     }
 }

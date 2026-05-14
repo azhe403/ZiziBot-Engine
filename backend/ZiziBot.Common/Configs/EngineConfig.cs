@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using ZiziBot.Common.Enums;
 using ZiziBot.TelegramBot.Framework.Models.Enums;
 
 namespace ZiziBot.Common.Configs;
@@ -16,4 +17,5 @@ public class EngineConfig
     public BotEngineMode TelegramEngineMode { get; set; }
     public ExecutionMode ExecutionMode { get; set; }
     public bool EnableChatRestriction { get; set; }
+    public FeatureFlagEngine FeatureFlagEngine { get; set; } = FeatureFlagEngine.Internal;
 }

@@ -12,13 +12,15 @@ public class DebugController(
 {
     [Command("about")]
     [Command("start")]
-    public async Task GetAbout(CommandData data)
+    public async Task GetAbout(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new GetAboutBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new GetAboutBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -26,13 +28,15 @@ public class DebugController(
     }
 
     [Command("id")]
-    public async Task GetId(CommandData data)
+    public async Task GetId(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new GetIdBotRequestModel() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new GetIdBotRequestModel()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -40,13 +44,15 @@ public class DebugController(
     }
 
     [Command("si")]
-    public async Task GetSystemInfo(CommandData data)
+    public async Task GetSystemInfo(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new GetSystemInfoRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new GetSystemInfoRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             MinimumRole = RoleLevel.Sudo,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -54,13 +60,15 @@ public class DebugController(
     }
 
     [Command("fid")]
-    public async Task GetFileId(CommandData data)
+    public async Task GetFileId(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new GetFileIdBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new GetFileIdBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -70,14 +78,16 @@ public class DebugController(
     [Command("dbg")]
     [Command("yaml")]
     [Command("json")]
-    public async Task GetDebug(CommandData data)
+    public async Task GetDebug(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new GetDebugBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new GetDebugBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             CleanupTarget = CleanupTarget.FromBot | CleanupTarget.FromSender,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -86,14 +96,16 @@ public class DebugController(
 
     [Command("promote")]
     [Command("demote")]
-    public async Task PromoteMember(CommandData data)
+    public async Task PromoteMember(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new PromoteMemberBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new PromoteMemberBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            Promote = data.Message.Text.IsCommand("/promote"),
-            CleanupTargets = new[] {
+            Promote = context.Message.Text.IsCommand("/promote"),
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -102,13 +114,15 @@ public class DebugController(
 
     [TypedCommand(MessageType.ForumTopicCreated)]
     [TypedCommand(MessageType.ForumTopicEdited)]
-    public async Task OnTopicChange(CommandData data)
+    public async Task OnTopicChange(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new ThreadUpdateBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new ThreadUpdateBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

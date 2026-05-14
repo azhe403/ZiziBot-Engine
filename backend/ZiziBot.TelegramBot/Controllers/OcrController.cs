@@ -10,11 +10,12 @@ public class OcrController(
 ) : BotCommandController
 {
     [Command("ocr")]
-    public async Task Ocr(CommandData data)
+    public async Task Ocr(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new OcrBotRequest() {
-                BotToken = data.BotToken,
-                Message = data.Message,
+        await mediatorService.EnqueueAsync(new OcrBotRequest()
+            {
+                BotToken = context.BotToken,
+                Message = context.Message,
                 ReplyMessage = true,
                 DeleteAfter = TimeSpan.FromHours(1)
             }
