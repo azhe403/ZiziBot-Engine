@@ -33,7 +33,10 @@ public static class RestApiExtension
             .AddValidatorsFromAssemblyContaining<PostGlobalBanApiValidator>();
 
         services
-            .Configure<ApiBehaviorOptions>(options => { options.SuppressInferBindingSourcesForParameters = true; })
+            .Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressInferBindingSourcesForParameters = true;
+            })
             .AddControllers(options =>
                 {
                     options.Conventions.Add(new ControllerHidingConvention());
@@ -171,7 +174,6 @@ public static class RestApiExtension
 
         app.MapHub<LogHub>("/api/logging");
 
-        app.UseStaticFiles();
         app.MapControllers();
 
         app.UseRouting();
@@ -182,7 +184,10 @@ public static class RestApiExtension
         app.ConfigureRateLimiter();
 
         app.UseSwagger();
-        app.UseSwaggerUI(options => { options.DefaultModelsExpandDepth(-1); });
+        app.UseSwaggerUI(options =>
+        {
+            options.DefaultModelsExpandDepth(-1);
+        });
 
         return app;
     }

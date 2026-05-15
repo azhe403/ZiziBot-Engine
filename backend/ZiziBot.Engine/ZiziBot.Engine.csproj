@@ -27,7 +27,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Console\ZiziBot.Console.csproj"/>
     <ProjectReference Include="..\ZiziBot.Database\ZiziBot.Database.csproj"/>
     <ProjectReference Include="..\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj"/>
     <ProjectReference Include="..\ZiziBot.Scheduler\ZiziBot.Scheduler.csproj"/>
