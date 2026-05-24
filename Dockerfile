@@ -14,6 +14,8 @@ ARG APP_VERSION
 WORKDIR /build
 COPY . .
 RUN sed -i "s|<Version>.*</Version>|<Version>${APP_VERSION}</Version>|" Directory.Build.props
+RUN apk add --no-cache git
+RUN git submodule update --init --recursive
 RUN dotnet restore "backend/ZiziBot.Engine/ZiziBot.Engine.csproj"
 
 WORKDIR "/build/backend/ZiziBot.Engine"
