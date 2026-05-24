@@ -11,8 +11,11 @@ public static class TickerQServiceExtension
     {
         services.AddTickerQ(o =>
         {
-            o.SetMaxConcurrency(4);
-            o.AddDashboard(configuration => { configuration.BasePath = "/admin/ticker-q"; });
+            // o.SetMaxConcurrency(4);
+            o.AddDashboard(configuration =>
+            {
+                configuration.SetBasePath("/admin/ticker-q");
+            });
 
             // o.AddOperationalStore<MongoDbContext>(builder =>
             // {
@@ -25,7 +28,7 @@ public static class TickerQServiceExtension
 
     public static IApplicationBuilder EnableTickerQ(this IApplicationBuilder app)
     {
-        app.UseTickerQ();
+        // app.UseTickerQ();
 
         return app;
     }

@@ -3,13 +3,13 @@
 ARG DOTNET_TAG=10.0-alpine
 ARG APP_VERSION=26.2.0.0
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache icu-data-full icu-libs
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:latest AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 ARG APP_VERSION
 WORKDIR /build
 COPY . .
