@@ -7,16 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="dotenv.net" Version="4.0.0"/>
+    <PackageReference Include="dotenv.net" Version="4.0.2"/>
     <PackageReference Include="HelpMate.Core" Version="2.1.0"/>
     <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510"/>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2"/>
-    <PackageReference Include="Scrutor" Version="6.1.0"/>
-    <PackageReference Include="Sentry.AspNetCore" Version="6.0.0" />
-    <PackageReference Include="Sentry.Profiling" Version="6.0.0" />
-    <PackageReference Include="Sentry.Serilog" Version="6.0.0" />
-    <PackageReference Include="Serilog" Version="4.3.0"/>
-    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8"/>
+    <PackageReference Include="Scrutor" Version="7.0.0"/>
+    <PackageReference Include="Sentry.AspNetCore" Version="6.5.0"/>
+    <PackageReference Include="Sentry.Profiling" Version="6.5.0"/>
+    <PackageReference Include="Sentry.Serilog" Version="6.5.0"/>
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0"/>
     <PackageReference Include="Serilog.Enrichers.CallerInfo" Version="1.0.6"/>
     <PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3"/>
     <PackageReference Include="Serilog.Enrichers.Dynamic" Version="1.0.9"/>
