@@ -11,14 +11,16 @@ public class PingController(
 {
     [Command("ping")]
     [TextCommand("ping")]
-    public async Task Ping(CommandData data)
+    public async Task Ping(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new PingBotRequestModel() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new PingBotRequestModel()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             DeleteAfter = TimeSpan.FromMinutes(1),
             ReplyMessage = true,
-            CleanupTargets = [
+            CleanupTargets =
+            [
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             ]
@@ -26,21 +28,23 @@ public class PingController(
     }
 
     [Callback(CallbackConst.PING)]
-    public async Task PingCallback(CommandData data)
+    public async Task PingCallback(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new PingCallbackBotRequestModel() {
-            BotToken = data.BotToken,
-            CallbackQuery = data.CallbackQuery,
+        await mediatorService.EnqueueAsync(new PingCallbackBotRequestModel()
+        {
+            BotToken = context.BotToken,
+            CallbackQuery = context.CallbackQuery,
             ExecutionStrategy = ExecutionStrategy.Hangfire
         });
     }
 
     [DefaultCommand]
-    public async Task Default(CommandData data)
+    public async Task Default(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new DefaultBotRequestModel() {
-            BotToken = data.BotToken,
-            Message = data.Message
+        await mediatorService.EnqueueAsync(new DefaultBotRequestModel()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message
         });
     }
 }

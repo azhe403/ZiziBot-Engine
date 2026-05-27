@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MoreLinq;
 using SharpX.Extensions;
 using Xunit;
 using ZiziBot.Database.Service;

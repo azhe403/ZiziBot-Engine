@@ -43,13 +43,15 @@ public class CreateSessionOtpUseCase(
         if (userOtp == null)
             return response.Unauthorized("Invalid OTP, please try again!");
 
-        var token = await generateAccessTokenUseCase.Handle(userOtp.UserId);
+        var token = await generateAccessTokenUseCase.Handle(userOtp);
 
-        userOtp.Status = EventStatus.Complete;
+        if (userOtp.IsPermanent == false)
+            userOtp.Status = EventStatus.Complete;
 
         await dataFacade.MongoDb.SaveChangesAsync();
 
-        return response.Success("Success", new CreateSessionOtpResponse() {
+        return response.Success("Success", new CreateSessionOtpResponse()
+        {
             AccessToken = token.AccessToken,
             AccessExpireIn = token.AccessExpireIn,
         });

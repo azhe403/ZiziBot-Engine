@@ -15,23 +15,24 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
     {
         if (request.Source != ResponseSource.Bot ||
             request.PipelineResult.Actions.IsEmpty())
-            return await next(cancellationToken);
+            return await next();
 
         //todo. auto detect based on user activity
         if (ValueConst.SAFE_IDS.Contains(request.UserId))
         {
-            return await next(cancellationToken);
+            return await next();
         }
 
         var actions = request.PipelineResult.Actions;
         var htmlMessage = HtmlMessage.Empty
-            .User(request.UserId, request.User.GetFullName());
+            .Bold("ID: ").CodeBr(request.UserId.ToString())
+            .Bold("Name: ").User(request.UserId, request.User.GetFullName());
 
         serviceFacade.TelegramService.SetupResponse(request);
 
         if (actions.Contains(PipelineResultAction.Warn))
         {
-            htmlMessage.Text(" telah diperingatkan karena: ").Br();
+            htmlMessage.Br().Text("Mendapat diperingatkan karena: ").Br();
             if (!request.PipelineResult.IsMessagePassed)
                 htmlMessage.Text(" - mengirim pesan yang mengandung teks yang dilarang").Br();
 
@@ -97,7 +98,7 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
             if (actions.Contains(PipelineResultAction.Warn))
                 await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
 
-            return await next(cancellationToken);
+            return new TResponse();
         }
         catch (Exception exception)
         {

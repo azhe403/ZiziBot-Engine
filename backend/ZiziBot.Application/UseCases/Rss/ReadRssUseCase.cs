@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Octokit;
 using ZiziBot.Common.Types;
 using ZiziBot.Database.MongoDb;
-using ZiziBot.Services.Client;
 
 namespace ZiziBot.Application.UseCases.Rss;
 
@@ -51,10 +50,12 @@ public sealed class ReadRssUseCase(
 
         var cacheKey = rssUrl.ForCacheKey();
 
-        var feed = await cacheService.GetOrSetAsync(CacheKey.RSS + cacheKey, async () => {
+        var feed = await cacheService.GetOrSetAsync(CacheKey.RSS + cacheKey, async () =>
+        {
             var feed = await rssUrl.ReadRssAsync(throwIfError: true);
 
-            var readRssResponse = new ReadRssResponse() {
+            var readRssResponse = new ReadRssResponse()
+            {
                 Link = rssUrl,
                 Title = feed.Title,
             };
@@ -63,7 +64,8 @@ public sealed class ReadRssUseCase(
             {
                 // var githubReleases = await rssUrl.GetGithubAssets(Env.GithubToken);
                 var githubReleases = await gitHubClientService.GetReleaseAssets(rssUrl);
-                var item = githubReleases?.Take(3).Select(feedItem => {
+                var item = githubReleases?.Take(3).Select(feedItem =>
+                {
                     var messageText = HtmlMessage.Empty
                         .Url(feed.Link, feed.Title.Trim()).Br()
                         .Url(feedItem.HtmlUrl, feedItem.Name.Trim()).Br();
@@ -75,12 +77,14 @@ public sealed class ReadRssUseCase(
                         messageText.Br()
                             .BoldBr("Assets");
 
-                        releaseAssets.ForEach(asset => {
+                        releaseAssets.ForEach(asset =>
+                        {
                             messageText.Url(asset.BrowserDownloadUrl, asset.Name).Br();
                         });
                     }
 
-                    return new ReadRssItem {
+                    return new ReadRssItem
+                    {
                         Link = feedItem.HtmlUrl,
                         Title = feedItem.Name,
                         Author = feedItem.Author?.Login ?? "Fulan",
@@ -93,7 +97,8 @@ public sealed class ReadRssUseCase(
             }
             else
             {
-                var readRssItems = feed.Items.Take(3).Select(async feedItem => {
+                var readRssItems = feed.Items.Take(3).Select(async feedItem =>
+                {
                     var htmlContent = await feedItem.Content.HtmlForTelegram();
 
                     var messageText = HtmlMessage.Empty
@@ -105,7 +110,8 @@ public sealed class ReadRssUseCase(
 
                     var truncatedMessageText = messageText.ToString();
 
-                    return new ReadRssItem {
+                    return new ReadRssItem
+                    {
                         Link = feedItem.Link,
                         Title = feedItem.Title,
                         Author = feedItem.Author,

@@ -13,7 +13,7 @@ public class RssScheduler(
 )
 {
     [DisplayName("RSS {0}:{1} {2}")]
-    [AutomaticRetry(Attempts = 1, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 1)]
     [SentryMonitorSlug("FetchRssUseCase")]
     [Queue(CronJobKey.Queue_Rss)]
     public async Task RssBroadcast(long chatId, int threadId, string rssUrl)
@@ -22,13 +22,12 @@ public class RssScheduler(
     }
 
     [DisplayName("RSS Refresh")]
-    [AutomaticRetry(Attempts = 3, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
+    [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 3)]
     [SentryMonitorSlug("RegisterRssJobAllUseCase")]
     [Queue(CronJobKey.Queue_Data)]
     public async Task RssRefresh()
     {
-        await registerRssJobAllUseCase.Handle(new RegisterRssJobAllRequest()
-        {
+        await registerRssJobAllUseCase.Handle(new RegisterRssJobAllRequest() {
             ResetStatus = true
         });
     }

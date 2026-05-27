@@ -11,14 +11,16 @@ public class NotesController(
 {
     [Command("notes")]
     [Command("tags")]
-    public async Task GetNotes(CommandData data)
+    public async Task GetNotes(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new GetNoteBotRequestModel() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new GetNoteBotRequestModel()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             DeleteAfter = TimeSpan.FromHours(1),
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -27,24 +29,26 @@ public class NotesController(
 
     [Command("note")]
     [Command("renote")]
-    public async Task CreateNote(CommandData data)
+    public async Task CreateNote(CommandContext context)
     {
-        var query = data.CommandParam.GetCommandParamAt<string>(0, separator: "\n");
-        var rawButton = data.CommandParam.TrimStart(query);
+        var query = context.CommandParam.GetCommandParamAt<string>(0, separator: "\n");
+        var rawButton = context.CommandParam.TrimStart(query);
 
-        await mediatorService.EnqueueAsync(new CreateNoteBotRequest() {
-            BotToken = data.BotToken,
+        await mediatorService.EnqueueAsync(new CreateNoteBotRequest()
+        {
+            BotToken = context.BotToken,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
-            Message = data.Message,
+            Message = context.Message,
             ReplyMessage = true,
             Query = query,
-            Content = data.Message.ReplyToMessage?.GetHtmlTextMarkup(),
+            Content = context.Message.ReplyToMessage?.GetHtmlTextMarkup(),
             RawButton = rawButton,
-            FileId = data.Message.ReplyToMessage?.GetFileId(),
-            DataType = data.Message.ReplyToMessage != null ? (int)data.Message.ReplyToMessage.Type : -1,
-            RefreshNote = data.Message.Text?.StartsWith("/renote"),
+            FileId = context.Message.ReplyToMessage?.GetFileId(),
+            DataType = context.Message.ReplyToMessage != null ? (int)context.Message.ReplyToMessage.Type : -1,
+            RefreshNote = context.Message.Text?.StartsWith("/renote"),
             DeleteAfter = TimeSpan.FromHours(1),
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -52,15 +56,17 @@ public class NotesController(
     }
 
     [Command("dnote")]
-    public async Task DeleteNote(CommandData data)
+    public async Task DeleteNote(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new DeleteNoteRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
-            Note = data.CommandParam,
+        await mediatorService.EnqueueAsync(new DeleteNoteRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
+            Note = context.CommandParam,
             ReplyMessage = true,
             DeleteAfter = TimeSpan.FromMinutes(1),
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

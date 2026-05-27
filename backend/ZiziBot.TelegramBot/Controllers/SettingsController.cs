@@ -11,13 +11,15 @@ public class SettingsController(
 {
     [Command("console")]
     [Command("settings")]
-    public async Task GetSettingPanel(CommandData data)
+    public async Task GetSettingPanel(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new PrepareConsoleBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new PrepareConsoleBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -27,14 +29,16 @@ public class SettingsController(
     [Command("wb")]
     [Command("wd")]
     [Command("wt")]
-    public async Task SaveWelcome(CommandData data)
+    public async Task SaveWelcome(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new SaveWelcomeMessageRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new SaveWelcomeMessageRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.ChatAdmin,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -42,14 +46,16 @@ public class SettingsController(
     }
 
     [Command("wm")]
-    public async Task ShowWelcome(CommandData data)
+    public async Task ShowWelcome(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new ShowWelcomeMessageRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new ShowWelcomeMessageRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.ChatAdmin,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

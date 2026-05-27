@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.HostedServices;
 
-public class TaskRunnerHostedService(IServiceProvider serviceProvider, ILogger<TaskRunnerHostedService> logger) : BackgroundService
+public class TaskRunnerHostedService(IServiceScopedUtil scopedUtil, ILogger<TaskRunnerHostedService> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -14,32 +14,35 @@ public class TaskRunnerHostedService(IServiceProvider serviceProvider, ILogger<T
             return;
         }
 
-        var scope = serviceProvider.CreateAsyncScope();
-        var services = scope.ServiceProvider.GetServices<IStartupTask>().ToList();
-
-        foreach (var service in services)
+        await scopedUtil.ExecuteAsync(async provider =>
         {
-            var task = service.GetType();
+            var services = provider.GetServices<IStartupTask>().ToList();
 
-            _ = Task.Run(async () => {
-                try
+            foreach (var service in services)
+            {
+                var task = service.GetType();
+
+                _ = Task.Run(async () =>
                 {
-                    logger.LogInformation("Executing task: {Task}", task);
-                    await service.ExecuteAsync();
+                    try
+                    {
+                        logger.LogInformation("Executing task: {Task}", task);
+                        await service.ExecuteAsync();
 
-                    logger.LogInformation("Task executed: {Task}", task);
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(e, "An error occured when executing task {Task}", task);
-                }
-            }, stoppingToken);
+                        logger.LogInformation("Task executed: {Task}", task);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "An error occured when executing task {Task}", task);
+                    }
+                }, stoppingToken);
 
-            logger.LogInformation("Task triggered: {Task}", task);
-        }
+                logger.LogInformation("Task triggered: {Task}", task);
+            }
 
-        await Task.Delay(0, stoppingToken);
+            await Task.Delay(0, stoppingToken);
 
-        logger.LogInformation("All tasks are triggered. Count: {Count}", services.Count);
+            logger.LogInformation("All tasks are triggered. Count: {Count}", services.Count);
+        });
     }
 }

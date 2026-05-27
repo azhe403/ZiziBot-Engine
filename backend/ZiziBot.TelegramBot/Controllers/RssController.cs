@@ -11,13 +11,15 @@ public class RssController(
 ) : BotCommandController
 {
     [Command("rss")]
-    public async Task AddRss(CommandData data)
+    public async Task AddRss(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new AddRssRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new AddRssRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -25,13 +27,15 @@ public class RssController(
     }
 
     [Command("drss")]
-    public async Task DisableRss(CommandData data)
+    public async Task DisableRss(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new DisableRssRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new DisableRssRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

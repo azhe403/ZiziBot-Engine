@@ -58,7 +58,7 @@ public static class StringUtil
     public static async Task<string> GenerateRssKeyAsync()
     {
         var uniqueId = await GetNanoIdAsync(prefix: $"{CronJobKey.Rss_Prefix}:", size: 7);
-        return uniqueId;
+        return uniqueId.ToUpper();
     }
 
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
@@ -301,5 +301,10 @@ public static class StringUtil
             NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
             PropertyNamingPolicy = jsonNamingPolicy,
         });
+    }
+
+    public static string[] SplitWithTrimming(this string input, string separator)
+    {
+        return input.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 }

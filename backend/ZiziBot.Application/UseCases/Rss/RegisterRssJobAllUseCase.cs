@@ -44,20 +44,21 @@ public class RegisterRssJobAllUseCase(
 
         await rssSettings.ParallelForEachAsync(async rss =>
         {
+            var rssUrl = rss.OriginalRssUrl ?? string.Empty;
+
             try
             {
-                var jobId = $"{CronJobKey.Rss_Prefix}:{rss.Id}";
-                var rssUrl = await rss.RssUrl.DetectRss(throwIfError: true);
+                var jobId = await StringUtil.GenerateRssKeyAsync();
+                var newRssUrl = rssUrl.IsGithubReleaseUrl() ? rssUrl : await rssUrl.DetectRss(throwIfError: true);
 
-                await registerRssJobUrlUseCase.Handle(new RegisterRssJobUrlRequest()
-                {
+                await registerRssJobUrlUseCase.Handle(new RegisterRssJobUrlRequest() {
                     ChatId = rss.ChatId,
                     ThreadId = rss.ThreadId,
-                    Url = rssUrl,
+                    Url = newRssUrl,
                     JobId = jobId
                 });
 
-                rss.RssUrl = rssUrl;
+                rss.RssUrl = newRssUrl;
                 rss.CronJobId = jobId;
                 rss.TransactionId = transactionId;
             }
@@ -66,8 +67,8 @@ public class RegisterRssJobAllUseCase(
                 rss.Status = EventStatus.Inactive;
                 rss.LastErrorMessage = e.Message;
 
-                logger.LogError("Error registering RSS Job. RssUrl: {RssUrl}, ChatId: {ChatId}, ThreadId: {ThreadId}. Message: {Message}",
-                    rss.RssUrl, rss.ChatId, rss.ThreadId, e.Message);
+                logger.LogWarning("Error registering RSS Job. RssUrl: {RssUrl}, ChatId: {ChatId}, ThreadId: {ThreadId}. Message: {Message}",
+                    rssUrl, rss.ChatId, rss.ThreadId, e.Message);
             }
         });
 

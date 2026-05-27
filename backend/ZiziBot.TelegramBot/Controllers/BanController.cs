@@ -10,14 +10,16 @@ public class BanController(
 ) : BotCommandController
 {
     [Command("gban")]
-    public async Task AddGlobalBan(CommandData data)
+    public async Task AddGlobalBan(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new AddBanBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new AddBanBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             DeleteAfter = TimeSpan.FromHours(1),
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

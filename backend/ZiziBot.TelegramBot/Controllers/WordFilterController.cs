@@ -11,15 +11,17 @@ public class WordFilterController(
 ) : BotCommandController
 {
     [Command("awf")]
-    public async Task AddBadWordCommand(CommandData data)
+    public async Task AddBadWordCommand(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new AddWordFilterRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new AddWordFilterRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.Sudo,
-            Word = data.Message.Text.GetCommandParamAt<string>(1),
-            CleanupTargets = new[] {
+            Word = context.Message.Text.GetCommandParamAt<string>(1),
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -27,15 +29,17 @@ public class WordFilterController(
     }
 
     [Command("dwf")]
-    public async Task DisableBadWordCommand(CommandData data)
+    public async Task DisableBadWordCommand(CommandContext context)
     {
-        await mediatorService.EnqueueAsync(new DisableWordFilterRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediatorService.EnqueueAsync(new DisableWordFilterRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.Sudo,
-            Word = data.Message.Text.GetCommandParamAt<string>(1),
-            CleanupTargets = new[] {
+            Word = context.Message.Text.GetCommandParamAt<string>(1),
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

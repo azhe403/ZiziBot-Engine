@@ -11,8 +11,8 @@ public class DashboardSessionEntity : EntityBase
     public string? Username { get; set; }
     public string? PhotoUrl { get; set; }
     public long AuthDate { get; set; }
-    public string Hash { get; set; }
-    public string SessionId { get; set; }
-    public string BearerToken { get; set; }
+    public string? Hash { get; set; }
+    public string? SessionId { get; set; }
+    public required string BearerToken { get; set; }
     public DateTime? ExpireDate { get; set; }
 }

@@ -21,4 +21,3 @@ global using ZiziBot.Database.Repository;
 global using ZiziBot.Database.Service;
 global using ZiziBot.Scheduler;
 global using ZiziBot.Scheduler.Hangfire;
-global using ZiziBot.Services;

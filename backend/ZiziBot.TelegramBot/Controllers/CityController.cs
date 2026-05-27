@@ -12,14 +12,16 @@ public class CityController(
     [Command("ac")]
     [Command("addcity")]
     [Command("add_city")]
-    public async Task AddCity(CommandData data)
+    public async Task AddCity(CommandContext context)
     {
-        await mediator.EnqueueAsync(new AddCityBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediator.EnqueueAsync(new AddCityBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CityName = data.CommandParam,
-            CleanupTargets = new[] {
+            CityName = context.CommandParam,
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -28,13 +30,15 @@ public class CityController(
 
     [Command("city")]
     [Command("lc")]
-    public async Task GetCity(CommandData data)
+    public async Task GetCity(CommandContext context)
     {
-        await mediator.EnqueueAsync(new GetCityListBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediator.EnqueueAsync(new GetCityListBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }
@@ -44,13 +48,15 @@ public class CityController(
     [Command("salat")]
     [Command("shalat")]
     [Command("sholat")]
-    public async Task GetShalatTime(CommandData data)
+    public async Task GetShalatTime(CommandContext context)
     {
-        await mediator.EnqueueAsync(new GetShalatTimeBotRequest() {
-            BotToken = data.BotToken,
-            Message = data.Message,
+        await mediator.EnqueueAsync(new GetShalatTimeBotRequest()
+        {
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
-            CleanupTargets = new[] {
+            CleanupTargets = new[]
+            {
                 CleanupTarget.FromBot,
                 CleanupTarget.FromSender
             }

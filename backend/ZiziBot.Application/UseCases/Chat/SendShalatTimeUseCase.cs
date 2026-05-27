@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 
 namespace ZiziBot.Application.UseCases.Chat;
@@ -11,6 +12,7 @@ public class SendShalatTimeUseCase(
 )
 {
     [DisplayName("ShalatTIme {0}")]
+    [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 1)]
     public async Task<bool> Handle(long chatId)
     {
         var botMain = await dataFacade.Bot.GetBotMain();

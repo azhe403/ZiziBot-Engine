@@ -15,7 +15,6 @@ builder.Services.AddSerilog(builder);
 builder.Services.ConfigureScheduler();
 builder.Services.AddRestApi();
 builder.Services.AddAllMiddleware();
-builder.Services.AddConsole();
 
 var app = builder.Build();
 
@@ -27,7 +26,6 @@ await app.UseMongoMigration();
 
 app.UseAuthorization();
 
-app.ConfigureConsole();
 app.ConfigureApi();
 app.UseScheduler();
 

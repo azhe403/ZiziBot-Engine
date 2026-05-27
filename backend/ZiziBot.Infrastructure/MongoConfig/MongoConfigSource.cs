@@ -33,15 +33,11 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
         var defaultAppSettings = ConfigUtil.GetAppDefault();
         var appSettings = _dbContext.AppSettings.AsNoTracking()
             .Where(x => x.Status == EventStatus.Complete)
-            .Select(x => new
-            {
-                Root = x.Root,
-                Name = x.Name,
-                Value = x.Value
-            })
             .ToList();
 
-        var appSettingsDictionary = appSettings.ToDictionary(x => x.Name, x => x.Value.ToString());
+        var groupedAppSettings = appSettings.GroupBy(x => x.Name).Select(x => x.Last()).ToList();
+
+        var appSettingsDict = groupedAppSettings.ToDictionary(x => x.Name, x => x.Value.ToString());
         var seedableAppSetting = defaultAppSettings
             .SelectMany(s => s.KeyPair, (s, kv) => new
             {
@@ -50,7 +46,7 @@ public class MongoConfigSource(string connectionString) : IConfigurationSource
                 Value = kv.Value.ToString(),
                 ValueType = kv.Value.GetType()
             })
-            .Where(kv => !appSettingsDictionary.ContainsKey(kv.Key))
+            .Where(kv => !appSettingsDict.ContainsKey(kv.Key))
             .ToList();
 
         var transactionId = Guid.NewGuid().ToString();

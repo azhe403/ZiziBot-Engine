@@ -11,13 +11,13 @@ public class AdditionalController(
 ) : BotCommandController
 {
     [Command("afk")]
-    public async Task Afk(CommandData data)
+    public async Task Afk(CommandContext context)
     {
         await mediatorService.EnqueueAsync(new SetAfkBotRequest()
         {
-            BotToken = data.BotToken,
-            Message = data.Message,
-            Reason = data.CommandParam,
+            BotToken = context.BotToken,
+            Message = context.Message,
+            Reason = context.CommandParam,
             ReplyMessage = true,
             CleanupTargets = new[]
             {
@@ -28,12 +28,12 @@ public class AdditionalController(
 
     [Command("webhook")]
     [Command("wh")]
-    public async Task CreateWebhook(CommandData data)
+    public async Task CreateWebhook(CommandContext context)
     {
         await mediatorService.EnqueueAsync(new CreateWebhookBotRequest()
         {
-            BotToken = data.BotToken,
-            Message = data.Message,
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
             MinimumRole = RoleLevel.ChatAdminOrPrivate,
             CleanupTargets = new[]
@@ -53,12 +53,12 @@ public class AdditionalController(
     [TextCommand("trawlbens", ComparisonMode.CommandLike)]
     [TextCommand("sicepat", ComparisonMode.CommandLike)]
     [TextCommand("wahana", ComparisonMode.CommandLike)]
-    public async Task CheckAwb(CommandData data)
+    public async Task CheckAwb(CommandContext context)
     {
         await mediatorService.EnqueueAsync(new CheckAwbRequest()
         {
-            BotToken = data.BotToken,
-            Message = data.Message,
+            BotToken = context.BotToken,
+            Message = context.Message,
             ReplyMessage = true,
         });
     }
