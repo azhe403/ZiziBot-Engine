@@ -3,8 +3,8 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.Database.MongoDb;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.UseCases.Rss;
 

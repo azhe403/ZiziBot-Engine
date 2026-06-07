@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.GlobalBan;
 

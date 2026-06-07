@@ -1,4 +1,4 @@
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Permission;
 

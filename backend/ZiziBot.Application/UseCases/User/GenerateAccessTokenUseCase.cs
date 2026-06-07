@@ -4,8 +4,8 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ZiziBot.Common.Exceptions;
-using ZiziBot.Database.MongoDb;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.UseCases.User;
 

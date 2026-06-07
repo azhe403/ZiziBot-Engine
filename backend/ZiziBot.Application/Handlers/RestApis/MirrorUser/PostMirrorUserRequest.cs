@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 

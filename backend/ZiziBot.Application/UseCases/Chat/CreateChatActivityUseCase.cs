@@ -1,7 +1,7 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.UseCases.Chat;
 

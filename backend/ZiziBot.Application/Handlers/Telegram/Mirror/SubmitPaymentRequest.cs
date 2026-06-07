@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types.ReplyMarkups;
 using ZiziBot.Application.UseCases.Mirror;
 using ZiziBot.Common.Types;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Mirror;
 

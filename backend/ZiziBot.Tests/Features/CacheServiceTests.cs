@@ -1,7 +1,7 @@
 using Xunit;
 using ZiziBot.Common.Dtos;
 using ZiziBot.Common.Types;
-using ZiziBot.Database.Service;
+using ZiziBot.Application.Database.Service;
 
 namespace ZiziBot.Tests.Features;
 

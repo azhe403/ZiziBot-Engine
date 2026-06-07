@@ -2,7 +2,7 @@ using Flurl;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using ZiziBot.Common.Types;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 

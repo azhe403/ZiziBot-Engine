@@ -2,5 +2,4 @@
 
 global using ZiziBot.Scheduler;
 global using ZiziBot.Infrastructure;
-global using ZiziBot.WebApi;
-global using ZiziBot.WebApi.Providers;
+global using ZiziBot.Presentation.Extensions;

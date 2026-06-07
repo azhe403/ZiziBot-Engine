@@ -1,8 +1,8 @@
-﻿using Humanizer;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using Octokit;
 using ZiziBot.Common.Types;
-using ZiziBot.Database.MongoDb;
+using ZiziBot.Application.Database.MongoDb;
 
 namespace ZiziBot.Application.UseCases.Rss;
 

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.Database.Utils;
+using ZiziBot.Application.Database.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ZiziBot.Common.Dtos;
 using ZiziBot.Common.Types;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.DashboardSession;
 

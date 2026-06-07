@@ -10,7 +10,7 @@
     <PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
   </ItemGroup>
   <ItemGroup>
     <None Update=".env">

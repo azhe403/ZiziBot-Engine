@@ -1,6 +1,7 @@
 using Serilog;
-using ZiziBot.Database.Extension;
-using ZiziBot.TelegramBot;
+using ZiziBot.Application.Extensions;
+using ZiziBot.Application.Database.Extensions;
+using ZiziBot.Presentation.Bots.Telegram;
 
 var builder = WebApplication.CreateBuilder(args);
 

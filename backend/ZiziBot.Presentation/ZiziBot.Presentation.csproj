@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1"/>
+    <PackageReference Include="Discord.Net.Commands" Version="3.14.1"/>
+    <PackageReference Include="Discord.Net.Interactions" Version="3.14.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.8"/>
+    <PackageReference Include="Microsoft.AspNetCore.RateLimiting" Version="7.0.0-rc.2.22476.2"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.8"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8"/>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\lib\ZiziBot.TelegramBot\ZiziBot.TelegramBot.Framework\ZiziBot.TelegramBot.Framework.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Common\ZiziBot.Common.csproj"/>
+  </ItemGroup>
+</Project>

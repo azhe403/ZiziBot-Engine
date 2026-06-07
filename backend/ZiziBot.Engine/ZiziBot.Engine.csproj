@@ -27,12 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Database\ZiziBot.Database.csproj"/>
-    <ProjectReference Include="..\ZiziBot.DiscordNet.DiscordBot\ZiziBot.DiscordNet.DiscordBot.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Scheduler\ZiziBot.Scheduler.csproj"/>
-    <ProjectReference Include="..\ZiziBot.Infrastructure\ZiziBot.Infrastructure.csproj"/>
-    <ProjectReference Include="..\ZiziBot.TelegramBot\ZiziBot.TelegramBot.csproj"/>
-    <ProjectReference Include="..\ZiziBot.WebApi\ZiziBot.WebApi.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Presentation\ZiziBot.Presentation.csproj"/>
   </ItemGroup>
   <ItemGroup>
     <None Update=".env">

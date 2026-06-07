@@ -1,6 +1,6 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using ZiziBot.Database.MongoDb;
+using ZiziBot.Application.Database.MongoDb;
 
 namespace ZiziBot.Application.UseCases.Rss;
 

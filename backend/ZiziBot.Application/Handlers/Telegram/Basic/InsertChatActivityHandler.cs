@@ -1,6 +1,6 @@
-﻿using MediatR.Pipeline;
+using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Basic;
 

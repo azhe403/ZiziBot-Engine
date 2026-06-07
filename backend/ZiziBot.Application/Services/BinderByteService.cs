@@ -1,11 +1,11 @@
-﻿using System.Text;
+using System.Text;
 using Flurl;
 using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using ZiziBot.Common.Vendor.BinderByte;
-using ZiziBot.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Services;
 

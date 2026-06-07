@@ -1,8 +1,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
-using ZiziBot.Database.MongoDb.Entities;
-using ZiziBot.Database.Utils;
+using ZiziBot.Application.Database.MongoDb.Entities;
+using ZiziBot.Application.Database.Utils;
 
 namespace ZiziBot.Application.Handlers.RestApis.Note;
 
