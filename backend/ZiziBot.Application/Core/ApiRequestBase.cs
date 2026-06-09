@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ZiziBot.Application.Core;
 
-public class ApiRequestBase<T> : IAppCommand<ApiResponseBase<T>>
+public class ApiRequestBase<T> : IAppCommand<ApiResponseBase<T>>, IRestApiRequest
 {
 }
 

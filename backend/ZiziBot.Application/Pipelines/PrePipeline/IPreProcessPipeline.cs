@@ -1,6 +1,18 @@
 namespace ZiziBot.Application.Pipelines.PrePipeline;
 
-public interface IPreProcessPipeline<TRequest, TResponse>
+public interface ISharedPreProcessPipeline<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
+{
+    Task<PreProcessResult<TResponse>> ProcessAsync(TRequest request, CancellationToken cancellationToken);
+}
+
+public interface ITelegramPreProcessPipeline<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
+{
+    Task<PreProcessResult<TResponse>> ProcessAsync(TRequest request, CancellationToken cancellationToken);
+}
+
+public interface IRestApiPreProcessPipeline<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     Task<PreProcessResult<TResponse>> ProcessAsync(TRequest request, CancellationToken cancellationToken);

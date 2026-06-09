@@ -7,7 +7,7 @@ public class CheckAfkSessionPipeline<TRequest, TResponse>(
     ILogger<CheckAfkSessionPipeline<TRequest, TResponse>> logger,
     DataFacade dataFacade,
     ServiceFacade serviceFacade
-) : IPostProcessPipeline<TRequest, TResponse>
+) : ITelegramPostProcessPipeline<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     public async Task ProcessAsync(TRequest request, TResponse response, CancellationToken cancellationToken)

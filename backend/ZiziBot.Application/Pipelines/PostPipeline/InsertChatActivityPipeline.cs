@@ -6,7 +6,7 @@ namespace ZiziBot.Application.Pipelines.PostPipeline;
 public class InsertChatActivityPipeline<TRequest, TResponse>(
     ILogger<InsertChatActivityPipeline<TRequest, TResponse>> logger,
     DataFacade dataFacade
-) : IPostProcessPipeline<TRequest, TResponse>
+) : ITelegramPostProcessPipeline<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     public async Task ProcessAsync(TRequest request, TResponse response, CancellationToken cancellationToken)

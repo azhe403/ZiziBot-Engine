@@ -4,7 +4,9 @@ using Microsoft.Extensions.Logging;
 namespace ZiziBot.Application.Pipelines.PostPipeline;
 
 public class PostProcessPipeline<TRequest, TResponse>(
-    IEnumerable<IPostProcessPipeline<TRequest, TResponse>> postProcessors,
+    IEnumerable<ISharedPostProcessPipeline<TRequest, TResponse>> sharedPostProcessors,
+    IEnumerable<ITelegramPostProcessPipeline<TRequest, TResponse>> telegramPostProcessors,
+    IEnumerable<IRestApiPostProcessPipeline<TRequest, TResponse>> restApiPostProcessors,
     ILogger<PostProcessPipeline<TRequest, TResponse>> logger
 ) : IQueryPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
@@ -13,7 +15,7 @@ public class PostProcessPipeline<TRequest, TResponse>(
     {
         var sessionId = PipelineMetrics.CurrentSessionId ?? "none";
         var requestType = PipelineMetrics.GetTypeName(typeof(TRequest));
-        var processorList = postProcessors.ToList();
+        var processorList = BuildProcessorList(request);
         var response = await next();
         var stageStopwatch = Stopwatch.StartNew();
 
@@ -29,9 +31,9 @@ public class PostProcessPipeline<TRequest, TResponse>(
 
         foreach (var (postProcessor, index) in processorList.Select((processor, processorIndex) => (processor, processorIndex + 1)))
         {
-            var processorType = PipelineMetrics.GetTypeName(postProcessor.GetType());
+            var processorType = postProcessor.Name;
             var processorStopwatch = Stopwatch.StartNew();
-            await postProcessor.ProcessAsync(request, response, cancellationToken);
+            await postProcessor.Execute(request, response, cancellationToken);
             processorStopwatch.Stop();
 
             logger.LogInformation(
@@ -59,4 +61,34 @@ public class PostProcessPipeline<TRequest, TResponse>(
 
         return response;
     }
+
+    private List<PostProcessorRegistration> BuildProcessorList(TRequest request)
+    {
+        var processors = sharedPostProcessors
+            .Select(processor => new PostProcessorRegistration(
+                PipelineMetrics.GetTypeName(processor.GetType()),
+                processor.ProcessAsync))
+            .ToList();
+
+        if (request is ITelegramRequest)
+        {
+            processors.AddRange(telegramPostProcessors.Select(processor => new PostProcessorRegistration(
+                PipelineMetrics.GetTypeName(processor.GetType()),
+                processor.ProcessAsync)));
+        }
+
+        if (request is IRestApiRequest)
+        {
+            processors.AddRange(restApiPostProcessors.Select(processor => new PostProcessorRegistration(
+                PipelineMetrics.GetTypeName(processor.GetType()),
+                processor.ProcessAsync)));
+        }
+
+        return processors;
+    }
+
+    private sealed record PostProcessorRegistration(
+        string Name,
+        Func<TRequest, TResponse, CancellationToken, Task> Execute
+    );
 }

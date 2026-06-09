@@ -5,7 +5,7 @@ namespace ZiziBot.Application.Pipelines.PrePipeline;
 public class CheckUsernamePipeline<TRequest, TResponse>(
     ILogger<CheckUsernamePipeline<TRequest, TResponse>> logger,
     ServiceFacade serviceFacade
-) : IPreProcessPipeline<TRequest, TResponse>
+) : ITelegramPreProcessPipeline<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     public async Task<PreProcessResult<TResponse>> ProcessAsync(TRequest request, CancellationToken cancellationToken)

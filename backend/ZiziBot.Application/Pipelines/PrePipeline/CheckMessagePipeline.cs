@@ -5,66 +5,68 @@ namespace ZiziBot.Application.Pipelines.PrePipeline;
 public class CheckMessagePipeline<TRequest, TResponse>(
     ILogger<CheckMessagePipeline<TRequest, TResponse>> logger,
     DataFacade dataFacade
-) : IPreProcessPipeline<TRequest, TResponse>
+) : ITelegramPreProcessPipeline<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     public async Task<PreProcessResult<TResponse>> ProcessAsync(TRequest request, CancellationToken cancellationToken)
     {
-        if (request is not BotRequestBase botRequest)
+        if (request is not BotRequestBase botRequest ||
+            ShouldSkip(botRequest))
             return PreProcessResult<TResponse>.Continue;
-
-        if (botRequest.IsChannel ||
-            botRequest.Source == ResponseSource.Hangfire ||
-            botRequest.IsPrivateChat)
-            return PreProcessResult<TResponse>.Continue;
-
-        if (botRequest.MessageTexts.IsEmpty())
-            return PreProcessResult<TResponse>.Continue;
-
-        if (botRequest.RolesLevels.Any(x => x == RoleLevel.Sudo))
-        {
-            if (botRequest.Command is "/dwf" or "/awf")
-            {
-                return PreProcessResult<TResponse>.Continue;
-            }
-        }
 
         botRequest.ReplyMessage = true;
 
-        var hasBadword = false;
-        var matchPattern = string.Empty;
-        PipelineResultAction[]? action = [];
+        var matchResult = await FindWordMatchAsync(botRequest);
+        botRequest.PipelineResult.IsMessagePassed = !matchResult.HasBadword;
+        botRequest.PipelineResult.Actions.AddRange(matchResult.Actions ?? []);
 
+        return PreProcessResult<TResponse>.Continue;
+    }
+
+    private static bool ShouldSkip(BotRequestBase botRequest)
+    {
+        if (botRequest.IsChannel ||
+            botRequest.Source == ResponseSource.Hangfire ||
+            botRequest.IsPrivateChat ||
+            botRequest.MessageTexts.IsEmpty())
+            return true;
+
+        return botRequest.RolesLevels.Any(x => x == RoleLevel.Sudo) &&
+               botRequest.Command is "/dwf" or "/awf";
+    }
+
+    private async Task<MessageMatchResult> FindWordMatchAsync(BotRequestBase botRequest)
+    {
         var words = await dataFacade.WordFilter.GetAllAsync();
-
-        var messageTexts = botRequest.Message?.Text?.Explode();
+        var messageTexts = botRequest.Message?.Text?.Explode() ?? [];
 
         foreach (var messageText in messageTexts)
         {
-            foreach (var dto in words)
-            {
-                var pattern = dto.Word;
-
-                hasBadword = messageText.Match(pattern);
-
-                if (!hasBadword)
-                    continue;
-
-                logger.LogWarning("Check Message, pattern: {Pattern}, source: {MessageText}, action: {Action}, chatId: {ChatId}", pattern, messageText, dto.Action, botRequest.ChatId);
-
-                matchPattern = dto.Word;
-                action = dto.Action;
-
-                break;
-            }
-
-            if (hasBadword)
-                break;
+            var matchResult = FindWordMatch(botRequest, messageText, words);
+            if (matchResult.HasBadword)
+                return matchResult;
         }
 
-        botRequest.PipelineResult.IsMessagePassed = !hasBadword;
-        botRequest.PipelineResult.Actions.AddRange(action ?? []);
+        return MessageMatchResult.NoMatch;
+    }
 
-        return PreProcessResult<TResponse>.Continue;
+    private MessageMatchResult FindWordMatch(BotRequestBase botRequest, string messageText, IEnumerable<WordFilterDto> words)
+    {
+        foreach (var dto in words)
+        {
+            if (!messageText.Match(dto.Word))
+                continue;
+
+            logger.LogWarning("Check Message, pattern: {Pattern}, source: {MessageText}, action: {Action}, chatId: {ChatId}", dto.Word, messageText, dto.Action, botRequest.ChatId);
+
+            return new MessageMatchResult(true, dto.Action);
+        }
+
+        return MessageMatchResult.NoMatch;
+    }
+
+    private sealed record MessageMatchResult(bool HasBadword, PipelineResultAction[]? Actions)
+    {
+        public static MessageMatchResult NoMatch { get; } = new(false, []);
     }
 }

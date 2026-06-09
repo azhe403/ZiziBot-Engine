@@ -3,7 +3,7 @@ namespace ZiziBot.Application.Pipelines.PrePipeline;
 public class CheckRestrictionPipeline<TRequest, TResponse>(
     ServiceFacade serviceFacade,
     DataFacade dataFacade
-) : IPreProcessPipeline<TRequest, TResponse>
+) : ITelegramPreProcessPipeline<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     public async Task<PreProcessResult<TResponse>> ProcessAsync(TRequest request, CancellationToken cancellationToken)

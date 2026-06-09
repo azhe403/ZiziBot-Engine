@@ -7,7 +7,7 @@ namespace ZiziBot.Application.Pipelines.PrePipeline;
 public class FeatureControlPipeline<TRequest, TResponse>(
     ILogger<FeatureControlPipeline<TRequest, TResponse>> logger,
     DataFacade dataFacade
-) : IPreProcessPipeline<TRequest, TResponse>
+) : ITelegramPreProcessPipeline<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     public async Task<PreProcessResult<TResponse>> ProcessAsync(TRequest request, CancellationToken cancellationToken)

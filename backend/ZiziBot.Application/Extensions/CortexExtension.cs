@@ -14,18 +14,18 @@ public static class CortexExtension
             options.AddOpenQueryPipelineBehavior(typeof(PostProcessPipeline<,>));
         });
 
-        services.AddTransient(typeof(IPreProcessPipeline<,>), typeof(FeatureControlPipeline<,>));
-        services.AddTransient(typeof(IPreProcessPipeline<,>), typeof(CheckUserRolePipeline<,>));
-        services.AddTransient(typeof(IPreProcessPipeline<,>), typeof(CheckRestrictionPipeline<,>));
-        services.AddTransient(typeof(IPreProcessPipeline<,>), typeof(CheckMessagePipeline<,>));
-        services.AddTransient(typeof(IPreProcessPipeline<,>), typeof(CheckAntispamPipeline<,>));
-        services.AddTransient(typeof(IPreProcessPipeline<,>), typeof(CheckUsernamePipeline<,>));
-        services.AddTransient(typeof(IPreProcessPipeline<,>), typeof(ActionResultPipeline<,>));
-        services.AddTransient(typeof(IPostProcessPipeline<,>), typeof(CheckAfkSessionPipeline<,>));
-        services.AddTransient(typeof(IPostProcessPipeline<,>), typeof(EnsureChatAdminPipeline<,>));
-        services.AddTransient(typeof(IPostProcessPipeline<,>), typeof(EnsureChatSettingPipeline<,>));
-        services.AddTransient(typeof(IPostProcessPipeline<,>), typeof(UpsertBotUserPipeline<,>));
-        services.AddTransient(typeof(IPostProcessPipeline<,>), typeof(InsertChatActivityPipeline<,>));
+        services.AddTransient(typeof(ITelegramPreProcessPipeline<,>), typeof(FeatureControlPipeline<,>));
+        services.AddTransient(typeof(ITelegramPreProcessPipeline<,>), typeof(CheckUserRolePipeline<,>));
+        services.AddTransient(typeof(ITelegramPreProcessPipeline<,>), typeof(CheckRestrictionPipeline<,>));
+        services.AddTransient(typeof(ITelegramPreProcessPipeline<,>), typeof(CheckMessagePipeline<,>));
+        services.AddTransient(typeof(ITelegramPreProcessPipeline<,>), typeof(CheckAntispamPipeline<,>));
+        services.AddTransient(typeof(ITelegramPreProcessPipeline<,>), typeof(CheckUsernamePipeline<,>));
+        services.AddTransient(typeof(ITelegramPreProcessPipeline<,>), typeof(ActionResultPipeline<,>));
+        services.AddTransient(typeof(ITelegramPostProcessPipeline<,>), typeof(CheckAfkSessionPipeline<,>));
+        services.AddTransient(typeof(ITelegramPostProcessPipeline<,>), typeof(EnsureChatAdminPipeline<,>));
+        services.AddTransient(typeof(ITelegramPostProcessPipeline<,>), typeof(EnsureChatSettingPipeline<,>));
+        services.AddTransient(typeof(ITelegramPostProcessPipeline<,>), typeof(UpsertBotUserPipeline<,>));
+        services.AddTransient(typeof(ITelegramPostProcessPipeline<,>), typeof(InsertChatActivityPipeline<,>));
         services.AddScoped<IAppMediator, CortexAppMediator>();
 
         return services;

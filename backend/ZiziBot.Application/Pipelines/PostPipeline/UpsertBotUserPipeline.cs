@@ -8,7 +8,7 @@ public class UpsertBotUserPipeline<TRequest, TResponse>(
     ILogger<UpsertBotUserPipeline<TRequest, TResponse>> logger,
     ServiceFacade serviceFacade,
     DataFacade dataFacade
-) : IPostProcessPipeline<TRequest, TResponse>
+) : ITelegramPostProcessPipeline<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     public async Task ProcessAsync(TRequest request, TResponse response, CancellationToken cancellationToken)
