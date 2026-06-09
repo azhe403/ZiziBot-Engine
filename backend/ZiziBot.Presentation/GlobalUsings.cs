@@ -16,4 +16,3 @@ global using ZiziBot.Common.Enums;
 global using ZiziBot.Common.Utils;
 global using ZiziBot.Application.Database.Repository;
 global using ZiziBot.Application.Database.Service;
-global using ZiziBot.Infrastructure.LoggerSink;

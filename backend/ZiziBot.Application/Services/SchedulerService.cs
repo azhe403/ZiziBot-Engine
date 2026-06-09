@@ -1,8 +1,7 @@
 ﻿using System.Linq.Expressions;
-using Hangfire;
 using Microsoft.Extensions.Logging;
 
-namespace ZiziBot.Scheduler;
+namespace ZiziBot.Application.Services;
 
 public class SchedulerService(
     ILogger<SchedulerService> logger,

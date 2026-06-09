@@ -1,11 +1,8 @@
 // Global using directives
 
-global using ZiziBot.Application.Behaviours;
-global using ZiziBot.Application.Handlers.Core;
 global using ZiziBot.Application.Handlers.RestApis.GlobalBan;
 global using ZiziBot.Application.Handlers.Telegram.Basic;
 global using ZiziBot.Application.Handlers.Telegram.Group;
-global using ZiziBot.Application.Handlers.Telegram.Middleware;
 global using ZiziBot.Application.Handlers.Telegram.Note;
 global using ZiziBot.Application.Handlers.Telegram.Permission;
 global using ZiziBot.Application.HostedServices;
@@ -20,4 +17,3 @@ global using ZiziBot.Common.Interfaces;
 global using ZiziBot.Common.Utils;
 global using ZiziBot.Application.Database.Repository;
 global using ZiziBot.Application.Database.Utils;
-global using ZiziBot.Infrastructure.LoggerSink;

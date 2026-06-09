@@ -27,7 +27,6 @@
     <PackageReference Include="Jsonize.Parser" Version="3.2.1"/>
     <PackageReference Include="Jsonize.Serializer" Version="3.2.1"/>
     <PackageReference Include="Markdig" Version="1.2.0"/>
-    <PackageReference Include="MediatR" Version="12.5.0" />
     <PackageReference Include="morelinq" Version="4.4.0"/>
     <PackageReference Include="Nanoid" Version="3.1.0"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
@@ -39,7 +38,7 @@
     <PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0"/>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
     <PackageReference Include="TimeSpanParserUtil" Version="1.2.0"/>
     <PackageReference Include="YamlDotNet" Version="18.0.0"/>
     <PackageReference Include="ZLinq" Version="1.5.6"/>

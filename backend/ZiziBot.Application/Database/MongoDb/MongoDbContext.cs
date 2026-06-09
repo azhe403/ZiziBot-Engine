@@ -43,6 +43,8 @@ public class MongoDbContext() : DbContext
     public DbSet<WebhookChatEntity> WebhookChat { get; set; }
     public DbSet<WebhookHistoryEntity> WebhookHistory { get; set; }
 
+    public DbSet<OutboxMessageEntity> OutboxMessages { get; set; }
+
     public DbSet<RssSettingEntity> RssSetting { get; set; }
     public DbSet<RssHistoryEntity> RssHistory { get; set; }
 

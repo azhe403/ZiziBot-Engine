@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ZiziBot.Application.Features.Hangfire;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 

@@ -8,7 +8,7 @@ using File = System.IO.File;
 
 namespace ZiziBot.Application.Handlers.Telegram.Data;
 
-public class MongoDbBackupRequest : IRequest<bool>
+public class MongoDbBackupRequest : IAppCommand<bool>, IRequest<bool>
 { }
 
 public class MongoDbBackupHandler(

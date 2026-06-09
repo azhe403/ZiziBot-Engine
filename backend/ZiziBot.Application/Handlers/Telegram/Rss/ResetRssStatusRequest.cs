@@ -1,6 +1,6 @@
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
-public class ResetRssStatusRequest : IRequest<bool>
+public class ResetRssStatusRequest : IAppCommand<bool>, IRequest<bool>
 { }
 
 public class ResetRssStatusHandler(

@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Common.Configs;
-using ZiziBot.Common.Constants;
-using ZiziBot.Common.Enums;
-using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Infrastructure;
+namespace ZiziBot.Application.Extensions;
 
 public static class AppStartupExtension
 {

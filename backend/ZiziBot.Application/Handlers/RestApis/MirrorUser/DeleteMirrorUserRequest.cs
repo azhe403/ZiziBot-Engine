@@ -8,7 +8,9 @@ public class DeleteMirrorUserRequestDto : ApiRequestBase<bool>
 }
 
 public class DeleteMirrorUserRequestHandler(
-    DataFacade dataFacade
+    IHttpContextHelper httpContextHelper,
+    DataFacade dataFacade,
+    OutboxService outboxService
 ) : IApiRequestHandler<DeleteMirrorUserRequestDto, bool>
 {
     private readonly ApiResponseBase<bool> _response = new();
@@ -25,7 +27,19 @@ public class DeleteMirrorUserRequestHandler(
             return _response.BadRequest("Mirror User not found");
         }
 
-        mirrorUser.Status = (int)EventStatus.Deleted;
+        mirrorUser.Status = EventStatus.Deleted;
+        mirrorUser.TransactionId = httpContextHelper.UserInfo.TransactionId;
+
+        await outboxService.EnqueueAsync(
+            type: "mirror-user.deleted",
+            payload: new
+            {
+                request.UserId,
+                ActorUserId = httpContextHelper.UserInfo.UserId
+            },
+            transactionId: httpContextHelper.UserInfo.TransactionId,
+            cancellationToken: cancellationToken
+        );
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 

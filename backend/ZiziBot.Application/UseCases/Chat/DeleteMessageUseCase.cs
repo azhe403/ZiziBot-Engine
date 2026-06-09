@@ -1,6 +1,7 @@
 using Hangfire;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
+using ZiziBot.Application.Features.Hangfire;
 
 namespace ZiziBot.Application.UseCases.Chat;
 

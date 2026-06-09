@@ -1,10 +1,10 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using ZiziBot.Application.Scheduler;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
-public class RegisterRssJobUrlRequest : IRequest<bool>
+public class RegisterRssJobUrlRequest : IAppCommand<bool>, IRequest<bool>
 {
     public long ChatId { get; set; }
     public int ThreadId { get; set; }

@@ -13,7 +13,7 @@ using Serilog;
 using Serilog.Enrichers.CallerInfo;
 using Serilog.Events;
 using Serilog.Sinks.AspNetCore.SignalR.Extensions;
-using ZiziBot.Infrastructure.LoggerSink;
+using ZiziBot.Application.Features.LoggerSink;
 using IHub = Serilog.Sinks.AspNetCore.SignalR.Interfaces.IHub;
 
 namespace ZiziBot.Application.Extensions;

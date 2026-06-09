@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Net;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,7 +7,6 @@ namespace ZiziBot.Presentation.Http.Rest.Controllers;
 
 public class ApiControllerBase : ControllerBase
 {
-    protected IMediator Mediator => HttpContext.RequestServices.GetRequiredService<IMediator>();
     private MediatorService MediatorService => HttpContext.RequestServices.GetRequiredService<MediatorService>();
 
     protected async Task<IActionResult> SendRequest<T>(ApiRequestBase<T> request, ExecutionStrategy executionStrategy = ExecutionStrategy.Instant)
@@ -44,4 +42,3 @@ public class ApiControllerBase : ControllerBase
         };
     }
 }
-

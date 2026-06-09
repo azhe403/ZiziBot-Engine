@@ -1,9 +1,8 @@
 using System.Linq.Expressions;
-using Hangfire;
 using Hangfire.Storage;
 using Serilog;
 
-namespace ZiziBot.Scheduler.Hangfire;
+namespace ZiziBot.Application.Features.Hangfire;
 
 public static class HangfireUtil
 {

@@ -12,7 +12,9 @@ public class PostMirrorUserRequestDto : ApiRequestBase<bool>
 }
 
 public class PostMirrorUserRequestHandler(
-    DataFacade dataFacade
+    IHttpContextHelper httpContextHelper,
+    DataFacade dataFacade,
+    OutboxService outboxService
 ) : IApiRequestHandler<PostMirrorUserRequestDto, bool>
 {
     private readonly ApiResponseBase<bool> _response = new();
@@ -26,15 +28,49 @@ public class PostMirrorUserRequestHandler(
 
         if (mirrorUser == null)
         {
-            dataFacade.MongoDb.MirrorUser.Add(new MirrorUserEntity() {
+            var expireDate = DateTime.UtcNow.AddDays(request.AddDays);
+
+            dataFacade.MongoDb.MirrorUser.Add(new MirrorUserEntity()
+            {
                 UserId = request.UserId,
-                ExpireDate = DateTime.UtcNow.AddDays(request.AddDays),
-                Status = EventStatus.Complete
+                ExpireDate = expireDate,
+                Status = EventStatus.Complete,
+                TransactionId = httpContextHelper.UserInfo.TransactionId
             });
+
+            await outboxService.EnqueueAsync(
+                type: "mirror-user.created",
+                payload: new
+                {
+                    request.UserId,
+                    ExpireDate = expireDate,
+                    request.AddDays,
+                    request.MonthDuration,
+                    request.AdditionalNote,
+                    ActorUserId = httpContextHelper.UserInfo.UserId
+                },
+                transactionId: httpContextHelper.UserInfo.TransactionId,
+                cancellationToken: cancellationToken
+            );
         }
         else
         {
             mirrorUser.ExpireDate = mirrorUser.ExpireDate.AddMonths(request.MonthDuration);
+            mirrorUser.TransactionId = httpContextHelper.UserInfo.TransactionId;
+
+            await outboxService.EnqueueAsync(
+                type: "mirror-user.extended",
+                payload: new
+                {
+                    request.UserId,
+                    mirrorUser.ExpireDate,
+                    request.MonthDuration,
+                    request.AdditionalNote,
+                    ActorUserId = httpContextHelper.UserInfo.UserId
+                },
+                transactionId: httpContextHelper.UserInfo.TransactionId,
+                cancellationToken: cancellationToken
+            );
         }
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);

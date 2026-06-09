@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
@@ -24,7 +24,8 @@ public class SubmitDonationValidation : AbstractValidator<SubmitDonationRequest>
 public class SubmitDonationHandler(
     IHttpContextHelper httpContextHelper,
     DataFacade dataFacade,
-    ServiceFacade serviceFacade
+    ServiceFacade serviceFacade,
+    OutboxService outboxService
 ) : IApiRequestHandler<SubmitDonationRequest, bool>
 {
     private readonly ApiResponseBase<bool> _response = new();
@@ -98,6 +99,21 @@ public class SubmitDonationHandler(
             mirrorUser.Status = EventStatus.Complete;
             mirrorUser.TransactionId = httpContextHelper.UserInfo.TransactionId;
         }
+
+        await outboxService.EnqueueAsync(
+            type: "mirror-donation.submitted",
+            payload: new
+            {
+                UserId = httpContextHelper.UserInfo.UserId,
+                request.Body.OrderId,
+                parsedDonationDto.Source,
+                parsedDonationDto.PaymentUrl,
+                parsedDonationDto.CendolCount,
+                ExpireDate = expireDate
+            },
+            transactionId: httpContextHelper.UserInfo.TransactionId,
+            cancellationToken: cancellationToken
+        );
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 

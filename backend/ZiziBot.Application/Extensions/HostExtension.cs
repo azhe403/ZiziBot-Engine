@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 
-namespace ZiziBot.Infrastructure;
+namespace ZiziBot.Application.Extensions;
 
 public static class HostExtension
 {

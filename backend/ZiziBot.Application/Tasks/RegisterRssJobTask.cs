@@ -1,5 +1,6 @@
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Application.Features.Hangfire;
 using ZiziBot.Application.Scheduler;
 using ZiziBot.Application.UseCases.GitHub;
 using ZiziBot.Application.UseCases.Rss;

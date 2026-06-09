@@ -5,7 +5,7 @@ using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.Telegram.Core;
 
-public class CreateChatActivityRequest : IRequest<object>
+public class CreateChatActivityRequest : IAppCommand<object>, IRequest<object>
 {
     public ChatActivityType ActivityType { get; set; }
     public Message SentMessage { get; set; }

@@ -1,13 +1,10 @@
 ﻿using Hangfire.LiteDB;
-using Hangfire.Mongo;
-using Hangfire.Mongo.Migration.Strategies;
-using Hangfire.Mongo.Migration.Strategies.Backup;
 using Hangfire.Storage.SQLite;
 using MongoDB.Driver;
 using Serilog;
 using ZiziBot.Common.Exceptions;
 
-namespace ZiziBot.Scheduler.Hangfire
+namespace ZiziBot.Application.Features.Hangfire
 {
     public static class StorageUtil
     {

@@ -14,6 +14,7 @@ public class DataFacade(
     GroupRepository group,
     RssRepository rss,
     MirrorUserRepository mirrorUser,
+    OutboxRepository outbox,
     WordFilterRepository wordFilter
 )
 {
@@ -27,6 +28,7 @@ public class DataFacade(
     public GroupRepository Group => group;
     public RssRepository Rss => rss;
     public MirrorUserRepository MirrorUser => mirrorUser;
+    public OutboxRepository Outbox => outbox;
     public WordFilterRepository WordFilter => wordFilter;
 
     public async Task<int> SaveChangesAsync()

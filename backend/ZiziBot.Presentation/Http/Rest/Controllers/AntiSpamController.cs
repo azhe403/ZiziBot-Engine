@@ -32,8 +32,7 @@ public class AntiSpamController : ApiControllerBase
     [AccessFilter(flag: Flag.REST_ANTISPAM_ESS_CHECK_BAN, roleLevel: RoleLevel.None)]
     public async Task<IActionResult> GetEs2BanByUserIdAsync()
     {
-        var result = await Mediator.Send(new GetGlobalBanApiRequest());
-        return SwitchStatus(result);
+        return await SendRequest(new GetGlobalBanApiRequest());
     }
 
     [HttpPut("undelete-ban")]

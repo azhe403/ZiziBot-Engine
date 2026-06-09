@@ -1,8 +1,18 @@
+using FluentValidation;
+
 namespace ZiziBot.Application.Handlers.RestApis.MirrorUser;
 
 public class GetMirrorUserByUserIdRequestDto : ApiRequestBase<GetMirrorUserDto>
 {
     public long UserId { get; set; }
+}
+
+public class GetMirrorUserByUserIdValidation : AbstractValidator<GetMirrorUserByUserIdRequestDto>
+{
+    public GetMirrorUserByUserIdValidation()
+    {
+        RuleFor(x => x.UserId).GreaterThan(0).WithMessage("UserId is required");
+    }
 }
 
 public class GetMirrorUserDto

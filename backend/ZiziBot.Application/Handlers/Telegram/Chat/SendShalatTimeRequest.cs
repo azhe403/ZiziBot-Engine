@@ -5,7 +5,7 @@ using Telegram.Bot.Types.Enums;
 namespace ZiziBot.Application.Handlers.Telegram.Chat;
 
 [Obsolete("Please use from UseCase")]
-public class SendShalatTimeRequest : IRequest<bool>
+public class SendShalatTimeRequest : IAppCommand<bool>, IRequest<bool>
 {
     public long ChatId { get; set; }
 }

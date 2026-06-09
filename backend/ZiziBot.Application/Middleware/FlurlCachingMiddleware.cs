@@ -1,4 +1,4 @@
-﻿namespace ZiziBot.Infrastructure.Middleware;
+﻿namespace ZiziBot.Application.Middleware;
 
 public class FlurlCachingMiddleware : DelegatingHandler
 {

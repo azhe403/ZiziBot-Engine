@@ -21,19 +21,18 @@
     <PackageReference Include="FluentValidation" Version="12.1.1"/>
     <PackageReference Include="Flurl" Version="4.0.0"/>
     <PackageReference Include="Flurl.Http" Version="4.0.2"/>
-    <PackageReference Include="Google.Apis.Auth" Version="1.74.0"/>
+    <PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23"/>
     <PackageReference Include="Hangfire.Dashboard.Dark" Version="2.0.4"/>
     <PackageReference Include="Hangfire.Heartbeat" Version="0.6.0"/>
     <PackageReference Include="Hangfire.InMemory" Version="1.0.0"/>
     <PackageReference Include="Hangfire.LiteDB" Version="0.4.1"/>
     <PackageReference Include="Hangfire.MaximumConcurrentExecutions" Version="1.1.0"/>
-    <PackageReference Include="Hangfire.Mongo" Version="1.15.0"/>
+    <PackageReference Include="Hangfire.Mongo" Version="1.16.0" />
     <PackageReference Include="Hangfire.Storage.SQLite" Version="0.4.3"/>
     <PackageReference Include="HelpMate.Core" Version="2.1.0"/>
     <PackageReference Include="Humanizer.Core" Version="3.0.10"/>
     <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510"/>
-    <PackageReference Include="MediatR" Version="12.5.0"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.8"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8"/>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8"/>
@@ -41,7 +40,7 @@
     <PackageReference Include="morelinq" Version="4.4.0" />
     <PackageReference Include="NeoSmart.Caching.Sqlite" Version="9.0.1"/>
     <PackageReference Include="Octokit" Version="14.0.0"/>
-    <PackageReference Include="Octokit.Webhooks" Version="4.0.2"/>
+    <PackageReference Include="Octokit.Webhooks" Version="4.0.3" />
     <PackageReference Include="Sentry" Version="6.6.0" />
     <PackageReference Include="Sentry.AspNetCore" Version="6.6.0" />
     <PackageReference Include="Sentry.Hangfire" Version="6.6.0" />
@@ -57,7 +56,7 @@
     <PackageReference Include="SlimMessageBus" Version="3.0.0"/>
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172"/>
     <PackageReference Include="Scrutor" Version="7.0.0"/>
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0"/>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
     <PackageReference Include="TickerQ" Version="10.4.0"/>
     <PackageReference Include="TickerQ.Dashboard" Version="10.4.0"/>
     <PackageReference Include="TickerQ.EntityFrameworkCore" Version="10.4.0"/>

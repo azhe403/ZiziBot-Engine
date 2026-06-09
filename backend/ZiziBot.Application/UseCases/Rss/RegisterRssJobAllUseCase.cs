@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Application.Features.Hangfire;
 
 namespace ZiziBot.Application.UseCases.Rss;
 

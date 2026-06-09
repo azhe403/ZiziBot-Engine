@@ -52,7 +52,8 @@ public class WebHookTrakteerDonationResponse
 
 public class WebHookTrakteerDonationHandler(
     IHttpContextHelper httpContextHelper,
-    DataFacade dataFacade
+    DataFacade dataFacade,
+    OutboxService outboxService
 ) : IApiRequestHandler<WebHookTrakteerDonationRequest, WebHookTrakteerDonationResponse>
 {
     private readonly ApiResponseBase<WebHookTrakteerDonationResponse> response = new();
@@ -85,7 +86,8 @@ public class WebHookTrakteerDonationHandler(
             return response.Success("Donasi Mirror sudah diproses");
         }
 
-        dataFacade.MongoDb.MirrorDonation.Add(new MirrorDonationEntity {
+        dataFacade.MongoDb.MirrorDonation.Add(new MirrorDonationEntity
+        {
             Status = EventStatus.Complete,
             TransactionId = httpContextHelper.UserInfo.TransactionId,
             OrderId = request.Body.TransactionId,
@@ -101,6 +103,22 @@ public class WebHookTrakteerDonationHandler(
             NetAmount = request.Body.NetAmount,
             Source = DonationSource.Trakteer
         });
+
+        await outboxService.EnqueueAsync(
+            type: "mirror-donation.webhook.trakteer",
+            payload: new
+            {
+                request.Body.TransactionId,
+                request.Body.CreatedAt,
+                request.Body.Type,
+                request.Body.SupporterName,
+                request.Body.Quantity,
+                request.Body.Price,
+                request.Body.NetAmount
+            },
+            transactionId: httpContextHelper.UserInfo.TransactionId,
+            cancellationToken: cancellationToken
+        );
 
         await dataFacade.MongoDb.SaveChangesAsync(cancellationToken);
 

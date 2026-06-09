@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
 
-namespace ZiziBot.Scheduler.TickerQ;
+namespace ZiziBot.Application.Features.TickerQ;
 
 public static class TickerQServiceExtension
 {

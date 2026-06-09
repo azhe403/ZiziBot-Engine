@@ -10,16 +10,18 @@ Solution: [ZiziBot.slnx](../../ZiziBot.slnx)
 - Entry point: [Program.cs](../../backend/ZiziBot.Engine/Program.cs#L1-L35)
 - Responsibilities:
   - Load configuration (dotenv + Mongo config + local overrides)
-  - Register services, caching, DB migration, MediatR pipeline
+  - Register services, caching, DB migration, Cortex mediator pipeline
   - Start Telegram bot engine and REST API
   - Start scheduler/job systems
 
-### ZiziBot.Application (Use Cases + MediatR Pipeline)
+### ZiziBot.Application (Use Cases + Cortex Mediator Pipeline)
 
 - What it is: application-layer logic (requests, handlers, services, scheduler tasks).
 - Key wiring:
   - Service composition: [ServiceExtension.ConfigureServices](../../backend/ZiziBot.Application/Extensions/ServiceExtension.cs#L23-L36)
-  - MediatR setup + behaviors: [MediatRExtension.AddMediator](../../backend/ZiziBot.Application/Extensions/MediatRExtension.cs#L10-L34)
+  - Cortex mediator setup + behaviors (+ `IAppMediator` adapter): [CortexExtension.AddApplicationCortexMediator](../../backend/ZiziBot.Application/Extensions/CortexExtension.cs#L7-L35)
+  - Pre-handler stage for Telegram guard/short-circuit checks: [PreProcessPipeline](../../backend/ZiziBot.Application/Pipelines/PrePipeline/PreProcessPipeline.cs) + [IPreProcessPipeline](../../backend/ZiziBot.Application/Pipelines/PrePipeline/IPreProcessPipeline.cs)
+  - Post-handler stage for Telegram side effects: [PostProcessPipeline](../../backend/ZiziBot.Application/Pipelines/PostPipeline/PostProcessPipeline.cs) + [IPostProcessPipeline](../../backend/ZiziBot.Application/Pipelines/PostPipeline/IPostProcessPipeline.cs)
 - Key concepts:
   - Request contracts live under [Core](../../backend/ZiziBot.Application/Core)
   - Handlers are grouped by inbound channel:
@@ -67,6 +69,9 @@ Location: [backend/lib/ZiziBot.TelegramBot](../../backend/lib/ZiziBot.TelegramBo
   - [DataFacade](../../backend/ZiziBot.Application/Database/Service/DataFacade.cs#L6-L36) aggregates repositories and the MongoDbContext.
 - Repositories:
   - [Repository](../../backend/ZiziBot.Application/Database/Repository)
+- Outbox sample:
+  - Entity: [OutboxMessageEntity](../../backend/ZiziBot.Application/Database/MongoDb/Entities/OutboxMessageEntity.cs)
+  - Writer service: [OutboxService](../../backend/ZiziBot.Application/Services/OutboxService.cs)
 - Migrations:
   - Runner + steps: [MongoDb/Migrations](../../backend/ZiziBot.Application/Database/MongoDb/Migrations)
 
@@ -103,7 +108,7 @@ File: [ConfigurationExtension](../../backend/ZiziBot.Application/Extensions/Conf
 
 File: [ServiceExtension](../../backend/ZiziBot.Application/Extensions/ServiceExtension.cs)
 
-- `ConfigureServices`: the backend’s DI composition root (services + cache + migration + MediatR + background queue + Flurl defaults).
+- `ConfigureServices`: the backend’s DI composition root (services + cache + migration + Cortex mediator + background queue + Flurl defaults).
 - `ConfigureFlurl`: centralizes outbound HTTP defaults and request/response logging.
 
 ### MediatorService (Unified Dispatcher)
@@ -113,6 +118,7 @@ File: [MediatorService](../../backend/ZiziBot.Application/Services/MediatorServi
 - `EnqueueAsync(BotRequestBase)`: routes bot requests to Hangfire, background queue, or instant execution.
 - `EnqueueAsync(ApiRequestBase<T>)`: executes or enqueues API requests depending on execution strategy.
 - `Send`: Hangfire bridge method for executing requests.
+- Uses `IAppMediator` instead of directly depending on Cortex or controller-local dispatch details, so the mediator implementation can be swapped again later.
 
 ### Facades
 

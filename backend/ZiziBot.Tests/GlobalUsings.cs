@@ -12,6 +12,5 @@ global using ZiziBot.Application.Handlers.Telegram.Rss;
 global using ZiziBot.Application.Services;
 global using ZiziBot.Common.WebParser;
 global using ZiziBot.Application.Database.Repository;
-global using ZiziBot.Infrastructure;
 global using ZiziBot.Tests.SampleData;
 global using ZiziBot.Tests.SampleData;

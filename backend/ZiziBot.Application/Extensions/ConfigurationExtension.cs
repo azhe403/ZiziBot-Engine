@@ -3,13 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ZiziBot.Application.Config.MongoConfig;
 using ZiziBot.Application.Database.Extensions;
-using ZiziBot.Application.Database.Utils;
-using ZiziBot.Common.Configs;
-using ZiziBot.Common.Constants;
 using ZiziBot.Common.Exceptions;
-using ZiziBot.Common.Utils;
 
-namespace ZiziBot.Infrastructure;
+namespace ZiziBot.Application.Extensions;
 
 public static class ConfigurationExtension
 {

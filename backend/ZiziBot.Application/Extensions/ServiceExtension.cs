@@ -8,13 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using ZiziBot.Application.Extensions;
-using ZiziBot.Application.Facades;
-using ZiziBot.Application.HostedServices;
-using ZiziBot.Application.Tasks;
 using ZiziBot.Application.Database.Extensions;
 
-namespace ZiziBot.Infrastructure;
+namespace ZiziBot.Application.Extensions;
 
 public static class ServiceExtension
 {
@@ -28,7 +24,7 @@ public static class ServiceExtension
         services.AddCacheTower();
         services.AddMongoMigration();
         await services.PrefetchRepository();
-        services.AddMediator();
+        services.AddApplicationCortexMediator();
         services.ConfigureBackgroundQueue();
         services.ConfigureFlurl();
 

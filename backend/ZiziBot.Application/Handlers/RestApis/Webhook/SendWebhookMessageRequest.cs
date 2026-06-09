@@ -8,7 +8,7 @@ using ZiziBot.Application.Database.MongoDb.Entities;
 
 namespace ZiziBot.Application.Handlers.RestApis.Webhook;
 
-public class SendWebhookMessageRequest : IRequest<object>
+public class SendWebhookMessageRequest : IAppCommand<object>, IRequest<object>
 {
     public string TargetId { get; set; }
     public string Event { get; set; }

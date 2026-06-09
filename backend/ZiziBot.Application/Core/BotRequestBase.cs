@@ -4,7 +4,7 @@ using ZiziBot.Common.Types;
 
 namespace ZiziBot.Application.Core;
 
-public class BotRequestBase : IRequest<BotResponseBase>
+public class BotRequestBase : IAppCommand<BotResponseBase>
 {
     public RoleLevel MinimumRole { get; set; }
     public List<RoleLevel> RolesLevels { get; set; } = new();

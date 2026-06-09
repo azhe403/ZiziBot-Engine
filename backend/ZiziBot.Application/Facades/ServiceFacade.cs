@@ -1,7 +1,7 @@
-﻿namespace ZiziBot.Application.Facades;
+namespace ZiziBot.Application.Facades;
 
 public class ServiceFacade(
-    IMediator mediator,
+    IAppMediator mediator,
     ICacheService cacheService,
     MediatorService mediatorService,
     JobService jobService,
@@ -17,7 +17,7 @@ public class ServiceFacade(
     WebhookService webhookService
 )
 {
-    public IMediator Mediator => mediator;
+    public IAppMediator Mediator => mediator;
     public ICacheService CacheService => cacheService;
     public MediatorService MediatorService => mediatorService;
     public JobService JobService => jobService;

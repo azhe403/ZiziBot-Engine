@@ -8,6 +8,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
+using ZiziBot.Application.Features.Hangfire;
 using ZiziBot.Application.Handlers.Telegram.Core;
 using ZiziBot.Application.UseCases.Chat;
 using ZiziBot.Common.Dtos;
@@ -19,7 +20,6 @@ namespace ZiziBot.Application.Services;
 
 public class TelegramService(
     ILogger<TelegramService> logger,
-    IMediator mediator,
     CacheService cacheService,
     MediatorService mediatorService,
     DataFacade dataFacade

@@ -8,10 +8,9 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ZiziBot.Common.Types;
-using ZiziBot.Common.Utils;
 using IBatchedLogEventSink = Serilog.Sinks.PeriodicBatching.IBatchedLogEventSink;
 
-namespace ZiziBot.Infrastructure.LoggerSink;
+namespace ZiziBot.Application.Features.LoggerSink;
 
 public class TelegramSink : ILogEventSink, IBatchedLogEventSink
 {

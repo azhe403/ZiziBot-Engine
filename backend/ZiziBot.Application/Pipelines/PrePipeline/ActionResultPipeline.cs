@@ -1,42 +1,43 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using ZiziBot.Common.Types;
 
-namespace ZiziBot.Application.Handlers.Telegram.Middleware;
+namespace ZiziBot.Application.Pipelines.PrePipeline;
 
-public class ActionResultPipelineBehavior<TRequest, TResponse>(
-    ILogger<ActionResultPipelineBehavior<TRequest, TResponse>> logger,
-    ServiceFacade serviceFacade,
-    DataFacade dataFacade
-) : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : BotRequestBase
-    where TResponse : BotResponseBase, new()
+public class ActionResultPipeline<TRequest, TResponse>(
+    ILogger<ActionResultPipeline<TRequest, TResponse>> logger,
+    ServiceFacade serviceFacade
+) : IPreProcessPipeline<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
 {
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<PreProcessResult<TResponse>> ProcessAsync(TRequest request, CancellationToken cancellationToken)
     {
-        if (request.Source != ResponseSource.Bot ||
-            request.PipelineResult.Actions.IsEmpty())
-            return await next();
+        if (request is not BotRequestBase botRequest)
+            return PreProcessResult<TResponse>.Continue;
+
+        if (botRequest.Source != ResponseSource.Bot ||
+            botRequest.PipelineResult.Actions.IsEmpty())
+            return PreProcessResult<TResponse>.Continue;
 
         //todo. auto detect based on user activity
-        if (ValueConst.SAFE_IDS.Contains(request.UserId))
+        if (ValueConst.SAFE_IDS.Contains(botRequest.UserId))
         {
-            return await next();
+            return PreProcessResult<TResponse>.Continue;
         }
 
-        var actions = request.PipelineResult.Actions;
+        var actions = botRequest.PipelineResult.Actions;
         var htmlMessage = HtmlMessage.Empty
-            .Bold("ID: ").CodeBr(request.UserId.ToString())
-            .Bold("Name: ").User(request.UserId, request.User.GetFullName());
+            .Bold("ID: ").CodeBr(botRequest.UserId.ToString())
+            .Bold("Name: ").User(botRequest.UserId, botRequest.User.GetFullName());
 
-        serviceFacade.TelegramService.SetupResponse(request);
+        serviceFacade.TelegramService.SetupResponse(botRequest);
 
         if (actions.Contains(PipelineResultAction.Warn))
         {
             htmlMessage.Br().Text("Mendapat diperingatkan karena: ").Br();
-            if (!request.PipelineResult.IsMessagePassed)
+            if (!botRequest.PipelineResult.IsMessagePassed)
                 htmlMessage.Text(" - mengirim pesan yang mengandung teks yang dilarang").Br();
 
-            if (!request.PipelineResult.HasUsername)
+            if (!botRequest.PipelineResult.HasUsername)
                 htmlMessage.Text(" - belum menetapkan Username").Br();
         }
 
@@ -60,7 +61,7 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
                 catch (Exception e)
                 {
                     logger.LogWarning("Unable to delete message: {MessageId} in ChatId: {ChatId}. Message: {Message}",
-                        request.MessageId, request.ChatId, e.Message);
+                        botRequest.MessageId, botRequest.ChatId, e.Message);
                 }
             }
 
@@ -68,12 +69,12 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
             {
                 try
                 {
-                    await serviceFacade.TelegramService.MuteMemberAsync(request.UserId, muteDuration);
+                    await serviceFacade.TelegramService.MuteMemberAsync(botRequest.UserId, muteDuration);
                     actionResults.TextBr($" - pengguna disenyapkan selama {muteDuration.ForHuman()}");
                 }
                 catch (Exception e)
                 {
-                    logger.LogWarning("Unable to mute user: {UserId} in ChatId: {ChatId}. Message: {Message}", request.UserId, request.ChatId, e.Message);
+                    logger.LogWarning("Unable to mute user: {UserId} in ChatId: {ChatId}. Message: {Message}", botRequest.UserId, botRequest.ChatId, e.Message);
                 }
             }
 
@@ -86,7 +87,7 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
                 }
                 catch (Exception e)
                 {
-                    logger.LogWarning("Unable to kick user: {UserId} in ChatId: {ChatId}. Message: {Message}", request.UserId, request.ChatId, e.Message);
+                    logger.LogWarning("Unable to kick user: {UserId} in ChatId: {ChatId}. Message: {Message}", botRequest.UserId, botRequest.ChatId, e.Message);
                 }
             }
 
@@ -98,13 +99,12 @@ public class ActionResultPipelineBehavior<TRequest, TResponse>(
             if (actions.Contains(PipelineResultAction.Warn))
                 await serviceFacade.TelegramService.SendMessageText(htmlMessage.ToString());
 
-            return new TResponse();
+            return PreProcessResult<TResponse>.Stop();
         }
         catch (Exception exception)
         {
-            logger.LogWarning(exception, "Error when running action for userId: {UserId}. Message: {Message}", request.UserId, exception.Message);
+            logger.LogError(exception, "Error on Action Result pipeline");
+            return PreProcessResult<TResponse>.Stop();
         }
-
-        return new TResponse();
     }
 }

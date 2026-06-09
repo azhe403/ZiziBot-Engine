@@ -10,7 +10,7 @@ using ZiziBot.Common.Types;
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
 [Obsolete("Please use from UseCase")]
-public class FetchRssRequest : IRequest<bool>
+public class FetchRssRequest : IAppCommand<bool>, IRequest<bool>
 {
     public long ChatId { get; set; }
     public int ThreadId { get; set; }

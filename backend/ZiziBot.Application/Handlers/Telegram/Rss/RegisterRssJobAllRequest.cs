@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using ZiziBot.Application.Features.Hangfire;
 
 namespace ZiziBot.Application.Handlers.Telegram.Rss;
 
-public class RegisterRssJobAllRequest : IRequest<bool>
+public class RegisterRssJobAllRequest : IAppCommand<bool>, IRequest<bool>
 {
     public bool ResetStatus { get; set; }
 }
@@ -41,7 +42,7 @@ public class RegisterRssJobAllHandler(
         {
             var jobId = await StringUtil.GenerateRssKeyAsync();
 
-            await serviceFacade.Mediator.Send(new RegisterRssJobUrlRequest {
+            await serviceFacade.Mediator.SendAsync(new RegisterRssJobUrlRequest {
                 ChatId = rssSettingEntity.ChatId,
                 ThreadId = rssSettingEntity.ThreadId ?? 0,
                 Url = rssSettingEntity.RssUrl,

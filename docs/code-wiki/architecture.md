@@ -36,7 +36,7 @@ Contains multiple Next.js apps (console/web/docs) plus shared TypeScript package
 ### Layering (Backend)
 
 - **Host layer**: ZiziBot.Engine composes everything and runs processes.
-- **Application layer**: requests/handlers/use-cases; MediatR pipeline + behaviors.
+- **Application layer**: requests/handlers/use-cases; Cortex mediator pipeline + behaviors.
 - **Delivery layers**
   - Telegram controllers (update → request)
   - REST controllers (HTTP → request)
@@ -44,11 +44,11 @@ Contains multiple Next.js apps (console/web/docs) plus shared TypeScript package
 - **Database layer**: MongoDB context, repositories, migrations, caching layers.
 - **Common**: shared contracts, DTOs, config models, constants, enums, utilities.
 
-### Request/Handler Model (MediatR)
+### Request/Handler Model (Cortex Mediator)
 
-Most “business actions” are modeled as requests handled through MediatR. The pipeline enforces cross-cutting rules (logging, feature flags, role/restriction checks, anti-spam, etc.) before the actual handler is executed.
+Most “business actions” are modeled as requests handled through `IAppMediator`, which is backed by Cortex.Mediator. The pipeline enforces cross-cutting rules (logging, feature flags, role/restriction checks, anti-spam, etc.) before the actual handler is executed, and a dedicated post-process stage runs Telegram side effects after the handler returns.
 
-Pipeline registration: [MediatRExtension](../../backend/ZiziBot.Application/Extensions/MediatRExtension.cs#L10-L34)
+Pipeline registration: [CortexExtension](../../backend/ZiziBot.Application/Extensions/CortexExtension.cs#L7-L35)
 
 ### Execution Strategies (Sync vs Background)
 
@@ -65,7 +65,7 @@ flowchart LR
   TG[Telegram Update] --> FW[ZiziBot.TelegramBot.Framework]
   FW --> C[Telegram Controllers]
   C --> MS[MediatorService]
-  MS --> MR[MediatR Pipeline]
+  MS --> MR[Cortex Pipeline]
   MR --> H[Request Handler / Use Case]
   H --> DF[DataFacade / Repositories]
   H --> SVC[External Service Clients]
@@ -80,7 +80,7 @@ flowchart LR
   HTTP[HTTP Request] --> MW[Middleware]
   MW --> API[Controller]
   API --> MS[MediatorService]
-  MS --> MR[MediatR Pipeline]
+  MS --> MR[Cortex Pipeline]
   MR --> H[ApiRequest Handler / Use Case]
   H --> DF[DataFacade / Repositories]
   H --> RESP[ApiResponseBase]

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using ZiziBot.Scheduler.Hangfire;
+using ZiziBot.Application.Features.Hangfire;
 
-namespace ZiziBot.Scheduler;
+namespace ZiziBot.Application.Extensions;
 
 public static class SchedulerExtension
 {

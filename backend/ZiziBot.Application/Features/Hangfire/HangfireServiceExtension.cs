@@ -1,9 +1,3 @@
-using Hangfire;
-using Hangfire.Dashboard;
-using Hangfire.Dashboard.Dark;
-using Hangfire.Heartbeat;
-using Hangfire.Heartbeat.Server;
-using Hangfire.InMemory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Sentry.Hangfire;
 
-namespace ZiziBot.Scheduler.Hangfire;
+namespace ZiziBot.Application.Features.Hangfire;
 
 public static class HangfireServiceExtension
 {
@@ -39,7 +33,7 @@ public static class HangfireServiceExtension
                         .UseDarkDashboard()
                         .UseStorage(jobStorage)
                         .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
-                        .UseMediatR()
+                        .UseAppMediatorSerialization()
                         .UseSentry()
                         .UseSerilogLogProvider();
                 }
@@ -131,7 +125,7 @@ public static class HangfireServiceExtension
         return app;
     }
 
-    private static IGlobalConfiguration UseMediatR(this IGlobalConfiguration configuration)
+    private static IGlobalConfiguration UseAppMediatorSerialization(this IGlobalConfiguration configuration)
     {
         var jsonSettings = new JsonSerializerSettings {
             TypeNameHandling = TypeNameHandling.All
