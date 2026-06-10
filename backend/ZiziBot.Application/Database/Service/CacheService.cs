@@ -16,8 +16,8 @@ public class CacheService(
     : ICacheService
 {
     private readonly CacheConfig _cacheConfig = cacheConfig.Value;
-    private string _expireAfter = "24h";
-    private string _staleAfter = "15s";
+    private const string DefaultExpireAfter = "24h";
+    private const string DefaultStaleAfter = "15s";
 
     public async Task<T> GetOrSetAsync<T>(
         string cacheKey,
@@ -31,22 +31,46 @@ public class CacheService(
     )
     {
         if (disableCache)
+        {
+            logger.LogDebug(
+                "Cache bypassed. Key={CacheKey} Type={CacheType} DisableCache={DisableCache}",
+                cacheKey,
+                typeof(T).Name,
+                disableCache
+            );
             return await action();
+        }
 
         if (evictBefore)
+        {
+            logger.LogDebug(
+                "Cache evict-before requested. Key={CacheKey} Type={CacheType}",
+                cacheKey,
+                typeof(T).Name
+            );
             await EvictAsync(cacheKey);
+        }
 
-        if (expireAfter != null) _expireAfter = expireAfter;
-        if (staleAfter != null) _staleAfter = staleAfter;
+        var resolvedExpireAfter = expireAfter ?? DefaultExpireAfter;
+        var resolvedStaleAfter = staleAfter ?? DefaultStaleAfter;
 
-        var expireAfterSpan = _expireAfter.ToTimeSpan();
-        var staleAfterSpan = _staleAfter.ToTimeSpan();
+        var expireAfterSpan = resolvedExpireAfter.ToTimeSpan();
+        var staleAfterSpan = resolvedStaleAfter.ToTimeSpan();
 
         cacheKey = cacheKey.ForCacheKey();
 
         try
         {
-            logger.LogDebug("Loading Cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
+            logger.LogDebug(
+                "Cache resolve started. Key={CacheKey} Type={CacheType} Engine={CacheEngine} StaleAfter={StaleAfter} ExpireAfter={ExpireAfter} EvictBefore={EvictBefore} EvictAfter={EvictAfter}",
+                cacheKey,
+                typeof(T).Name,
+                _cacheConfig.CacheEngine,
+                staleAfterSpan,
+                expireAfterSpan,
+                evictBefore,
+                evictAfter
+            );
 
             var cacheSettings = new CacheSettings(expireAfterSpan, staleAfterSpan);
 
@@ -54,26 +78,57 @@ public class CacheService(
                 cacheKey: cacheKey.Trim(),
                 valueFactory: async (_) =>
                 {
-                    logger.LogDebug("Updating cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
+                    logger.LogDebug(
+                        "Cache value factory invoked. Key={CacheKey} Type={CacheType} StaleAfter={StaleAfter} ExpireAfter={ExpireAfter}",
+                        cacheKey,
+                        typeof(T).Name,
+                        staleAfterSpan,
+                        expireAfterSpan
+                    );
 
                     return await action();
                 },
                 settings: cacheSettings
             );
 
-            logger.LogDebug("Loaded Cache with Key: {CacheKey}. StaleAfter: {StaleAfter}. ExpireAfter: {ExpireAfter}", cacheKey, staleAfterSpan, expireAfterSpan);
+            logger.LogDebug(
+                "Cache resolve completed. Key={CacheKey} Type={CacheType} StaleAfter={StaleAfter} ExpireAfter={ExpireAfter}",
+                cacheKey,
+                typeof(T).Name,
+                staleAfterSpan,
+                expireAfterSpan
+            );
 
             if (evictAfter)
+            {
+                logger.LogDebug(
+                    "Cache evict-after requested. Key={CacheKey} Type={CacheType}",
+                    cacheKey,
+                    typeof(T).Name
+                );
                 await EvictAsync(cacheKey);
+            }
 
             return cache;
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Error loading cache with Key: {Key}", cacheKey);
+            logger.LogError(
+                exception,
+                "Cache resolve failed. Key={CacheKey} Type={CacheType} ThrowIfError={ThrowIfError}",
+                cacheKey,
+                typeof(T).Name,
+                throwIfError
+            );
 
             if (throwIfError)
                 throw;
+
+            logger.LogWarning(
+                "Falling back to direct action after cache failure. Key={CacheKey} Type={CacheType}",
+                cacheKey,
+                typeof(T).Name
+            );
 
             await EvictAsync(cacheKey);
 
@@ -109,6 +164,11 @@ public class CacheService(
     {
         if (_cacheConfig.CacheEngine == CacheEngine.FusionCache)
         {
+            logger.LogDebug(
+                "Using Fusion cache path. Key={CacheKey} Type={CacheType}",
+                cacheKey,
+                typeof(T).Name
+            );
             var fusion = await FusionGetAsync(cacheKey, async (x) => await action());
             return fusion.Data;
         }
@@ -144,15 +204,22 @@ public class CacheService(
     {
         try
         {
-            logger.LogDebug("Evicting cache with key: {CacheKey}", cacheKey);
+            logger.LogDebug("Cache eviction started. Key={CacheKey}", cacheKey);
             await cacheStack.EvictAsync(cacheKey);
+            logger.LogDebug("Cache eviction completed. Key={CacheKey}", cacheKey);
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Fail to evict cache Key: {Key}", cacheKey);
+            logger.LogError(exception, "Cache eviction failed. Key={CacheKey}", cacheKey);
 
             if (_cacheConfig.UseJsonFile)
+            {
+                logger.LogWarning(
+                    "Deleting CacheTower JSON directory after eviction failure. Path={CachePath}",
+                    PathConst.CACHE_TOWER_JSON
+                );
                 PathConst.CACHE_TOWER_JSON.DeleteDirectory();
+            }
         }
     }
 
@@ -163,10 +230,20 @@ public class CacheService(
     {
         var cached = await fusionCache.GetOrSetAsync<TValue>(key: key, factory: async (ctx, ct) =>
         {
-            logger.LogDebug("Loading Fusion cache with key: {Key}", key);
+            logger.LogDebug(
+                "Fusion cache value factory invoked. Key={CacheKey} Type={CacheType}",
+                key,
+                typeof(TValue).Name
+            );
 
             return await factory(ct);
         });
+
+        logger.LogDebug(
+            "Fusion cache resolve completed. Key={CacheKey} Type={CacheType}",
+            key,
+            typeof(TValue).Name
+        );
 
         return cached;
     }

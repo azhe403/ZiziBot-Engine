@@ -13,6 +13,9 @@ public class CheckUserRolePipeline<TRequest, TResponse>(
         if (request is not BotRequestBase botRequest)
             return PreProcessResult<TResponse>.Continue;
 
+        if (botRequest.Source != ResponseSource.Bot)
+            return PreProcessResult<TResponse>.Continue;
+
         logger.LogDebug("Checking Role {Name} for UserId: {UserId} in ChatId: {ChatId}", typeof(TRequest), botRequest.UserId, botRequest.ChatId);
 
         serviceFacade.TelegramService.SetupResponse(botRequest);

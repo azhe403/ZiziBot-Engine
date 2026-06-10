@@ -14,10 +14,10 @@ public class InsertChatActivityPipeline<TRequest, TResponse>(
         if (request is not BotRequestBase botRequest)
             return;
 
-        logger.LogDebug("Insert Chat Activity for ChatId: {ChatId}", botRequest.ChatId);
-
         if (botRequest.Source != ResponseSource.Bot)
             return;
+
+        logger.LogDebug("Insert Chat Activity for ChatId: {ChatId}", botRequest.ChatId);
 
         dataFacade.MongoDb.ChatActivity.Add(new ChatActivityEntity {
             MessageId = botRequest.MessageId,

@@ -16,11 +16,11 @@ public class UpsertBotUserPipeline<TRequest, TResponse>(
         if (request is not BotRequestBase botRequest)
             return;
 
-        logger.LogDebug("Updating User information for UserId: {UserId}", botRequest.UserId);
-
         if (botRequest.Source != ResponseSource.Bot ||
             botRequest.IsChannel)
             return;
+
+        logger.LogDebug("Updating User information for UserId: {UserId}", botRequest.UserId);
 
         botRequest.DeleteAfter = TimeSpan.FromDays(1);
 
