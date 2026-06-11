@@ -1,0 +1,51 @@
+{
+  "schema": 2,
+  "commit": "f7a1eaa28d22d85a12368ce0eb90e4395f34e3e6",
+  "branch": "main",
+  "base_sha": "5e6d67aebeb2065fcc3dfdf3d99db2a6da018dc7",
+  "message": "fix: task host runner",
+  "totals": {
+    "ai_lines": 0,
+    "human_lines": 10,
+    "deleted_lines": 3,
+    "files": 1
+  },
+  "by_tool": {},
+  "by_gen_type": {
+    "chat": 0,
+    "cli": 0,
+    "completion": 0,
+    "human": 13
+  },
+  "files": [
+    {
+      "path": "backend/ZiziBot.Application/HostedServices/TaskRunnerHostedService.cs",
+      "type": "MODIFIED",
+      "added": 10,
+      "deleted": 3,
+      "lines": [
+        {
+          "start": 25,
+          "end": 25,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 27,
+          "end": 35,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 36,
+          "end": 38,
+          "type": "delete",
+          "author_type": "Human"
+        }
+      ]
+    }
+  ],
+  "generated_by": "blamely 0.1.0"
+}
