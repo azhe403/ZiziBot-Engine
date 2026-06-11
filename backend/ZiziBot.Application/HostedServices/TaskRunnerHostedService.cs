@@ -22,20 +22,17 @@ public class TaskRunnerHostedService(IServiceScopedUtil scopedUtil, ILogger<Task
             {
                 var task = service.GetType();
 
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        logger.LogInformation("Executing task: {Task}", task);
-                        await service.ExecuteAsync();
+                    logger.LogInformation("Executing task: {Task}", task);
+                    await service.ExecuteAsync();
 
-                        logger.LogInformation("Task executed: {Task}", task);
-                    }
-                    catch (Exception e)
-                    {
-                        logger.LogError(e, "An error occured when executing task {Task}", task);
-                    }
-                }, stoppingToken);
+                    logger.LogInformation("Task executed: {Task}", task);
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "An error occured when executing task {Task}", task);
+                }
 
                 logger.LogInformation("Task triggered: {Task}", task);
             }
