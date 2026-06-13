@@ -1,0 +1,66 @@
+{
+  "schema": 2,
+  "commit": "2fb40833b32d96d8245d3147b312a1c3b2eca6ec",
+  "branch": "main",
+  "base_sha": "f7a1eaa28d22d85a12368ce0eb90e4395f34e3e6",
+  "message": "feat(api): humanize validation error messages",
+  "totals": {
+    "ai_lines": 0,
+    "human_lines": 29,
+    "deleted_lines": 0,
+    "files": 1
+  },
+  "by_tool": {},
+  "by_gen_type": {
+    "chat": 0,
+    "cli": 0,
+    "completion": 0,
+    "human": 29
+  },
+  "files": [
+    {
+      "path": "backend/ZiziBot.Presentation/Extensions/RestApiExtension.cs",
+      "type": "MODIFIED",
+      "added": 29,
+      "deleted": 0,
+      "lines": [
+        {
+          "start": 4,
+          "end": 4,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 68,
+          "end": 68,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 70,
+          "end": 77,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 153,
+          "end": 170,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 223,
+          "end": 223,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    }
+  ],
+  "generated_by": "blamely 0.1.0"
+}
