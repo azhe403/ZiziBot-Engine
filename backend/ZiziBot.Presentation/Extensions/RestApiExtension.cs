@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -64,11 +65,16 @@ public static class RestApiExtension
                     var errorDetails = context.ModelState
                         .Where(entry => entry.Value?.ValidationState == ModelValidationState.Invalid)
                         .Where(x => x.Key != "request")
-                        .Select(key => new
+                        .Select(key =>
                         {
-                            Id = key.Key,
-                            Field = key.Key.Split('.').LastOrDefault(),
-                            Message = key.Value?.Errors.Select(e => e.ErrorMessage)
+                            var field = key.Key.Split('.').LastOrDefault() ?? "";
+
+                            return new
+                            {
+                                Id = key.Key,
+                                Field = field,
+                                Message = key.Value?.Errors.Select(e => HumanizeError(e.ErrorMessage, field))
+                            };
                         }).ToList();
 
                     var errors = errorDetails.SelectMany(x => x.Message ?? []).ToList();
@@ -142,6 +148,24 @@ public static class RestApiExtension
         services.AddScoped<IHttpContextHelper, HttpContextHelper>();
 
         return services;
+    }
+
+    private static string HumanizeError(string errorMessage, string fieldName)
+    {
+        if (errorMessage.Contains("could not be converted"))
+        {
+            var match = Regex.Match(errorMessage, @"to System\.(\w+)");
+            var type = match.Success ? match.Groups[1].Value : "the correct format";
+
+            return $"The value for '{fieldName}' is not valid. Expected a valid {type}";
+        }
+
+        if (errorMessage.Contains("is required"))
+        {
+            return $"The '{fieldName}' field is required.";
+        }
+
+        return errorMessage;
     }
 
     private static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
