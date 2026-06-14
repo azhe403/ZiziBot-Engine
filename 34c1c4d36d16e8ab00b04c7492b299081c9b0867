@@ -1,0 +1,117 @@
+{
+  "schema": 2,
+  "commit": "34c1c4d36d16e8ab00b04c7492b299081c9b0867",
+  "branch": "main",
+  "base_sha": "2fb40833b32d96d8245d3147b312a1c3b2eca6ec",
+  "message": "docs(agents): expand root AGENTS.md with Cortex mediator, config merges, and agent guidance",
+  "totals": {
+    "ai_lines": 0,
+    "human_lines": 66,
+    "deleted_lines": 8,
+    "files": 1
+  },
+  "by_tool": {},
+  "by_gen_type": {
+    "chat": 0,
+    "cli": 0,
+    "completion": 0,
+    "human": 74
+  },
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "type": "MODIFIED",
+      "added": 66,
+      "deleted": 8,
+      "lines": [
+        {
+          "start": 1,
+          "end": 1,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 3,
+          "end": 3,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 4,
+          "end": 6,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 7,
+          "end": 7,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 7,
+          "end": 7,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 8,
+          "end": 8,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 8,
+          "end": 8,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 9,
+          "end": 9,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 9,
+          "end": 10,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 11,
+          "end": 11,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 11,
+          "end": 11,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 12,
+          "end": 14,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 16,
+          "end": 72,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    }
+  ],
+  "generated_by": "blamely 0.1.0"
+}
