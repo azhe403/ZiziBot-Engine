@@ -1,0 +1,236 @@
+{
+  "schema": 2,
+  "commit": "a4584bef0b159c4493838f53e7a69831a8bd40a7",
+  "branch": "main",
+  "base_sha": "2fb40833b32d96d8245d3147b312a1c3b2eca6ec",
+  "message": "docs(agents): expand root AGENTS.md and add .serena agent memories\n- Expand AGENTS.md with Cortex mediator, config merge order, and agent guidance\n- Add .serena/memories and docs/code-wiki/agents.md\n- Remove .windsurfrules",
+  "totals": {
+    "ai_lines": 0,
+    "human_lines": 245,
+    "deleted_lines": 12,
+    "files": 9
+  },
+  "by_tool": {},
+  "by_gen_type": {
+    "chat": 0,
+    "cli": 0,
+    "completion": 0,
+    "human": 257
+  },
+  "files": [
+    {
+      "path": ".serena/memories/conventions.md",
+      "type": "ADDED",
+      "added": 14,
+      "deleted": 0,
+      "lines": [
+        {
+          "start": 1,
+          "end": 14,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    },
+    {
+      "path": ".serena/memories/core.md",
+      "type": "ADDED",
+      "added": 16,
+      "deleted": 0,
+      "lines": [
+        {
+          "start": 1,
+          "end": 16,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    },
+    {
+      "path": ".serena/memories/memory_maintenance.md",
+      "type": "ADDED",
+      "added": 6,
+      "deleted": 0,
+      "lines": [
+        {
+          "start": 1,
+          "end": 6,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    },
+    {
+      "path": ".serena/memories/wiki.md",
+      "type": "ADDED",
+      "added": 16,
+      "deleted": 0,
+      "lines": [
+        {
+          "start": 1,
+          "end": 16,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    },
+    {
+      "path": ".serena/project.yml",
+      "type": "ADDED",
+      "added": 40,
+      "deleted": 0,
+      "lines": [
+        {
+          "start": 1,
+          "end": 40,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    },
+    {
+      "path": ".windsurfrules",
+      "type": "DELETED",
+      "added": 0,
+      "deleted": 4,
+      "lines": [
+        {
+          "start": 1,
+          "end": 4,
+          "type": "delete",
+          "author_type": "Human"
+        }
+      ]
+    },
+    {
+      "path": "AGENTS.md",
+      "type": "MODIFIED",
+      "added": 66,
+      "deleted": 8,
+      "lines": [
+        {
+          "start": 1,
+          "end": 1,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 3,
+          "end": 3,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 4,
+          "end": 6,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 7,
+          "end": 7,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 7,
+          "end": 7,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 8,
+          "end": 8,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 8,
+          "end": 8,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 9,
+          "end": 9,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 9,
+          "end": 10,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 11,
+          "end": 11,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 11,
+          "end": 11,
+          "type": "delete",
+          "author_type": "Human"
+        },
+        {
+          "start": 12,
+          "end": 14,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        },
+        {
+          "start": 16,
+          "end": 72,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    },
+    {
+      "path": "Directory.Build.props",
+      "type": "MODIFIED",
+      "added": 1,
+      "deleted": 0,
+      "lines": [
+        {
+          "start": 7,
+          "end": 7,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    },
+    {
+      "path": "docs/code-wiki/agents.md",
+      "type": "ADDED",
+      "added": 86,
+      "deleted": 0,
+      "lines": [
+        {
+          "start": 1,
+          "end": 86,
+          "type": "add",
+          "author_type": "Human",
+          "gen_type": "human"
+        }
+      ]
+    }
+  ],
+  "generated_by": "blamely 0.1.0"
+}
