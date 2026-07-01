@@ -1,4 +1,4 @@
-﻿using Serilog.Events;
+using Serilog.Events;
 using ZiziBot.Common.Configs;
 using ZiziBot.Common.Dtos;
 using ZiziBot.Common.Enums;
@@ -54,7 +54,7 @@ public class ConfigUtil
             RedisConnection = "localhost:6379",
             FirebaseProjectUrl = "SOME_FIREBASE_PROJECT_URL",
             FirebaseServiceAccountJson = "SOME_FIREBASE_SA_JSON",
-            CacheEngine = CacheEngine.CacheTower
+            CacheEngine = CacheEngine.FusionCache
         };
 
         var hangfire = new HangfireConfig()

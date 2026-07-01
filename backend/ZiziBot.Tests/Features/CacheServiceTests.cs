@@ -23,15 +23,12 @@ public class CacheServiceTests(CacheService cacheService)
     [Fact]
     public async Task GetSetV2()
     {
-        await cacheService.GetOrSetAsyncV2(
+        await cacheService.GetOrSetAsync(
             cacheKey: "a",
             action: async () =>
             {
                 await Task.Delay(0);
-                return new CacheReturn<AntiSpamDto>()
-                {
-                    Data = new AntiSpamDto()
-                };
+                return new AntiSpamDto();
             }
         );
     }

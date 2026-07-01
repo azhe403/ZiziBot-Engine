@@ -1,3 +1,4 @@
+using System;
 using CacheTower;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -61,35 +62,22 @@ public class CacheService(
 
         try
         {
+            var useFusionCache = _cacheConfig.CacheEngine != CacheEngine.CacheTower;
+
             logger.LogDebug(
                 "Cache resolve started. Key={CacheKey} Type={CacheType} Engine={CacheEngine} StaleAfter={StaleAfter} ExpireAfter={ExpireAfter} EvictBefore={EvictBefore} EvictAfter={EvictAfter}",
                 cacheKey,
                 typeof(T).Name,
-                _cacheConfig.CacheEngine,
+                useFusionCache ? "FusionCache" : "CacheTower",
                 staleAfterSpan,
                 expireAfterSpan,
                 evictBefore,
                 evictAfter
             );
 
-            var cacheSettings = new CacheSettings(expireAfterSpan, staleAfterSpan);
-
-            var cache = await cacheStack.GetOrSetAsync<T>(
-                cacheKey: cacheKey.Trim(),
-                valueFactory: async (_) =>
-                {
-                    logger.LogDebug(
-                        "Cache value factory invoked. Key={CacheKey} Type={CacheType} StaleAfter={StaleAfter} ExpireAfter={ExpireAfter}",
-                        cacheKey,
-                        typeof(T).Name,
-                        staleAfterSpan,
-                        expireAfterSpan
-                    );
-
-                    return await action();
-                },
-                settings: cacheSettings
-            );
+            var cache = useFusionCache
+                ? await GetOrSetWithFusionCacheAsync(cacheKey, action, expireAfterSpan, staleAfterSpan)
+                : await GetOrSetWithCacheTowerAsync(cacheKey, action, expireAfterSpan, staleAfterSpan);
 
             logger.LogDebug(
                 "Cache resolve completed. Key={CacheKey} Type={CacheType} StaleAfter={StaleAfter} ExpireAfter={ExpireAfter}",
@@ -111,6 +99,17 @@ public class CacheService(
 
             return cache;
         }
+        catch (ObjectDisposedException disposedException)
+        {
+            logger.LogWarning(
+                disposedException, "Cache instance was disposed during operation. Falling back to direct action. Key={CacheKey} Type={CacheType}",
+                cacheKey,
+                typeof(T).Name
+            );
+
+            var data = await action();
+            return data;
+        }
         catch (Exception exception)
         {
             logger.LogError(
@@ -125,7 +124,7 @@ public class CacheService(
                 throw;
 
             logger.LogWarning(
-                "Falling back to direct action after cache failure. Key={CacheKey} Type={CacheType}",
+                exception, "Falling back to direct action after cache failure. Key={CacheKey} Type={CacheType}",
                 cacheKey,
                 typeof(T).Name
             );
@@ -151,54 +150,7 @@ public class CacheService(
         );
     }
 
-    public async Task<T?> GetOrSetAsyncV2<T>(
-        string cacheKey,
-        Func<Task<CacheReturn<T>>> action,
-        bool disableCache = false,
-        bool evictBefore = false,
-        bool evictAfter = false,
-        string? expireAfter = null,
-        string? staleAfter = null,
-        bool throwIfError = false
-    )
-    {
-        if (_cacheConfig.CacheEngine == CacheEngine.FusionCache)
-        {
-            logger.LogDebug(
-                "Using Fusion cache path. Key={CacheKey} Type={CacheType}",
-                cacheKey,
-                typeof(T).Name
-            );
-            var fusion = await FusionGetAsync(cacheKey, async (x) => await action());
-            return fusion.Data;
-        }
 
-        var cache = await GetOrSetAsync(cacheKey: cacheKey,
-            action: action,
-            disableCache: disableCache,
-            evictBefore: evictBefore,
-            evictAfter: evictAfter,
-            expireAfter: expireAfter,
-            staleAfter: staleAfter,
-            throwIfError: throwIfError);
-
-        return cache.Data;
-    }
-
-
-    public Task<TData?> GetOrSetAsyncV2<TData>(CacheV2Param<TData> cacheParam)
-    {
-        return GetOrSetAsyncV2(
-            cacheKey: cacheParam.CacheKey,
-            action: cacheParam.Action,
-            disableCache: cacheParam.DisableCache,
-            evictBefore: cacheParam.EvictBefore,
-            evictAfter: cacheParam.EvictAfter,
-            expireAfter: cacheParam.ExpireAfter,
-            staleAfter: cacheParam.StaleAfter,
-            throwIfError: cacheParam.ThrowIfError
-        );
-    }
 
     public async Task EvictAsync(string cacheKey)
     {
@@ -206,7 +158,13 @@ public class CacheService(
         {
             logger.LogDebug("Cache eviction started. Key={CacheKey}", cacheKey);
             await cacheStack.EvictAsync(cacheKey);
+            await fusionCache.RemoveAsync(cacheKey);
             logger.LogDebug("Cache eviction completed. Key={CacheKey}", cacheKey);
+        }
+        catch (ObjectDisposedException disposedException)
+        {
+            logger.LogWarning(
+                disposedException, "Cache instance was disposed during eviction. Skipping eviction. Key={CacheKey}", cacheKey);
         }
         catch (Exception exception)
         {
@@ -215,7 +173,7 @@ public class CacheService(
             if (_cacheConfig.UseJsonFile)
             {
                 logger.LogWarning(
-                    "Deleting CacheTower JSON directory after eviction failure. Path={CachePath}",
+                    exception, "Deleting CacheTower JSON directory after eviction failure. Path={CachePath}",
                     PathConst.CACHE_TOWER_JSON
                 );
                 PathConst.CACHE_TOWER_JSON.DeleteDirectory();
@@ -223,28 +181,60 @@ public class CacheService(
         }
     }
 
-    private async ValueTask<TValue> FusionGetAsync<TValue>(
-        string key,
-        Func<CancellationToken, Task<TValue>> factory
+
+
+    private async Task<T> GetOrSetWithFusionCacheAsync<T>(
+        string cacheKey,
+        Func<Task<T>> action,
+        TimeSpan expireAfterSpan,
+        TimeSpan staleAfterSpan
     )
     {
-        var cached = await fusionCache.GetOrSetAsync<TValue>(key: key, factory: async (ctx, ct) =>
-        {
-            logger.LogDebug(
-                "Fusion cache value factory invoked. Key={CacheKey} Type={CacheType}",
-                key,
-                typeof(TValue).Name
-            );
+        return await fusionCache.GetOrSetAsync<T>(
+            key: cacheKey.Trim(),
+            factory: async (ctx, ct) =>
+            {
+                logger.LogDebug(
+                    "FusionCache value factory invoked. Key={CacheKey} Type={CacheType} StaleAfter={StaleAfter} ExpireAfter={ExpireAfter}",
+                    cacheKey,
+                    typeof(T).Name,
+                    staleAfterSpan,
+                    expireAfterSpan
+                );
 
-            return await factory(ct);
-        });
-
-        logger.LogDebug(
-            "Fusion cache resolve completed. Key={CacheKey} Type={CacheType}",
-            key,
-            typeof(TValue).Name
+                return await action();
+            },
+            options: new FusionCacheEntryOptions
+            {
+                Duration = expireAfterSpan
+            }
         );
+    }
 
-        return cached;
+    private async Task<T> GetOrSetWithCacheTowerAsync<T>(
+        string cacheKey,
+        Func<Task<T>> action,
+        TimeSpan expireAfterSpan,
+        TimeSpan staleAfterSpan
+    )
+    {
+        var cacheSettings = new CacheSettings(expireAfterSpan, staleAfterSpan);
+
+        return await cacheStack.GetOrSetAsync<T>(
+            cacheKey: cacheKey.Trim(),
+            valueFactory: async (_) =>
+            {
+                logger.LogDebug(
+                    "Cache Tower value factory invoked. Key={CacheKey} Type={CacheType} StaleAfter={StaleAfter} ExpireAfter={ExpireAfter}",
+                    cacheKey,
+                    typeof(T).Name,
+                    staleAfterSpan,
+                    expireAfterSpan
+                );
+
+                return await action();
+            },
+            settings: cacheSettings
+        );
     }
 }

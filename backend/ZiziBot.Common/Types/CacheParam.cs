@@ -1,4 +1,4 @@
-﻿namespace ZiziBot.Common.Types;
+namespace ZiziBot.Common.Types;
 
 public class CacheParam<T>
 {

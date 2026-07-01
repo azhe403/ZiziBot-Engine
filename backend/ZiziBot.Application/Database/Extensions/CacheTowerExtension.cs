@@ -19,19 +19,18 @@ public static class CacheTowerExtension
 
     public static IServiceCollection AddCacheTower(this IServiceCollection services)
     {
-        using var serviceProvider = services.BuildServiceProvider();
-        var cacheConfig = serviceProvider.GetRequiredService<IOptions<CacheConfig>>().Value;
-        var gcpConfig = serviceProvider.GetRequiredService<IOptions<GcpConfig>>().Value;
-
-        var firebaseConfig = new FirebaseCacheOptions()
+        services.AddCacheStack((serviceProvider, builder) =>
         {
-            ProjectUrl = gcpConfig.FirebaseProjectUrl,
-            ServiceAccountJson = gcpConfig.FirebaseServiceAccountJson,
-            RootDir = cacheConfig.PrefixRoot
-        };
+            var cacheConfig = serviceProvider.GetRequiredService<IOptions<CacheConfig>>().Value;
+            var gcpConfig = serviceProvider.GetRequiredService<IOptions<GcpConfig>>().Value;
 
-        services.AddCacheStack(builder =>
-        {
+            var firebaseConfig = new FirebaseCacheOptions()
+            {
+                ProjectUrl = gcpConfig.FirebaseProjectUrl,
+                ServiceAccountJson = gcpConfig.FirebaseServiceAccountJson,
+                RootDir = cacheConfig.PrefixRoot
+            };
+
             builder
                 .WithCleanupFrequency(TimeSpan.FromMinutes(10))
                 .AddMemoryCacheLayer()
