@@ -9,11 +9,11 @@ builder.Configuration.LoadSettings();
 
 builder.WebHost.ConfigureCustomListenPort();
 
-await builder.Services.ConfigureServices();
-await builder.Services.ConfigureTelegramBot();
+builder.Services.ConfigureServices();
+builder.Services.ConfigureTelegramBot();
 
 builder.Services.AddSerilog(builder);
-builder.Services.ConfigureScheduler();
+builder.Services.ConfigureScheduler(builder.Configuration);
 builder.Services.AddRestApi();
 builder.Services.AddAllMiddleware();
 
@@ -24,6 +24,7 @@ app.ConfigureFlurl();
 
 await app.PrintAbout();
 await app.UseMongoMigration();
+await app.PrefetchRepository();
 
 app.UseAuthorization();
 

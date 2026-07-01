@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using ZiziBot.Common.Configs;
@@ -8,40 +9,49 @@ using ZiziBot.Application.Database.MongoDb.Entities;
 using ZiziBot.Application.Database.Service;
 using ZiziBot.TelegramBot.Framework.Extensions;
 using ZiziBot.TelegramBot.Framework.Models.Configs;
+using ZiziBot.TelegramBot.Framework.Models.Enums;
 
 namespace ZiziBot.Presentation.Bots.Telegram;
 
 public static class TelegramExtension
 {
-    public static async Task<IServiceCollection> ConfigureTelegramBot(this IServiceCollection services)
+    public static IServiceCollection ConfigureTelegramBot(this IServiceCollection services)
     {
-        await using var provider = services.BuildServiceProvider();
-        var config = provider.GetRequiredService<IOptions<EngineConfig>>().Value;
-        var dataFacade = provider.GetRequiredService<DataFacade>();
-
-        var listBotData = await dataFacade.Bot.ListBots();
-
-        services.AddZiziBotTelegramBot(new BotEngineConfig()
-        {
-            EngineMode = config.TelegramEngineMode,
-            WebhookUrl = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL),
-            ExecutionMode = config.ExecutionMode,
-            Bot = listBotData.Select(x => new BotTokenConfig()
-            {
-                Name = x.Name,
-                Token = x.Token
-            }).ToList()
-        });
+        services.AddZiziBotTelegramBot();
 
         return services;
     }
 
     public static async Task<IApplicationBuilder> RunTelegramBot(this IApplicationBuilder app)
     {
-        var provider = app.ApplicationServices.CreateScope().ServiceProvider;
+        await using var scope = app.ApplicationServices.CreateAsyncScope();
+        var provider = scope.ServiceProvider;
         var dataFacade = provider.GetRequiredService<DataFacade>();
-
+        var engineOptions = provider.GetRequiredService<IOptions<EngineConfig>>().Value;
+        var hostingEnvironment = provider.GetRequiredService<IHostEnvironment>();
+        var botEngineConfig = provider.GetRequiredService<BotEngineConfig>();
         var listBotOptions = provider.GetRequiredService<List<BotTokenConfig>>();
+
+        var listBotData = await dataFacade.Bot.ListBots();
+        var botConfigs = listBotData.Select(x => new BotTokenConfig()
+        {
+            Name = x.Name,
+            Token = x.Token
+        }).ToList();
+
+        listBotOptions.Clear();
+        listBotOptions.AddRange(botConfigs);
+
+        botEngineConfig.EngineMode = engineOptions.TelegramEngineMode;
+        botEngineConfig.WebhookUrl = EnvUtil.GetEnv(Env.TELEGRAM_WEBHOOK_URL);
+        botEngineConfig.ExecutionMode = engineOptions.ExecutionMode;
+        botEngineConfig.Bot = listBotOptions;
+        botEngineConfig.ActualEngineMode = botEngineConfig.EngineMode switch
+        {
+            BotEngineMode.Webhook => BotEngineMode.Webhook,
+            BotEngineMode.Polling => BotEngineMode.Polling,
+            _ => hostingEnvironment.IsDevelopment() ? BotEngineMode.Polling : BotEngineMode.Webhook
+        };
 
         if (listBotOptions.Count == 0)
         {

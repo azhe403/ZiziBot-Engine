@@ -11,6 +11,8 @@ public sealed class FathimahRestService(
     CacheService cacheService
 )
 {
+    private const int MaxRetryAttempts = 3;
+
     public async Task<CityResponse> GetAllCityAsync()
     {
         const string path = "sholat/kota/semua";
@@ -25,11 +27,9 @@ public sealed class FathimahRestService(
             EvictAfter = true,
             Action = async () =>
             {
-                var apis = await UrlConst.FATHIMAH_API
-                    .AppendPathSegment(path)
-                    .GetJsonAsync<CityResponse>();
-
-                return apis;
+                return await GetJsonWithRetryAsync<CityResponse>(
+                    UrlConst.FATHIMAH_API.AppendPathSegment(path)
+                );
             }
         });
 
@@ -65,11 +65,9 @@ public sealed class FathimahRestService(
                 StaleAfter = "1h",
                 Action = async () =>
                 {
-                    var apis = await UrlConst.FATHIMAH_API
-                        .AppendPathSegment(path)
-                        .GetJsonAsync<ShalatTimeResponse>();
-
-                    return apis;
+                    return await GetJsonWithRetryAsync<ShalatTimeResponse>(
+                        UrlConst.FATHIMAH_API.AppendPathSegment(path)
+                    );
                 }
             }
         );
@@ -77,5 +75,31 @@ public sealed class FathimahRestService(
         logger.LogInformation("Shalat time for ChatId: {CityId} with Date: {DateStr} is: {ShalatTime}", cityId, dateTime, apis.Schedule?.Daerah);
 
         return apis;
+    }
+
+    private async Task<T> GetJsonWithRetryAsync<T>(Url url, int maxAttempts = MaxRetryAttempts)
+    {
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                return await url.GetJsonAsync<T>();
+            }
+            catch (FlurlHttpException exception) when (exception.StatusCode == 429 && attempt < maxAttempts)
+            {
+                var delay = TimeSpan.FromSeconds(Math.Pow(2, attempt));
+                logger.LogWarning(
+                    exception,
+                    "Fathimah API rate limited. Retrying {Attempt}/{MaxAttempts} after {DelaySeconds}s. Url: {Url}",
+                    attempt,
+                    maxAttempts,
+                    delay.TotalSeconds,
+                    url
+                );
+                await Task.Delay(delay);
+            }
+        }
+
+        return await url.GetJsonAsync<T>();
     }
 }
