@@ -16,14 +16,13 @@ public static class ServiceExtension
 {
     public static IServiceProvider GlobalServiceProvider { get; set; }
 
-    public static async Task<IServiceCollection> ConfigureServices(this IServiceCollection services)
+    public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         services.AddAllService();
-        await services.ConfigureSettings();
+        services.ConfigureSettings();
         services.ConfigureFusionCache();
         services.AddCacheTower();
         services.AddMongoMigration();
-        await services.PrefetchRepository();
         services.AddApplicationCortexMediator();
         services.ConfigureBackgroundQueue();
         services.ConfigureFlurl();

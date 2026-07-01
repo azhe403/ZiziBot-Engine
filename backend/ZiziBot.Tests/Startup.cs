@@ -15,7 +15,7 @@ public class Startup : IStartup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        _ = services.ConfigureServices().Result;
+        services.ConfigureServices();
     }
 
     public void Configure(IServiceProvider provider, ITestOutputHelperAccessor accessor)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ZiziBot.Application.Features.Hangfire;
 
@@ -6,11 +7,10 @@ namespace ZiziBot.Application.Extensions;
 
 public static class SchedulerExtension
 {
-    public static IServiceCollection ConfigureScheduler(this IServiceCollection services)
+    public static IServiceCollection ConfigureScheduler(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<SchedulerService>();
-        services.ConfigureHangfire();
-        // services.ConfigureTickerQ();
+        services.ConfigureHangfire(configuration);
 
         return services;
     }
@@ -18,7 +18,6 @@ public static class SchedulerExtension
     public static IApplicationBuilder UseScheduler(this IApplicationBuilder app)
     {
         app.UseHangfire();
-        // app.EnableTickerQ();
 
         return app;
     }

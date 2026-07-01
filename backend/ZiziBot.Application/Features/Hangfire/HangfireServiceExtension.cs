@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Sentry.Hangfire;
 
@@ -9,64 +9,42 @@ namespace ZiziBot.Application.Features.Hangfire;
 
 public static class HangfireServiceExtension
 {
-    internal static IServiceCollection ConfigureHangfire(this IServiceCollection services)
+    internal static IServiceCollection ConfigureHangfire(this IServiceCollection services, IConfiguration configuration)
     {
-        using var serviceProvider = services.BuildServiceProvider();
-        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Hangfire");
-        var hangfireConfig = serviceProvider.GetRequiredService<IOptionsSnapshot<HangfireConfig>>().Value;
+        if (!EnvUtil.IsEnabled(Flag.HANGFIRE))
+            return services;
 
-        if (EnvUtil.IsEnabled(Flag.HANGFIRE))
+        var hangfireConfig = configuration.GetSection("Hangfire").Get<HangfireConfig>() ?? new HangfireConfig();
+        var jobStorage = CreateJobStorage(hangfireConfig);
+
+        services.AddSingleton(jobStorage);
+
+        services.AddHangfire((_, hangfireConfiguration) =>
         {
+            hangfireConfiguration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseDarkDashboard()
+                .UseStorage(jobStorage)
+                .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
+                .UseAppMediatorSerialization()
+                .UseSentry()
+                .UseSerilogLogProvider();
+        });
 
-            JobStorage jobStorage = hangfireConfig.CurrentStorage switch {
-                CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
-                CurrentStorage.Sqlite => StorageUtil.ToSqliteStorage(),
-                CurrentStorage.LiteDb => StorageUtil.ToLiteDbStorage(),
-                _ => new InMemoryStorage(new InMemoryStorageOptions())
-            };
-
-            services.AddHangfire(configuration => {
-                    configuration
-                        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                        .UseSimpleAssemblyNameTypeSerializer()
-                        .UseRecommendedSerializerSettings()
-                        .UseDarkDashboard()
-                        .UseStorage(jobStorage)
-                        .UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(3))
-                        .UseAppMediatorSerialization()
-                        .UseSentry()
-                        .UseSerilogLogProvider();
-                }
-            );
-
-            if (EnvUtil.IsEnabled(Flag.HANGFIRE_SEPARATED_SERVER))
+        if (EnvUtil.IsEnabled(Flag.HANGFIRE_SEPARATED_SERVER))
+        {
+            foreach (var queue in hangfireConfig.Queues)
             {
-                logger.LogDebug("Hangfire is running in a separated server!");
-                var queues = hangfireConfig.Queues;
-
-                foreach (var queue in queues)
-                {
-                    services.AddHangfireServer(
-                        optionsAction: (provider, options) => {
-                            options.WorkerCount = queue.WorkerCount;
-                            options.Queues = [queue.Name];
-                        },
-                        storage: jobStorage,
-                        additionalProcesses: [
-                            new ProcessMonitor(TimeSpan.FromSeconds(3))
-                        ]
-                    );
-                }
-            }
-            else
-            {
-                logger.LogDebug("Hangfire is running in a single server!");
-                var queues = hangfireConfig.Queues.Select(x => x.Name).ToArray();
+                var queueName = queue.Name;
+                var workerCount = queue.WorkerCount;
 
                 services.AddHangfireServer(
-                    optionsAction: (provider, options) => {
-                        options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
-                        options.Queues = queues;
+                    optionsAction: (_, options) =>
+                    {
+                        options.WorkerCount = workerCount;
+                        options.Queues = [queueName];
                     },
                     storage: jobStorage,
                     additionalProcesses: [
@@ -74,13 +52,25 @@ public static class HangfireServiceExtension
                     ]
                 );
             }
-
-            services.AddScoped<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
         }
         else
         {
-            logger.LogDebug("Hangfire is disabled!");
+            var queues = hangfireConfig.Queues.Select(x => x.Name).ToArray();
+
+            services.AddHangfireServer(
+                optionsAction: (_, options) =>
+                {
+                    options.WorkerCount = Environment.ProcessorCount * hangfireConfig.WorkerMultiplier;
+                    options.Queues = queues;
+                },
+                storage: jobStorage,
+                additionalProcesses: [
+                    new ProcessMonitor(TimeSpan.FromSeconds(3))
+                ]
+            );
         }
+
+        services.AddScoped<IDashboardAsyncAuthorizationFilter, HangfireAuthorizationFilter>();
 
         return services;
     }
@@ -92,7 +82,7 @@ public static class HangfireServiceExtension
 
         if (EnvUtil.IsEnabled(Flag.HANGFIRE))
         {
-            var scope = serviceProvider.CreateScope();
+            using var scope = serviceProvider.CreateScope();
             var serviceScope = scope.ServiceProvider;
             var appSettingRepository = serviceScope.GetRequiredService<AppSettingRepository>();
             var config = appSettingRepository.GetConfigSection<HangfireConfig>();
@@ -123,6 +113,16 @@ public static class HangfireServiceExtension
         }
 
         return app;
+    }
+
+    private static JobStorage CreateJobStorage(HangfireConfig hangfireConfig)
+    {
+        return hangfireConfig.CurrentStorage switch {
+            CurrentStorage.MongoDb => hangfireConfig.MongoDbConnection.ToMongoDbStorage(),
+            CurrentStorage.Sqlite => StorageUtil.ToSqliteStorage(),
+            CurrentStorage.LiteDb => StorageUtil.ToLiteDbStorage(),
+            _ => new InMemoryStorage(new InMemoryStorageOptions())
+        };
     }
 
     private static IGlobalConfiguration UseAppMediatorSerialization(this IGlobalConfiguration configuration)

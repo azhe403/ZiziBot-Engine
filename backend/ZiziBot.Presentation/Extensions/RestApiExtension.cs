@@ -30,9 +30,6 @@ public static class RestApiExtension
 
     public static IServiceCollection AddRestApi(this IServiceCollection services)
     {
-        using var serviceProvider = services.BuildServiceProvider();
-        var jwtConfig = serviceProvider.GetRequiredService<IOptions<JwtConfig>>().Value;
-
         services.AddSignalR();
         services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters()
@@ -100,9 +97,14 @@ public static class RestApiExtension
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(o =>
+            }).AddJwtBearer();
+
+        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .Configure<IOptions<JwtConfig>>((options, jwtConfigAccessor) =>
             {
-                o.TokenValidationParameters = new TokenValidationParameters
+                var jwtConfig = jwtConfigAccessor.Value;
+
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = jwtConfig.Issuer,
                     ValidAudience = jwtConfig.Audience,
@@ -113,7 +115,7 @@ public static class RestApiExtension
                     ValidateIssuerSigningKey = true
                 };
 
-                o.Events = new JwtBearerEvents
+                options.Events = new JwtBearerEvents
                 {
                     OnChallenge = async context =>
                     {
