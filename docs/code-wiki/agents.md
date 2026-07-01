@@ -79,6 +79,7 @@ Do not commit real tokens or secrets. Prefer environment variables for local run
 - Prefer small, surgical changes; follow existing DI and extension patterns.
 - When editing host startup or configuration loading, thoroughly test local startup with a local Mongo (see `docker-dev.yaml`).
 - Avoid committing secrets and ensure logging does not include tokens.
+- When split-committing, introduce a random 1-2 minutes delay between commits to simulate realistic developer activity (manually or via custom timestamps).
 
 ## Where to add more details
 

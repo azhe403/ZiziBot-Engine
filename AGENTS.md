@@ -69,4 +69,8 @@ For detailed agent instructions (project layout, edit pointers, build/run, confi
 - Logging: **never log secrets, bot tokens, or API keys**; webhook endpoints must not expose tokens in URLs or logs
 - Tests: `backend/ZiziBot.Tests/`; keep unit tests fast, use integration tests sparingly
 - Telegram bot: reads tokens from `BotSettings` collection in MongoDB; if missing at startup, host will error (add valid row with `Name = "Main"` to proceed)
+- Git commits: when split-committing, introduce a random 1-2 minutes delay between commits to simulate realistic developer activity (manually or via custom timestamps).
 
+## Agent Capabilities
+- Activate the current dir as project using serena
+- Activate the current project with Serena and read initial instructions

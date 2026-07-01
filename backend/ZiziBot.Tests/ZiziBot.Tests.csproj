@@ -6,9 +6,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0"/>
-    <PackageReference Include="Shouldly" Version="4.3.0"/>
+    <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
     <PackageReference Include="Xunit.DependencyInjection" Version="11.3.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -18,9 +18,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj"/>
+    <ProjectReference Include="..\ZiziBot.Application\ZiziBot.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update=".env">
@@ -28,6 +29,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Rest\"/>
+    <Folder Include="Rest\" />
   </ItemGroup>
 </Project>
