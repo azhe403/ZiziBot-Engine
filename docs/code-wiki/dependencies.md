@@ -5,21 +5,14 @@
 The main host project references the core layers and delivery modules:
 
 - Host: [ZiziBot.Engine.csproj](../../backend/ZiziBot.Engine/ZiziBot.Engine.csproj)
-  - Application layer: `ZiziBot.Application`
-  - Persistence: `ZiziBot.Database`
-  - Delivery: `ZiziBot.Presentation` (Web API + Telegram + Discord)
-  - Scheduling: `ZiziBot.Scheduler` (namespace lives inside Application)
-  - Cross-cutting: `ZiziBot.Infrastructure` (namespace lives inside Application), `ZiziBot.Common` (includes former Attributes)
+  - Application layer: `ZiziBot.Application` (contains core logic, pipelines, database contexts, repositories, caching, and consolidated common/infrastructure layers)
+  - Delivery: `ZiziBot.Presentation` (Web API + Telegram)
 
 ```mermaid
 flowchart TB
   Engine[ZiziBot.Engine] --> App[ZiziBot.Application]
   Engine --> Pres[ZiziBot.Presentation]
-  Engine --> Db[ZiziBot.Database]
   Pres --> App
-  Pres --> Db
-  App --> Db
-  Db --> Common[ZiziBot.Common]
   App --> TgFramework[ZiziBot.TelegramBot.Framework (vendored)]
 ```
 
@@ -40,7 +33,7 @@ flowchart TB
 - Dispatcher bridges requests into Hangfire jobs:
   - [MediatorService.EnqueueAsync](../../backend/ZiziBot.Application/Services/MediatorService.cs#L17-L40)
 - Hangfire config model:
-  - [HangfireConfig](../../backend/ZiziBot.Common/Configs/HangfireConfig.cs)
+  - [HangfireConfig](../../backend/ZiziBot.Application/Infrastructure/Config/HangfireConfig.cs)
 
 ### Background Queue (In-Process)
 
