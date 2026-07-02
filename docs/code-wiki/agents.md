@@ -9,8 +9,7 @@ This file contains detailed, actionable guidance for coding agents working in th
 
 ## Key projects / directories
 
-- `backend/ZiziBot.Application/` — core backend project. Holds application services, DI extension registration, and configuration loaders. Key file: `Extensions/ConfigurationExtension.cs` (configuration and Mongo load).
-- `backend/ZiziBot.Common/` — shared DTOs, converters, constants, middleware, and utilities used across backend projects.
+- `backend/ZiziBot.Application/` — core backend project. Holds application services, DI extension registration, and configuration loaders. It also houses all consolidated `Common/` (DTOs, converters, constants) and `Infrastructure/` components since the deprecation of `ZiziBot.Common`. Key file: `Extensions/ConfigurationExtension.cs` (configuration and Mongo load).
 - `backend/ZiziBot.Presentation/` — presentation layer (HTTP controllers, bot registration). Telegram bot wiring lives in `Bots/Telegram/TelegramExtension.cs` and controllers under `Bots/Telegram/`.
 - `backend/ZiziBot.Engine/` — host project and startup: `Program.cs` orchestrates host startup, registered services, and hosted services.
 - `backend/ZiziBot.Cli/` — CLI tooling and small console utilities (`CmdRoot.cs`, `Program.cs`).

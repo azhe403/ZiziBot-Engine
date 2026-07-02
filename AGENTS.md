@@ -9,7 +9,7 @@ This file is a concise, agent-focused summary. The full, actionable guidance for
 **Solution & projects:**
 - Backend solution: [ZiziBot.slnx](./ZiziBot.slnx)
 - Backend host entrypoint: [backend/ZiziBot.Engine/Program.cs](./backend/ZiziBot.Engine/Program.cs)
-- Core backend projects: `backend/ZiziBot.Application/`, `backend/ZiziBot.Presentation/`, `backend/ZiziBot.Common/`
+- Core backend projects: `backend/ZiziBot.Application/`, `backend/ZiziBot.Presentation/`
 - Tests: `backend/ZiziBot.Tests/` (run: `dotnet test ./backend/ZiziBot.Tests`)
 - Local library: `backend/lib/ZiziBot.TelegramBot/` (has its own `AGENTS.md` with library-specific notes)
 - Frontend monorepo root: [frontend/turborepo-zizibot-console](./frontend/turborepo-zizibot-console)

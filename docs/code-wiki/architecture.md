@@ -42,7 +42,7 @@ Contains multiple Next.js apps (console/web/docs) plus shared TypeScript package
   - REST controllers (HTTP → request)
 - **Infrastructure layer**: cross-cutting wiring (configuration, logging, HTTP client defaults).
 - **Database layer**: MongoDB context, repositories, migrations, caching layers.
-- **Common**: shared contracts, DTOs, config models, constants, enums, utilities.
+- **Common**: shared contracts, DTOs, config models, constants, enums, utilities (integrated directly into the application layer under ZiziBot.Application/Common).
 
 ### Request/Handler Model (Cortex Mediator)
 

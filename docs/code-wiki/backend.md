@@ -75,18 +75,13 @@ Location: [backend/lib/ZiziBot.TelegramBot](../../backend/lib/ZiziBot.TelegramBo
 - Migrations:
   - Runner + steps: [MongoDb/Migrations](../../backend/ZiziBot.Application/Database/MongoDb/Migrations)
 
-### ZiziBot.Common (Shared Contracts)
+### ZiziBot.Application/Common (Shared Contracts — Formerly ZiziBot.Common)
 
-- What it is: DTOs, configuration models, constants, enums, common exceptions, utilities, vendor API models and parsers.
+- What it is: DTOs, constants, enums, common exceptions, utilities, vendor API models, custom attributes, and parsers integrated into the main Application project.
 - Key subfolders:
-  - Config models: [Configs](../../backend/ZiziBot.Common/Configs)
-  - Constants + env var names: [Constants/Env](../../backend/ZiziBot.Common/Constants/Env.cs)
-  - Utilities: [Utils](../../backend/ZiziBot.Common/Utils)
-
-### ZiziBot.Attributes (Cross-Cutting Metadata)
-
-- What it is: custom attributes used for feature gating, startup tasks, swagger visibility, build stamps.
-- Location: [ZiziBot.Common/Attributes](../../backend/ZiziBot.Common/Attributes)
+  - Attributes: [Attributes](../../backend/ZiziBot.Application/Common/Attributes)
+  - Constants + env var names: [Constants/Env](../../backend/ZiziBot.Application/Common/Constants/Env.cs)
+  - Utilities: [Utils](../../backend/ZiziBot.Application/Common/Utils)
 
 ### ZiziBot.Cli (Command-Line Tooling)
 
