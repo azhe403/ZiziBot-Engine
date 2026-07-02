@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Xunit;
-using ZiziBot.Common.Enums;
-using ZiziBot.Common.Utils;
-using ZiziBot.Application.Database.MongoDb;
+using ZiziBot.Application.Common.Enums;
+using ZiziBot.Application.Common.Utils;
+using ZiziBot.Application.Infrastructure.Database.MongoDb;
 
 namespace ZiziBot.Tests.Pipelines;
 

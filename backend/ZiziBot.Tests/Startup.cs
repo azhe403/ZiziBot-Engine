@@ -1,7 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit.DependencyInjection;
-using ZiziBot.Application.Extensions;
+using ZiziBot.Application.Infrastructure.Extensions;
 using ZiziBot.Tests.Interfaces;
 
 namespace ZiziBot.Tests;
