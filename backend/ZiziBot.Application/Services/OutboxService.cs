@@ -1,6 +1,6 @@
-using System.Text.Json;
-using ZiziBot.Application.Database.MongoDb.Entities;
-using ZiziBot.Application.Database.Service;
+﻿using System.Text.Json;
+using ZiziBot.Application.Infrastructure.Database.MongoDb.Entities;
+using ZiziBot.Application.Infrastructure.Database.Service;
 
 namespace ZiziBot.Application.Services;
 

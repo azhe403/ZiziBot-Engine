@@ -1,8 +1,8 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using DalSoft.Hosting.BackgroundQueue;
 using Hangfire;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Common.Exceptions;
+using ZiziBot.Application.Common.Exceptions;
 
 namespace ZiziBot.Application.Services;
 

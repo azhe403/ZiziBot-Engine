@@ -2,7 +2,7 @@
 using Hangfire.Storage.SQLite;
 using MongoDB.Driver;
 using Serilog;
-using ZiziBot.Common.Exceptions;
+using ZiziBot.Application.Common.Exceptions;
 
 namespace ZiziBot.Application.Features.Hangfire
 {

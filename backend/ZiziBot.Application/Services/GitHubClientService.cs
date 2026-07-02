@@ -1,6 +1,6 @@
 ﻿using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Common.Vendor.GitHub;
+using ZiziBot.Application.Infrastructure.Vendor.GitHub;
 
 namespace ZiziBot.Application.Services;
 

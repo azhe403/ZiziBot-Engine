@@ -4,7 +4,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using ZiziBot.Common.Dtos;
+using ZiziBot.Application.Common.Dtos;
 
 namespace ZiziBot.Application.Services;
 

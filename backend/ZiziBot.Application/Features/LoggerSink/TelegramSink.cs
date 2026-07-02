@@ -1,4 +1,4 @@
-using AsyncAwaitBestPractices;
+﻿using AsyncAwaitBestPractices;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
@@ -7,7 +7,7 @@ using Serilog.Sinks.PeriodicBatching;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.Common.Types;
+using ZiziBot.Application.Common.Types;
 using IBatchedLogEventSink = Serilog.Sinks.PeriodicBatching.IBatchedLogEventSink;
 
 namespace ZiziBot.Application.Features.LoggerSink;

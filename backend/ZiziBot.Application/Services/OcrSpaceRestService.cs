@@ -1,5 +1,5 @@
 ﻿using Flurl.Http;
-using ZiziBot.Common.Vendor.OcrSpace;
+using ZiziBot.Application.Infrastructure.Vendor.OcrSpace;
 
 namespace ZiziBot.Application.Services;
 

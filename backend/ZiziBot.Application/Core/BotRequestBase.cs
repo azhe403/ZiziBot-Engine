@@ -1,6 +1,6 @@
-using Telegram.Bot.Types;
+﻿using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using ZiziBot.Common.Types;
+using ZiziBot.Application.Common.Types;
 
 namespace ZiziBot.Application.Core;
 

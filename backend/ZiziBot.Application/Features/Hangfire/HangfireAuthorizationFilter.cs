@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Application.Database.MongoDb;
+using ZiziBot.Application.Infrastructure.Database.MongoDb;
 
 namespace ZiziBot.Application.Features.Hangfire;
 
