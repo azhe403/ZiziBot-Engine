@@ -5,6 +5,7 @@ These are agent-facing guidelines collected from repository instruction files.
 - Never migrate git to reftable. (from git.instructions.md)
 - Follow project-specific AGENTS.md guidance for editing backend and library projects.
 - Prefer minimal, targeted edits that preserve existing style and public APIs.
+- Always update documentation (such as wiki, AGENTS.md, or project readme) and Serena memory after making changes to the codebase.
 - When there are too many changes, split them into multiple logical commits rather than committing everything at once.
 - When split-committing, introduce a random 3-to-5 minutes delay between commits to simulate realistic developer activity (manually or via custom timestamps).
 
