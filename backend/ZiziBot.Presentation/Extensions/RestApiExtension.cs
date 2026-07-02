@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -14,9 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ZiziBot.Application.Features.LoggerSink;
-using ZiziBot.Common.Configs;
-using ZiziBot.Common.Converters.SystemTextJson;
-using ZiziBot.Common.Interfaces;
+using ZiziBot.Application.Infrastructure.Config;
+using ZiziBot.Application.Common.Converters.SystemTextJson;
+using ZiziBot.Application.Core.Interfaces;
 using ZiziBot.Presentation.Infrastructure.Http;
 using ZiziBot.Presentation.Infrastructure.Middleware;
 using ZiziBot.Presentation.Infrastructure.Mvc;

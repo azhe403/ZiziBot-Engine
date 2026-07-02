@@ -1,4 +1,4 @@
-using ZiziBot.Application.Handlers.Telegram.WordFilter;
+﻿using ZiziBot.Application.Features.Handlers.Telegram.WordFilter;
 using ZiziBot.TelegramBot.Framework.Attributes;
 using ZiziBot.TelegramBot.Framework.Models;
 

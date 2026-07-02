@@ -1,9 +1,9 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
-using ZiziBot.Common.Dtos;
-using ZiziBot.Common.Interfaces;
+using ZiziBot.Application.Common.Dtos;
+using ZiziBot.Application.Core.Interfaces;
 
 namespace ZiziBot.Presentation.Infrastructure.Http;
 

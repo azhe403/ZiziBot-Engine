@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ZiziBot.Common.Dtos;
-using ZiziBot.Application.Database.Service;
+using ZiziBot.Application.Common.Dtos;
+using ZiziBot.Application.Infrastructure.Database.Service;
 
 namespace ZiziBot.Presentation.Security.Rbac;
 

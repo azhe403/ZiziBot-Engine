@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
-using ZiziBot.Common.Configs;
-using ZiziBot.Common.Constants;
-using ZiziBot.Application.Database.MongoDb.Entities;
-using ZiziBot.Application.Database.Service;
+using ZiziBot.Application.Infrastructure.Config;
+using ZiziBot.Application.Common.Constants;
+using ZiziBot.Application.Infrastructure.Database.MongoDb.Entities;
+using ZiziBot.Application.Infrastructure.Database.Service;
 using ZiziBot.TelegramBot.Framework.Extensions;
 using ZiziBot.TelegramBot.Framework.Models.Configs;
 using ZiziBot.TelegramBot.Framework.Models.Enums;

@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
-using ZiziBot.Application.UseCases.AppSetting;
+﻿using Microsoft.AspNetCore.Mvc;
+using ZiziBot.Application.Features.UseCases.AppSetting;
 using ZiziBot.Presentation.Security.Rbac;
 
 namespace ZiziBot.Presentation.Http.Rest.Controllers;

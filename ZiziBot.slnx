@@ -3,7 +3,6 @@
   <Project Path="backend/ZiziBot.Engine/ZiziBot.Engine.csproj"/>
   <Project Path="backend/ZiziBot.Application/ZiziBot.Application.csproj"/>
   <Project Path="backend/ZiziBot.Presentation/ZiziBot.Presentation.csproj"/>
-  <Project Path="backend/ZiziBot.Common/ZiziBot.Common.csproj"/>
   <Folder Name="/lib/">
     <Project Path="backend/lib/ZiziBot.TelegramBot/ZiziBot.TelegramBot.Framework/ZiziBot.TelegramBot.Framework.csproj"/>
     <Project Path="backend/lib/ZiziBot.TelegramBot/ZiziBot.TelegramBot.Sample/ZiziBot.TelegramBot.Sample.csproj"/>

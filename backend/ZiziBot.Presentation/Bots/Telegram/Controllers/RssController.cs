@@ -1,4 +1,4 @@
-using ZiziBot.Application.Handlers.Telegram.Rss;
+﻿using ZiziBot.Application.Features.Handlers.Telegram.Rss;
 using ZiziBot.TelegramBot.Framework.Attributes;
 using ZiziBot.TelegramBot.Framework.Models;
 

@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using RestDeleteNoteRequest = ZiziBot.Application.Handlers.RestApis.Note.DeleteNoteRequest;
-using RestGetNoteRequest = ZiziBot.Application.Handlers.RestApis.Note.GetNoteRequest;
-using RestListNoteRequest = ZiziBot.Application.Handlers.RestApis.Note.ListNoteRequest;
-using RestSaveNoteRequest = ZiziBot.Application.Handlers.RestApis.Note.SaveNoteRequest;
+﻿using Microsoft.AspNetCore.Mvc;
+using RestDeleteNoteRequest = ZiziBot.Application.Features.Handlers.RestApis.Note.DeleteNoteRequest;
+using RestGetNoteRequest = ZiziBot.Application.Features.Handlers.RestApis.Note.GetNoteRequest;
+using RestListNoteRequest = ZiziBot.Application.Features.Handlers.RestApis.Note.ListNoteRequest;
+using RestSaveNoteRequest = ZiziBot.Application.Features.Handlers.RestApis.Note.SaveNoteRequest;
 using ZiziBot.Presentation.Security.Rbac;
 
 namespace ZiziBot.Presentation.Http.Rest.Controllers;

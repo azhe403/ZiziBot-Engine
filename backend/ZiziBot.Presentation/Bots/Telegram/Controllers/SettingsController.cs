@@ -1,6 +1,6 @@
-using ZiziBot.TelegramBot.Framework.Attributes;
+﻿using ZiziBot.TelegramBot.Framework.Attributes;
 using ZiziBot.TelegramBot.Framework.Models;
-using TgSaveWelcomeMessageRequest = ZiziBot.Application.Handlers.Telegram.Group.Welcome.SaveWelcomeMessageRequest;
+using TgSaveWelcomeMessageRequest = ZiziBot.Application.Features.Handlers.Telegram.Group.Welcome.SaveWelcomeMessageRequest;
 
 namespace ZiziBot.Presentation.Bots.Telegram.Controllers;
 

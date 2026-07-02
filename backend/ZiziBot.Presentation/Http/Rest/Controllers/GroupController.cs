@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
-using RestDeleteWelcomeMessageRequest = ZiziBot.Application.Handlers.RestApis.Group.DeleteWelcomeMessageRequest;
-using RestGetWelcomeMessageRequest = ZiziBot.Application.Handlers.RestApis.Group.GetWelcomeMessageRequest;
-using RestListWelcomeMessageRequest = ZiziBot.Application.Handlers.RestApis.Group.ListWelcomeMessageRequest;
-using RestSaveWelcomeMessageRequest = ZiziBot.Application.Handlers.RestApis.Group.SaveWelcomeMessageRequest;
-using RestSelectWelcomeMessageRequest = ZiziBot.Application.Handlers.RestApis.Group.SelectWelcomeMessageRequest;
+﻿using Microsoft.AspNetCore.Mvc;
+using RestDeleteWelcomeMessageRequest = ZiziBot.Application.Features.Handlers.RestApis.Group.DeleteWelcomeMessageRequest;
+using RestGetWelcomeMessageRequest = ZiziBot.Application.Features.Handlers.RestApis.Group.GetWelcomeMessageRequest;
+using RestListWelcomeMessageRequest = ZiziBot.Application.Features.Handlers.RestApis.Group.ListWelcomeMessageRequest;
+using RestSaveWelcomeMessageRequest = ZiziBot.Application.Features.Handlers.RestApis.Group.SaveWelcomeMessageRequest;
+using RestSelectWelcomeMessageRequest = ZiziBot.Application.Features.Handlers.RestApis.Group.SelectWelcomeMessageRequest;
 using ZiziBot.Presentation.Security.Rbac;
 
 namespace ZiziBot.Presentation.Http.Rest.Controllers;

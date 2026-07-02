@@ -1,6 +1,6 @@
-using ZiziBot.TelegramBot.Framework.Attributes;
+﻿using ZiziBot.TelegramBot.Framework.Attributes;
 using ZiziBot.TelegramBot.Framework.Models;
-using TgDeleteNoteRequest = ZiziBot.Application.Handlers.Telegram.Note.DeleteNoteRequest;
+using TgDeleteNoteRequest = ZiziBot.Application.Features.Handlers.Telegram.Note.DeleteNoteRequest;
 
 namespace ZiziBot.Presentation.Bots.Telegram.Controllers;
 
